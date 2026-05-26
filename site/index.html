@@ -50,96 +50,138 @@
 </div>
 
 <!-- ===== HERO =====
-     WPA national-park poster: flat color, geometric shapes, no
-     gradients. Layered sky bands, faded teal ridges, chunky pine
-     row, flat lake, rail line in burnt umber. -->
+     WPA national-park poster scene with depth: jagged distant range,
+     rolling midground, foreground hills with pines, a flat lake, a
+     curving rail line that leads the eye from the lower left up to
+     the sun, and a cream ground band where the headline panel and
+     CTAs sit. Subtle motion (drifting clouds, lake shimmer, a train
+     riding the rail) is disabled under prefers-reduced-motion. -->
 <header class="hero" id="top">
   <div class="hero-scene" aria-hidden="true">
     <svg class="hero-svg" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
       <!-- Sky: four flat sunset bands stacked from top -->
       <rect width="1440" height="620" fill="#eed3a0"/>
-      <rect y="0"   width="1440" height="280" fill="#dca33c"/>
-      <rect y="0"   width="1440" height="160" fill="#c46f2c"/>
-      <rect y="0"   width="1440" height="70"  fill="#8e3d22"/>
+      <rect y="0" width="1440" height="280" fill="#dca33c"/>
+      <rect y="0" width="1440" height="150" fill="#c46f2c"/>
+      <rect y="0" width="1440" height="60"  fill="#8e3d22"/>
 
-      <!-- Cream sun (flat circle, no glow) -->
-      <circle cx="1080" cy="206" r="78" fill="#f6e7c4"/>
+      <!-- Drifting clouds (animated via CSS transform translateX) -->
+      <g class="hero-cloud cloud-a" fill="#f6e7c4" opacity="0.9">
+        <ellipse cx="0"  cy="0"   rx="56" ry="11"/>
+        <ellipse cx="38" cy="-9"  rx="36" ry="10"/>
+        <ellipse cx="-34" cy="-6" rx="30" ry="9"/>
+      </g>
+      <g class="hero-cloud cloud-b" fill="#f6e7c4" opacity="0.75">
+        <ellipse cx="0"  cy="0"   rx="48" ry="9"/>
+        <ellipse cx="30" cy="-8"  rx="32" ry="9"/>
+      </g>
+      <g class="hero-cloud cloud-c" fill="#f6e7c4" opacity="0.85">
+        <ellipse cx="0"  cy="0"   rx="44" ry="10"/>
+        <ellipse cx="32" cy="-6"  rx="28" ry="8"/>
+        <ellipse cx="-30" cy="-4" rx="24" ry="8"/>
+      </g>
 
-      <!-- Distant ridge, faded teal -->
-      <path d="M0,388 L160,332 L320,366 L520,308 L720,352 L880,316 L1060,348 L1240,300 L1440,338 L1440,620 L0,620 Z" fill="#7ea29e"/>
+      <!-- Sun: focal point. Eight subtle rays radiating, then a big
+           cream disc on top. The rays sit just behind the disc. -->
+      <g class="hero-sun-rays" fill="#f6e7c4" opacity="0.45" transform="translate(1180 220)">
+        <rect x="-3" y="-160" width="6" height="50"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(45)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(90)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(135)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(180)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(225)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(270)"/>
+        <rect x="-3" y="-160" width="6" height="50" transform="rotate(315)"/>
+      </g>
+      <circle cx="1180" cy="220" r="108" fill="#f6e7c4"/>
+      <circle cx="1180" cy="220" r="86"  fill="#fbf1d2"/>
 
-      <!-- Mid ridge, deeper teal -->
-      <path d="M0,448 L180,390 L360,424 L540,376 L720,410 L900,366 L1080,404 L1260,354 L1440,388 L1440,620 L0,620 Z" fill="#456f6c"/>
+      <!-- Background range: jagged peaks of varying heights so the
+           horizon recedes instead of reading as a stripe. -->
+      <path d="M0,360 L70,250 L150,300 L230,210 L310,290 L400,200 L490,280 L580,230 L680,300 L780,210 L870,290 L960,240 L1080,300 L1180,230 L1280,290 L1360,240 L1440,300 L1440,540 L0,540 Z" fill="#7ea29e"/>
 
-      <!-- Chunky triangular pine row across the midground -->
+      <!-- Midground hills: smoother, deeper teal, overlapping the
+           background range so the eye reads depth. -->
+      <path d="M0,420 C200,340 420,420 620,360 S1020,420 1240,380 S1440,360 1440,400 L1440,540 L0,540 Z" fill="#456f6c"/>
+
+      <!-- Foreground hills: deep forest, lower in front, hill tops
+           visible above the cream ground band. -->
+      <path d="M0,470 C160,420 360,480 560,440 S960,480 1160,440 S1440,420 1440,460 L1440,540 L0,540 Z" fill="#2a4d3a"/>
+
+      <!-- Pine cluster on the foreground hills. Scaled and
+           positioned so trees crown the silhouette, not the sky. -->
       <g fill="#1f3d2d">
-        <polygon points="40,470 84,378 128,470"/>
-        <polygon points="118,478 162,372 206,478"/>
-        <polygon points="198,470 234,388 270,470"/>
-        <polygon points="260,482 304,370 348,482"/>
-        <polygon points="340,470 380,388 420,470"/>
-        <polygon points="412,478 452,378 492,478"/>
-        <polygon points="488,470 524,392 560,470"/>
-        <polygon points="556,478 596,376 636,478"/>
-        <polygon points="632,470 668,388 704,470"/>
-        <polygon points="696,482 738,370 780,482"/>
-        <polygon points="776,470 816,386 856,470"/>
-        <polygon points="848,478 888,378 928,478"/>
-        <polygon points="920,470 958,388 996,470"/>
-        <polygon points="988,482 1032,370 1076,482"/>
-        <polygon points="1068,470 1106,386 1144,470"/>
-        <polygon points="1136,478 1176,376 1216,478"/>
-        <polygon points="1208,470 1244,388 1280,470"/>
-        <polygon points="1272,482 1314,372 1356,482"/>
-        <polygon points="1346,470 1386,386 1426,470"/>
+        <polygon points="60,470 96,408 132,470"/>
+        <polygon points="130,478 168,402 206,478"/>
+        <polygon points="200,470 234,418 268,470"/>
+        <polygon points="270,478 306,402 342,478"/>
+        <polygon points="350,470 384,414 418,470"/>
+        <polygon points="430,478 466,402 502,478"/>
+        <polygon points="510,470 544,418 578,470"/>
+        <polygon points="588,478 624,402 660,478"/>
+        <polygon points="970,470 1004,416 1038,470"/>
+        <polygon points="1040,478 1076,400 1112,478"/>
+        <polygon points="1118,470 1152,416 1186,470"/>
+        <polygon points="1196,478 1232,402 1268,478"/>
+        <polygon points="1276,470 1310,416 1344,470"/>
+        <polygon points="1352,478 1388,402 1424,478"/>
       </g>
 
-      <!-- Flat lake, deep teal -->
-      <rect y="496" width="1440" height="64" fill="#2c5258"/>
-      <!-- Three poster-flat lake highlights -->
-      <rect x="180"  y="514" width="200" height="3" fill="#7ea29e" opacity="0.75"/>
-      <rect x="520"  y="528" width="240" height="3" fill="#7ea29e" opacity="0.6"/>
-      <rect x="900"  y="518" width="180" height="3" fill="#7ea29e" opacity="0.75"/>
-      <rect x="1180" y="530" width="140" height="3" fill="#7ea29e" opacity="0.6"/>
-
-      <!-- Rail embankment, warm brown -->
-      <rect y="558" width="1440" height="62" fill="#6b4528"/>
-
-      <!-- Ties: regular dark rectangles across the embankment -->
-      <g fill="#3a2618">
-        <rect x="0"    y="572" width="44" height="34"/>
-        <rect x="72"   y="572" width="44" height="34"/>
-        <rect x="144"  y="572" width="44" height="34"/>
-        <rect x="216"  y="572" width="44" height="34"/>
-        <rect x="288"  y="572" width="44" height="34"/>
-        <rect x="360"  y="572" width="44" height="34"/>
-        <rect x="432"  y="572" width="44" height="34"/>
-        <rect x="504"  y="572" width="44" height="34"/>
-        <rect x="576"  y="572" width="44" height="34"/>
-        <rect x="648"  y="572" width="44" height="34"/>
-        <rect x="720"  y="572" width="44" height="34"/>
-        <rect x="792"  y="572" width="44" height="34"/>
-        <rect x="864"  y="572" width="44" height="34"/>
-        <rect x="936"  y="572" width="44" height="34"/>
-        <rect x="1008" y="572" width="44" height="34"/>
-        <rect x="1080" y="572" width="44" height="34"/>
-        <rect x="1152" y="572" width="44" height="34"/>
-        <rect x="1224" y="572" width="44" height="34"/>
-        <rect x="1296" y="572" width="44" height="34"/>
-        <rect x="1368" y="572" width="44" height="34"/>
+      <!-- Flat lake on the left, between the foreground hills and
+           the ground band. Three subtle horizontal highlights
+           shimmer with a slow opacity oscillation. -->
+      <rect x="0" y="490" width="420" height="50" fill="#2c5258"/>
+      <g class="lake-shimmer">
+        <rect class="shimmer-a" x="40"  y="500" width="120" height="2" fill="#7ea29e"/>
+        <rect class="shimmer-b" x="180" y="514" width="160" height="2" fill="#7ea29e"/>
+        <rect class="shimmer-c" x="60"  y="528" width="90"  height="2" fill="#7ea29e"/>
       </g>
 
-      <!-- Two steel rails -->
-      <rect y="580" width="1440" height="4" fill="#241f1a"/>
-      <rect y="598" width="1440" height="4" fill="#241f1a"/>
+      <!-- Cream ground band: foreground earth where the CTAs sit.
+           Matches the .hero-stats background so the strip below
+           looks like it continues from this band. -->
+      <rect y="540" width="1440" height="80" fill="#eed3a0"/>
+      <rect y="540" width="1440" height="3"  fill="#c46f2c" opacity="0.65"/>
+
+      <!-- Curving rail: lower-left to upper-right, ending under the
+           sun. Drawn as a wide brown bed plus a dashed darker
+           overlay (the dashes read as cross-ties). -->
+      <path id="railpath"
+            d="M60,620 C260,560 540,520 760,440 S1120,300 1260,230"
+            fill="none" stroke="#6b4528" stroke-width="34" stroke-linecap="round"/>
+      <path d="M60,620 C260,560 540,520 760,440 S1120,300 1260,230"
+            fill="none" stroke="#3a2618" stroke-width="28"
+            stroke-dasharray="12 18" stroke-linecap="butt"/>
+
+      <!-- Train: small locomotive shape that follows the rail path
+           via SMIL animateMotion. The rotate="auto" attribute keeps
+           it oriented along the curve. Hidden in CSS when the user
+           prefers reduced motion. -->
+      <g class="hero-train">
+        <rect x="-22" y="-10" width="44" height="18" rx="2" fill="#8e3d22"/>
+        <rect x="-8"  y="-18" width="18" height="8"  fill="#8e3d22"/>
+        <rect x="-22" y="6"   width="44" height="3"  fill="#241f1a"/>
+        <circle cx="-13" cy="10" r="3.5" fill="#241f1a"/>
+        <circle cx="13"  cy="10" r="3.5" fill="#241f1a"/>
+        <animateMotion dur="42s" repeatCount="indefinite" rotate="auto">
+          <mpath href="#railpath"/>
+        </animateMotion>
+      </g>
     </svg>
   </div>
 
   <div class="hero-inner">
     <div class="kicker">Toronto&nbsp;&middot;&nbsp;Northern Ontario&nbsp;&middot;&nbsp;Timmins</div>
-    <h1>Get off at <em>every stop.</em></h1>
-    <p class="hero-sub">Your guide to the Northlander train: where to eat, sleep,
-       wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
+
+    <!-- Cream banner with crimson frame: gives the headline a
+         high-contrast surface so dark text stays legible against
+         any sunset band behind it. -->
+    <div class="hero-banner">
+      <h1>Get off at<br><em>every stop.</em></h1>
+      <p class="hero-sub">Your guide to the Northlander train: where to eat, sleep,
+         wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
+    </div>
+
     <div class="hero-cta">
       <a href="#map" class="btn btn-primary">Explore the Route Map</a>
       <a href="#explore" class="btn btn-ghost">Browse 16 Stops</a>
