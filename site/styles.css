@@ -96,27 +96,91 @@ a{color:inherit}
   border-color:var(--poster-cream);
 }
 
-/* ---------- top bar ---------- */
+/* ---------- top bar ----------
+   Default state: semi-transparent over the hero image. A soft
+   dark gradient keeps the logo and links legible against the
+   pale sky. JS adds .scrolled past the hero, fading the
+   background-color into solid var(--rail). */
 .topbar{
   position:sticky;top:0;z-index:1000;
-  background:var(--rail);color:#f3ece0;
+  color:#f3ece0;
   display:flex;align-items:center;justify-content:space-between;
   padding:.65rem 1.1rem;padding-top:max(.65rem,env(safe-area-inset-top));
+  background-color:transparent;
+  background-image:linear-gradient(180deg,
+    rgba(8,30,22,.55), rgba(8,30,22,.18) 70%, transparent);
+  transition:background-color .35s ease, box-shadow .35s ease;
+}
+.topbar.scrolled{
+  background-color:var(--rail);
   box-shadow:0 2px 12px rgba(0,0,0,.18);
 }
 .brand{
   font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
   text-decoration:none;color:#f3ece0;letter-spacing:-.01em;
   display:flex;align-items:center;gap:.5rem;
+  text-shadow:0 1px 2px rgba(0,0,0,.45);
 }
 .brand span{color:var(--ember);font-style:normal}
 .brand-mark{display:flex;flex-shrink:0;line-height:0}
 .brand-mark svg{display:block}
 .topnav a{
-  color:#cad7cf;text-decoration:none;font-size:.82rem;font-weight:600;
+  color:#f3ece0;text-decoration:none;font-size:.82rem;font-weight:600;
   margin-left:1.1rem;letter-spacing:.02em;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  transition:color .15s ease;
 }
 .topnav a:hover{color:var(--ember)}
+.topbar.scrolled .brand,
+.topbar.scrolled .topnav a{text-shadow:none}
+.topbar.scrolled .topnav a{color:#cad7cf}
+
+/* Hamburger button: hidden by default, shown only at the mobile
+   breakpoint. Three stacked bars morph into an X when .open. */
+.hamburger{
+  display:none;
+  background:transparent;border:0;cursor:pointer;
+  width:40px;height:40px;padding:8px;
+  flex-direction:column;justify-content:space-between;align-items:stretch;
+  border-radius:6px;
+}
+.hamburger span{
+  display:block;height:2.5px;width:100%;
+  background:#f3ece0;border-radius:2px;
+  transition:transform .25s ease, opacity .2s ease;
+  transform-origin:center;
+}
+.hamburger.open span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+
+/* Mobile menu drawer. display:none on desktop so it stays out of
+   the tab order. At <=640px it switches to display:block and
+   slides down from above when .open is added. */
+.mobilemenu{display:none}
+@media (max-width:640px){
+  .topnav{display:none}
+  .hamburger{display:flex}
+  .mobilemenu{
+    display:flex;flex-direction:column;
+    position:fixed;top:0;left:0;right:0;z-index:998;
+    background:var(--rail);
+    padding:calc(env(safe-area-inset-top,0) + 56px) 1.4rem 1.4rem;
+    transform:translateY(-100%);
+    transition:transform .3s ease;
+    box-shadow:0 8px 24px rgba(0,0,0,.28);
+  }
+  .mobilemenu.open{transform:translateY(0)}
+  .mobilemenu a{
+    color:#f3ece0;text-decoration:none;
+    font-family:'Fraunces',serif;font-weight:700;
+    font-size:1.4rem;
+    padding:1rem .25rem;
+    border-bottom:1px solid rgba(243,236,224,.14);
+  }
+  .mobilemenu a:last-child{border-bottom:none}
+  .mobilemenu a:hover,.mobilemenu a:focus{color:var(--ember)}
+}
 
 /* ---------- route progress bar ---------- */
 .routebar{
@@ -194,8 +258,12 @@ a{color:inherit}
   text-shadow:0 1px 4px rgba(0,0,0,.55);
 }
 .hero h1{
-  font-size:clamp(2.2rem,8.6vw,3.8rem);
-  letter-spacing:-.015em;line-height:1.08;
+  /* Bumped from clamp(2.2rem, 8.6vw, 3.8rem) for a more confident
+     poster headline. The min keeps it readable on small phones,
+     the vw value scales it through tablet sizes, and the max
+     caps it so it does not blow out on wide desktops. */
+  font-size:clamp(2.6rem,11vw,5rem);
+  letter-spacing:-.015em;line-height:1.04;
   margin:0 0 .8rem;
   color:var(--poster-cream);
   text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);

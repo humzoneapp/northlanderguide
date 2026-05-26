@@ -28,7 +28,13 @@
 </head>
 <body>
 
-<!-- ===== TOP BAR ===== -->
+<!-- ===== TOP BAR =====
+     Starts semi-transparent over the hero image with a subtle dark
+     gradient so the logo and links stay legible. JS adds .scrolled
+     once the user scrolls past the hero, fading in a solid deep
+     forest green background. The three nav links are shown inline
+     on desktop; on phones the hamburger button takes over and
+     opens .mobilemenu below. -->
 <div class="topbar">
   <a href="#top" class="brand">
     <span class="brand-mark" aria-hidden="true">
@@ -47,7 +53,20 @@
     <a href="#explore">Stops</a>
     <a href="#events">Events</a>
   </nav>
+  <button class="hamburger" id="hamburger" type="button"
+          aria-label="Open menu" aria-expanded="false" aria-controls="mobilemenu">
+    <span></span><span></span><span></span>
+  </button>
 </div>
+
+<!-- Mobile menu drawer: hidden offscreen by default, slides in from
+     the top when hamburger is tapped. Display:block only kicks in
+     at the mobile breakpoint via CSS. -->
+<nav class="mobilemenu" id="mobilemenu" aria-hidden="true">
+  <a href="#map">Map</a>
+  <a href="#explore">Stops</a>
+  <a href="#events">Events</a>
+</nav>
 
 <!-- ===== HERO =====
      Real illustrated background of a Northern Ontario lake with a

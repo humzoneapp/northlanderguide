@@ -505,10 +505,46 @@ window.selectStop = selectStop;
 document.getElementById('searchInput').addEventListener('input',e=>renderChips(e.target.value));
 
 const toTop = document.querySelector('.totop');
+const topbarEl = document.querySelector('.topbar');
+const heroEl = document.querySelector('.hero');
+
+/* Topbar fades from semi-transparent (over the hero image) to a
+   solid deep forest green once the user scrolls roughly past the
+   hero. Threshold is recomputed each scroll to handle resizes. */
+function updateTopbarState(){
+  if(!topbarEl) return;
+  const threshold = heroEl ? Math.max(80, heroEl.offsetHeight - 80) : 200;
+  topbarEl.classList.toggle('scrolled', window.scrollY > threshold);
+}
+
 window.addEventListener('scroll',()=>{
   toTop.classList.toggle('show', window.scrollY>600);
   updateRouteBar();
+  updateTopbarState();
 },{passive:true});
+updateTopbarState();
+
+/* Mobile hamburger menu: toggles a slide-down drawer that lists
+   the same three sections as the desktop nav. Tapping any link
+   closes the menu (the browser then handles the smooth scroll via
+   the anchor href). */
+const hamburgerBtn = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobilemenu');
+function setMobileMenu(open){
+  if(!hamburgerBtn || !mobileMenu) return;
+  hamburgerBtn.classList.toggle('open', open);
+  mobileMenu.classList.toggle('open', open);
+  hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+if(hamburgerBtn && mobileMenu){
+  hamburgerBtn.addEventListener('click', ()=>{
+    setMobileMenu(!hamburgerBtn.classList.contains('open'));
+  });
+  mobileMenu.querySelectorAll('a').forEach(a=>{
+    a.addEventListener('click', ()=>setMobileMenu(false));
+  });
+}
 
 function fromHash(){
   const h = location.hash;
