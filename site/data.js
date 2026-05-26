@@ -12,11 +12,11 @@
 const STOPS = [
   /* ---- 1. UNION STATION (TORONTO) ---- */
   {
-    id:"union", lat:43.6453, lng:-79.3806, hook:"Canada's grandest railway hall — your journey north begins here.", name:"Toronto Union", region:"Toronto", time:"0:00",
+    id:"union", lat:43.6453, lng:-79.3806, hook:"Canada's grandest railway hall, where your journey north begins.", name:"Toronto Union", region:"Toronto", time:"0:00",
     blurb:"The southern terminus. A vast historic station in the heart of downtown Toronto, steps from the waterfront, sports venues, and the Distillery District.",
     facts:["Departure point northbound","Connects to GO, UP Express, VIA, TTC subway","Walkable to Harbourfront & St. Lawrence Market"],
     restaurants:[
-      {name:"St. Lawrence Market",tag:"Food Market",desc:"Historic market hall — peameal bacon sandwiches, cheese, produce.",rating:"4.7"},
+      {name:"St. Lawrence Market",tag:"Food Market",desc:"Historic market hall famous for peameal bacon sandwiches, cheese and produce.",rating:"4.7"},
       {name:"Richmond Station",tag:"Canadian",desc:"Refined seasonal Canadian cooking from a celebrated local chef.",rating:"4.6"},
       {name:"Pizzeria Libretto",tag:"Italian",desc:"Naples-certified wood-fired pizza, a downtown staple.",rating:"4.5"}
     ],
@@ -27,7 +27,7 @@ const STOPS = [
     attractions:[
       {name:"CN Tower",tag:"Landmark",desc:"Iconic 553m tower with glass floor and EdgeWalk.",rating:"4.6"},
       {name:"Distillery District",tag:"Heritage",desc:"Cobblestone Victorian district of galleries, cafes and shops.",rating:"4.7"},
-      {name:"Hockey Hall of Fame",tag:"Museum",desc:"Steps from Union — a shrine to Canadian hockey.",rating:"4.5"}
+      {name:"Hockey Hall of Fame",tag:"Museum",desc:"Steps from Union Station, a shrine to Canadian hockey.",rating:"4.5"}
     ],
     accommodations:[
       {name:"Fairmont Royal York",tag:"Historic Hotel",desc:"Grand landmark hotel directly across from Union Station.",rating:"4.5"},

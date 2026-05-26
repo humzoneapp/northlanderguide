@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Northlander Guide — Things to Do at Every Stop, Toronto to Timmins</title>
+<title>Northlander Guide: Things to Do at Every Stop, Toronto to Timmins</title>
 <meta name="description" content="A traveller's directory of restaurants, parks, attractions and events at every stop on the Northlander train, Toronto to Timmins, Ontario.">
 
 <!-- Open Graph tags so the site looks good when shared on social media -->
 <meta property="og:title" content="Northlander Guide">
-<meta property="og:description" content="Your guide to the Northlander train — where to eat, sleep and explore at all 16 stops, Toronto to Timmins.">
+<meta property="og:description" content="Your guide to the Northlander train: where to eat, sleep and explore at all 16 stops, Toronto to Timmins.">
 <meta property="og:type" content="website">
 
 <!-- =================================================================
-     GOOGLE ADSENSE — paste your approved script tag here.
+     GOOGLE ADSENSE: paste your approved script tag here.
      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 ================================================================== -->
 
@@ -49,45 +49,96 @@
   </nav>
 </div>
 
-<!-- ===== HERO ===== -->
+<!-- ===== HERO =====
+     WPA national-park poster: flat color, geometric shapes, no
+     gradients. Layered sky bands, faded teal ridges, chunky pine
+     row, flat lake, rail line in burnt umber. -->
 <header class="hero" id="top">
-  <!-- layered landscape: drawn in SVG, no image files needed -->
   <div class="hero-scene" aria-hidden="true">
     <svg class="hero-svg" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#15543e"/>
-          <stop offset="0.55" stop-color="#0e3b2c"/>
-          <stop offset="1" stop-color="#0a2e22"/>
-        </linearGradient>
-        <linearGradient id="hwater" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#1d4a52"/>
-          <stop offset="1" stop-color="#12333a"/>
-        </linearGradient>
-      </defs>
-      <rect width="1440" height="620" fill="url(#hsky)"/>
-      <!-- aurora wash -->
-      <ellipse cx="720" cy="40" rx="900" ry="180" fill="#2a7d57" opacity="0.18"/>
-      <circle cx="1150" cy="105" r="34" fill="#f6e7c4" opacity="0.7"/>
-      <!-- distant ridge -->
-      <path d="M0 340 Q240 280 500 330 T1000 312 T1440 342 V620 H0 Z" fill="#155340" opacity="0.85"/>
-      <!-- mid hills -->
-      <path d="M0 400 Q300 330 620 392 T1180 372 T1440 402 V620 H0 Z" fill="#1d6347"/>
-      <!-- pine ridge silhouette -->
-      <g fill="#0c3324" class="hero-pines"></g>
-      <!-- lake -->
-      <path d="M0 470 Q360 452 720 470 T1440 472 V620 H0 Z" fill="url(#hwater)"/>
-      <!-- rail embankment + track -->
-      <path d="M0 512 Q400 500 760 514 T1440 516 V620 H0 Z" fill="#0a2e22"/>
-      <g class="hero-track"></g>
+      <!-- Sky: four flat sunset bands stacked from top -->
+      <rect width="1440" height="620" fill="#eed3a0"/>
+      <rect y="0"   width="1440" height="280" fill="#dca33c"/>
+      <rect y="0"   width="1440" height="160" fill="#c46f2c"/>
+      <rect y="0"   width="1440" height="70"  fill="#8e3d22"/>
+
+      <!-- Cream sun (flat circle, no glow) -->
+      <circle cx="1080" cy="206" r="78" fill="#f6e7c4"/>
+
+      <!-- Distant ridge, faded teal -->
+      <path d="M0,388 L160,332 L320,366 L520,308 L720,352 L880,316 L1060,348 L1240,300 L1440,338 L1440,620 L0,620 Z" fill="#7ea29e"/>
+
+      <!-- Mid ridge, deeper teal -->
+      <path d="M0,448 L180,390 L360,424 L540,376 L720,410 L900,366 L1080,404 L1260,354 L1440,388 L1440,620 L0,620 Z" fill="#456f6c"/>
+
+      <!-- Chunky triangular pine row across the midground -->
+      <g fill="#1f3d2d">
+        <polygon points="40,470 84,378 128,470"/>
+        <polygon points="118,478 162,372 206,478"/>
+        <polygon points="198,470 234,388 270,470"/>
+        <polygon points="260,482 304,370 348,482"/>
+        <polygon points="340,470 380,388 420,470"/>
+        <polygon points="412,478 452,378 492,478"/>
+        <polygon points="488,470 524,392 560,470"/>
+        <polygon points="556,478 596,376 636,478"/>
+        <polygon points="632,470 668,388 704,470"/>
+        <polygon points="696,482 738,370 780,482"/>
+        <polygon points="776,470 816,386 856,470"/>
+        <polygon points="848,478 888,378 928,478"/>
+        <polygon points="920,470 958,388 996,470"/>
+        <polygon points="988,482 1032,370 1076,482"/>
+        <polygon points="1068,470 1106,386 1144,470"/>
+        <polygon points="1136,478 1176,376 1216,478"/>
+        <polygon points="1208,470 1244,388 1280,470"/>
+        <polygon points="1272,482 1314,372 1356,482"/>
+        <polygon points="1346,470 1386,386 1426,470"/>
+      </g>
+
+      <!-- Flat lake, deep teal -->
+      <rect y="496" width="1440" height="64" fill="#2c5258"/>
+      <!-- Three poster-flat lake highlights -->
+      <rect x="180"  y="514" width="200" height="3" fill="#7ea29e" opacity="0.75"/>
+      <rect x="520"  y="528" width="240" height="3" fill="#7ea29e" opacity="0.6"/>
+      <rect x="900"  y="518" width="180" height="3" fill="#7ea29e" opacity="0.75"/>
+      <rect x="1180" y="530" width="140" height="3" fill="#7ea29e" opacity="0.6"/>
+
+      <!-- Rail embankment, warm brown -->
+      <rect y="558" width="1440" height="62" fill="#6b4528"/>
+
+      <!-- Ties: regular dark rectangles across the embankment -->
+      <g fill="#3a2618">
+        <rect x="0"    y="572" width="44" height="34"/>
+        <rect x="72"   y="572" width="44" height="34"/>
+        <rect x="144"  y="572" width="44" height="34"/>
+        <rect x="216"  y="572" width="44" height="34"/>
+        <rect x="288"  y="572" width="44" height="34"/>
+        <rect x="360"  y="572" width="44" height="34"/>
+        <rect x="432"  y="572" width="44" height="34"/>
+        <rect x="504"  y="572" width="44" height="34"/>
+        <rect x="576"  y="572" width="44" height="34"/>
+        <rect x="648"  y="572" width="44" height="34"/>
+        <rect x="720"  y="572" width="44" height="34"/>
+        <rect x="792"  y="572" width="44" height="34"/>
+        <rect x="864"  y="572" width="44" height="34"/>
+        <rect x="936"  y="572" width="44" height="34"/>
+        <rect x="1008" y="572" width="44" height="34"/>
+        <rect x="1080" y="572" width="44" height="34"/>
+        <rect x="1152" y="572" width="44" height="34"/>
+        <rect x="1224" y="572" width="44" height="34"/>
+        <rect x="1296" y="572" width="44" height="34"/>
+        <rect x="1368" y="572" width="44" height="34"/>
+      </g>
+
+      <!-- Two steel rails -->
+      <rect y="580" width="1440" height="4" fill="#241f1a"/>
+      <rect y="598" width="1440" height="4" fill="#241f1a"/>
     </svg>
-    <div class="hero-grain"></div>
   </div>
 
   <div class="hero-inner">
     <div class="kicker">Toronto&nbsp;&middot;&nbsp;Northern Ontario&nbsp;&middot;&nbsp;Timmins</div>
     <h1>Get off at <em>every stop.</em></h1>
-    <p class="hero-sub">Your guide to the Northlander train — where to eat, sleep,
+    <p class="hero-sub">Your guide to the Northlander train: where to eat, sleep,
        wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
     <div class="hero-cta">
       <a href="#map" class="btn btn-primary">Explore the Route Map</a>
@@ -170,7 +221,7 @@
   </div>
   <div class="disc">
     © <span id="yr"></span> NorthlanderGuide.com. Schedule details are based on
-    Ontario Northland's proposed timetable and may change — confirm before travelling.
+    Ontario Northland's proposed timetable and may change. Confirm before travelling.
   </div>
 </footer>
 

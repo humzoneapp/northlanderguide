@@ -1,5 +1,5 @@
 /* ==================================================================
-   THE NORTHLANDER WAYFINDER — APP LOGIC
+   THE NORTHLANDER WAYFINDER: APP LOGIC
    Map · search · stop panels · listing detail view · share · events
    ================================================================== */
 
@@ -21,7 +21,7 @@ function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
 
 /* ------------------------------------------------------------------
-   HERO SCENE — fill in the pine ridge and rail ties procedurally so
+   HERO SCENE: fill in the pine ridge and rail ties procedurally so
    the header has real detail without any image files.
 ------------------------------------------------------------------- */
 function buildHeroScene(){
@@ -56,6 +56,105 @@ function updateRouteBar(){
   fill.style.width = pct + '%';
 }
 
+
+/* Toronto Union: a WPA poster scene of the downtown skyline at
+   sunset, with Lake Ontario, the CN Tower silhouette, and a
+   locomotive on the rails. Flat color, geometric shapes, no
+   gradients. Used in the stop card hero for Toronto Union only;
+   the other 15 stops keep stopArt() output. */
+function unionPosterArt(){
+  return `
+  <svg viewBox="0 0 800 360" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Toronto Union sunset poster">
+    <!-- Sky bands -->
+    <rect width="800" height="360" fill="#eed3a0"/>
+    <rect width="800" height="170" fill="#dca33c"/>
+    <rect width="800" height="92"  fill="#c46f2c"/>
+    <rect width="800" height="40"  fill="#8e3d22"/>
+
+    <!-- Cream sun rising over the lake -->
+    <circle cx="612" cy="118" r="40" fill="#f6e7c4"/>
+
+    <!-- Distant skyline (faded teal) -->
+    <g fill="#7ea29e">
+      <rect x="0"   y="208" width="56" height="60"/>
+      <rect x="60"  y="186" width="40" height="82"/>
+      <rect x="104" y="198" width="50" height="70"/>
+      <rect x="160" y="174" width="38" height="94"/>
+      <rect x="204" y="194" width="48" height="74"/>
+      <rect x="256" y="208" width="40" height="60"/>
+    </g>
+
+    <!-- Mid skyline (deeper teal) plus CN Tower silhouette -->
+    <g fill="#456f6c">
+      <rect x="298" y="184" width="48" height="84"/>
+      <rect x="352" y="166" width="38" height="102"/>
+      <rect x="396" y="200" width="44" height="68"/>
+      <!-- CN Tower base + pod + antenna -->
+      <rect x="470" y="78"  width="14" height="190"/>
+      <circle cx="477" cy="110" r="16"/>
+      <polygon points="477,28 470,78 484,78"/>
+      <rect x="498" y="194" width="40" height="74"/>
+      <rect x="544" y="172" width="46" height="96"/>
+      <rect x="594" y="202" width="40" height="66"/>
+    </g>
+
+    <!-- Foreground skyline (deep forest) -->
+    <g fill="#1f3d2d">
+      <rect x="638" y="204" width="48" height="64"/>
+      <rect x="690" y="188" width="40" height="80"/>
+      <rect x="734" y="198" width="50" height="70"/>
+    </g>
+
+    <!-- Lake Ontario, flat dark teal -->
+    <rect y="268" width="800" height="46" fill="#2c5258"/>
+    <!-- Lake highlights -->
+    <rect x="60"  y="282" width="140" height="2" fill="#7ea29e" opacity="0.7"/>
+    <rect x="280" y="292" width="180" height="2" fill="#7ea29e" opacity="0.6"/>
+    <rect x="540" y="284" width="160" height="2" fill="#7ea29e" opacity="0.7"/>
+
+    <!-- Rail embankment, warm brown -->
+    <rect y="314" width="800" height="46" fill="#6b4528"/>
+    <!-- Ties -->
+    <g fill="#3a2618">
+      <rect x="0"   y="326" width="30" height="22"/>
+      <rect x="48"  y="326" width="30" height="22"/>
+      <rect x="96"  y="326" width="30" height="22"/>
+      <rect x="144" y="326" width="30" height="22"/>
+      <rect x="192" y="326" width="30" height="22"/>
+      <rect x="240" y="326" width="30" height="22"/>
+      <rect x="288" y="326" width="30" height="22"/>
+      <rect x="336" y="326" width="30" height="22"/>
+      <rect x="384" y="326" width="30" height="22"/>
+      <rect x="432" y="326" width="30" height="22"/>
+      <rect x="480" y="326" width="30" height="22"/>
+      <rect x="528" y="326" width="30" height="22"/>
+      <rect x="576" y="326" width="30" height="22"/>
+      <rect x="624" y="326" width="30" height="22"/>
+      <rect x="672" y="326" width="30" height="22"/>
+      <rect x="720" y="326" width="30" height="22"/>
+      <rect x="768" y="326" width="30" height="22"/>
+    </g>
+    <!-- Steel rails -->
+    <rect y="332" width="800" height="2" fill="#241f1a"/>
+    <rect y="346" width="800" height="2" fill="#241f1a"/>
+
+    <!-- Locomotive silhouette on the right, heading north (left) -->
+    <g fill="#8e3d22">
+      <rect x="92"  y="276" width="160" height="38"/>
+      <rect x="70"  y="290" width="22"  height="24"/>
+      <rect x="118" y="252" width="42"  height="26"/>
+    </g>
+    <rect x="148" y="226" width="8" height="28" fill="#8e3d22"/>
+    <circle cx="152" cy="222" r="9"  fill="#f6e7c4"/>
+    <circle cx="164" cy="214" r="6"  fill="#f6e7c4" opacity="0.75"/>
+    <circle cx="174" cy="208" r="5"  fill="#f6e7c4" opacity="0.55"/>
+    <g fill="#241f1a">
+      <circle cx="118" cy="318" r="10"/>
+      <circle cx="170" cy="318" r="10"/>
+      <circle cx="222" cy="318" r="10"/>
+    </g>
+  </svg>`;
+}
 
 function stopArt(index){
   const t = index / (STOPS.length - 1);
@@ -97,7 +196,7 @@ function mix(a,b,t){
   return `#${c(r1,r2)}${c(g1,g2)}${c(b1,b2)}`;
 }
 
-/* Small per-card illustrated tile — used when a listing has no photo.
+/* Small per-card illustrated tile, used when a listing has no photo.
    A simple coloured scene keyed to the category so cards never show
    a broken image box. */
 function cardArt(cat, seed){
@@ -132,7 +231,7 @@ function imageBlock(item, cat, seed, cls){
 }
 
 /* ------------------------------------------------------------------
-   INTERACTIVE MAP (Leaflet) — with graceful fallback
+   INTERACTIVE MAP (Leaflet) with graceful fallback
 ------------------------------------------------------------------- */
 let map, markers={};
 function initMap(){
@@ -163,7 +262,7 @@ function initMap(){
 function renderRouteFallback(){
   const el = document.getElementById('leafmap');
   el.classList.add('map-fallback'); el.style.height='auto';
-  el.innerHTML = `<div class="fallback-note">Interactive map unavailable — tap a stop below.</div>
+  el.innerHTML = `<div class="fallback-note">Interactive map unavailable. Tap a stop below.</div>
     <ol class="fallback-route">
       ${STOPS.map((s,i)=>`<li data-id="${s.id}">
         <span class="fb-num">${i+1}</span>
@@ -190,21 +289,25 @@ function renderChips(filter=''){
 }
 
 /* ------------------------------------------------------------------
-   STOP PANEL — list view, or detail view if activeDetail is set
+   STOP PANEL: list view, or detail view if activeDetail is set
 ------------------------------------------------------------------- */
 function renderStop(){
   if(activeDetail !== null){ renderDetail(); return; }
   const s = activeStop;
   const i = STOPS.indexOf(s);
+  // Stage 1 redesign: Toronto Union uses a custom WPA-poster scene
+  // (skyline + lake + locomotive) instead of the generic landscape.
+  // Other 15 stops keep the existing stopArt(i) output.
+  const heroArt = s.id === 'union' ? unionPosterArt() : stopArt(i);
   document.getElementById('stopPanel').innerHTML = `
-    <div class="stop">
+    <div class="stop" data-stop="${s.id}">
       <div class="stop-hero">
         <div class="ord-badge">${i+1}</div>
         ${ s.image
             ? `<img class="stop-photo" src="${s.image}" alt="${s.name}"
                  onerror="this.outerHTML='<div class=&quot;stop-art&quot;>'+document.getElementById('art${i}').innerHTML+'</div>'">
-               <div id="art${i}" style="display:none">${stopArt(i)}</div>`
-            : stopArt(i) }
+               <div id="art${i}" style="display:none">${heroArt}</div>`
+            : heroArt }
         <div class="label">
           <div class="region">${s.region}</div>
           <h3>${s.name}</h3>
@@ -258,7 +361,7 @@ function renderCards(){
 }
 
 /* ------------------------------------------------------------------
-   DETAIL VIEW — one listing, back button, more cards below
+   DETAIL VIEW: one listing, back button, more cards below
 ------------------------------------------------------------------- */
 function renderDetail(){
   const items = activeStop[activeCat] || [];
@@ -267,7 +370,7 @@ function renderDetail(){
   const others = items.map((x,i)=>({x,i})).filter(o=>o.i!==activeDetail);
 
   document.getElementById('stopPanel').innerHTML = `
-    <div class="stop detail">
+    <div class="stop detail" data-stop="${activeStop.id}">
       <button class="backbtn" id="backBtn">\u2190 Back to ${activeStop.name}</button>
       <div class="detail-hero">
         ${imageBlock(it, activeCat, activeDetail, 'detail-img')}
@@ -351,7 +454,7 @@ function renderEvents(){
 }
 
 /* ------------------------------------------------------------------
-   SHARE — shares the stop, or the detail if one is open
+   SHARE: shares the stop, or the detail if one is open
 ------------------------------------------------------------------- */
 function shareCurrent(mode){
   let url = location.origin + location.pathname + '#stop=' + activeStop.id;
@@ -361,7 +464,7 @@ function shareCurrent(mode){
     const it = (activeStop[activeCat]||[])[activeDetail];
     if(it){
       url += '&cat='+activeCat+'&place='+slug(it.name);
-      title = `${it.name} — ${activeStop.name}`;
+      title = `${it.name}, ${activeStop.name}`;
       text = it.desc;
     }
   }
