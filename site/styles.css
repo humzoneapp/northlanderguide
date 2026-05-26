@@ -71,7 +71,7 @@ a{color:inherit}
 .btn-primary{
   background:var(--poster-crimson);color:var(--poster-cream);
   border-color:var(--poster-crimson);
-  box-shadow:0 4px 0 var(--poster-orange-d);
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
 }
 /* Hover swaps to deep forest green for clear contrast against the
    crimson rest state. Previous hover used poster-orange-d which
@@ -80,14 +80,20 @@ a{color:inherit}
   background:var(--rail);border-color:var(--rail);
   color:var(--poster-cream);
 }
+/* Ghost button now sits over a photographic background, so it
+   gets a translucent dark fill plus cream text and border. That
+   keeps it readable on the lake/foliage area without competing
+   with the solid crimson primary button. */
 .btn-ghost{
-  background:transparent;color:var(--poster-crimson);
-  border-color:var(--poster-crimson);
-  box-shadow:0 4px 0 var(--poster-orange-d);
+  background:rgba(18,28,38,.35);color:var(--poster-cream);
+  border-color:var(--poster-cream);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  box-shadow:0 4px 12px rgba(0,0,0,.35);
 }
 .btn-ghost:hover{
-  background:var(--rail);color:var(--poster-cream);
-  border-color:var(--rail);
+  background:var(--poster-cream);color:var(--rail);
+  border-color:var(--poster-cream);
 }
 
 /* ---------- top bar ---------- */
@@ -133,84 +139,81 @@ a{color:inherit}
   }
 }
 
-/* ---------- hero (WPA poster, Stage 2 refinement) ----------
-   The hero is now a flex column so the headline panel sits high
-   in the sky and the CTA buttons get pushed down to the cream
-   ground band drawn at the bottom of the SVG. The stat strip uses
-   the same cream so it reads as a continuation of that ground,
-   not a separate panel. */
+/* ---------- hero (Stage 5: real illustrated background) ----------
+   The hand-built SVG landscape from earlier stages was replaced
+   with an illustrated photograph of the actual route scenery (a
+   heron at a calm Northern Ontario lake in autumn). The image is
+   absolutely positioned to cover the hero area; a soft top-down
+   dark gradient sits between the image and the text so the light
+   headline stays legible without washing out the heron and lake
+   below. */
 .hero{
   position:relative;overflow:hidden;color:var(--poster-cream);
-  padding:4rem 0 0;isolation:isolate;
-  display:flex;flex-direction:column;
-  /* Reduced from clamp(640px, 92vh, 860px). The hero was scrolling
-     past one viewport on most laptops; this fits inside the fold
-     comfortably while still leaving room for the landscape. */
-  min-height:clamp(560px,72vh,720px);
-}
-.hero-scene{position:absolute;inset:0;z-index:-1}
-.hero-svg{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;
-}
-.hero-inner{
-  position:relative;flex:1;
+  isolation:isolate;
   display:flex;flex-direction:column;align-items:center;
-  padding:1.6rem 1.2rem 1.6rem;max-width:920px;width:100%;
-  margin:0 auto;text-align:center;
+  padding:3.8rem 1.2rem 2.6rem;
+  /* Sensible height: fits inside one viewport on a laptop without
+     dominating, scales down comfortably on phones via clamp. */
+  min-height:clamp(440px,62vh,600px);
+}
+.hero-img{
+  position:absolute;inset:0;z-index:-2;
+  width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  display:block;
+}
+/* Soft dark gradient over the text region only. Strong enough at
+   the top for cream text to stay legible, fades to transparent by
+   roughly two-thirds down so the heron and lake stay clear. */
+.hero::before{
+  content:"";
+  position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,
+    rgba(18,28,38,.65) 0%,
+    rgba(18,28,38,.45) 28%,
+    rgba(18,28,38,.18) 55%,
+    rgba(18,28,38,0)   80%);
+  pointer-events:none;
+}
+
+.hero-inner{
+  position:relative;width:100%;max-width:780px;margin:0 auto;
+  text-align:center;
   animation:heroRise .7s cubic-bezier(.2,.7,.2,1) both;
 }
 @keyframes heroRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
 .hero .kicker{
-  color:var(--poster-cream);margin-bottom:2.2rem;display:block;
+  color:var(--poster-cream);display:block;
+  margin-bottom:1.4rem;
   letter-spacing:.32em;font-size:.78rem;font-weight:700;
-  text-shadow:0 1px 0 rgba(36,31,26,.45);
+  text-shadow:0 1px 4px rgba(0,0,0,.55);
 }
-
-/* Cream banner panel: gives the headline a known-light background
-   so dark text stays high-contrast over any sky band behind it.
-   Even 6px crimson border on all four sides (the offset shadow
-   used previously was making the bottom edge read as thicker than
-   the other three, so it has been removed). */
-.hero-banner{
-  background:var(--poster-cream);
-  border:6px solid var(--poster-crimson);
-  padding:1.4rem 1.6rem 1.2rem;
-  margin:0 auto;
-  max-width:640px;
-}
-.hero-banner h1{
-  font-size:clamp(2.2rem,8.6vw,4rem);
+.hero h1{
+  font-size:clamp(2.2rem,8.6vw,3.8rem);
   letter-spacing:-.015em;line-height:1.08;
-  margin:0 0 .7rem;
-  color:var(--rail);  /* deep forest green, strong on cream */
-  text-shadow:none;
+  margin:0 0 1rem;
+  color:var(--poster-cream);
+  text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);
 }
-.hero-banner h1 em{
-  font-style:italic;color:var(--poster-mustard);
-  text-shadow:none;
+.hero h1 em{
+  font-style:italic;color:var(--poster-gold);
+  text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);
 }
-.hero-banner .hero-sub{
-  color:var(--poster-rail-brown);
+.hero-sub{
+  color:var(--poster-cream);
   font-size:1.04rem;line-height:1.55;font-weight:500;
-  max-width:46ch;margin:0 auto;
-  text-shadow:none;
+  max-width:46ch;margin:0 auto 1.4rem;
+  text-shadow:0 1px 6px rgba(0,0,0,.6);
 }
-
-/* CTA row: sits directly under the headline banner so the two
-   feel visually connected. Earlier stages pushed the buttons to
-   the bottom of hero-inner via margin-top:auto, which put them on
-   top of the animated rail and made the navy train read as a
-   stray rectangle behind them. Keeping them up here also lets the
-   cream foreground area below show the train clearly. */
 .hero-cta{
   display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;
   margin-top:1.4rem;
 }
 
-/* Hero stats: minimal cream surface (no inset shadows, no orange
-   dividers) so it reads as the same earth as the SVG ground band
-   above it. */
+/* Hero stats: lives outside the hero now (so it never covers the
+   image). Still a flat cream band with a thin crimson top rule
+   marking the transition from image to text. */
 .hero-stats{
   position:relative;display:flex;justify-content:center;gap:0;
   background:var(--poster-cream);
@@ -232,40 +235,6 @@ a{color:inherit}
   display:block;margin-top:.45rem;
   font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
   color:var(--poster-rail-brown);font-weight:700;
-}
-
-/* ---------- hero atmospheric motion ----------
-   All animations are slow and calm. The wildcard prefers-reduced
-   -motion block higher up in this file already disables CSS
-   animations under that user preference; the SMIL animateMotion
-   on .hero-train is not affected by CSS animation duration, so it
-   gets its own display:none rule below. */
-@keyframes cloud-drift-a{
-  from{transform:translate(-220px,130px)}
-  to  {transform:translate(1660px,130px)}
-}
-@keyframes cloud-drift-b{
-  from{transform:translate(-220px,86px)}
-  to  {transform:translate(1660px,86px)}
-}
-@keyframes cloud-drift-c{
-  from{transform:translate(-220px,170px)}
-  to  {transform:translate(1660px,170px)}
-}
-.hero-svg .cloud-a{animation:cloud-drift-a 110s linear infinite}
-.hero-svg .cloud-b{animation:cloud-drift-b 140s linear infinite;animation-delay:-55s}
-.hero-svg .cloud-c{animation:cloud-drift-c 125s linear infinite;animation-delay:-90s}
-
-@keyframes lake-shimmer{
-  from{opacity:.28}
-  to  {opacity:.85}
-}
-.hero-svg .shimmer-a{animation:lake-shimmer 6s ease-in-out infinite alternate}
-.hero-svg .shimmer-b{animation:lake-shimmer 8s ease-in-out infinite alternate;animation-delay:-2s}
-.hero-svg .shimmer-c{animation:lake-shimmer 7s ease-in-out infinite alternate;animation-delay:-4s}
-
-@media(prefers-reduced-motion:reduce){
-  .hero-svg .hero-train{display:none}
 }
 
 

@@ -50,191 +50,35 @@
 </div>
 
 <!-- ===== HERO =====
-     WPA national-park poster scene with depth: jagged distant range,
-     rolling midground, foreground hills with pines, a flat lake, a
-     curving rail line that leads the eye from the lower left up to
-     the sun, and a cream ground band where the headline panel and
-     CTAs sit. Subtle motion (drifting clouds, lake shimmer, a train
-     riding the rail) is disabled under prefers-reduced-motion. -->
+     Real illustrated background of a Northern Ontario lake with a
+     heron and autumn trees. The headline sits over the calm sky
+     area in the upper portion; a soft top-down dark gradient
+     keeps the light text legible without washing out the scene. -->
 <header class="hero" id="top">
-  <div class="hero-scene" aria-hidden="true">
-    <svg class="hero-svg" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <!-- Sky: three flat sunset bands. The deepest crimson band
-           from earlier stages has been dropped because it sat
-           directly behind the kicker and read as a stray colored
-           box around the small caps text. Sky now grades cream to
-           mustard to a thin warm orange strip at the very top. -->
-      <rect width="1440" height="620" fill="#eed3a0"/>
-      <rect y="0" width="1440" height="260" fill="#dca33c"/>
-      <rect y="0" width="1440" height="80"  fill="#c46f2c"/>
-
-      <!-- Drifting clouds (animated via CSS transform translateX) -->
-      <g class="hero-cloud cloud-a" fill="#f6e7c4" opacity="0.9">
-        <ellipse cx="0"  cy="0"   rx="56" ry="11"/>
-        <ellipse cx="38" cy="-9"  rx="36" ry="10"/>
-        <ellipse cx="-34" cy="-6" rx="30" ry="9"/>
-      </g>
-      <g class="hero-cloud cloud-b" fill="#f6e7c4" opacity="0.75">
-        <ellipse cx="0"  cy="0"   rx="48" ry="9"/>
-        <ellipse cx="30" cy="-8"  rx="32" ry="9"/>
-      </g>
-      <g class="hero-cloud cloud-c" fill="#f6e7c4" opacity="0.85">
-        <ellipse cx="0"  cy="0"   rx="44" ry="10"/>
-        <ellipse cx="32" cy="-6"  rx="28" ry="8"/>
-        <ellipse cx="-30" cy="-4" rx="24" ry="8"/>
-      </g>
-
-      <!-- Sun: moved off-center to the upper right so it sits in
-           open sky beside the centered headline banner instead of
-           behind it. Stray radiating rays from earlier stages have
-           been removed (the user read them as loose floating
-           shapes); the sun is now a clean two-tone disc. -->
-      <circle cx="1200" cy="140" r="80" fill="#f6e7c4"/>
-      <circle cx="1200" cy="140" r="62" fill="#fbf1d2"/>
-
-      <!-- Background range: jagged peaks of varying heights so the
-           horizon recedes instead of reading as a stripe. Baseline
-           raised to y=460 so the cream ground band has room. -->
-      <path d="M0,360 L70,250 L150,300 L230,210 L310,290 L400,200 L490,280 L580,230 L680,300 L780,210 L870,290 L960,240 L1080,300 L1180,230 L1280,290 L1360,240 L1440,300 L1440,460 L0,460 Z" fill="#7ea29e"/>
-
-      <!-- Midground hills: smoother rolling curves, deeper teal,
-           overlapping the background range. -->
-      <path d="M0,400 C200,330 420,400 620,350 S1020,400 1240,370 S1440,350 1440,390 L1440,460 L0,460 Z" fill="#456f6c"/>
-
-      <!-- Foreground hills: deep forest, lowest layer, with pine
-           cluster on the silhouette. Kept fully above y=460 so the
-           cream ground band below stays clean for CTAs. -->
-      <path d="M0,440 C160,400 360,440 560,420 S960,440 1160,420 S1440,400 1440,440 L1440,460 L0,460 Z" fill="#2a4d3a"/>
-
-      <!-- Pine cluster on the foreground hills. -->
-      <g fill="#1f3d2d">
-        <polygon points="60,442 96,388 132,442"/>
-        <polygon points="130,448 168,382 206,448"/>
-        <polygon points="200,442 234,394 268,442"/>
-        <polygon points="270,448 306,380 342,448"/>
-        <polygon points="350,442 384,392 418,442"/>
-        <polygon points="1040,448 1076,378 1112,448"/>
-        <polygon points="1118,442 1152,392 1186,442"/>
-        <polygon points="1196,448 1232,380 1268,448"/>
-        <polygon points="1276,442 1310,394 1344,442"/>
-        <polygon points="1352,448 1388,382 1424,448"/>
-      </g>
-
-      <!-- Cream ground band: 160px of foreground earth (y=460 to
-           y=620) where the CTA buttons land. Matches .hero-stats
-           background so the stat strip reads as a continuation of
-           the same surface. -->
-      <rect y="460" width="1440" height="160" fill="#eed3a0"/>
-      <rect y="460" width="1440" height="3"   fill="#c46f2c" opacity="0.65"/>
-
-      <!-- Flat lake centered in the upper portion of the ground
-           band so it stays visible on mobile crops. -->
-      <rect x="500" y="478" width="260" height="42" fill="#2c5258"/>
-      <g class="lake-shimmer">
-        <rect class="shimmer-a" x="520" y="486" width="100" height="2" fill="#7ea29e"/>
-        <rect class="shimmer-b" x="620" y="500" width="120" height="2" fill="#7ea29e"/>
-        <rect class="shimmer-c" x="540" y="514" width="90"  height="2" fill="#7ea29e"/>
-      </g>
-
-      <!-- Rail: thin gentle nearly-horizontal curve in the upper
-           portion of the cream ground band. Raised from y=540-615
-           (where it was largely hidden by the stat strip at the
-           bottom of the hero) to y=485-520 so the full train is
-           clearly visible in the foreground. Path endpoints are
-           pushed off-screen so the animateMotion loop never shows
-           a visible teleport at the path ends. -->
-      <path id="railpath"
-            d="M1500,520 C1200,510 900,500 600,498 S200,502 -50,505"
-            fill="none" stroke="#6b4528" stroke-width="8" stroke-linecap="round"/>
-      <path d="M1500,520 C1200,510 900,500 600,498 S200,502 -50,505"
-            fill="none" stroke="#3a2618" stroke-width="6"
-            stroke-dasharray="4 8" stroke-linecap="butt"/>
-
-      <!-- Train: Northlander livery, scaled up about 25% so it is
-           clearly readable as a train on the foreground rail. One
-           Siemens Charger locomotive (sloped angular nose, navy
-           body, white windshield triangle, green stripe along the
-           body, yellow accent on the nose tip) pulling three
-           Siemens Venture coaches (smooth low-profile, navy with a
-           white window strip and a thin green stripe). Wheels at
-           local y=0 so the train sits on the rail.
-           animateMotion follows the rail path with rotate="auto"
-           so the train banks with the curve. Hidden in CSS under
-           prefers-reduced-motion. -->
-      <g class="hero-train">
-        <!-- Locomotive: Siemens Charger, nose at local +X -->
-        <g class="loco">
-          <!-- Navy body silhouette with sloped top-front -->
-          <path d="M -35,-32 L 4,-32 L 35,-16 L 35,-4 L -35,-4 Z" fill="#1a3554"/>
-          <!-- Side window strip on the cab side -->
-          <rect x="-30" y="-28" width="28" height="6" fill="#f3ece0"/>
-          <!-- Cab windshield: white triangle along the slope -->
-          <polygon points="4,-30 32,-17 4,-17" fill="#f3ece0"/>
-          <!-- Yellow accent block at the nose tip -->
-          <rect x="30" y="-14" width="5" height="8" fill="#e8c93a"/>
-          <!-- Ontario Northland green stripe along the body -->
-          <rect x="-35" y="-12" width="70" height="3" fill="#1d6347"/>
-          <!-- Four wheel trucks -->
-          <circle cx="-25" cy="0" r="3.5" fill="#241f1a"/>
-          <circle cx="-12" cy="0" r="3.5" fill="#241f1a"/>
-          <circle cx="12"  cy="0" r="3.5" fill="#241f1a"/>
-          <circle cx="25"  cy="0" r="3.5" fill="#241f1a"/>
-        </g>
-        <!-- Coach 1: Siemens Venture, trails the loco -->
-        <g transform="translate(-58,0)">
-          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
-          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
-          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
-          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
-          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
-        </g>
-        <!-- Coach 2 -->
-        <g transform="translate(-116,0)">
-          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
-          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
-          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
-          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
-          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
-        </g>
-        <!-- Coach 3 -->
-        <g transform="translate(-174,0)">
-          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
-          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
-          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
-          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
-          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
-        </g>
-        <animateMotion dur="60s" repeatCount="indefinite" rotate="auto">
-          <mpath href="#railpath"/>
-        </animateMotion>
-      </g>
-    </svg>
-  </div>
+  <img class="hero-img"
+       src="images/northlander-route-autumn-heron.jpeg"
+       alt="Northlander train route scenery: a heron beside a calm Northern Ontario lake in autumn, framed by tall grasses and gold and red trees, with soft hills in the distance.">
 
   <div class="hero-inner">
     <div class="kicker">Toronto&nbsp;&middot;&nbsp;Northern Ontario&nbsp;&middot;&nbsp;Timmins</div>
-
-    <!-- Cream banner with crimson frame: gives the headline a
-         high-contrast surface so dark text stays legible against
-         any sunset band behind it. -->
-    <div class="hero-banner">
-      <h1>Get off at<br><em>every stop.</em></h1>
-      <p class="hero-sub">Your guide to the Northlander train: where to eat, sleep,
-         wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
-    </div>
-
+    <h1>Get off at<br><em>every stop.</em></h1>
+    <p class="hero-sub">Your guide to the Northlander train: where to eat, sleep,
+       wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
     <div class="hero-cta">
       <a href="#map" class="btn btn-primary">Explore the Route Map</a>
       <a href="#explore" class="btn btn-ghost">Browse 16 Stops</a>
     </div>
   </div>
-
-  <div class="hero-stats">
-    <div><b>16</b><span>Stops</span></div>
-    <div><b>740</b><span>Kilometres</span></div>
-    <div><b>~11</b><span>Hours</span></div>
-  </div>
 </header>
+
+<!-- Stat strip moved out of the hero so the image is never covered
+     by a cream band. It sits below the hero as its own clean
+     band. -->
+<div class="hero-stats">
+  <div><b>16</b><span>Stops</span></div>
+  <div><b>740</b><span>Kilometres</span></div>
+  <div><b>~11</b><span>Hours</span></div>
+</div>
 
 <!-- thin route-progress bar, sticky under the top bar -->
 <div class="routebar" id="routebar" aria-hidden="true">
