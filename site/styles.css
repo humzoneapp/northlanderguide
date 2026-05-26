@@ -97,49 +97,32 @@ a{color:inherit}
 }
 
 /* ---------- top bar ----------
-   At the top of the page the bar has no color of its own. A very
-   soft black-based wash and strong text shadows keep the logo
-   and links legible over the hero photo. Once the user scrolls
-   past the hero, JS adds .scrolled and the background fades into
-   solid var(--rail) so links stay readable over page content. */
+   Solid deep forest green at all times. No gradients, no
+   transparency, no scroll based color change. The logo and links
+   are cream and read clearly on the green bar at every scroll
+   position and screen size. */
 .topbar{
   position:sticky;top:0;z-index:1000;
+  background:var(--rail);
   color:#f3ece0;
   display:flex;align-items:center;justify-content:space-between;
   padding:.65rem 1.1rem;padding-top:max(.65rem,env(safe-area-inset-top));
-  background-color:transparent;
-  /* Pure black-alpha wash so the image's warmth shows through and
-     the bar never reads as a colored band. Fades to fully
-     transparent by 55% down. */
-  background-image:linear-gradient(180deg,
-    rgba(0,0,0,.32) 0%, rgba(0,0,0,.10) 55%, transparent 100%);
-  transition:background-color .35s ease, box-shadow .35s ease;
-}
-.topbar.scrolled{
-  background-color:var(--rail);
-  background-image:none;
   box-shadow:0 2px 12px rgba(0,0,0,.18);
 }
 .brand{
   font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
   text-decoration:none;color:#f3ece0;letter-spacing:-.01em;
   display:flex;align-items:center;gap:.5rem;
-  text-shadow:0 1px 4px rgba(0,0,0,.7), 0 0 2px rgba(0,0,0,.45);
 }
 .brand span{color:var(--ember);font-style:normal}
 .brand-mark{display:flex;flex-shrink:0;line-height:0}
-.brand-mark svg{display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+.brand-mark svg{display:block}
 .topnav a{
   color:#f3ece0;text-decoration:none;font-size:.82rem;font-weight:600;
   margin-left:1.1rem;letter-spacing:.02em;
-  text-shadow:0 1px 4px rgba(0,0,0,.7), 0 0 2px rgba(0,0,0,.45);
   transition:color .15s ease;
 }
 .topnav a:hover{color:var(--ember)}
-.topbar.scrolled .brand,
-.topbar.scrolled .topnav a{text-shadow:none}
-.topbar.scrolled .brand-mark svg{filter:none}
-.topbar.scrolled .topnav a{color:#cad7cf}
 
 /* Hamburger button: hidden by default, shown only at the mobile
    breakpoint. Three stacked bars morph into an X when .open. */
@@ -266,14 +249,14 @@ a{color:inherit}
   text-shadow:0 1px 4px rgba(0,0,0,.55);
 }
 .hero h1{
-  /* Bumped again from clamp(2.6rem, 11vw, 5rem) to make the
-     poster headline feel large and confident on desktop. The
-     min keeps mobile readable; vw scales smoothly through
-     tablet sizes; the max caps it at ~96px on wide screens. */
-  font-size:clamp(2.8rem,13vw,6rem);
-  /* Tightened from 1.04 to 0.96 so "Get off at" and "every stop."
-     read as one headline rather than two separated lines. */
-  letter-spacing:-.015em;line-height:.96;
+  /* Bumped again to make the poster headline feel large and bold
+     on both desktop and mobile. Min raised from 2.8rem to 3.75rem
+     so the headline fills the width nicely on phones (about 60px
+     on a 375px viewport); vw raised to 16vw for smooth growth
+     through tablet sizes; max raised from 6rem to 7.5rem so the
+     headline reaches ~120px on wide desktops. */
+  font-size:clamp(3.75rem,16vw,7.5rem);
+  letter-spacing:-.015em;line-height:.94;
   margin:0 0 .8rem;
   color:var(--poster-cream);
   text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);

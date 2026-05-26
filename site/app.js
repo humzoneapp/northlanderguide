@@ -505,24 +505,11 @@ window.selectStop = selectStop;
 document.getElementById('searchInput').addEventListener('input',e=>renderChips(e.target.value));
 
 const toTop = document.querySelector('.totop');
-const topbarEl = document.querySelector('.topbar');
-const heroEl = document.querySelector('.hero');
-
-/* Topbar fades from semi-transparent (over the hero image) to a
-   solid deep forest green once the user scrolls roughly past the
-   hero. Threshold is recomputed each scroll to handle resizes. */
-function updateTopbarState(){
-  if(!topbarEl) return;
-  const threshold = heroEl ? Math.max(80, heroEl.offsetHeight - 80) : 200;
-  topbarEl.classList.toggle('scrolled', window.scrollY > threshold);
-}
 
 window.addEventListener('scroll',()=>{
   toTop.classList.toggle('show', window.scrollY>600);
   updateRouteBar();
-  updateTopbarState();
 },{passive:true});
-updateTopbarState();
 
 /* Mobile hamburger menu: toggles a slide-down drawer that lists
    the same three sections as the desktop nav. Tapping any link
