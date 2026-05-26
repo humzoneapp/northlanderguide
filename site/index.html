@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Northlander Guide — Things to Do at Every Stop, Toronto to Timmins</title>
+<meta name="description" content="A traveller's directory of restaurants, parks, attractions and events at every stop on the Northlander train, Toronto to Timmins, Ontario.">
+
+<!-- Open Graph tags so the site looks good when shared on social media -->
+<meta property="og:title" content="Northlander Guide">
+<meta property="og:description" content="Your guide to the Northlander train — where to eat, sleep and explore at all 16 stops, Toronto to Timmins.">
+<meta property="og:type" content="website">
+
+<!-- =================================================================
+     GOOGLE ADSENSE — paste your approved script tag here.
+     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+================================================================== -->
+
+<!-- Leaflet: free, open-source interactive maps (no API key needed) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,0,900;9..144,1,500&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <a href="#top" class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26">
+        <circle cx="16" cy="16" r="15" fill="#d96c2c"/>
+        <path d="M8 21 L8 12 Q8 9 11 9 L21 9 Q24 9 24 12 L24 21 Z" fill="#f3ece0"/>
+        <rect x="10" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <rect x="17" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <rect x="9" y="22" width="14" height="2" rx="1" fill="#f3ece0"/>
+      </svg>
+    </span>
+    Northlander<span>Guide</span>
+  </a>
+  <nav class="topnav">
+    <a href="#map">Map</a>
+    <a href="#explore">Stops</a>
+    <a href="#events">Events</a>
+  </nav>
+</div>
+
+<!-- ===== HERO ===== -->
+<header class="hero" id="top">
+  <!-- layered landscape: drawn in SVG, no image files needed -->
+  <div class="hero-scene" aria-hidden="true">
+    <svg class="hero-svg" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#15543e"/>
+          <stop offset="0.55" stop-color="#0e3b2c"/>
+          <stop offset="1" stop-color="#0a2e22"/>
+        </linearGradient>
+        <linearGradient id="hwater" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1d4a52"/>
+          <stop offset="1" stop-color="#12333a"/>
+        </linearGradient>
+      </defs>
+      <rect width="1440" height="620" fill="url(#hsky)"/>
+      <!-- aurora wash -->
+      <ellipse cx="720" cy="40" rx="900" ry="180" fill="#2a7d57" opacity="0.18"/>
+      <circle cx="1150" cy="105" r="34" fill="#f6e7c4" opacity="0.7"/>
+      <!-- distant ridge -->
+      <path d="M0 340 Q240 280 500 330 T1000 312 T1440 342 V620 H0 Z" fill="#155340" opacity="0.85"/>
+      <!-- mid hills -->
+      <path d="M0 400 Q300 330 620 392 T1180 372 T1440 402 V620 H0 Z" fill="#1d6347"/>
+      <!-- pine ridge silhouette -->
+      <g fill="#0c3324" class="hero-pines"></g>
+      <!-- lake -->
+      <path d="M0 470 Q360 452 720 470 T1440 472 V620 H0 Z" fill="url(#hwater)"/>
+      <!-- rail embankment + track -->
+      <path d="M0 512 Q400 500 760 514 T1440 516 V620 H0 Z" fill="#0a2e22"/>
+      <g class="hero-track"></g>
+    </svg>
+    <div class="hero-grain"></div>
+  </div>
+
+  <div class="hero-inner">
+    <div class="kicker">Toronto&nbsp;&middot;&nbsp;Northern Ontario&nbsp;&middot;&nbsp;Timmins</div>
+    <h1>Get off at <em>every stop.</em></h1>
+    <p class="hero-sub">Your guide to the Northlander train — where to eat, sleep,
+       wander and what's on, at all 16 stops along the 740&nbsp;km line north.</p>
+    <div class="hero-cta">
+      <a href="#map" class="btn btn-primary">Explore the Route Map</a>
+      <a href="#explore" class="btn btn-ghost">Browse 16 Stops</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div><b>16</b><span>Stops</span></div>
+    <div><b>740</b><span>Kilometres</span></div>
+    <div><b>~11</b><span>Hours</span></div>
+  </div>
+</header>
+
+<!-- thin route-progress bar, sticky under the top bar -->
+<div class="routebar" id="routebar" aria-hidden="true">
+  <div class="routebar-fill" id="routebarFill"></div>
+</div>
+
+<!-- ===== MAP ===== -->
+<section class="mapsection" id="map">
+  <div class="section-head center">
+    <div class="kicker">The Route</div>
+    <h2>Follow the line north</h2>
+    <p>Tap any station to jump straight to its guide.</p>
+  </div>
+  <div id="leafmap"></div>
+</section>
+
+<!-- ===== SEARCH + EXPLORE ===== -->
+<section class="explore" id="explore">
+  <div class="section-head center">
+    <div class="kicker">The Directory</div>
+    <h2>Find your stop</h2>
+  </div>
+
+  <div class="searchbar">
+    <input type="search" id="searchInput" placeholder="Search a stop, town or region…" autocomplete="off">
+  </div>
+
+  <!-- horizontally scrollable stop chips (mobile-friendly) -->
+  <div class="stopchips" id="stopChips"></div>
+
+  <!-- the selected stop -->
+  <div id="stopPanel"></div>
+
+  <!-- IN-CONTENT AD SLOT -->
+  <div class="adslot inline" data-ad>Advertisement</div>
+</section>
+
+<!-- ===== EVENTS ===== -->
+<section class="eventsection" id="events">
+  <div class="section-head center">
+    <div class="kicker">What's On</div>
+    <h2>Events at this stop</h2>
+  </div>
+  <div id="eventPanel"></div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="fwrap">
+    <div class="fcol fbrand">
+      <div class="brand">Northlander<span>Guide</span></div>
+      <p>An independent traveller's directory for the Ontario Northland
+         Northlander route. Not affiliated with Ontario Northland.</p>
+    </div>
+    <div class="fcol">
+      <h4>Explore</h4>
+      <a href="#map">Route Map</a>
+      <a href="#explore">All Stops</a>
+      <a href="#events">Events</a>
+    </div>
+    <div class="fcol">
+      <h4>Project</h4>
+      <a href="#">Submit a Listing</a>
+      <a href="#">Advertise</a>
+      <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info ↗</a>
+    </div>
+  </div>
+  <div class="disc">
+    © <span id="yr"></span> NorthlanderGuide.com. Schedule details are based on
+    Ontario Northland's proposed timetable and may change — confirm before travelling.
+  </div>
+</footer>
+
+<!-- back-to-top -->
+<a href="#top" class="totop" aria-label="Back to top">↑</a>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

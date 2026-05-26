@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# environment / secrets — NEVER commit API keys
+.env
+backend/.env
+
+# generated content (rebuilt by the update job)
+site/live-data.json
+
+# OS files
+.DS_Store
+
+# logs
+*.log
