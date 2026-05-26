@@ -117,6 +117,23 @@
   <div id="leafmap"></div>
 </section>
 
+<!-- Map preview card. Shown when a pin is tapped or clicked.
+     Slides up from the bottom of the viewport. Populated by JS
+     with the tapped stop's name, hook, image (or illustrated
+     fallback), and an "Open guide" button. -->
+<aside class="map-preview" id="mapPreview" role="dialog"
+       aria-modal="false" aria-labelledby="mapPreviewName" aria-hidden="true">
+  <button class="map-preview-close" id="mapPreviewClose" type="button"
+          aria-label="Close preview">&times;</button>
+  <div class="map-preview-img" id="mapPreviewImg"></div>
+  <div class="map-preview-body">
+    <div class="map-preview-num" id="mapPreviewNum" aria-hidden="true"></div>
+    <h3 id="mapPreviewName"></h3>
+    <p id="mapPreviewHook"></p>
+    <button class="btn btn-primary map-preview-open" id="mapPreviewOpen" type="button">Open guide</button>
+  </div>
+</aside>
+
 <!-- ===== SEARCH + EXPLORE ===== -->
 <section class="explore" id="explore">
   <div class="section-head center">

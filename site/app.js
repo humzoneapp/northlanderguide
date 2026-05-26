@@ -251,11 +251,18 @@ function initMap(){
               box-shadow:0 2px 6px rgba(0,0,0,.4)">${i+1}</div>`,
         iconSize:[26,26], iconAnchor:[13,13] });
       const m = L.marker([s.lat,s.lng],{icon}).addTo(map);
-      m.bindPopup(`<div class="map-pop"><b>${s.name}</b>
-          <div class="pop-hook">${s.hook}</div>
-          <button onclick="selectStop('${s.id}')">Open guide \u2192</button></div>`);
+      // Desktop hover: short name tooltip. CSS hides tooltips on
+      // touch devices via (hover: none) so a tap shows the preview
+      // card instead of a transient tooltip.
+      m.bindTooltip(s.name, {
+        className:'map-tip', direction:'top', offset:[0,-14], opacity:1,
+      });
+      // Tap/click on the marker: show the site-styled preview card.
+      m.on('click', ()=>openMapPreview(s));
       markers[s.id]=m;
     });
+    // Tap the map background (not a marker) to dismiss the preview.
+    map.on('click', closeMapPreview);
     map.fitBounds(L.latLngBounds(line).pad(0.12));
   }catch(err){ console.warn('Map failed:', err); renderRouteFallback(); }
 }
@@ -510,6 +517,85 @@ window.addEventListener('scroll',()=>{
   toTop.classList.toggle('show', window.scrollY>600);
   updateRouteBar();
 },{passive:true});
+
+/* ------------------------------------------------------------------
+   MAP PREVIEW CARD
+   Tapping or clicking a pin opens a small site-styled card with the
+   stop's image (or illustrated fallback), name, hook, and an
+   "Open guide" button. The button closes the card, selects that
+   stop in the directory, and smooth-scrolls to the explore section.
+   Only one preview is ever open; tapping another pin replaces it.
+------------------------------------------------------------------- */
+const mapPreview = document.getElementById('mapPreview');
+const mapPreviewClose = document.getElementById('mapPreviewClose');
+const mapPreviewOpen = document.getElementById('mapPreviewOpen');
+const mapPreviewImg = document.getElementById('mapPreviewImg');
+const mapPreviewName = document.getElementById('mapPreviewName');
+const mapPreviewHook = document.getElementById('mapPreviewHook');
+const mapPreviewNum = document.getElementById('mapPreviewNum');
+let currentPreviewStop = null;
+
+function openMapPreview(s){
+  if(!mapPreview || !s) return;
+  currentPreviewStop = s;
+  const i = STOPS.indexOf(s);
+  mapPreviewNum.textContent = i+1;
+  mapPreviewName.textContent = s.name;
+  mapPreviewHook.textContent = s.hook;
+
+  // Image when set; on error, swap in the illustrated fallback.
+  // No image set? Render the illustration directly.
+  const fallback = s.id === 'union' ? unionPosterArt() : stopArt(i);
+  if(s.image){
+    const img = document.createElement('img');
+    img.src = s.image;
+    img.alt = s.name;
+    img.loading = 'lazy';
+    img.onerror = ()=>{ mapPreviewImg.innerHTML = fallback; };
+    mapPreviewImg.innerHTML = '';
+    mapPreviewImg.appendChild(img);
+  } else {
+    mapPreviewImg.innerHTML = fallback;
+  }
+
+  mapPreview.classList.add('open');
+  mapPreview.setAttribute('aria-hidden','false');
+}
+
+function closeMapPreview(){
+  if(!mapPreview) return;
+  mapPreview.classList.remove('open');
+  mapPreview.setAttribute('aria-hidden','true');
+  currentPreviewStop = null;
+}
+
+if(mapPreview){
+  mapPreviewClose.addEventListener('click', closeMapPreview);
+
+  mapPreviewOpen.addEventListener('click', ()=>{
+    if(!currentPreviewStop) return;
+    const id = currentPreviewStop.id;
+    closeMapPreview();
+    selectStop(id);
+    const explore = document.getElementById('explore');
+    if(explore) explore.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  // Escape closes the preview.
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && mapPreview.classList.contains('open')) closeMapPreview();
+  });
+
+  // Tap anywhere outside the card (and outside a marker) closes it.
+  // Marker clicks are excluded so the marker's own handler can swap
+  // in the new stop's preview instead of triggering a close.
+  document.addEventListener('click', e=>{
+    if(!mapPreview.classList.contains('open')) return;
+    if(mapPreview.contains(e.target)) return;
+    if(e.target.closest('.leaflet-marker-icon')) return;
+    closeMapPreview();
+  });
+}
 
 /* Mobile hamburger menu: toggles a slide-down drawer that lists
    the same three sections as the desktop nav. Tapping any link
