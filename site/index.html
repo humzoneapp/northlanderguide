@@ -59,11 +59,14 @@
 <header class="hero" id="top">
   <div class="hero-scene" aria-hidden="true">
     <svg class="hero-svg" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <!-- Sky: four flat sunset bands stacked from top -->
+      <!-- Sky: three flat sunset bands. The deepest crimson band
+           from earlier stages has been dropped because it sat
+           directly behind the kicker and read as a stray colored
+           box around the small caps text. Sky now grades cream to
+           mustard to a thin warm orange strip at the very top. -->
       <rect width="1440" height="620" fill="#eed3a0"/>
-      <rect y="0" width="1440" height="280" fill="#dca33c"/>
-      <rect y="0" width="1440" height="150" fill="#c46f2c"/>
-      <rect y="0" width="1440" height="60"  fill="#8e3d22"/>
+      <rect y="0" width="1440" height="260" fill="#dca33c"/>
+      <rect y="0" width="1440" height="80"  fill="#c46f2c"/>
 
       <!-- Drifting clouds (animated via CSS transform translateX) -->
       <g class="hero-cloud cloud-a" fill="#f6e7c4" opacity="0.9">
@@ -81,21 +84,13 @@
         <ellipse cx="-30" cy="-4" rx="24" ry="8"/>
       </g>
 
-      <!-- Sun: focal point. Eight subtle rays radiating, then a
-           big cream disc on top. Centered horizontally so mobile
-           viewports (which crop the SVG sides) still see it. -->
-      <g class="hero-sun-rays" fill="#f6e7c4" opacity="0.45" transform="translate(820 200)">
-        <rect x="-3" y="-160" width="6" height="50"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(45)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(90)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(135)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(180)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(225)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(270)"/>
-        <rect x="-3" y="-160" width="6" height="50" transform="rotate(315)"/>
-      </g>
-      <circle cx="820" cy="200" r="100" fill="#f6e7c4"/>
-      <circle cx="820" cy="200" r="80"  fill="#fbf1d2"/>
+      <!-- Sun: moved off-center to the upper right so it sits in
+           open sky beside the centered headline banner instead of
+           behind it. Stray radiating rays from earlier stages have
+           been removed (the user read them as loose floating
+           shapes); the sun is now a clean two-tone disc. -->
+      <circle cx="1200" cy="140" r="80" fill="#f6e7c4"/>
+      <circle cx="1200" cy="140" r="62" fill="#fbf1d2"/>
 
       <!-- Background range: jagged peaks of varying heights so the
            horizon recedes instead of reading as a stripe. Baseline
@@ -141,69 +136,75 @@
         <rect class="shimmer-c" x="540" y="514" width="90"  height="2" fill="#7ea29e"/>
       </g>
 
-      <!-- Rail: a thin gentle curve along the lower foreground.
-           Stays in the bottom ~75 units of the SVG so it never
-           climbs into the sky. Starts and ends off-screen so the
-           train loop has no visible teleport on any viewport. -->
+      <!-- Rail: thin gentle nearly-horizontal curve in the upper
+           portion of the cream ground band. Raised from y=540-615
+           (where it was largely hidden by the stat strip at the
+           bottom of the hero) to y=485-520 so the full train is
+           clearly visible in the foreground. Path endpoints are
+           pushed off-screen so the animateMotion loop never shows
+           a visible teleport at the path ends. -->
       <path id="railpath"
-            d="M1500,615 C1300,600 1100,585 900,570 S500,545 120,540"
+            d="M1500,520 C1200,510 900,500 600,498 S200,502 -50,505"
             fill="none" stroke="#6b4528" stroke-width="8" stroke-linecap="round"/>
-      <path d="M1500,615 C1300,600 1100,585 900,570 S500,545 120,540"
+      <path d="M1500,520 C1200,510 900,500 600,498 S200,502 -50,505"
             fill="none" stroke="#3a2618" stroke-width="6"
             stroke-dasharray="4 8" stroke-linecap="butt"/>
 
-      <!-- Train: Northlander livery. One Siemens Charger locomotive
-           (sloped angular nose, navy body, white windshield, green
-           stripe, yellow nose accent) pulling three Siemens Venture
-           coaches (smooth low-profile, navy with a white window
-           strip and a thin green stripe). Wheels at local y=0 so
-           the train sits on the rail. animateMotion follows the
-           rail path with rotate="auto" so the train banks with the
-           curve. Hidden in CSS when prefers-reduced-motion. -->
+      <!-- Train: Northlander livery, scaled up about 25% so it is
+           clearly readable as a train on the foreground rail. One
+           Siemens Charger locomotive (sloped angular nose, navy
+           body, white windshield triangle, green stripe along the
+           body, yellow accent on the nose tip) pulling three
+           Siemens Venture coaches (smooth low-profile, navy with a
+           white window strip and a thin green stripe). Wheels at
+           local y=0 so the train sits on the rail.
+           animateMotion follows the rail path with rotate="auto"
+           so the train banks with the curve. Hidden in CSS under
+           prefers-reduced-motion. -->
       <g class="hero-train">
         <!-- Locomotive: Siemens Charger, nose at local +X -->
         <g class="loco">
           <!-- Navy body silhouette with sloped top-front -->
-          <path d="M -28,-23 L 0,-23 L 28,-13 L 28,-3 L -28,-3 Z" fill="#1a3554"/>
-          <!-- Side window strip -->
-          <rect x="-24" y="-20" width="22" height="5" fill="#f3ece0"/>
-          <!-- Cab windshield: white triangle on the slope -->
-          <polygon points="0,-22 22,-14 0,-14" fill="#f3ece0"/>
-          <!-- Yellow accent at the nose tip -->
-          <rect x="22" y="-12" width="6" height="6" fill="#e8c93a"/>
-          <!-- Ontario Northland green stripe -->
-          <rect x="-28" y="-9" width="56" height="2.5" fill="#1d6347"/>
-          <!-- Wheel trucks -->
-          <circle cx="-18" cy="0" r="2.5" fill="#241f1a"/>
-          <circle cx="-8"  cy="0" r="2.5" fill="#241f1a"/>
-          <circle cx="8"   cy="0" r="2.5" fill="#241f1a"/>
-          <circle cx="18"  cy="0" r="2.5" fill="#241f1a"/>
+          <path d="M -35,-32 L 4,-32 L 35,-16 L 35,-4 L -35,-4 Z" fill="#1a3554"/>
+          <!-- Side window strip on the cab side -->
+          <rect x="-30" y="-28" width="28" height="6" fill="#f3ece0"/>
+          <!-- Cab windshield: white triangle along the slope -->
+          <polygon points="4,-30 32,-17 4,-17" fill="#f3ece0"/>
+          <!-- Yellow accent block at the nose tip -->
+          <rect x="30" y="-14" width="5" height="8" fill="#e8c93a"/>
+          <!-- Ontario Northland green stripe along the body -->
+          <rect x="-35" y="-12" width="70" height="3" fill="#1d6347"/>
+          <!-- Four wheel trucks -->
+          <circle cx="-25" cy="0" r="3.5" fill="#241f1a"/>
+          <circle cx="-12" cy="0" r="3.5" fill="#241f1a"/>
+          <circle cx="12"  cy="0" r="3.5" fill="#241f1a"/>
+          <circle cx="25"  cy="0" r="3.5" fill="#241f1a"/>
         </g>
         <!-- Coach 1: Siemens Venture, trails the loco -->
-        <g transform="translate(-44,0)">
-          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
-          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
-          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
-          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
-          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        <g transform="translate(-58,0)">
+          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
+          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
+          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
+          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
+          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
         </g>
         <!-- Coach 2 -->
-        <g transform="translate(-86,0)">
-          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
-          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
-          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
-          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
-          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        <g transform="translate(-116,0)">
+          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
+          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
+          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
+          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
+          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
         </g>
         <!-- Coach 3 -->
-        <g transform="translate(-128,0)">
-          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
-          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
-          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
-          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
-          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        <g transform="translate(-174,0)">
+          <rect x="-24" y="-26" width="48" height="22" rx="2" fill="#1a3554"/>
+          <rect x="-22" y="-23" width="44" height="6" fill="#f3ece0"/>
+          <rect x="-24" y="-12" width="48" height="3" fill="#1d6347"/>
+          <circle cx="-16" cy="0" r="3" fill="#241f1a"/>
+          <circle cx="16"  cy="0" r="3" fill="#241f1a"/>
         </g>
-        <animateMotion dur="55s" repeatCount="indefinite" rotate="auto">
+        <animateMotion dur="60s" repeatCount="indefinite" rotate="auto">
           <mpath href="#railpath"/>
         </animateMotion>
       </g>

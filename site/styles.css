@@ -73,13 +73,22 @@ a{color:inherit}
   border-color:var(--poster-crimson);
   box-shadow:0 4px 0 var(--poster-orange-d);
 }
-.btn-primary:hover{background:var(--poster-orange-d);border-color:var(--poster-orange-d)}
+/* Hover swaps to deep forest green for clear contrast against the
+   crimson rest state. Previous hover used poster-orange-d which
+   was a near-identical brown and read as muddy. */
+.btn-primary:hover{
+  background:var(--rail);border-color:var(--rail);
+  color:var(--poster-cream);
+}
 .btn-ghost{
   background:transparent;color:var(--poster-crimson);
   border-color:var(--poster-crimson);
   box-shadow:0 4px 0 var(--poster-orange-d);
 }
-.btn-ghost:hover{background:var(--poster-crimson);color:var(--poster-cream)}
+.btn-ghost:hover{
+  background:var(--rail);color:var(--poster-cream);
+  border-color:var(--rail);
+}
 
 /* ---------- top bar ---------- */
 .topbar{
@@ -132,9 +141,12 @@ a{color:inherit}
    not a separate panel. */
 .hero{
   position:relative;overflow:hidden;color:var(--poster-cream);
-  padding:3.2rem 0 0;isolation:isolate;
+  padding:4rem 0 0;isolation:isolate;
   display:flex;flex-direction:column;
-  min-height:clamp(640px,92vh,860px);
+  /* Reduced from clamp(640px, 92vh, 860px). The hero was scrolling
+     past one viewport on most laptops; this fits inside the fold
+     comfortably while still leaving room for the landscape. */
+  min-height:clamp(560px,72vh,720px);
 }
 .hero-scene{position:absolute;inset:0;z-index:-1}
 .hero-svg{
@@ -144,13 +156,13 @@ a{color:inherit}
 .hero-inner{
   position:relative;flex:1;
   display:flex;flex-direction:column;align-items:center;
-  padding:1.2rem 1.2rem 1.6rem;max-width:920px;width:100%;
+  padding:1.6rem 1.2rem 1.6rem;max-width:920px;width:100%;
   margin:0 auto;text-align:center;
   animation:heroRise .7s cubic-bezier(.2,.7,.2,1) both;
 }
 @keyframes heroRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .hero .kicker{
-  color:var(--poster-cream);margin-bottom:1.4rem;display:block;
+  color:var(--poster-cream);margin-bottom:2.2rem;display:block;
   letter-spacing:.32em;font-size:.78rem;font-weight:700;
   text-shadow:0 1px 0 rgba(36,31,26,.45);
 }
@@ -185,11 +197,15 @@ a{color:inherit}
   text-shadow:none;
 }
 
-/* CTA row: pushed to the bottom of hero-inner via margin-top:auto
-   so the buttons land on the cream ground band drawn in the SVG. */
+/* CTA row: sits directly under the headline banner so the two
+   feel visually connected. Earlier stages pushed the buttons to
+   the bottom of hero-inner via margin-top:auto, which put them on
+   top of the animated rail and made the navy train read as a
+   stray rectangle behind them. Keeping them up here also lets the
+   cream foreground area below show the train clearly. */
 .hero-cta{
   display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;
-  margin-top:auto;padding-top:2rem;
+  margin-top:1.4rem;
 }
 
 /* Hero stats: minimal cream surface (no inset shadows, no orange
