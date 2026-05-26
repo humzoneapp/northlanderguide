@@ -157,15 +157,15 @@ a{color:inherit}
 
 /* Cream banner panel: gives the headline a known-light background
    so dark text stays high-contrast over any sky band behind it.
-   Chunky crimson border with a flat offset shadow reads as a
-   printed poster frame. */
+   Even 6px crimson border on all four sides (the offset shadow
+   used previously was making the bottom edge read as thicker than
+   the other three, so it has been removed). */
 .hero-banner{
   background:var(--poster-cream);
-  border:5px solid var(--poster-crimson);
+  border:6px solid var(--poster-crimson);
   padding:1.4rem 1.6rem 1.2rem;
   margin:0 auto;
   max-width:640px;
-  box-shadow:0 8px 0 var(--poster-crimson);
 }
 .hero-banner h1{
   font-size:clamp(2.2rem,8.6vw,4rem);

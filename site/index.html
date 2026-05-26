@@ -81,9 +81,10 @@
         <ellipse cx="-30" cy="-4" rx="24" ry="8"/>
       </g>
 
-      <!-- Sun: focal point. Eight subtle rays radiating, then a big
-           cream disc on top. The rays sit just behind the disc. -->
-      <g class="hero-sun-rays" fill="#f6e7c4" opacity="0.45" transform="translate(1180 220)">
+      <!-- Sun: focal point. Eight subtle rays radiating, then a
+           big cream disc on top. Centered horizontally so mobile
+           viewports (which crop the SVG sides) still see it. -->
+      <g class="hero-sun-rays" fill="#f6e7c4" opacity="0.45" transform="translate(820 200)">
         <rect x="-3" y="-160" width="6" height="50"/>
         <rect x="-3" y="-160" width="6" height="50" transform="rotate(45)"/>
         <rect x="-3" y="-160" width="6" height="50" transform="rotate(90)"/>
@@ -93,77 +94,116 @@
         <rect x="-3" y="-160" width="6" height="50" transform="rotate(270)"/>
         <rect x="-3" y="-160" width="6" height="50" transform="rotate(315)"/>
       </g>
-      <circle cx="1180" cy="220" r="108" fill="#f6e7c4"/>
-      <circle cx="1180" cy="220" r="86"  fill="#fbf1d2"/>
+      <circle cx="820" cy="200" r="100" fill="#f6e7c4"/>
+      <circle cx="820" cy="200" r="80"  fill="#fbf1d2"/>
 
       <!-- Background range: jagged peaks of varying heights so the
-           horizon recedes instead of reading as a stripe. -->
-      <path d="M0,360 L70,250 L150,300 L230,210 L310,290 L400,200 L490,280 L580,230 L680,300 L780,210 L870,290 L960,240 L1080,300 L1180,230 L1280,290 L1360,240 L1440,300 L1440,540 L0,540 Z" fill="#7ea29e"/>
+           horizon recedes instead of reading as a stripe. Baseline
+           raised to y=460 so the cream ground band has room. -->
+      <path d="M0,360 L70,250 L150,300 L230,210 L310,290 L400,200 L490,280 L580,230 L680,300 L780,210 L870,290 L960,240 L1080,300 L1180,230 L1280,290 L1360,240 L1440,300 L1440,460 L0,460 Z" fill="#7ea29e"/>
 
-      <!-- Midground hills: smoother, deeper teal, overlapping the
-           background range so the eye reads depth. -->
-      <path d="M0,420 C200,340 420,420 620,360 S1020,420 1240,380 S1440,360 1440,400 L1440,540 L0,540 Z" fill="#456f6c"/>
+      <!-- Midground hills: smoother rolling curves, deeper teal,
+           overlapping the background range. -->
+      <path d="M0,400 C200,330 420,400 620,350 S1020,400 1240,370 S1440,350 1440,390 L1440,460 L0,460 Z" fill="#456f6c"/>
 
-      <!-- Foreground hills: deep forest, lower in front, hill tops
-           visible above the cream ground band. -->
-      <path d="M0,470 C160,420 360,480 560,440 S960,480 1160,440 S1440,420 1440,460 L1440,540 L0,540 Z" fill="#2a4d3a"/>
+      <!-- Foreground hills: deep forest, lowest layer, with pine
+           cluster on the silhouette. Kept fully above y=460 so the
+           cream ground band below stays clean for CTAs. -->
+      <path d="M0,440 C160,400 360,440 560,420 S960,440 1160,420 S1440,400 1440,440 L1440,460 L0,460 Z" fill="#2a4d3a"/>
 
-      <!-- Pine cluster on the foreground hills. Scaled and
-           positioned so trees crown the silhouette, not the sky. -->
+      <!-- Pine cluster on the foreground hills. -->
       <g fill="#1f3d2d">
-        <polygon points="60,470 96,408 132,470"/>
-        <polygon points="130,478 168,402 206,478"/>
-        <polygon points="200,470 234,418 268,470"/>
-        <polygon points="270,478 306,402 342,478"/>
-        <polygon points="350,470 384,414 418,470"/>
-        <polygon points="430,478 466,402 502,478"/>
-        <polygon points="510,470 544,418 578,470"/>
-        <polygon points="588,478 624,402 660,478"/>
-        <polygon points="970,470 1004,416 1038,470"/>
-        <polygon points="1040,478 1076,400 1112,478"/>
-        <polygon points="1118,470 1152,416 1186,470"/>
-        <polygon points="1196,478 1232,402 1268,478"/>
-        <polygon points="1276,470 1310,416 1344,470"/>
-        <polygon points="1352,478 1388,402 1424,478"/>
+        <polygon points="60,442 96,388 132,442"/>
+        <polygon points="130,448 168,382 206,448"/>
+        <polygon points="200,442 234,394 268,442"/>
+        <polygon points="270,448 306,380 342,448"/>
+        <polygon points="350,442 384,392 418,442"/>
+        <polygon points="1040,448 1076,378 1112,448"/>
+        <polygon points="1118,442 1152,392 1186,442"/>
+        <polygon points="1196,448 1232,380 1268,448"/>
+        <polygon points="1276,442 1310,394 1344,442"/>
+        <polygon points="1352,448 1388,382 1424,448"/>
       </g>
 
-      <!-- Flat lake on the left, between the foreground hills and
-           the ground band. Three subtle horizontal highlights
-           shimmer with a slow opacity oscillation. -->
-      <rect x="0" y="490" width="420" height="50" fill="#2c5258"/>
+      <!-- Cream ground band: 160px of foreground earth (y=460 to
+           y=620) where the CTA buttons land. Matches .hero-stats
+           background so the stat strip reads as a continuation of
+           the same surface. -->
+      <rect y="460" width="1440" height="160" fill="#eed3a0"/>
+      <rect y="460" width="1440" height="3"   fill="#c46f2c" opacity="0.65"/>
+
+      <!-- Flat lake centered in the upper portion of the ground
+           band so it stays visible on mobile crops. -->
+      <rect x="500" y="478" width="260" height="42" fill="#2c5258"/>
       <g class="lake-shimmer">
-        <rect class="shimmer-a" x="40"  y="500" width="120" height="2" fill="#7ea29e"/>
-        <rect class="shimmer-b" x="180" y="514" width="160" height="2" fill="#7ea29e"/>
-        <rect class="shimmer-c" x="60"  y="528" width="90"  height="2" fill="#7ea29e"/>
+        <rect class="shimmer-a" x="520" y="486" width="100" height="2" fill="#7ea29e"/>
+        <rect class="shimmer-b" x="620" y="500" width="120" height="2" fill="#7ea29e"/>
+        <rect class="shimmer-c" x="540" y="514" width="90"  height="2" fill="#7ea29e"/>
       </g>
 
-      <!-- Cream ground band: foreground earth where the CTAs sit.
-           Matches the .hero-stats background so the strip below
-           looks like it continues from this band. -->
-      <rect y="540" width="1440" height="80" fill="#eed3a0"/>
-      <rect y="540" width="1440" height="3"  fill="#c46f2c" opacity="0.65"/>
-
-      <!-- Curving rail: lower-left to upper-right, ending under the
-           sun. Drawn as a wide brown bed plus a dashed darker
-           overlay (the dashes read as cross-ties). -->
+      <!-- Rail: a thin gentle curve along the lower foreground.
+           Stays in the bottom ~75 units of the SVG so it never
+           climbs into the sky. Starts and ends off-screen so the
+           train loop has no visible teleport on any viewport. -->
       <path id="railpath"
-            d="M60,620 C260,560 540,520 760,440 S1120,300 1260,230"
-            fill="none" stroke="#6b4528" stroke-width="34" stroke-linecap="round"/>
-      <path d="M60,620 C260,560 540,520 760,440 S1120,300 1260,230"
-            fill="none" stroke="#3a2618" stroke-width="28"
-            stroke-dasharray="12 18" stroke-linecap="butt"/>
+            d="M1500,615 C1300,600 1100,585 900,570 S500,545 120,540"
+            fill="none" stroke="#6b4528" stroke-width="8" stroke-linecap="round"/>
+      <path d="M1500,615 C1300,600 1100,585 900,570 S500,545 120,540"
+            fill="none" stroke="#3a2618" stroke-width="6"
+            stroke-dasharray="4 8" stroke-linecap="butt"/>
 
-      <!-- Train: small locomotive shape that follows the rail path
-           via SMIL animateMotion. The rotate="auto" attribute keeps
-           it oriented along the curve. Hidden in CSS when the user
-           prefers reduced motion. -->
+      <!-- Train: Northlander livery. One Siemens Charger locomotive
+           (sloped angular nose, navy body, white windshield, green
+           stripe, yellow nose accent) pulling three Siemens Venture
+           coaches (smooth low-profile, navy with a white window
+           strip and a thin green stripe). Wheels at local y=0 so
+           the train sits on the rail. animateMotion follows the
+           rail path with rotate="auto" so the train banks with the
+           curve. Hidden in CSS when prefers-reduced-motion. -->
       <g class="hero-train">
-        <rect x="-22" y="-10" width="44" height="18" rx="2" fill="#8e3d22"/>
-        <rect x="-8"  y="-18" width="18" height="8"  fill="#8e3d22"/>
-        <rect x="-22" y="6"   width="44" height="3"  fill="#241f1a"/>
-        <circle cx="-13" cy="10" r="3.5" fill="#241f1a"/>
-        <circle cx="13"  cy="10" r="3.5" fill="#241f1a"/>
-        <animateMotion dur="42s" repeatCount="indefinite" rotate="auto">
+        <!-- Locomotive: Siemens Charger, nose at local +X -->
+        <g class="loco">
+          <!-- Navy body silhouette with sloped top-front -->
+          <path d="M -28,-23 L 0,-23 L 28,-13 L 28,-3 L -28,-3 Z" fill="#1a3554"/>
+          <!-- Side window strip -->
+          <rect x="-24" y="-20" width="22" height="5" fill="#f3ece0"/>
+          <!-- Cab windshield: white triangle on the slope -->
+          <polygon points="0,-22 22,-14 0,-14" fill="#f3ece0"/>
+          <!-- Yellow accent at the nose tip -->
+          <rect x="22" y="-12" width="6" height="6" fill="#e8c93a"/>
+          <!-- Ontario Northland green stripe -->
+          <rect x="-28" y="-9" width="56" height="2.5" fill="#1d6347"/>
+          <!-- Wheel trucks -->
+          <circle cx="-18" cy="0" r="2.5" fill="#241f1a"/>
+          <circle cx="-8"  cy="0" r="2.5" fill="#241f1a"/>
+          <circle cx="8"   cy="0" r="2.5" fill="#241f1a"/>
+          <circle cx="18"  cy="0" r="2.5" fill="#241f1a"/>
+        </g>
+        <!-- Coach 1: Siemens Venture, trails the loco -->
+        <g transform="translate(-44,0)">
+          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
+          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
+          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
+          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
+          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        </g>
+        <!-- Coach 2 -->
+        <g transform="translate(-86,0)">
+          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
+          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
+          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
+          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
+          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        </g>
+        <!-- Coach 3 -->
+        <g transform="translate(-128,0)">
+          <rect x="-18" y="-21" width="36" height="18" rx="2" fill="#1a3554"/>
+          <rect x="-16" y="-18" width="32" height="4"  fill="#f3ece0"/>
+          <rect x="-18" y="-10" width="36" height="2"  fill="#1d6347"/>
+          <circle cx="-12" cy="0" r="2.2" fill="#241f1a"/>
+          <circle cx="12"  cy="0" r="2.2" fill="#241f1a"/>
+        </g>
+        <animateMotion dur="55s" repeatCount="indefinite" rotate="auto">
           <mpath href="#railpath"/>
         </animateMotion>
       </g>
