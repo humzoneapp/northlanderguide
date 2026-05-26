@@ -151,7 +151,10 @@ a{color:inherit}
   position:relative;overflow:hidden;color:var(--poster-cream);
   isolation:isolate;
   display:flex;flex-direction:column;align-items:center;
-  padding:3.8rem 1.2rem 2.6rem;
+  /* Top padding reduced (was 3.8rem) so the text block sits up
+     in the calm sky area of the photograph, well clear of the
+     heron's head and the busy water reflections below. */
+  padding:1.6rem 1.2rem 2.6rem;
   /* Sensible height: fits inside one viewport on a laptop without
      dominating, scales down comfortably on phones via clamp. */
   min-height:clamp(440px,62vh,600px);
@@ -162,17 +165,18 @@ a{color:inherit}
   object-fit:cover;object-position:center;
   display:block;
 }
-/* Soft dark gradient over the text region only. Strong enough at
-   the top for cream text to stay legible, fades to transparent by
-   roughly two-thirds down so the heron and lake stay clear. */
+/* Soft dark gradient over the text region only. Slightly stronger
+   than the previous pass so the subtitle paragraph stays crisp,
+   but still fades to fully transparent in the lower portion so
+   the heron, lake, and trees read clearly. */
 .hero::before{
   content:"";
   position:absolute;inset:0;z-index:-1;
   background:linear-gradient(180deg,
-    rgba(18,28,38,.65) 0%,
-    rgba(18,28,38,.45) 28%,
-    rgba(18,28,38,.18) 55%,
-    rgba(18,28,38,0)   80%);
+    rgba(18,28,38,.78) 0%,
+    rgba(18,28,38,.60) 32%,
+    rgba(18,28,38,.28) 60%,
+    rgba(18,28,38,0)   88%);
   pointer-events:none;
 }
 
@@ -192,7 +196,7 @@ a{color:inherit}
 .hero h1{
   font-size:clamp(2.2rem,8.6vw,3.8rem);
   letter-spacing:-.015em;line-height:1.08;
-  margin:0 0 1rem;
+  margin:0 0 .8rem;
   color:var(--poster-cream);
   text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);
 }
@@ -203,12 +207,15 @@ a{color:inherit}
 .hero-sub{
   color:var(--poster-cream);
   font-size:1.04rem;line-height:1.55;font-weight:500;
-  max-width:46ch;margin:0 auto 1.4rem;
+  /* Tightened from 1.4rem so the buttons travel up with the
+     headline instead of drifting down toward the heron's head,
+     especially on mobile where the headline wraps taller. */
+  max-width:46ch;margin:0 auto .9rem;
   text-shadow:0 1px 6px rgba(0,0,0,.6);
 }
 .hero-cta{
   display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;
-  margin-top:1.4rem;
+  margin-top:1rem;
 }
 
 /* Hero stats: lives outside the hero now (so it never covers the
