@@ -57,6 +57,35 @@ function setSeasonalHero(){
 }
 
 /* ------------------------------------------------------------------
+   REVEAL-ON-SCROLL
+   IntersectionObserver-based fade + rise as elements enter the
+   viewport. The CSS class .reveal handles the visual transition;
+   here we just add .is-visible once each element first intersects.
+   observeReveals() is idempotent and called after every render so
+   dynamically inserted nodes get observed too. Users who prefer
+   reduced motion are short-circuited to the visible state with no
+   animation.
+------------------------------------------------------------------- */
+const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const revealObserver = REDUCE_MOTION ? null : new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { rootMargin:'0px 0px -8% 0px', threshold:0.08 });
+
+function observeReveals(){
+  const targets = document.querySelectorAll('.reveal:not(.is-visible)');
+  if(REDUCE_MOTION || !revealObserver){
+    targets.forEach(el=>el.classList.add('is-visible'));
+    return;
+  }
+  targets.forEach(el=>revealObserver.observe(el));
+}
+
+/* ------------------------------------------------------------------
    HERO SCENE: fill in the pine ridge and rail ties procedurally so
    the header has real detail without any image files.
 ------------------------------------------------------------------- */
@@ -1230,17 +1259,19 @@ function renderStop(){
   const heroArt = stopArt(s, i);
   document.getElementById('stopPanel').innerHTML = `
     <div class="stop" data-stop="${s.id}">
-      <div class="stop-hero">
-        <div class="ord-badge">${i+1}</div>
-        ${ s.image
-            ? `<img class="stop-photo" src="${s.image}" alt="${s.name}"
-                 onerror="this.outerHTML='<div class=&quot;stop-art&quot;>'+document.getElementById('art${i}').innerHTML+'</div>'">
-               <div id="art${i}" style="display:none">${heroArt}</div>`
-            : heroArt }
-        <div class="label">
-          <div class="region">${s.region}</div>
-          <h3>${s.name}</h3>
-          <div class="hook">${s.hook}</div>
+      <div class="reveal">
+        <div class="stop-hero">
+          <div class="ord-badge">${i+1}</div>
+          ${ s.image
+              ? `<img class="stop-photo" src="${s.image}" alt="${s.name}"
+                   onerror="this.outerHTML='<div class=&quot;stop-art&quot;>'+document.getElementById('art${i}').innerHTML+'</div>'">
+                 <div id="art${i}" style="display:none">${heroArt}</div>`
+              : heroArt }
+          <div class="label">
+            <div class="region">${s.region}</div>
+            <h3>${s.name}</h3>
+            <div class="hook">${s.hook}</div>
+          </div>
         </div>
       </div>
       <div class="stop-meta">
@@ -1266,6 +1297,7 @@ function renderStop(){
   document.querySelectorAll('[data-share]').forEach(b=>
     b.addEventListener('click',()=>shareCurrent(b.dataset.share)));
   renderCards();
+  observeReveals();
 }
 
 function renderCards(){
@@ -1273,20 +1305,23 @@ function renderCards(){
   const wrap = document.getElementById('cards');
   if(!items.length){ wrap.innerHTML = `<div class="empty">No listings here yet.</div>`; return; }
   wrap.innerHTML = items.map((it,idx)=>`
-    <button class="card" data-idx="${idx}">
-      ${imageBlock(it, activeCat, idx, 'card-img')}
-      <div class="card-body">
-        <div class="toprow">
-          <span class="tag">${it.tag}</span>
-          <span class="rating">${it.rating==='NR'?'New':'\u2605 '+it.rating}</span>
+    <div class="reveal">
+      <button class="card" data-idx="${idx}">
+        ${imageBlock(it, activeCat, idx, 'card-img')}
+        <div class="card-body">
+          <div class="toprow">
+            <span class="tag">${it.tag}</span>
+            <span class="rating">${it.rating==='NR'?'New':'\u2605 '+it.rating}</span>
+          </div>
+          <h4>${it.name}</h4>
+          <div class="desc">${it.desc}</div>
+          <span class="card-cta">View details \u2192</span>
         </div>
-        <h4>${it.name}</h4>
-        <div class="desc">${it.desc}</div>
-        <span class="card-cta">View details \u2192</span>
-      </div>
-    </button>`).join('');
+      </button>
+    </div>`).join('');
   wrap.querySelectorAll('.card').forEach(c=>
     c.addEventListener('click',()=>openDetail(parseInt(c.dataset.idx,10))));
+  observeReveals();
 }
 
 /* ------------------------------------------------------------------
@@ -1334,21 +1369,24 @@ function renderDetail(){
   const mc = document.getElementById('moreCards');
   if(mc){
     mc.innerHTML = others.map(o=>`
-      <button class="card" data-idx="${o.i}">
-        ${imageBlock(o.x, activeCat, o.i, 'card-img')}
-        <div class="card-body">
-          <div class="toprow">
-            <span class="tag">${o.x.tag}</span>
-            <span class="rating">${o.x.rating==='NR'?'New':'\u2605 '+o.x.rating}</span>
+      <div class="reveal">
+        <button class="card" data-idx="${o.i}">
+          ${imageBlock(o.x, activeCat, o.i, 'card-img')}
+          <div class="card-body">
+            <div class="toprow">
+              <span class="tag">${o.x.tag}</span>
+              <span class="rating">${o.x.rating==='NR'?'New':'\u2605 '+o.x.rating}</span>
+            </div>
+            <h4>${o.x.name}</h4>
+            <div class="desc">${o.x.desc}</div>
+            <span class="card-cta">View details \u2192</span>
           </div>
-          <h4>${o.x.name}</h4>
-          <div class="desc">${o.x.desc}</div>
-          <span class="card-cta">View details \u2192</span>
-        </div>
-      </button>`).join('');
+        </button>
+      </div>`).join('');
     mc.querySelectorAll('.card').forEach(c=>
       c.addEventListener('click',()=>openDetail(parseInt(c.dataset.idx,10))));
   }
+  observeReveals();
 }
 
 function openDetail(idx){
@@ -1371,15 +1409,18 @@ function renderEvents(){
   }
   wrap.innerHTML = `<div class="evlist">
     ${evts.map(e=>`
-      <div class="evcard">
-        <div class="date"><div class="d">${e.d}</div><div class="m">${e.m}</div></div>
-        <div>
-          <h4>${e.name}</h4>
-          <div class="where">\u{1F4CD} ${e.where} \u00B7 ${activeStop.name}</div>
-          <div class="edesc">${e.desc}</div>
+      <div class="reveal">
+        <div class="evcard">
+          <div class="date"><div class="d">${e.d}</div><div class="m">${e.m}</div></div>
+          <div>
+            <h4>${e.name}</h4>
+            <div class="where">\u{1F4CD} ${e.where} \u00B7 ${activeStop.name}</div>
+            <div class="edesc">${e.desc}</div>
+          </div>
         </div>
       </div>`).join('')}
   </div>`;
+  observeReveals();
 }
 
 /* ------------------------------------------------------------------
@@ -1544,11 +1585,25 @@ function setMobileMenu(open){
   mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
 }
 if(hamburgerBtn && mobileMenu){
-  hamburgerBtn.addEventListener('click', ()=>{
+  hamburgerBtn.addEventListener('click', (e)=>{
+    // Stop propagation so the document-level outside-click handler
+    // below does not immediately close the menu we just opened.
+    e.stopPropagation();
     setMobileMenu(!hamburgerBtn.classList.contains('open'));
   });
   mobileMenu.querySelectorAll('a').forEach(a=>{
     a.addEventListener('click', ()=>setMobileMenu(false));
+  });
+  // Tap anywhere outside the menu (and outside the hamburger button)
+  // closes the menu. Escape key also closes it for keyboard users.
+  document.addEventListener('click', (e)=>{
+    if(!mobileMenu.classList.contains('open')) return;
+    if(hamburgerBtn.contains(e.target)) return;
+    if(mobileMenu.contains(e.target)) return;
+    setMobileMenu(false);
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && mobileMenu.classList.contains('open')) setMobileMenu(false);
   });
 }
 
@@ -1574,3 +1629,4 @@ renderStop();
 renderEvents();
 initMap();
 updateRouteBar();
+observeReveals();

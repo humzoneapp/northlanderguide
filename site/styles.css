@@ -151,10 +151,12 @@ a{color:inherit}
 .hamburger.open span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
 
 /* Mobile menu drawer. display:none on desktop so it stays out of
-   the tab order. At <=640px it switches to display:block and
-   slides down from above when .open is added. */
+   the tab order. At <768px it switches to display:flex and slides
+   down from above when .open is added. The 767px breakpoint is the
+   inclusive upper bound for "mobile" (matches the spec of "under
+   768px"). */
 .mobilemenu{display:none}
-@media (max-width:640px){
+@media (max-width:767px){
   .topnav{display:none}
   .hamburger{display:flex}
   .mobilemenu{
@@ -198,6 +200,40 @@ a{color:inherit}
     scroll-behavior:auto !important;
   }
 }
+
+/* ---------- reveal-on-scroll ----------
+   .reveal wrappers (and the few elements that get .reveal directly,
+   like .section-head) start invisible and gently lifted. JS adds
+   .is-visible via IntersectionObserver as the element enters the
+   viewport. The wrapper pattern keeps the rise transform off the
+   inner card itself so the card's hover lift stays snappy at its
+   own duration.
+   prefers-reduced-motion is already handled by the global block
+   above (transitions collapse to ~0ms, so reveals snap in). */
+.reveal{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .55s cubic-bezier(.23,1,.32,1),
+             transform .55s cubic-bezier(.23,1,.32,1);
+  will-change:opacity, transform;
+}
+.reveal.is-visible{
+  opacity:1;
+  transform:none;
+}
+/* Cascade siblings: when a row of listing cards or event cards all
+   enter the viewport at once, stagger their reveals so the group
+   reads as a cascade instead of a single thunk. */
+.cards > .reveal:nth-child(2){transition-delay:.06s}
+.cards > .reveal:nth-child(3){transition-delay:.12s}
+.cards > .reveal:nth-child(4){transition-delay:.18s}
+.cards > .reveal:nth-child(5){transition-delay:.24s}
+.cards > .reveal:nth-child(6){transition-delay:.30s}
+.cards > .reveal:nth-child(n+7){transition-delay:.36s}
+.evlist > .reveal:nth-child(2){transition-delay:.06s}
+.evlist > .reveal:nth-child(3){transition-delay:.12s}
+.evlist > .reveal:nth-child(4){transition-delay:.18s}
+.evlist > .reveal:nth-child(n+5){transition-delay:.24s}
 
 /* ---------- hero (Stage 5: real illustrated background) ----------
    The hand-built SVG landscape from earlier stages was replaced
@@ -658,25 +694,11 @@ a{color:inherit}
 .catfilter button.active .cnt{background:rgba(255,255,255,.28);color:#fff}
 .catfilter button:active{transform:scale(.97)}
 
-/* listing cards (now with an image area).
-   Each card enters with a tiny upward fade, staggered 40ms apart
-   so the listing cascades into view instead of all landing at once.
-   Stagger is decorative only and never blocks interaction (the
-   buttons are clickable from frame 1 because animation-fill-mode
-   is `both`). */
+/* Listing cards (with image area). Entrance animation is handled
+   by the reveal-on-scroll system above: each card sits inside a
+   .reveal wrapper that fades and rises as it enters the viewport,
+   staggered via .cards > .reveal:nth-child rules. */
 .cards{display:grid;grid-template-columns:1fr;gap:.9rem}
-.cards .card{animation:cardEnter .28s cubic-bezier(.23,1,.32,1) both}
-.cards .card:nth-child(1){animation-delay:0ms}
-.cards .card:nth-child(2){animation-delay:40ms}
-.cards .card:nth-child(3){animation-delay:80ms}
-.cards .card:nth-child(4){animation-delay:120ms}
-.cards .card:nth-child(5){animation-delay:160ms}
-.cards .card:nth-child(6){animation-delay:200ms}
-.cards .card:nth-child(n+7){animation-delay:240ms}
-@keyframes cardEnter{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:none}
-}
 .card{
   background:var(--card);border:1.5px solid var(--line);
   border-radius:18px;overflow:hidden;cursor:pointer;
@@ -863,16 +885,26 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   .fwrap{grid-template-columns:2fr 1fr 1fr}
 }
 
-/* ---------- back to top ---------- */
+/* ---------- back to top ----------
+   Appears once the user has scrolled >600px (see app.js scroll
+   listener). Sits in the bottom-right with a comfortable mobile
+   tap target (52px, above the 44px WCAG minimum). Includes
+   env(safe-area-inset-bottom) so it never slips under the iOS
+   home indicator. */
 .totop{
-  position:fixed;right:1rem;bottom:1rem;z-index:900;
-  width:46px;height:46px;border-radius:50%;
+  position:fixed;
+  right:1.1rem;
+  bottom:calc(1.1rem + env(safe-area-inset-bottom,0));
+  z-index:900;
+  width:52px;height:52px;border-radius:50%;
   background:var(--ember);color:#fff;text-decoration:none;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;box-shadow:0 6px 16px rgba(217,108,44,.4);
-  opacity:0;pointer-events:none;transition:opacity .25s;
+  font-size:1.45rem;box-shadow:0 6px 16px rgba(217,108,44,.4);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease, transform .22s ease-out;
 }
 .totop.show{opacity:1;pointer-events:auto}
+.totop:active{transform:scale(.94)}
 
 .empty{color:var(--muted);font-style:italic;padding:1.5rem;text-align:center}
 
