@@ -1679,6 +1679,11 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     renderStop();
     renderEvents();
     console.log('Live data loaded successfully, updated:', cache.updated);
+    // Temporary diagnostic: surface the first union restaurant
+    // (including any image field) so we can see the cache shape.
+    if (cache.stops && cache.stops.union && cache.stops.union.restaurants && cache.stops.union.restaurants[0]) {
+      console.log('Sample listing:', JSON.stringify(cache.stops.union.restaurants[0]));
+    }
   })
   .catch(() => {
     console.log('Live data unavailable, using curated content');
