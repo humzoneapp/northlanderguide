@@ -34,6 +34,20 @@ const PORT = process.env.PORT || 3000;
 const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_TOKEN;
 
+/* CORS: allow the Vercel front end (and any other origin) to fetch
+   from this Render backend. Runs before every route so static files
+   and JSON endpoints all carry the headers. Handles preflight
+   OPTIONS short-circuit. */
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 /* Serve the static site from the sibling /site folder */
 app.use(express.static(path.join(__dirname, '..', 'site')));
 
@@ -85,6 +99,19 @@ app.get('/api/photo', async (req, res) => {
     res.send(buf);
   }catch(err){
     res.status(502).json({error:'Photo upstream failed', detail:String(err)});
+  }
+});
+
+app.get('/live-data.json', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const dataFile = path.join(__dirname, '..', 'site', 'live-data.json');
+  try {
+    const data = fs.readFileSync(dataFile, 'utf8');
+    res.header('Content-Type', 'application/json');
+    res.send(data);
+  } catch(e) {
+    res.status(404).json({ error: 'Live data not yet generated' });
   }
 });
 
