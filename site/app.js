@@ -214,33 +214,44 @@ function cardArt(cat, seed){
   const p = palettes[cat] || palettes.attractions;
 
   // 400 x 220 viewBox. Icons are centered around (200, 110).
+  // All shapes are drawn as primitive SVG (rect, polygon, path).
+  // No emoji or text glyphs, so rendering is identical on every
+  // device and the icons stay crisp at any size.
   const icons = {
+    // Dinner fork: three chunky prongs, a clearly wider bowl,
+    // and a long handle. The thicker bowl is what distinguishes a
+    // dinner fork from a tuning fork.
     restaurants: `
       <g fill="${p.ic}">
-        <rect x="183" y="62"  width="4"  height="44" rx="1.5"/>
-        <rect x="198" y="62"  width="4"  height="44" rx="1.5"/>
-        <rect x="213" y="62"  width="4"  height="44" rx="1.5"/>
-        <rect x="180" y="104" width="40" height="8"  rx="2"/>
-        <rect x="196" y="110" width="8"  height="56" rx="3"/>
+        <rect x="184" y="58"  width="6"  height="44" rx="2"/>
+        <rect x="197" y="58"  width="6"  height="44" rx="2"/>
+        <rect x="210" y="58"  width="6"  height="44" rx="2"/>
+        <rect x="178" y="100" width="44" height="20" rx="7"/>
+        <rect x="194" y="118" width="12" height="62" rx="5"/>
       </g>`,
+    // Bed: two pillows, mattress, two stubby legs.
     accommodations: `
       <g fill="${p.ic}">
+        <rect x="155" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
+        <rect x="203" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
         <rect x="142" y="110" width="116" height="34" rx="6"/>
         <rect x="140" y="142" width="10"  height="22" rx="2"/>
         <rect x="250" y="142" width="10"  height="22" rx="2"/>
-        <rect x="155" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
-        <rect x="203" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
       </g>`,
+    // Pine tree: three stacked triangles plus a short trunk.
     parks: `
       <g fill="${p.ic}">
         <polygon points="200,62 174,108 226,108"/>
         <polygon points="200,92 168,138 232,138"/>
         <polygon points="200,122 160,168 240,168"/>
-      </g>
-      <rect x="195" y="168" width="10" height="18" fill="${p.ic}" opacity=".7"/>`,
+        <rect x="195" y="168" width="10" height="14" opacity=".7"/>
+      </g>`,
+    // Map pin: rounded teardrop with a punched circle. The hole
+    // uses the gradient's darker stop so it reads through to the
+    // background instead of looking like a separate dot.
     attractions: `
-      <path d="M200 62 C 222 62 238 80 238 102 C 238 134 200 178 200 178 C 200 178 162 134 162 102 C 162 80 178 62 200 62 Z" fill="${p.ic}"/>
-      <circle cx="200" cy="100" r="11" fill="${p.bg2}"/>`
+      <path d="M200 60 C 222 60 240 78 240 100 C 240 134 200 180 200 180 C 200 180 160 134 160 100 C 160 78 178 60 200 60 Z" fill="${p.ic}"/>
+      <circle cx="200" cy="98" r="11" fill="${p.bg2}"/>`
   };
 
   const sid = `cg${cat}${seed}`;

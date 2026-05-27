@@ -496,16 +496,19 @@ a{color:inherit}
 }
 
 /* stop chips: horizontal scroll on mobile.
-   Extra bottom padding gives the rusty-brown scrollbar room to
-   breathe so it never crowds the stop card image directly below. */
+   Tight bottom padding keeps the scrollbar nestled close to the
+   chip row (so it reads as "the chip slider"). A generous
+   margin-bottom then opens clear breathing room between the
+   slider and the stop card directly below. */
 .stopchips{
-  display:flex;gap:.5rem;overflow-x:auto;padding:.3rem 1.25rem 1.9rem;
+  display:flex;gap:.5rem;overflow-x:auto;
+  padding:.3rem 1.25rem .5rem;margin-bottom:2rem;
   -webkit-overflow-scrolling:touch;scrollbar-width:thin;
   /* Firefox uses scrollbar-color (thumb track). Matches the
      poster-crimson rusty brown used for the route progress bar. */
   scrollbar-color:var(--poster-crimson) transparent;
 }
-.stopchips::-webkit-scrollbar{height:5px}
+.stopchips::-webkit-scrollbar{height:7px}
 .stopchips::-webkit-scrollbar-thumb{background:var(--poster-crimson);border-radius:9px}
 .chip{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.85rem;
@@ -603,9 +606,21 @@ a{color:inherit}
   font-weight:600;padding:.55rem 1.05rem;border-radius:100px;cursor:pointer;
   border:2px solid var(--line);background:var(--card);color:var(--muted);
   display:flex;align-items:center;gap:.45rem;
+  /* No browser-default focus outline: the default outline can
+     visually detach from the button when transform is applied on
+     hover. The element's own border (transformed with the button)
+     handles all state indication. Keyboard focus picks up
+     :focus-visible below for accessibility. */
+  outline:none;
+  /* Match transform timing with border-color so the lift and the
+     border colour change land together. */
   transition:transform .22s cubic-bezier(.2,.7,.2,1),
-             box-shadow .22s ease, color .15s ease,
-             background .2s ease, border-color .15s ease;
+             box-shadow .22s ease, color .22s ease,
+             background .22s ease, border-color .22s ease;
+}
+.catfilter button:focus-visible{
+  border-color:var(--rail);
+  box-shadow:0 0 0 3px rgba(14,59,44,.18);
 }
 .catfilter button .ic{font-size:1rem;line-height:1}
 .catfilter button .cnt{
@@ -892,7 +907,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop[data-stop="union"] .stop-meta .pill{
   background:var(--poster-cream);
   border:2px solid var(--poster-crimson);
-  border-radius:4px;padding:.4rem .85rem;font-size:.82rem;
+  border-radius:100px;padding:.4rem .9rem;font-size:.82rem;
   color:var(--poster-ink);font-weight:600;
 }
 .stop[data-stop="union"] .stop-meta .pill b{color:var(--poster-crimson)}
@@ -902,11 +917,13 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   padding:0 .2rem;margin-bottom:1.5rem;
 }
 
-/* Share row buttons in poster tones. */
+/* Share row buttons in poster tones. Pill border-radius matches
+   the regular .share-row button, the stop chips and the catfilter
+   buttons so every pressable on the page is fully rounded. */
 .stop[data-stop="union"] .share-row button{
   border:2px solid var(--poster-crimson);
   color:var(--poster-crimson);background:var(--poster-cream);
-  border-radius:4px;font-weight:700;
+  border-radius:100px;font-weight:700;
 }
 .stop[data-stop="union"] .share-row button:hover{
   background:var(--poster-crimson);color:var(--poster-cream);
