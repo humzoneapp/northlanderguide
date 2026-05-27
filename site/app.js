@@ -1676,16 +1676,28 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
       if (c.attractions && c.attractions.length) s.attractions = c.attractions;
       if (c.events && c.events.length) s.events = c.events;
     });
+
+    /* Photo proxy URLs in the cache are stored as relative paths
+       (e.g. "/api/photo?ref=..."). Prepend the Render backend
+       origin so the browser fetches the image through the photo
+       proxy endpoint instead of trying to hit the front-end host. */
+    const BACKEND = 'https://northlander-backend.onrender.com';
+    STOPS.forEach(s => {
+      const cats = ['restaurants', 'accommodations', 'parks', 'attractions'];
+      cats.forEach(cat => {
+        if (s[cat]) {
+          s[cat].forEach(item => {
+            if (item.image && item.image.startsWith('/api/photo')) {
+              item.image = BACKEND + item.image;
+            }
+          });
+        }
+      });
+    });
+
     renderStop();
     renderEvents();
     console.log('Live data loaded successfully, updated:', cache.updated);
-    // Temporary diagnostic: dump the raw shape of the union stop
-    // so we can see the actual keys and the first chunk of JSON.
-    if (cache.stops && cache.stops.union) {
-      console.log('Union stop keys:', Object.keys(cache.stops.union));
-      console.log('Union restaurants:', JSON.stringify(cache.stops.union.restaurants));
-      console.log('Union raw data sample:', JSON.stringify(cache.stops.union).substring(0, 500));
-    }
   })
   .catch(() => {
     console.log('Live data unavailable, using curated content');
