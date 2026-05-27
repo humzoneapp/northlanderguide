@@ -88,6 +88,20 @@ app.get('/api/photo', async (req, res) => {
   }
 });
 
+app.get('/health', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const dataFile = path.join(__dirname, '..', 'site', 'live-data.json');
+  let updated = null;
+  try {
+    const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    updated = data.updated || null;
+  } catch(e) {
+    updated = null;
+  }
+  res.json({ status: 'ok', updated });
+});
+
 app.listen(PORT, () => {
   console.log(`Northlander Wayfinder running at http://localhost:${PORT}`);
 });
