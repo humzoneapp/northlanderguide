@@ -1,10 +1,10 @@
 /* ==================================================================
-   THE NORTHLANDER WAYFINDER — DAILY AUTO-UPDATE JOB
+   THE NORTHLANDER WAYFINDER · DAILY AUTO-UPDATE JOB
    ------------------------------------------------------------------
    This is what makes the site "automatic". Run it on a schedule
    (e.g. once a day) and it rebuilds  live-data.json  with fresh
    places and events for every stop. The front-end can then load
-   that file instead of hitting the APIs on every visit — faster,
+   that file instead of hitting the APIs on every visit. Faster,
    cheaper, and it keeps you within free API quotas.
 
    HOW TO SCHEDULE IT
@@ -25,7 +25,7 @@ const path = require('path');
 const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_TOKEN;
 
-/* Same coordinates as api.js — keep these two lists in sync. */
+/* Same coordinates as api.js. Keep these two lists in sync. */
 const STOP_COORDS = {
   union:{lat:43.6453,lng:-79.3806}, langstaff:{lat:43.84,lng:-79.428},
   gormley:{lat:43.946,lng:-79.365}, washago:{lat:44.735,lng:-79.345},
@@ -95,9 +95,20 @@ async function run(){
       console.warn('  skipped (error):', String(err));
     }
   }
-  const file = path.join(__dirname, '..', 'site', 'live-data.json');
-  fs.writeFileSync(file, JSON.stringify({updated:new Date().toISOString(), stops:out}, null, 2));
-  console.log('Wrote', file);
+  /* POST the freshly-fetched cache to the running server instead
+     of writing live-data.json to disk. On Render the filesystem is
+     ephemeral, so an in-memory store on the server side is the
+     only place the data can live reliably between requests.
+     SERVER_URL points to the deployed backend; defaults to local
+     so the same script works in development. */
+  const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+  const response = await fetch(`${serverUrl}/update-data`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(out)
+  });
+  const result = await response.json();
+  console.log('Data sent to server:', result);
 }
 
 run();

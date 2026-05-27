@@ -1,5 +1,5 @@
 /* ==================================================================
-   THE NORTHLANDER WAYFINDER — BACKEND
+   THE NORTHLANDER WAYFINDER · BACKEND
    ------------------------------------------------------------------
    A tiny Node/Express server that:
      - holds your API keys SECRETLY (never sent to the browser)
@@ -12,6 +12,11 @@
      3. Create a file named  .env  in this folder containing:
             GOOGLE_PLACES_KEY=your_google_key_here
             EVENTBRITE_TOKEN=your_eventbrite_token_here
+            SERVER_URL=http://localhost:3000
+        On Render, set SERVER_URL to the public backend URL, e.g.
+        https://northlander-backend.onrender.com (used by update.js
+        to POST the freshly-fetched cache back into the server's
+        in-memory store).
         Get keys at:
             Google  -> https://console.cloud.google.com  (enable "Places API")
             Eventbrite -> https://www.eventbrite.com/platform/api
@@ -26,6 +31,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
@@ -34,19 +40,18 @@ const PORT = process.env.PORT || 3000;
 const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_TOKEN;
 
-/* CORS: allow the Vercel front end (and any other origin) to fetch
-   from this Render backend. Runs before every route so static files
-   and JSON endpoints all carry the headers. Handles preflight
-   OPTIONS short-circuit. */
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+/* In-memory live data cache. Populated by POST /update-data (called
+   by update.js after it fetches fresh content from Google + Eventbrite)
+   and read by GET /live-data.json. Held in memory instead of a file
+   so it works on platforms with ephemeral filesystems like Render. */
+let liveData = null;
+let liveDataUpdated = null;
+
+/* CORS: use the cors npm package so the Vercel front end can fetch
+   from this Render backend. Applied before every route so static
+   files and JSON endpoints all carry the headers, and preflight
+   OPTIONS requests are handled automatically. */
+app.use(cors());
 
 /* Serve the static site from the sibling /site folder */
 app.use(express.static(path.join(__dirname, '..', 'site')));
@@ -102,31 +107,27 @@ app.get('/api/photo', async (req, res) => {
   }
 });
 
+/* update.js POSTs the freshly-fetched cache here. We parse the JSON
+   body inline so we do not have to register the express.json()
+   parser globally for routes that do not need it. */
+app.post('/update-data', (req, res) => {
+  express.json({ limit: '2mb' })(req, res, () => {
+    liveData = req.body;
+    liveDataUpdated = new Date().toISOString();
+    console.log('Live data updated in memory at', liveDataUpdated);
+    res.json({ status: 'ok', updated: liveDataUpdated });
+  });
+});
+
 app.get('/live-data.json', (req, res) => {
-  const fs = require('fs');
-  const path = require('path');
-  const dataFile = path.join(__dirname, '..', 'site', 'live-data.json');
-  try {
-    const data = fs.readFileSync(dataFile, 'utf8');
-    res.header('Content-Type', 'application/json');
-    res.send(data);
-  } catch(e) {
-    res.status(404).json({ error: 'Live data not yet generated' });
+  if (!liveData) {
+    return res.status(404).json({ error: 'Live data not yet generated. Run the update job first.' });
   }
+  res.json({ updated: liveDataUpdated, stops: liveData });
 });
 
 app.get('/health', (req, res) => {
-  const fs = require('fs');
-  const path = require('path');
-  const dataFile = path.join(__dirname, '..', 'site', 'live-data.json');
-  let updated = null;
-  try {
-    const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-    updated = data.updated || null;
-  } catch(e) {
-    updated = null;
-  }
-  res.json({ status: 'ok', updated });
+  res.json({ status: 'ok', updated: liveDataUpdated, hasData: liveData !== null });
 });
 
 app.listen(PORT, () => {
