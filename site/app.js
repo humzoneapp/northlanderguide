@@ -197,26 +197,65 @@ function mix(a,b,t){
 }
 
 /* Small per-card illustrated tile, used when a listing has no photo.
-   A simple coloured scene keyed to the category so cards never show
-   a broken image box. */
+   A soft warm gradient in the site's poster palette with a clean
+   centered category icon. A card without a photo still reads as
+   intentional, never broken or empty.
+
+   Palettes pair a light warm tone with a deeper companion from the
+   same poster family. Icons are simple flat SVG shapes (fork, bed,
+   pine, pin) in a contrasting cream or rust so they read clearly. */
 function cardArt(cat, seed){
   const palettes = {
-    restaurants:['#d96c2c','#8a3d12'], accommodations:['#3f6f88','#21465a'],
-    parks:['#2a7d57','#12492f'],       attractions:['#dca33c','#8a6312']
+    restaurants:    {bg1:'#f6e7c4', bg2:'#c46f2c', ic:'#8e3d22'},
+    accommodations: {bg1:'#f6e7c4', bg2:'#c89525', ic:'#6b4528'},
+    parks:          {bg1:'#7ea29e', bg2:'#1f3d2d', ic:'#f3e6c8'},
+    attractions:    {bg1:'#c46f2c', bg2:'#8e3d22', ic:'#f3e6c8'}
   };
-  const [c1,c2] = palettes[cat] || palettes.attractions;
-  const n = seed % 3;
-  const icon = cat==='restaurants' ? '\u{1F37D}' : cat==='accommodations' ? '\u{1F6CF}'
-             : cat==='parks' ? '\u{1F332}' : '\u{1F4CD}';
+  const p = palettes[cat] || palettes.attractions;
+
+  // 400 x 220 viewBox. Icons are centered around (200, 110).
+  const icons = {
+    restaurants: `
+      <g fill="${p.ic}">
+        <rect x="183" y="62"  width="4"  height="44" rx="1.5"/>
+        <rect x="198" y="62"  width="4"  height="44" rx="1.5"/>
+        <rect x="213" y="62"  width="4"  height="44" rx="1.5"/>
+        <rect x="180" y="104" width="40" height="8"  rx="2"/>
+        <rect x="196" y="110" width="8"  height="56" rx="3"/>
+      </g>`,
+    accommodations: `
+      <g fill="${p.ic}">
+        <rect x="142" y="110" width="116" height="34" rx="6"/>
+        <rect x="140" y="142" width="10"  height="22" rx="2"/>
+        <rect x="250" y="142" width="10"  height="22" rx="2"/>
+        <rect x="155" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
+        <rect x="203" y="92"  width="42"  height="22" rx="5" opacity=".88"/>
+      </g>`,
+    parks: `
+      <g fill="${p.ic}">
+        <polygon points="200,62 174,108 226,108"/>
+        <polygon points="200,92 168,138 232,138"/>
+        <polygon points="200,122 160,168 240,168"/>
+      </g>
+      <rect x="195" y="168" width="10" height="18" fill="${p.ic}" opacity=".7"/>`,
+    attractions: `
+      <path d="M200 62 C 222 62 238 80 238 102 C 238 134 200 178 200 178 C 200 178 162 134 162 102 C 162 80 178 62 200 62 Z" fill="${p.ic}"/>
+      <circle cx="200" cy="100" r="11" fill="${p.bg2}"/>`
+  };
+
+  const sid = `cg${cat}${seed}`;
   return `
   <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs><linearGradient id="cg${cat}${seed}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/>
-    </linearGradient></defs>
-    <rect width="400" height="220" fill="url(#cg${cat}${seed})"/>
-    <circle cx="${90+n*120}" cy="60" r="46" fill="#ffffff" opacity=".10"/>
-    <circle cx="${300-n*90}" cy="170" r="70" fill="#000000" opacity=".10"/>
-    <text x="200" y="128" font-size="56" text-anchor="middle">${icon}</text>
+    <defs>
+      <linearGradient id="${sid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${p.bg1}"/>
+        <stop offset="1" stop-color="${p.bg2}"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="220" fill="url(#${sid})"/>
+    <circle cx="60"  cy="40"  r="80" fill="#fff" opacity=".06"/>
+    <circle cx="340" cy="190" r="90" fill="#000" opacity=".05"/>
+    ${icons[cat] || icons.attractions}
   </svg>`;
 }
 
