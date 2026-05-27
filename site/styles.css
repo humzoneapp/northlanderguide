@@ -596,10 +596,19 @@ a{color:inherit}
 }
 .share-row button:active{transform:scale(.97)}
 
-/* category filter */
+/* category filter.
+   Parent of the four category buttons. Was overflow-x:auto so it
+   could scroll horizontally on narrow screens, but that also
+   clipped the top of any button while it lifted on hover.
+   Switched to overflow:visible (no clipping) and flex-wrap:wrap
+   (buttons wrap to a second row on narrow screens instead of
+   overflowing). Added padding-top:8px so the hover lift has room
+   above the row without nudging the row down. */
 .catfilter{
-  display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.7rem;
-  margin-bottom:1.1rem;-webkit-overflow-scrolling:touch;
+  display:flex;gap:.4rem;flex-wrap:wrap;
+  overflow:visible;
+  padding:8px 0 .7rem;
+  margin-bottom:1.1rem;
 }
 .catfilter button{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.84rem;
