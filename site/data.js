@@ -1,11 +1,11 @@
 /* ==================================================================
-   THE NORTHLANDER WAYFINDER — STOP DATA
+   THE NORTHLANDER WAYFINDER · STOP DATA
    ------------------------------------------------------------------
    Curated starter content for all 16 stops on the Northlander route.
    Each stop has: restaurants, parks, attractions, and events.
 
    This data renders the site immediately. To make it AUTO-UPDATING,
-   see api.js — the Google Places + Eventbrite integration replaces
+   see api.js. The Google Places + Eventbrite integration replaces
    the arrays below at runtime once you add API keys.
    ================================================================== */
 
@@ -47,12 +47,12 @@ const STOPS = [
     blurb:"A commuter transit hub in Richmond Hill, gateway to York Region's parks, trails and suburban dining.",
     facts:["Transit hub stop","Near Richmond Hill centre","Access to Lake Wilcox & Oak Ridges trails"],
     restaurants:[
-      {name:"Richmond Hill Eateries — Yonge St.",tag:"Mixed",desc:"A long strip of family restaurants, cafes and bakeries.",rating:"4.3"},
+      {name:"Richmond Hill Eateries, Yonge St.",tag:"Mixed",desc:"A long strip of family restaurants, cafes and bakeries.",rating:"4.3"},
       {name:"Times Square Food Court",tag:"Asian",desc:"Well-known hub for authentic East Asian cuisine.",rating:"4.4"}
     ],
     parks:[
       {name:"Lake Wilcox Park",tag:"Lakeside",desc:"Boardwalk, splash pad and trails around a kettle lake.",rating:"4.5"},
-      {name:"Mill Pond Park",tag:"Park",desc:"Scenic pond, gazebo and walking loops — a local favourite.",rating:"4.6"},
+      {name:"Mill Pond Park",tag:"Park",desc:"Scenic pond, gazebo and walking loops, a local favourite.",rating:"4.6"},
       {name:"Oak Ridges Corridor",tag:"Trail",desc:"Protected moraine trails with wetlands and wildlife.",rating:"4.5"}
     ],
     attractions:[
@@ -72,7 +72,7 @@ const STOPS = [
   /* ---- 3. GORMLEY ---- */
   {
     id:"gormley", lat:43.946, lng:-79.365, hook:"Pick-your-own orchards on the rim of the Oak Ridges Moraine.", name:"Gormley", region:"Whitchurch-Stouffville", time:"0:50", image:"images/northlander-gormley.jpeg",
-    blurb:"A GO transit hub on the edge of farm country — the doorway to the rolling Oak Ridges Moraine and pick-your-own farms.",
+    blurb:"A GO transit hub on the edge of farm country, the doorway to the rolling Oak Ridges Moraine and pick-your-own farms.",
     facts:["Transit hub stop","Surrounded by conservation land","Close to Stouffville's main street"],
     restaurants:[
       {name:"Main Street Stouffville",tag:"Small Town",desc:"Historic main street with cafes, pubs and bakeries.",rating:"4.4"},
@@ -98,8 +98,8 @@ const STOPS = [
 
   /* ---- 4. WASHAGO ---- */
   {
-    id:"washago", lat:44.735, lng:-79.345, hook:"Where two rivers meet — the doorstep of cottage country.", name:"Washago", region:"Gateway to Muskoka", time:"2:00", image:"images/northlander-washago.jpeg",
-    blurb:"A small riverside community where the Black and Severn rivers meet — the unofficial gateway to cottage country.",
+    id:"washago", lat:44.735, lng:-79.345, hook:"Where two rivers meet, the doorstep of cottage country.", name:"Washago", region:"Gateway to Muskoka", time:"2:00", image:"images/northlander-washago.jpeg",
+    blurb:"A small riverside community where the Black and Severn rivers meet, the unofficial gateway to cottage country.",
     facts:["Modern glass shelter stop","On the Trent–Severn Waterway","Edge of Muskoka lakes region"],
     restaurants:[
       {name:"Washago Diners",tag:"Comfort",desc:"Classic small-town diners and seasonal ice cream stops.",rating:"4.3"},
@@ -107,7 +107,7 @@ const STOPS = [
     ],
     parks:[
       {name:"Washago Centennial Park",tag:"Riverside",desc:"Beach, picnic spots and swimming where the rivers meet.",rating:"4.6"},
-      {name:"Trent–Severn Waterway",tag:"Waterway",desc:"Historic lock system — boating, fishing and paddling.",rating:"4.7"}
+      {name:"Trent–Severn Waterway",tag:"Waterway",desc:"Historic lock system, boating, fishing and paddling.",rating:"4.7"}
     ],
     attractions:[
       {name:"Hartman Lookout / Black River",tag:"Scenic",desc:"Canoeing and rapids on the Black River.",rating:"4.5"}
@@ -125,7 +125,7 @@ const STOPS = [
   /* ---- 5. GRAVENHURST ---- */
   {
     id:"gravenhurst", lat:44.917, lng:-79.37, hook:"Home of North America's oldest working steamship.", name:"Gravenhurst", region:"Muskoka", time:"2:25", image:"images/northlander-gravenhurst.jpeg",
-    blurb:"The 'Gateway to Muskoka' — a lakeside town famous for its steamships, wharf and the birthplace of Norman Bethune.",
+    blurb:"The 'Gateway to Muskoka', a lakeside town famous for its steamships, wharf and the birthplace of Norman Bethune.",
     facts:["Modern glass shelter stop","Home of the Muskoka Wharf","Steamship cruises on Lake Muskoka"],
     restaurants:[
       {name:"Boston Pizza on the Wharf",tag:"Casual",desc:"Lakeside dining at the Muskoka Wharf.",rating:"4.2"},
@@ -137,7 +137,7 @@ const STOPS = [
       {name:"Muskoka Wharf",tag:"Waterfront",desc:"Boardwalk, farmers' market and steamship docks.",rating:"4.6"}
     ],
     attractions:[
-      {name:"RMS Segwun Steamship",tag:"Heritage",desc:"North America's oldest operating steamship — scenic cruises.",rating:"4.8"},
+      {name:"RMS Segwun Steamship",tag:"Heritage",desc:"North America's oldest operating steamship, scenic cruises.",rating:"4.8"},
       {name:"Bethune Memorial House",tag:"Historic Site",desc:"National historic site, birthplace of Dr. Norman Bethune.",rating:"4.5"},
       {name:"Gravenhurst Opera House",tag:"Arts",desc:"Restored 1901 theatre with live performances.",rating:"4.6"}
     ],
@@ -164,7 +164,7 @@ const STOPS = [
       {name:"Muskoka Bean",tag:"Cafe",desc:"Roastery and cafe popular with locals.",rating:"4.6"}
     ],
     parks:[
-      {name:"Bracebridge Bay Park",tag:"Waterfall",desc:"Park beside the falls — swimming, lookout and trails.",rating:"4.7"},
+      {name:"Bracebridge Bay Park",tag:"Waterfall",desc:"Park beside the falls, swimming, lookout and trails.",rating:"4.7"},
       {name:"Kelvin Grove Park",tag:"Riverside",desc:"Beach and picnic area on the Muskoka River.",rating:"4.5"}
     ],
     attractions:[
@@ -185,8 +185,8 @@ const STOPS = [
 
   /* ---- 7. HUNTSVILLE ---- */
   {
-    id:"huntsville", lat:45.327, lng:-79.216, hook:"100+ Group of Seven murals — and the gateway to Algonquin.", name:"Huntsville", region:"Muskoka", time:"3:25", image:"images/northlander-huntsville.jpeg",
-    blurb:"The largest town in Muskoka — gateway to Algonquin Park, home of the Group of Seven murals and a lively arts scene.",
+    id:"huntsville", lat:45.327, lng:-79.216, hook:"100+ Group of Seven murals, and the gateway to Algonquin.", name:"Huntsville", region:"Muskoka", time:"3:25", image:"images/northlander-huntsville.jpeg",
+    blurb:"The largest town in Muskoka, gateway to Algonquin Park, home of the Group of Seven murals and a lively arts scene.",
     facts:["Modern glass shelter stop","Gateway to Algonquin Provincial Park","Group of Seven outdoor mural trail"],
     restaurants:[
       {name:"3 Guys and a Stove",tag:"Bistro",desc:"Long-celebrated Huntsville restaurant with creative menus.",rating:"4.6"},
@@ -227,7 +227,7 @@ const STOPS = [
     parks:[
       {name:"Mikisew Provincial Park",tag:"Provincial Park",desc:"Beach and campground on Eagle Lake.",rating:"4.6"},
       {name:"Forgotten Falls",tag:"Waterfall",desc:"A hidden cascade reached by a short forest hike.",rating:"4.5"},
-      {name:"Algonquin Park — West",tag:"Wilderness",desc:"Quiet access point for paddling and backcountry routes.",rating:"4.8"}
+      {name:"Algonquin Park, West",tag:"Wilderness",desc:"Quiet access point for paddling and backcountry routes.",rating:"4.8"}
     ],
     attractions:[
       {name:"Eagle's Nest Lookout",tag:"Hike",desc:"Cliff-top viewpoint over the Eagle Lake valley.",rating:"4.7"},
@@ -335,8 +335,8 @@ const STOPS = [
 
   /* ---- 12. ENGLEHART ---- */
   {
-    id:"englehart", lat:47.821, lng:-79.868, hook:"A town the railway itself built — gorge falls nearby.", name:"Englehart", region:"Timiskaming District", time:"8:35", image:"images/northlander-englehart.jpeg",
-    blurb:"A historic railway town built by Ontario Northland itself — small, proud, and rich in rail heritage.",
+    id:"englehart", lat:47.821, lng:-79.868, hook:"A town the railway itself built, gorge falls nearby.", name:"Englehart", region:"Timiskaming District", time:"8:35", image:"images/northlander-englehart.jpeg",
+    blurb:"A historic railway town built by Ontario Northland itself, small, proud, and rich in rail heritage.",
     facts:["Full Ontario Northland station","Founded as a railway divisional point","Near Kap-Kig-Iwan Provincial Park"],
     restaurants:[
       {name:"Englehart diners",tag:"Comfort",desc:"Friendly small-town restaurants and a bakery.",rating:"4.3"},
@@ -362,8 +362,8 @@ const STOPS = [
 
   /* ---- 13. KIRKLAND LAKE (SWASTIKA) ---- */
   {
-    id:"kirklandlake", lat:48.147, lng:-80.037, hook:"The town that gold built — and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
-    blurb:"A legendary gold-mining town — 'the town that gold built' — reached via the Swastika stop just to the west.",
+    id:"kirklandlake", lat:48.147, lng:-80.037, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
+    blurb:"A legendary gold-mining town, 'the town that gold built', reached via the Swastika stop just to the west.",
     facts:["Modern glass shelter stop (Swastika)","Historic gold-mining boom town","Birthplace of many NHL hockey stars"],
     restaurants:[
       {name:"Kirkland Lake eateries",tag:"Mixed",desc:"Family restaurants, pizzerias and cafes downtown.",rating:"4.3"},
@@ -418,7 +418,7 @@ const STOPS = [
   /* ---- 15. TIMMINS-PORCUPINE ---- */
   {
     id:"timmins", lat:48.4758, lng:-81.3305, hook:"Descend a real gold mine at the northern end of the line.", name:"Timmins-Porcupine", region:"Timmins", time:"10:40", image:"images/northlander-timmins-porcupine.jpeg",
-    blurb:"The northern terminus — a major mining city famous for gold, the Shania Twain Centre legacy, and vast wilderness all around.",
+    blurb:"The northern terminus, a major mining city famous for gold, the Shania Twain Centre legacy, and vast wilderness all around.",
     facts:["Northern terminus (Porcupine Station)","One of the world's great gold-mining cities","1-hour layover for Cochrane connection"],
     restaurants:[
       {name:"Cedar Meadows",tag:"Resort Dining",desc:"Lodge dining with a wildlife park on site.",rating:"4.6"},
@@ -428,7 +428,7 @@ const STOPS = [
     parks:[
       {name:"Gillies Lake Conservation Area",tag:"Lakeside",desc:"Beach, boardwalk and a popular walking loop in the city.",rating:"4.7"},
       {name:"Hersey Lake Conservation Area",tag:"Conservation",desc:"Forest trails and swimming just outside town.",rating:"4.6"},
-      {name:"Kettle Lakes Provincial Park",tag:"Provincial Park",desc:"A short drive south — camping and clear kettle lakes.",rating:"4.7"}
+      {name:"Kettle Lakes Provincial Park",tag:"Provincial Park",desc:"A short drive south, camping and clear kettle lakes.",rating:"4.7"}
     ],
     attractions:[
       {name:"Timmins Underground Gold Mine Tour",tag:"Experience",desc:"Descend into a real mine at the Timmins Museum's tour.",rating:"4.7"},
@@ -450,7 +450,7 @@ const STOPS = [
   /* ---- 16. COCHRANE (RAIL CONNECTION) ---- */
   {
     id:"cochrane", lat:49.066, lng:-81.015, hook:"Meet polar bears, then ride the rails to James Bay.", name:"Cochrane", region:"Polar Bear Express link", time:"+ connection", image:"images/northlander-cochrane.jpeg",
-    blurb:"Reached by rail or coach connection — home of the Polar Bear Express to Moosonee and the Polar Bear Habitat.",
+    blurb:"Reached by rail or coach connection, home of the Polar Bear Express to Moosonee and the Polar Bear Habitat.",
     facts:["Connection point, not on the main line","Gateway to the Polar Bear Express","Home of the Cochrane Polar Bear Habitat"],
     restaurants:[
       {name:"Cochrane main street eateries",tag:"Comfort",desc:"Diners, cafes and pubs in the town centre.",rating:"4.3"},

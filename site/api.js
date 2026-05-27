@@ -1,8 +1,8 @@
 /* ==================================================================
-   THE NORTHLANDER WAYFINDER — LIVE DATA INTEGRATION (OPTIONAL)
+   THE NORTHLANDER WAYFINDER · LIVE DATA INTEGRATION (OPTIONAL)
    ------------------------------------------------------------------
    This file makes the directory AUTO-UPDATING. It is NOT loaded by
-   default — the site runs fine on curated data.js content alone.
+   default. The site runs fine on curated data.js content alone.
 
    To activate live data:
      1. Read the steps in each section below.
@@ -10,7 +10,7 @@
             <script src="api.js"></script>
      3. Provide your API keys where marked.
 
-   IMPORTANT — why this is structured this way:
+   IMPORTANT: why this is structured this way:
    - Google Places & Eventbrite API keys must NOT be exposed in
      front-end code (anyone could copy and abuse them). The functions
      below are written to call YOUR OWN small backend endpoint, which
@@ -23,7 +23,7 @@
 
 
 /* ------------------------------------------------------------------
-   SECTION 1 — RESTAURANTS / PARKS / ATTRACTIONS via Google Places
+   SECTION 1: RESTAURANTS / PARKS / ATTRACTIONS via Google Places
    ------------------------------------------------------------------
    Each STOP needs a latitude/longitude. Fill these in (look them up
    once on Google Maps). Then this function fetches live places.
@@ -90,7 +90,7 @@ async function fetchPlaces(stopId, category){
 
 
 /* ------------------------------------------------------------------
-   SECTION 2 — EVENTS via Eventbrite (or a municipal calendar feed)
+   SECTION 2: EVENTS via Eventbrite (or a municipal calendar feed)
    ------------------------------------------------------------------
    Eventbrite's API lets you search events by location + date range.
    Again, the key lives in your backend, not here.
@@ -123,7 +123,7 @@ async function fetchEvents(stopId){
 
 
 /* ------------------------------------------------------------------
-   SECTION 3 — HOOK INTO THE APP
+   SECTION 3: HOOK INTO THE APP
    ------------------------------------------------------------------
    When the user opens a stop, try live data; if it fails, the
    curated data.js content already on screen simply stays.
