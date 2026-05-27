@@ -8,8 +8,9 @@
   --paper:#f3ece0;
   --paper-2:#ece2d2;
   /* Warm ivory used for the stat strip and map section so both
-     areas read as one unified warm block, with no grey undertone. */
-  --ivory:#f6ecd2;
+     areas read as one unified warm block, with no grey undertone.
+     One shade darker than the original ivory for a deeper warmth. */
+  --ivory:#eee1c4;
   --card:#fffaf1;
   --rail:#0e3b2c;        /* deep evergreen */
   --rail-2:#16543e;
@@ -336,7 +337,7 @@ a{color:inherit}
 
 
 /* ---------- map ---------- */
-.mapsection{padding:2.6rem 0 1rem;background:var(--ivory)}
+.mapsection{padding:2.6rem 0 .4rem;background:var(--ivory)}
 #leafmap{
   height:62vh;min-height:340px;max-height:560px;
   margin:0 .9rem;border:3px solid var(--rail);border-radius:14px;
@@ -478,7 +479,7 @@ a{color:inherit}
 .fb-body em{font-size:.8rem;color:var(--muted);font-style:italic}
 
 /* ---------- explore ---------- */
-.explore{padding:2.8rem 0 1.5rem;max-width:1080px;margin:0 auto}
+.explore{padding:1.4rem 0 1.5rem;max-width:1080px;margin:0 auto}
 .searchbar{padding:0 1.25rem;margin-bottom:1.1rem}
 .searchbar input{
   width:100%;font-family:'Spline Sans',sans-serif;font-size:1rem;
@@ -491,9 +492,12 @@ a{color:inherit}
 .stopchips{
   display:flex;gap:.5rem;overflow-x:auto;padding:.3rem 1.25rem 1rem;
   -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+  /* Firefox uses scrollbar-color (thumb track). Matches the
+     poster-crimson rusty brown used for the route progress bar. */
+  scrollbar-color:var(--poster-crimson) transparent;
 }
 .stopchips::-webkit-scrollbar{height:5px}
-.stopchips::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+.stopchips::-webkit-scrollbar-thumb{background:var(--poster-crimson);border-radius:9px}
 .chip{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.85rem;
   font-weight:600;padding:.55rem 1rem;border-radius:100px;
@@ -509,7 +513,7 @@ a{color:inherit}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .stop-hero{
-  position:relative;border-radius:16px;overflow:hidden;
+  position:relative;border-radius:18px;overflow:hidden;
   box-shadow:var(--shadow);margin-bottom:1.3rem;
 }
 .stop-hero svg,.stop-hero .stop-art svg{display:block;width:100%;height:auto}
@@ -584,12 +588,22 @@ a{color:inherit}
 .cards{display:grid;grid-template-columns:1fr;gap:.9rem}
 .card{
   background:var(--card);border:1.5px solid var(--line);
-  border-radius:14px;overflow:hidden;cursor:pointer;
+  border-radius:18px;overflow:hidden;cursor:pointer;
   text-align:left;font-family:inherit;padding:0;width:100%;
   display:flex;flex-direction:column;
-  transition:transform .15s,box-shadow .15s,border-color .15s;
+  box-shadow:0 4px 14px rgba(36,31,26,.08);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),
+             box-shadow .22s ease, border-color .15s ease;
 }
-.card:hover{box-shadow:var(--shadow);border-color:var(--ember)}
+/* Gentle lift on desktop hover. Touch devices fall back to the
+   :active scale below, since (hover: none) suppresses :hover. */
+@media (hover:hover){
+  .card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 28px rgba(36,31,26,.18);
+    border-color:var(--ember);
+  }
+}
 .card:active{transform:scale(.99)}
 .card-img{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2)}
 .card-img img,.card-img svg{width:100%;height:100%;object-fit:cover;display:block}
@@ -658,21 +672,54 @@ a{color:inherit}
 
 /* ---------- events ---------- */
 .eventsection{padding:2.4rem 0 2.8rem;max-width:1080px;margin:0 auto}
-.evlist{padding:0 1.1rem;display:grid;gap:.7rem}
+.evlist{padding:0 1.1rem;display:grid;gap:.9rem}
 .evcard{
-  display:flex;gap:.9rem;background:var(--card);
-  border:1.5px solid var(--line);border-left:5px solid var(--ember);
-  border-radius:11px;padding:.9rem 1rem;align-items:flex-start;
+  display:flex;gap:1.1rem;background:var(--card);
+  border:1.5px solid var(--line);
+  border-radius:18px;padding:1rem 1.15rem;align-items:stretch;
+  box-shadow:0 4px 14px rgba(36,31,26,.08);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),
+             box-shadow .22s ease, border-color .15s ease;
 }
+@media (hover:hover){
+  .evcard:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 28px rgba(36,31,26,.16);
+    border-color:var(--poster-crimson);
+  }
+}
+/* Bold date block: poster-crimson plate, cream day numeral and gold
+   month label. The big serif day reads first, the small spaced month
+   below it. Matches the site's palette and rounded-corner language. */
 .evcard .date{
-  flex:0 0 54px;text-align:center;background:var(--rail);
-  color:#fff;border-radius:8px;padding:.4rem 0;
+  flex:0 0 78px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;background:var(--poster-crimson);
+  border-radius:14px;padding:.65rem .35rem .55rem;
+  box-shadow:0 4px 10px rgba(140,61,34,.25);
 }
-.evcard .date .d{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;line-height:1}
-.evcard .date .m{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase}
-.evcard h4{font-size:1.04rem;font-weight:600}
-.evcard .where{font-size:.79rem;color:var(--ember);font-weight:600;margin:.1rem 0}
-.evcard .edesc{font-size:.84rem;color:var(--muted)}
+.evcard .date .d{
+  font-family:'Fraunces',serif;font-size:2.4rem;font-weight:900;
+  line-height:1;letter-spacing:-.02em;
+  color:var(--poster-cream);
+}
+.evcard .date .m{
+  margin-top:.4rem;
+  font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:var(--poster-gold);
+}
+.evcard > div:last-child{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+}
+.evcard h4{
+  font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;
+  color:var(--ink);line-height:1.2;
+}
+.evcard .where{
+  font-size:.82rem;color:var(--poster-crimson);
+  font-weight:700;margin:.25rem 0 .3rem;letter-spacing:.01em;
+}
+.evcard .edesc{font-size:.9rem;color:var(--muted);line-height:1.5}
 
 /* ---------- ad slots ---------- */
 .adslot{
@@ -724,8 +771,8 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
    chunky serif headline, gold ordinal badge in a square plaque. */
 .stop[data-stop="union"] .stop-hero{
   border:8px solid var(--poster-cream);
-  border-radius:6px;
-  box-shadow:0 12px 0 var(--poster-crimson), 0 14px 28px rgba(36,31,26,.18);
+  border-radius:18px;
+  box-shadow:0 14px 32px rgba(36,31,26,.22);
   background:var(--poster-cream);
 }
 .stop[data-stop="union"] .stop-hero .ord-badge{
@@ -800,12 +847,12 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 /* Listing cards as small poster cards. */
 .stop[data-stop="union"] .card{
   border:2px solid var(--poster-rail-brown);
-  border-radius:6px;background:var(--poster-cream);
-  box-shadow:0 4px 0 rgba(36,31,26,.12);
+  border-radius:18px;background:var(--poster-cream);
+  box-shadow:0 6px 18px rgba(36,31,26,.12);
 }
 .stop[data-stop="union"] .card:hover{
   border-color:var(--poster-crimson);
-  box-shadow:0 6px 0 rgba(140,55,30,.25);
+  box-shadow:0 14px 28px rgba(36,31,26,.20);
 }
 .stop[data-stop="union"] .card .tag{
   background:var(--poster-crimson);border-radius:3px;
@@ -824,16 +871,16 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop.detail[data-stop="union"] .backbtn{
   border:2px solid var(--poster-crimson);
   background:var(--poster-cream);color:var(--poster-crimson);
-  border-radius:4px;font-weight:800;
-  box-shadow:0 3px 0 rgba(36,31,26,.18);
+  border-radius:100px;font-weight:800;
+  box-shadow:0 4px 12px rgba(36,31,26,.16);
 }
 .stop.detail[data-stop="union"] .backbtn:hover{
   background:var(--poster-crimson);color:var(--poster-cream);
 }
 .stop.detail[data-stop="union"] .detail-hero{
-  border:8px solid var(--poster-cream);border-radius:6px;
+  border:8px solid var(--poster-cream);border-radius:18px;
   background:var(--poster-cream);
-  box-shadow:0 10px 0 var(--poster-crimson), 0 12px 24px rgba(36,31,26,.16);
+  box-shadow:0 14px 32px rgba(36,31,26,.20);
 }
 .stop.detail[data-stop="union"] .detail-body .tag{
   background:var(--poster-crimson);border-radius:3px;
