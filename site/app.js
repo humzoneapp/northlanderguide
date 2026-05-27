@@ -1679,10 +1679,28 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     renderStop();
     renderEvents();
     console.log('Live data loaded successfully, updated:', cache.updated);
-    // Temporary diagnostic: surface the first union restaurant
-    // (including any image field) so we can see the cache shape.
-    if (cache.stops && cache.stops.union && cache.stops.union.restaurants && cache.stops.union.restaurants[0]) {
-      console.log('Sample listing:', JSON.stringify(cache.stops.union.restaurants[0]));
+    // Temporary diagnostic: scan a handful of stops and a handful
+    // of categories for the first listing that has any data, so
+    // we can see the cache shape even if the union restaurants
+    // array is empty.
+    let sampleFound = false;
+    const stopIds = ['union', 'huntsville', 'northbay', 'gravenhurst', 'timmins'];
+    for (const id of stopIds) {
+      if (cache.stops && cache.stops[id]) {
+        const stop = cache.stops[id];
+        const categories = ['restaurants', 'accommodations', 'parks', 'attractions'];
+        for (const cat of categories) {
+          if (stop[cat] && stop[cat].length > 0) {
+            console.log('Sample listing from', id, cat + ':', JSON.stringify(stop[cat][0]));
+            sampleFound = true;
+            break;
+          }
+        }
+        if (sampleFound) break;
+      }
+    }
+    if (!sampleFound) {
+      console.log('No listings found in live data for any stop');
     }
   })
   .catch(() => {
