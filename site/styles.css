@@ -59,7 +59,7 @@ a{color:inherit}
 .section-head.center{text-align:center}
 .section-head .kicker,.kicker{
   font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;
-  font-weight:700;color:var(--ember);
+  font-weight:700;color:var(--poster-crimson);
 }
 .section-head h2{font-size:clamp(1.9rem,7vw,2.7rem);margin-top:.35rem}
 .section-head p{color:var(--muted);margin-top:.4rem;font-size:.97rem}
@@ -119,7 +119,7 @@ a{color:inherit}
 }
 /* "Guide" picks up the same mustard gold accent as "every stop."
    in the hero headline so the logo and headline accent match.
-   Was var(--ember) which read as muddy orange against the
+   Was var(--poster-crimson) which read as muddy orange against the
    forest green bar. */
 .brand span{color:var(--poster-gold);font-style:normal}
 .brand-mark{display:flex;flex-shrink:0;line-height:0}
@@ -129,7 +129,7 @@ a{color:inherit}
   margin-left:1.1rem;letter-spacing:.02em;
   transition:color .15s ease;
 }
-.topnav a:hover{color:var(--ember)}
+.topnav a:hover{color:var(--poster-crimson)}
 
 /* Hamburger button: hidden by default, shown only at the mobile
    breakpoint. Three stacked bars morph into an X when .open. */
@@ -177,7 +177,7 @@ a{color:inherit}
     border-bottom:1px solid rgba(243,236,224,.14);
   }
   .mobilemenu a:last-child{border-bottom:none}
-  .mobilemenu a:hover,.mobilemenu a:focus{color:var(--ember)}
+  .mobilemenu a:hover,.mobilemenu a:focus{color:var(--poster-crimson)}
 }
 
 /* ---------- route progress bar ---------- */
@@ -200,6 +200,29 @@ a{color:inherit}
     scroll-behavior:auto !important;
   }
 }
+
+/* ---------- inline SVG icons ----------
+   Every UI icon on the site is a clean inline SVG that uses
+   currentColor so it inherits the colour of its parent text. The
+   base .icon class sizes them in `em` so they scale with the
+   surrounding font-size, and vertical-align tucks them onto the
+   text baseline. */
+.icon{
+  display:inline-block;
+  width:1em;height:1em;
+  vertical-align:-0.18em;
+  fill:currentColor;
+  flex-shrink:0;
+}
+.catfilter button .ic{display:inline-flex;align-items:center;line-height:1}
+.catfilter button .ic .icon{width:1.15em;height:1.15em;vertical-align:0}
+.rating .icon{width:.95em;height:.95em;margin-right:.18em}
+.detail-loc .icon,.evcard .where .icon{margin-right:.05em}
+/* Buttons that combine an icon + text get a small gap and flex
+   centering so the icon never collides with the label. */
+.share-row button{display:inline-flex;align-items:center;gap:.45rem}
+.backbtn{display:inline-flex;align-items:center;gap:.45rem}
+.card-cta{display:inline-flex;align-items:center;gap:.25rem}
 
 /* ---------- reveal-on-scroll ----------
    .reveal wrappers (and the few elements that get .reveal directly,
@@ -385,7 +408,7 @@ a{color:inherit}
 .map-pop b{font-family:'Fraunces',serif;font-size:1rem;color:var(--rail)}
 .map-pop .pop-hook{font-size:.82rem;color:var(--muted);margin:.2rem 0 .5rem}
 .map-pop button{
-  background:var(--ember);color:#fff;border:none;border-radius:100px;
+  background:var(--poster-crimson);color:#fff;border:none;border-radius:100px;
   padding:.4rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;
   font-family:'Spline Sans',sans-serif;
 }
@@ -452,7 +475,7 @@ a{color:inherit}
 .map-preview-num{
   position:absolute;top:-22px;left:1.1rem;
   width:44px;height:44px;border-radius:50%;
-  background:var(--ember);color:#fff;
+  background:var(--poster-crimson);color:#fff;
   display:flex;align-items:center;justify-content:center;
   font-family:'Fraunces',serif;font-weight:900;font-size:1.1rem;
   border:3px solid var(--card);
@@ -482,7 +505,7 @@ a{color:inherit}
   font-family:'Spline Sans',sans-serif;
   transition:background .15s, color .15s;
 }
-.map-preview-close:hover{background:#fff;color:var(--ember)}
+.map-preview-close:hover{background:#fff;color:var(--poster-crimson)}
 
 @media (min-width:720px){
   .map-preview{
@@ -506,10 +529,10 @@ a{color:inherit}
   background:var(--paper);border:1.5px solid var(--line);
   border-radius:10px;padding:.65rem .8rem;transition:border-color .15s;
 }
-.fallback-route li:hover{border-color:var(--ember)}
+.fallback-route li:hover{border-color:var(--poster-crimson)}
 .fb-num{
   flex:0 0 28px;height:28px;border-radius:50%;
-  background:var(--rail);color:#fff;border:2px solid var(--ember);
+  background:var(--rail);color:#fff;border:2px solid var(--poster-crimson);
   display:flex;align-items:center;justify-content:center;
   font-weight:700;font-size:.8rem;
 }
@@ -527,8 +550,8 @@ a{color:inherit}
   transition:border-color 160ms ease, box-shadow 160ms ease;
 }
 .searchbar input:focus{
-  outline:none;border-color:var(--ember);
-  box-shadow:0 0 0 3px rgba(217,108,44,.18);
+  outline:none;border-color:var(--poster-crimson);
+  box-shadow:0 0 0 3px rgba(142,61,34,.18);
 }
 
 /* stop chips: horizontal scroll on mobile.
@@ -602,7 +625,7 @@ a{color:inherit}
 }
 .stop-hero .ord-badge{
   position:absolute;top:.9rem;left:.9rem;z-index:2;
-  background:var(--ember);color:#fff;
+  background:var(--poster-crimson);color:#fff;
   width:38px;height:38px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;
@@ -690,7 +713,7 @@ a{color:inherit}
   }
   .catfilter button.active:hover{color:#fff}
 }
-.catfilter button.active{background:var(--ember);color:#fff;border-color:var(--ember)}
+.catfilter button.active{background:var(--poster-crimson);color:#fff;border-color:var(--poster-crimson)}
 .catfilter button.active .cnt{background:rgba(255,255,255,.28);color:#fff}
 .catfilter button:active{transform:scale(.97)}
 
@@ -714,7 +737,7 @@ a{color:inherit}
   .card:hover{
     transform:translateY(-4px);
     box-shadow:0 14px 28px rgba(36,31,26,.18);
-    border-color:var(--ember);
+    border-color:var(--poster-crimson);
   }
 }
 /* Combined press microstate: keep the lift, add a small scale.
@@ -741,7 +764,7 @@ a{color:inherit}
 .card .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
 .card .tag{
   font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
-  font-weight:700;color:#fff;background:var(--rail-2);
+  font-weight:700;color:#fff;background:var(--poster-crimson);
   padding:.2rem .55rem;border-radius:5px;white-space:nowrap;
 }
 .card .rating{color:var(--gold);font-weight:700;font-size:.86rem;white-space:nowrap}
@@ -749,7 +772,7 @@ a{color:inherit}
 .card .desc{font-size:.88rem;color:var(--muted)}
 .card-cta{
   display:inline-block;margin-top:.6rem;font-size:.8rem;font-weight:700;
-  color:var(--ember);
+  color:var(--poster-crimson);
 }
 
 @media(min-width:620px){
@@ -794,12 +817,12 @@ a{color:inherit}
 }
 .detail-body .tag{
   font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
-  font-weight:700;color:#fff;background:var(--rail-2);
+  font-weight:700;color:#fff;background:var(--poster-crimson);
   padding:.25rem .6rem;border-radius:5px;white-space:nowrap;
 }
 .detail-body .rating{color:var(--gold);font-weight:700;font-size:.9rem}
 .detail-body h3{font-size:1.7rem;margin-bottom:.25rem}
-.detail-loc{font-size:.84rem;color:var(--ember);font-weight:600;margin-bottom:.8rem}
+.detail-loc{font-size:.84rem;color:var(--poster-crimson);font-weight:600;margin-bottom:.8rem}
 .detail-desc{color:#52493c;margin-bottom:1.1rem}
 .more{
   border-top:2px dashed var(--line);padding-top:1.4rem;
@@ -874,7 +897,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .fwrap{max-width:1080px;margin:0 auto;display:grid;gap:1.8rem}
 .fcol h4{font-family:'Fraunces',serif;color:#f3ece0;font-size:1.05rem;margin-bottom:.5rem}
 .fcol a{color:#cad7cf;text-decoration:none;display:block;padding:.2rem 0;font-size:.9rem}
-.fcol a:hover{color:var(--ember)}
+.fcol a:hover{color:var(--poster-crimson)}
 .fbrand .brand{font-size:1.15rem;margin-bottom:.5rem;display:inline-block}
 .fbrand p{font-size:.87rem;color:#9fb0a6;max-width:40ch}
 .disc{
@@ -897,9 +920,9 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   bottom:calc(1.1rem + env(safe-area-inset-bottom,0));
   z-index:900;
   width:52px;height:52px;border-radius:50%;
-  background:var(--ember);color:#fff;text-decoration:none;
+  background:var(--poster-crimson);color:#fff;text-decoration:none;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.45rem;box-shadow:0 6px 16px rgba(217,108,44,.4);
+  font-size:1.45rem;box-shadow:0 6px 16px rgba(142,61,34,.4);
   opacity:0;pointer-events:none;
   transition:opacity .25s ease, transform .22s ease-out;
 }
@@ -999,7 +1022,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   }
 }
 .stop[data-stop="union"] .catfilter button .cnt{
-  background:var(--poster-orange);color:var(--poster-cream);
+  background:var(--poster-crimson);color:var(--poster-cream);
 }
 .stop[data-stop="union"] .catfilter button.active .cnt{
   background:rgba(243,230,200,.3);

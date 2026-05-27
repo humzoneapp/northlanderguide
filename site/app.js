@@ -10,12 +10,34 @@ let activeCat  = 'restaurants';
 let activeDetail = null;   // index of the listing being viewed, or null
 
 const CATS = [
-  {key:'restaurants',    label:'Eat & Drink',     ic:'\u{1F37D}'},
-  {key:'accommodations', label:'Stay',            ic:'\u{1F6CF}'},
-  {key:'parks',          label:'Parks & Nature',  ic:'\u{1F332}'},
-  {key:'attractions',    label:'Attractions',     ic:'\u{1F4CD}'}
+  {key:'restaurants',    label:'Eat & Drink',     ic:'fork-knife'},
+  {key:'accommodations', label:'Stay',            ic:'bed'},
+  {key:'parks',          label:'Parks & Nature',  ic:'tree'},
+  {key:'attractions',    label:'Attractions',     ic:'pin'}
 ];
 function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
+
+/* ------------------------------------------------------------------
+   INLINE SVG ICONS
+   All UI icons live here as a single library. Every icon uses
+   currentColor so it inherits the text colour of its parent, and
+   every icon is sized in `em` so it scales with the surrounding
+   font-size. icon(name) returns the SVG string for the template.
+------------------------------------------------------------------- */
+const ICONS = {
+  'fork-knife': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7a2 2 0 0 0 2 2h2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6a2 2 0 0 0 2 2h3v7"/></svg>',
+  'bed':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
+  'tree':       '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L7 8 H9 L5 14 H8 L3 20 H21 L18 14 H21 L17 8 H19 Z"/><rect x="11" y="20" width="2" height="3"/></svg>',
+  'pin':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  'star':       '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>',
+  'arrow-left': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  'arrow-right':'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  'arrow-up':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+  'external':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  'share':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
+  'link':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+};
+function icon(name){ return ICONS[name] || ''; }
 
 /* a URL-safe slug from a listing name, used for shareable detail links */
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
@@ -1179,11 +1201,11 @@ function initMap(){
       attribution:'\u00A9 OpenStreetMap contributors', maxZoom:13
     }).addTo(map);
     const line = STOPS.map(s=>[s.lat,s.lng]);
-    L.polyline(line,{color:'#d96c2c',weight:4,opacity:.85,dashArray:'2 8'}).addTo(map);
+    L.polyline(line,{color:'#8e3d22',weight:4,opacity:.85,dashArray:'2 8'}).addTo(map);
     STOPS.forEach((s,i)=>{
       const icon = L.divIcon({ className:'',
         html:`<div style="background:#0e3b2c;color:#fff;width:26px;height:26px;
-              border-radius:50%;border:2.5px solid #d96c2c;display:flex;
+              border-radius:50%;border:2.5px solid #8e3d22;display:flex;
               align-items:center;justify-content:center;font:700 12px Spline Sans,sans-serif;
               box-shadow:0 2px 6px rgba(0,0,0,.4)">${i+1}</div>`,
         iconSize:[26,26], iconAnchor:[13,13] });
@@ -1280,14 +1302,14 @@ function renderStop(){
       </div>
       <p class="stop-blurb">${s.blurb}</p>
       <div class="share-row">
-        <button data-share="copy">\u{1F517} Copy link to this stop</button>
-        <button data-share="x">Share</button>
+        <button data-share="copy">${icon('link')}Copy link to this stop</button>
+        <button data-share="x">${icon('share')}Share</button>
       </div>
       <div class="catfilter" id="catFilter">
         ${CATS.map(c=>{
           const count=(s[c.key]||[]).length;
           return `<button data-cat="${c.key}" class="${c.key===activeCat?'active':''}">
-            <span class="ic">${c.ic}</span>${c.label}<span class="cnt">${count}</span></button>`;
+            <span class="ic">${icon(c.ic)}</span>${c.label}<span class="cnt">${count}</span></button>`;
         }).join('')}
       </div>
       <div class="cards" id="cards"></div>
@@ -1311,11 +1333,11 @@ function renderCards(){
         <div class="card-body">
           <div class="toprow">
             <span class="tag">${it.tag}</span>
-            <span class="rating">${it.rating==='NR'?'New':'\u2605 '+it.rating}</span>
+            <span class="rating">${it.rating==='NR'?'New':icon('star')+it.rating}</span>
           </div>
           <h4>${it.name}</h4>
           <div class="desc">${it.desc}</div>
-          <span class="card-cta">View details \u2192</span>
+          <span class="card-cta">View details ${icon('arrow-right')}</span>
         </div>
       </button>
     </div>`).join('');
@@ -1335,21 +1357,21 @@ function renderDetail(){
 
   document.getElementById('stopPanel').innerHTML = `
     <div class="stop detail" data-stop="${activeStop.id}">
-      <button class="backbtn" id="backBtn">\u2190 Back to ${activeStop.name}</button>
+      <button class="backbtn" id="backBtn">${icon('arrow-left')}Back to ${activeStop.name}</button>
       <div class="detail-hero">
         ${imageBlock(it, activeCat, activeDetail, 'detail-img')}
       </div>
       <div class="detail-body">
         <div class="toprow">
           <span class="tag">${it.tag}</span>
-          <span class="rating">${it.rating==='NR'?'New':'\u2605 '+it.rating}</span>
+          <span class="rating">${it.rating==='NR'?'New':icon('star')+it.rating}</span>
         </div>
         <h3>${it.name}</h3>
-        <div class="detail-loc">\u{1F4CD} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
+        <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
         <p class="detail-desc">${it.details || it.desc}</p>
         <div class="share-row">
-          <button data-share="copy">\u{1F517} Copy link</button>
-          <button data-share="x">Share</button>
+          <button data-share="copy">${icon('link')}Copy link</button>
+          <button data-share="x">${icon('share')}Share</button>
         </div>
       </div>
       ${ others.length ? `
@@ -1375,11 +1397,11 @@ function renderDetail(){
           <div class="card-body">
             <div class="toprow">
               <span class="tag">${o.x.tag}</span>
-              <span class="rating">${o.x.rating==='NR'?'New':'\u2605 '+o.x.rating}</span>
+              <span class="rating">${o.x.rating==='NR'?'New':icon('star')+o.x.rating}</span>
             </div>
             <h4>${o.x.name}</h4>
             <div class="desc">${o.x.desc}</div>
-            <span class="card-cta">View details \u2192</span>
+            <span class="card-cta">View details ${icon('arrow-right')}</span>
           </div>
         </button>
       </div>`).join('');
@@ -1414,7 +1436,7 @@ function renderEvents(){
           <div class="date"><div class="d">${e.d}</div><div class="m">${e.m}</div></div>
           <div>
             <h4>${e.name}</h4>
-            <div class="where">\u{1F4CD} ${e.where} \u00B7 ${activeStop.name}</div>
+            <div class="where">${icon('pin')} ${e.where} \u00B7 ${activeStop.name}</div>
             <div class="edesc">${e.desc}</div>
           </div>
         </div>
