@@ -264,6 +264,20 @@ function initMap(){
     // Tap the map background (not a marker) to dismiss the preview.
     map.on('click', closeMapPreview);
     map.fitBounds(L.latLngBounds(line).pad(0.12));
+
+    // Desktop scroll zoom, gated by Ctrl/Cmd so a plain mousewheel
+    // scroll over the map still scrolls the page. Mobile pinch zoom
+    // (touchZoom) is on by default and untouched here.
+    const mapEl = document.getElementById('leafmap');
+    mapEl.addEventListener('wheel', (e)=>{
+      if(!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const rect = mapEl.getBoundingClientRect();
+      const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
+      const latlng = map.containerPointToLatLng(point);
+      const delta = e.deltaY < 0 ? 1 : -1;
+      map.setZoomAround(latlng, map.getZoom() + delta);
+    }, {passive:false});
   }catch(err){ console.warn('Map failed:', err); renderRouteFallback(); }
 }
 function renderRouteFallback(){

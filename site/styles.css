@@ -7,6 +7,9 @@
   --ink:#241f1a;
   --paper:#f3ece0;
   --paper-2:#ece2d2;
+  /* Warm ivory used for the stat strip and map section so both
+     areas read as one unified warm block, with no grey undertone. */
+  --ivory:#f6ecd2;
   --card:#fffaf1;
   --rail:#0e3b2c;        /* deep evergreen */
   --rail-2:#16543e;
@@ -178,11 +181,11 @@ a{color:inherit}
 /* ---------- route progress bar ---------- */
 .routebar{
   position:sticky;top:51px;z-index:999;height:3px;
-  background:rgba(14,59,44,.15);
+  background:rgba(36,31,26,.12);
 }
 .routebar-fill{
   height:100%;width:0;
-  background:linear-gradient(90deg,var(--ember),var(--gold));
+  background:var(--poster-crimson);
   transition:width .15s ease-out;
 }
 
@@ -310,7 +313,7 @@ a{color:inherit}
    marking the transition from image to text. */
 .hero-stats{
   position:relative;display:flex;justify-content:center;gap:0;
-  background:var(--poster-cream);
+  background:var(--ivory);
   color:var(--poster-ink);
   border-top:4px solid var(--poster-crimson);
 }
@@ -333,7 +336,7 @@ a{color:inherit}
 
 
 /* ---------- map ---------- */
-.mapsection{padding:2.6rem 0 1rem;background:var(--paper-2)}
+.mapsection{padding:2.6rem 0 1rem;background:var(--ivory)}
 #leafmap{
   height:62vh;min-height:340px;max-height:560px;
   margin:0 .9rem;border:3px solid var(--rail);border-radius:14px;
