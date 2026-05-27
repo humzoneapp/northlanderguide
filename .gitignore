@@ -1,7 +1,7 @@
 # dependencies
 node_modules/
 
-# environment / secrets — NEVER commit API keys
+# environment / secrets: NEVER commit API keys
 .env
 backend/.env
 
@@ -13,3 +13,7 @@ site/live-data.json
 
 # logs
 *.log
+
+# Claude Code skill installs (local tool state, not site code)
+.agents/
+skills-lock.json
