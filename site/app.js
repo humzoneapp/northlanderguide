@@ -21,6 +21,42 @@ function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
 
 /* ------------------------------------------------------------------
+   SEASONAL HERO IMAGE
+   Picks one of four photos in site/images/ based on today's date,
+   so the hero always matches the current season with no user
+   interaction. Dates are calendar-based, not astronomical:
+     Spring: Mar 20 - Jun 20
+     Summer: Jun 21 - Sep 21
+     Fall:   Sep 22 - Dec 20
+     Winter: Dec 21 - Mar 19
+------------------------------------------------------------------- */
+function currentSeason(today){
+  const d = today || new Date();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  if ((m === 3 && day >= 20) || m === 4 || m === 5 || (m === 6 && day <= 20)) return 'spring';
+  if ((m === 6 && day >= 21) || m === 7 || m === 8 || (m === 9 && day <= 21)) return 'summer';
+  if ((m === 9 && day >= 22) || m === 10 || m === 11 || (m === 12 && day <= 20)) return 'fall';
+  return 'winter';
+}
+function seasonalHeroImage(){
+  return 'images/northlander-' + currentSeason() + '.jpeg';
+}
+function setSeasonalHero(){
+  const img = document.getElementById('heroImg');
+  if(!img) return;
+  const season = currentSeason();
+  const alts = {
+    spring: 'Northlander train route in spring, fresh greens across a Northern Ontario landscape of lakes and forest.',
+    summer: 'Northlander train route in summer, lush Northern Ontario lake and forest in full bloom.',
+    fall:   'Northlander train route in fall, peak autumn colors across a Northern Ontario lake and forest.',
+    winter: 'Northlander train route in winter, a snowy Northern Ontario landscape of frozen lakes and pines.'
+  };
+  img.src = seasonalHeroImage();
+  img.alt = alts[season] || alts.fall;
+}
+
+/* ------------------------------------------------------------------
    HERO SCENE: fill in the pine ridge and rail ties procedurally so
    the header has real detail without any image files.
 ------------------------------------------------------------------- */
@@ -1530,6 +1566,7 @@ function fromHash(){
   }
 }
 
+setSeasonalHero();
 buildHeroScene();
 fromHash();
 renderChips();

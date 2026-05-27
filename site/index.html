@@ -77,9 +77,13 @@
      area in the upper portion; a soft top-down dark gradient
      keeps the light text legible without washing out the scene. -->
 <header class="hero" id="top">
-  <img class="hero-img"
-       src="images/northlander-route-autumn-heron.jpeg"
-       alt="Northlander train route scenery: a heron beside a calm Northern Ontario lake in autumn, framed by tall grasses and gold and red trees, with soft hills in the distance.">
+  <!-- src and alt are set on page load by setSeasonalHero() in
+       app.js, which picks the photo (spring / summer / fall /
+       winter) that matches today's date. The element stays in the
+       same place with the same CSS so the gradient overlay and the
+       headline sit over it exactly as before. -->
+  <img class="hero-img" id="heroImg"
+       alt="Northlander train route, Northern Ontario lake and forest landscape">
 
   <div class="hero-inner">
     <div class="kicker">Toronto&nbsp;&middot;&nbsp;Northern Ontario&nbsp;&middot;&nbsp;Timmins</div>
