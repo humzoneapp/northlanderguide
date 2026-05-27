@@ -554,9 +554,9 @@ a{color:inherit}
 }
 .stop-photo{display:block;width:100%;height:280px;object-fit:cover}
 @media(min-width:620px){
-  .stop-hero{max-height:340px}
-  .stop-hero svg,.stop-hero .stop-art svg{height:340px;object-fit:cover}
-  .stop-photo{height:340px}
+  .stop-hero{max-height:360px}
+  .stop-hero svg,.stop-hero .stop-art svg{height:360px;object-fit:cover}
+  .stop-photo{height:360px}
 }
 .stop-hero .label{
   position:absolute;left:0;right:0;bottom:0;
