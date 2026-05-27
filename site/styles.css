@@ -785,14 +785,18 @@ a{color:inherit}
 .card h4{font-size:1.16rem;font-weight:600;margin:.45rem 0 .25rem}
 .card .desc{font-size:.88rem;color:var(--muted)}
 /* Walking-time line below the listing name. Small, muted, and
-   prefixed by the pin icon. Reused on the detail view too. */
-.walk-line{
+   prefixed by the pin icon. Reused on the detail view too. The
+   .hours-line shares this styling so the two micro-utility lines
+   (walk + open-today) read as a related pair. */
+.walk-line,
+.hours-line{
   display:inline-flex;align-items:center;gap:.3rem;
   font-size:.78rem;color:var(--poster-rail-brown);
   font-weight:600;margin:.05rem 0 .4rem;
   letter-spacing:.01em;
 }
-.detail-body .walk-line{
+.detail-body .walk-line,
+.detail-body .hours-line{
   font-size:.86rem;margin:.3rem 0 .8rem;
 }
 .card-cta{

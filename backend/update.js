@@ -67,7 +67,13 @@ async function getPlaces(lat, lng, type){
     /* Geographic coordinates so the front end can compute an
        approximate walking time from the station via Haversine. */
     lat:p.geometry && p.geometry.location ? p.geometry.location.lat : null,
-    lng:p.geometry && p.geometry.location ? p.geometry.location.lng : null
+    lng:p.geometry && p.geometry.location ? p.geometry.location.lng : null,
+    /* Today's opening hours, plucked from Google's weekday_text
+       array. weekday_text is ordered Monday (0) through Sunday (6),
+       while JS Date.getDay() returns 0 for Sunday through 6 for
+       Saturday, so we shift the index to match. Captures whatever
+       day the update job runs on, e.g. "Monday: 9:00 AM - 5:00 PM". */
+    hours: (p.opening_hours && p.opening_hours.weekday_text) ? p.opening_hours.weekday_text[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null
   }));
 }
 

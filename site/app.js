@@ -39,7 +39,8 @@ const ICONS = {
   'arrow-up':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
   'external':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
   'share':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
-  'link':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+  'link':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+  'clock':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
 };
 function icon(name){ return ICONS[name] || ''; }
 
@@ -75,6 +76,29 @@ function walkFromStation(stop, item){
   if(mins < 1) return 'At the station';
   const rounded = mins <= 10 ? Math.round(mins) : Math.round(mins/5) * 5;
   return 'About ' + rounded + ' min walk from station';
+}
+
+/* Format a listing's `hours` field into a short human line.
+   Accepts both Google's "Monday: 9:00 AM - 5:00 PM" weekday_text
+   format (strips the day prefix, prepends "Open today") and free
+   text from curated Featured slots (used as-is if it already
+   starts with "Open" or "Closed"). Returns "" when there is
+   nothing to show. */
+function formatHours(hours){
+  if(!hours) return '';
+  const s = String(hours).trim();
+  if(!s) return '';
+  /* Strip "Monday: " / "Tuesday: " etc. when present. */
+  const m = s.match(/^[A-Z][a-z]+:\s*(.+)$/);
+  let rest = m ? m[1].trim() : s;
+  if(/^closed/i.test(rest)) return 'Closed today';
+  /* Normalise typographic dashes and the ASCII dash to "to" so
+     the line reads "9:00 AM to 5:00 PM" instead of "9 - 5".
+     Uses unicode escapes (U+2013 en dash, U+2014 em dash) so no
+     literal em dash sits in the source. */
+  rest = rest.replace(/\s+[\u2013\u2014-]\s+/g, ' to ');
+  if(/^open/i.test(rest)) return rest;
+  return 'Open today ' + rest;
 }
 
 /* ------------------------------------------------------------------
@@ -1448,6 +1472,7 @@ function listingsForActive(){
    grid and by the "More near X" grid inside the detail view). */
 function cardMarkup(it, idx, imgCls){
   const walk = walkFromStation(activeStop, it);
+  const hrs = formatHours(it.hours);
   const ratingHtml = it.rating === 'NR'
     ? 'New'
     : (it.rating ? icon('star') + it.rating : '');
@@ -1463,6 +1488,7 @@ function cardMarkup(it, idx, imgCls){
           <h4>${it.name}</h4>
           ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
           <div class="desc">${it.desc}</div>
+          ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
           <span class="card-cta">View details ${icon('arrow-right')}</span>
         </div>
       </button>
@@ -1488,6 +1514,7 @@ function renderDetail(){
   if(!it){ activeDetail=null; renderStop(); return; }
   const others = items.map((x,i)=>({x,i})).filter(o=>o.i!==activeDetail);
   const walk = walkFromStation(activeStop, it);
+  const hrs = formatHours(it.hours);
   const ratingHtml = it.rating === 'NR'
     ? 'New'
     : (it.rating ? icon('star') + it.rating : '');
@@ -1505,6 +1532,7 @@ function renderDetail(){
         </div>
         <h3>${it.name}</h3>
         ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
+        ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
         <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
         <p class="detail-desc">${it.details || it.desc}</p>
         <div class="share-row">
