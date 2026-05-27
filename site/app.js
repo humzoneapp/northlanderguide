@@ -1652,3 +1652,34 @@ renderEvents();
 initMap();
 updateRouteBar();
 observeReveals();
+
+/* ------------------------------------------------------------------
+   LIVE DATA REFRESH
+   After the page has rendered with curated content, try to fetch
+   the live cache from the backend. If it succeeds, swap the
+   live listings + events into the in-memory STOPS array and
+   re-render the panel and event list. If anything fails (offline,
+   404, JSON parse error, missing keys), the curated content
+   already on screen stays in place and the user never notices.
+   This fetch is fire-and-forget and never blocks initial paint.
+------------------------------------------------------------------- */
+fetch('https://northlander-backend.onrender.com/live-data.json')
+  .then(r => r.json())
+  .then(cache => {
+    if (!cache || !cache.stops) return;
+    STOPS.forEach(s => {
+      const c = cache.stops[s.id];
+      if (!c) return;
+      if (c.restaurants && c.restaurants.length) s.restaurants = c.restaurants;
+      if (c.accommodations && c.accommodations.length) s.accommodations = c.accommodations;
+      if (c.parks && c.parks.length) s.parks = c.parks;
+      if (c.attractions && c.attractions.length) s.attractions = c.attractions;
+      if (c.events && c.events.length) s.events = c.events;
+    });
+    renderStop();
+    renderEvents();
+    console.log('Live data loaded successfully, updated:', cache.updated);
+  })
+  .catch(() => {
+    console.log('Live data unavailable, using curated content');
+  });
