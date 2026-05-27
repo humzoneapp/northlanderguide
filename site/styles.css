@@ -388,13 +388,17 @@ a{color:inherit}
   border-top-left-radius:18px;border-top-right-radius:18px;
   box-shadow:0 -14px 36px rgba(20,50,38,.24);
   z-index:2000;
-  transition:transform .32s cubic-bezier(.2,.7,.2,1), visibility .32s;
+  /* Closing transition: snappy ease-in so dismissal feels fast.
+     The .open rule below overrides this with a slower ease-out
+     curve for entry so the user sees the card decide to appear. */
+  transition:transform .18s cubic-bezier(.4,0,1,1), visibility .18s;
   padding-bottom:env(safe-area-inset-bottom,0);
   font-family:'Spline Sans',sans-serif;
 }
 .map-preview.open{
   transform:translateX(-50%) translateY(0);
   visibility:visible;
+  transition:transform .32s cubic-bezier(.2,.7,.2,1), visibility .32s;
 }
 .map-preview-img{
   position:relative;width:100%;
@@ -484,8 +488,12 @@ a{color:inherit}
   width:100%;font-family:'Spline Sans',sans-serif;font-size:1rem;
   padding:.95rem 1.1rem;border:2px solid var(--line);border-radius:100px;
   background:var(--card);color:var(--ink);
+  transition:border-color 160ms ease, box-shadow 160ms ease;
 }
-.searchbar input:focus{outline:none;border-color:var(--ember)}
+.searchbar input:focus{
+  outline:none;border-color:var(--ember);
+  box-shadow:0 0 0 3px rgba(217,108,44,.18);
+}
 
 /* stop chips: horizontal scroll on mobile.
    Extra bottom padding gives the rusty-brown scrollbar room to
@@ -503,14 +511,20 @@ a{color:inherit}
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.85rem;
   font-weight:600;padding:.55rem 1rem;border-radius:100px;
   border:2px solid var(--line);background:var(--card);color:var(--ink);
-  cursor:pointer;white-space:nowrap;transition:all .15s;
+  cursor:pointer;white-space:nowrap;
+  transition:transform 160ms ease-out,
+             background-color .15s ease, color .15s ease,
+             border-color .15s ease;
 }
-.chip:hover{border-color:var(--rail)}
+@media (hover:hover) and (pointer:fine){
+  .chip:hover{border-color:var(--rail)}
+}
+.chip:active{transform:scale(.97)}
 .chip.active{background:var(--rail);color:#fff;border-color:var(--rail)}
 .chip .ord{opacity:.5;margin-right:.35rem;font-variant-numeric:tabular-nums}
 
 /* ---------- stop panel ---------- */
-.stop{padding:0 1.1rem;animation:fade .35s ease}
+.stop{padding:0 1.1rem;animation:fade .22s cubic-bezier(.23,1,.32,1) both}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .stop-hero{
@@ -571,9 +585,13 @@ a{color:inherit}
   font-family:'Spline Sans',sans-serif;font-size:.82rem;font-weight:600;
   padding:.5rem .95rem;border-radius:100px;cursor:pointer;
   border:2px solid var(--rail);background:transparent;color:var(--rail);
-  transition:all .15s;
+  transition:transform 160ms ease-out,
+             background-color .15s ease, color .15s ease;
 }
-.share-row button:hover{background:var(--rail);color:#fff}
+@media (hover:hover) and (pointer:fine){
+  .share-row button:hover{background:var(--rail);color:#fff}
+}
+.share-row button:active{transform:scale(.97)}
 
 /* category filter */
 .catfilter{
@@ -607,9 +625,27 @@ a{color:inherit}
 }
 .catfilter button.active{background:var(--ember);color:#fff;border-color:var(--ember)}
 .catfilter button.active .cnt{background:rgba(255,255,255,.28);color:#fff}
+.catfilter button:active{transform:scale(.97)}
 
-/* listing cards (now with an image area) */
+/* listing cards (now with an image area).
+   Each card enters with a tiny upward fade, staggered 40ms apart
+   so the listing cascades into view instead of all landing at once.
+   Stagger is decorative only and never blocks interaction (the
+   buttons are clickable from frame 1 because animation-fill-mode
+   is `both`). */
 .cards{display:grid;grid-template-columns:1fr;gap:.9rem}
+.cards .card{animation:cardEnter .28s cubic-bezier(.23,1,.32,1) both}
+.cards .card:nth-child(1){animation-delay:0ms}
+.cards .card:nth-child(2){animation-delay:40ms}
+.cards .card:nth-child(3){animation-delay:80ms}
+.cards .card:nth-child(4){animation-delay:120ms}
+.cards .card:nth-child(5){animation-delay:160ms}
+.cards .card:nth-child(6){animation-delay:200ms}
+.cards .card:nth-child(n+7){animation-delay:240ms}
+@keyframes cardEnter{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
 .card{
   background:var(--card);border:1.5px solid var(--line);
   border-radius:18px;overflow:hidden;cursor:pointer;
@@ -628,9 +664,26 @@ a{color:inherit}
     border-color:var(--ember);
   }
 }
-.card:active{transform:scale(.99)}
-.card-img{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2)}
+/* Combined press microstate: keep the lift, add a small scale.
+   Without combining, the card snaps back to baseline on click
+   which reads as a glitch. */
+.card:active{transform:translateY(-2px) scale(.99)}
+.card-img{
+  position:relative;
+  width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2);
+}
 .card-img img,.card-img svg{width:100%;height:100%;object-fit:cover;display:block}
+/* Fallback art always renders behind the photo. If the photo fails,
+   we fade it out instead of snapping content, so the moment of
+   swap is hidden. */
+.card-img .img-fallback,.detail-img .img-fallback{
+  position:absolute;inset:0;z-index:0;
+}
+.card-img > img,.detail-img > img{
+  position:relative;z-index:1;
+  transition:opacity 220ms ease;
+}
+.card-img > img.img-failed,.detail-img > img.img-failed{opacity:0}
 .card-body{padding:.9rem 1rem 1rem}
 .card .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
 .card .tag{
@@ -651,7 +704,7 @@ a{color:inherit}
 }
 
 /* ---------- detail view ---------- */
-.stop.detail{animation:detailIn .32s cubic-bezier(.2,.7,.2,1) both}
+.stop.detail{animation:detailIn .24s cubic-bezier(.2,.7,.2,1) both}
 @keyframes detailIn{
   from{opacity:0;transform:translateY(14px)}
   to{opacity:1;transform:none}
@@ -660,16 +713,24 @@ a{color:inherit}
   font-family:'Spline Sans',sans-serif;font-size:.86rem;font-weight:700;
   background:var(--card);border:2px solid var(--rail);color:var(--rail);
   border-radius:100px;padding:.55rem 1.1rem;cursor:pointer;
-  margin-bottom:1.1rem;transition:all .15s;
+  margin-bottom:1.1rem;
+  transition:transform 160ms ease-out,
+             background-color .2s ease, color .2s ease;
   position:sticky;top:62px;z-index:60;
   box-shadow:0 4px 14px rgba(20,50,38,.16);
 }
-.backbtn:hover{background:var(--rail);color:#fff}
+@media (hover:hover) and (pointer:fine){
+  .backbtn:hover{background:var(--rail);color:#fff}
+}
+.backbtn:active{transform:scale(.97)}
 .detail-hero{
   border-radius:16px;overflow:hidden;box-shadow:var(--shadow);
   margin-bottom:1.1rem;
 }
-.detail-img{width:100%;aspect-ratio:16/9;background:var(--paper-2)}
+.detail-img{
+  position:relative;
+  width:100%;aspect-ratio:16/9;background:var(--paper-2);
+}
 .detail-img img,.detail-img svg{width:100%;height:100%;object-fit:cover;display:block}
 @media(min-width:620px){
   .detail-img{aspect-ratio:21/9}

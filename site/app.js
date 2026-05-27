@@ -259,14 +259,22 @@ function cardArt(cat, seed){
   </svg>`;
 }
 
-/* Returns the markup for an image area: real photo if `image` set,
-   otherwise the illustrated fallback. */
+/* Returns the markup for an image area. When a photo is set, the
+   illustrated fallback always renders underneath it; on load error
+   we just add `.img-failed` to the photo so CSS can fade it out
+   over the fallback. This hides the moment of swap instead of
+   snapping content, per the "blur to mask imperfect transitions"
+   principle (crossfade is the same idea, simpler). */
 function imageBlock(item, cat, seed, cls){
+  const fallback = cardArt(cat, seed);
   if(item && item.image){
-    return `<div class="${cls}"><img src="${item.image}" alt="${item.name||''}"
-            loading="lazy" onerror="this.parentNode.innerHTML=\`${cardArt(cat,seed).replace(/`/g,'')}\`"></div>`;
+    return `<div class="${cls}">
+      <div class="img-fallback">${fallback}</div>
+      <img src="${item.image}" alt="${item.name||''}" loading="lazy"
+           onerror="this.classList.add('img-failed')">
+    </div>`;
   }
-  return `<div class="${cls}">${cardArt(cat, seed)}</div>`;
+  return `<div class="${cls}">${fallback}</div>`;
 }
 
 /* ------------------------------------------------------------------
@@ -551,6 +559,17 @@ function selectStop(id,scroll=true){
   activeCat = 'restaurants';
   activeDetail = null;
   renderChips(document.getElementById('searchInput').value);
+  // After the chips re-render, center the active chip horizontally
+  // inside the chip row so the user never loses their place when
+  // they glance back at the row.
+  const chipRow = document.getElementById('stopChips');
+  const activeChip = chipRow && chipRow.querySelector('.chip.active');
+  if(activeChip){
+    chipRow.scrollTo({
+      left: activeChip.offsetLeft - (chipRow.clientWidth/2) + (activeChip.offsetWidth/2),
+      behavior:'smooth'
+    });
+  }
   renderStop();
   renderEvents();
   history.replaceState(null,'','#stop='+id);
