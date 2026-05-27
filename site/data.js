@@ -13,6 +13,24 @@ const STOPS = [
   /* ---- 1. UNION STATION (TORONTO) ---- */
   {
     id:"union", lat:43.6453, lng:-79.3806, hook:"Canada's grandest railway hall, where your journey north begins.", name:"Toronto Union", region:"Toronto", time:"0:00", image:"images/northlander-toronto-union.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"The southern terminus. A vast historic station in the heart of downtown Toronto, steps from the waterfront, sports venues, and the Distillery District.",
     facts:["Departure point northbound","Connects to GO, UP Express, VIA, TTC subway","Walkable to Harbourfront & St. Lawrence Market"],
     restaurants:[
@@ -44,6 +62,24 @@ const STOPS = [
   /* ---- 2. LANGSTAFF ---- */
   {
     id:"langstaff", lat:43.84, lng:-79.428, hook:"A kettle-lake boardwalk and a century-old observatory.", name:"Langstaff", region:"Richmond Hill", time:"0:35", image:"images/northlander-langstaff.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A commuter transit hub in Richmond Hill, gateway to York Region's parks, trails and suburban dining.",
     facts:["Transit hub stop","Near Richmond Hill centre","Access to Lake Wilcox & Oak Ridges trails"],
     restaurants:[
@@ -72,6 +108,24 @@ const STOPS = [
   /* ---- 3. GORMLEY ---- */
   {
     id:"gormley", lat:43.946, lng:-79.365, hook:"Pick-your-own orchards on the rim of the Oak Ridges Moraine.", name:"Gormley", region:"Whitchurch-Stouffville", time:"0:50", image:"images/northlander-gormley.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A GO transit hub on the edge of farm country, the doorway to the rolling Oak Ridges Moraine and pick-your-own farms.",
     facts:["Transit hub stop","Surrounded by conservation land","Close to Stouffville's main street"],
     restaurants:[
@@ -99,6 +153,24 @@ const STOPS = [
   /* ---- 4. WASHAGO ---- */
   {
     id:"washago", lat:44.735, lng:-79.345, hook:"Where two rivers meet, the doorstep of cottage country.", name:"Washago", region:"Gateway to Muskoka", time:"2:00", image:"images/northlander-washago.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A small riverside community where the Black and Severn rivers meet, the unofficial gateway to cottage country.",
     facts:["Modern glass shelter stop","On the Trent–Severn Waterway","Edge of Muskoka lakes region"],
     restaurants:[
@@ -125,6 +197,24 @@ const STOPS = [
   /* ---- 5. GRAVENHURST ---- */
   {
     id:"gravenhurst", lat:44.917, lng:-79.37, hook:"Home of North America's oldest working steamship.", name:"Gravenhurst", region:"Muskoka", time:"2:25", image:"images/northlander-gravenhurst.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"The 'Gateway to Muskoka', a lakeside town famous for its steamships, wharf and the birthplace of Norman Bethune.",
     facts:["Modern glass shelter stop","Home of the Muskoka Wharf","Steamship cruises on Lake Muskoka"],
     restaurants:[
@@ -156,6 +246,24 @@ const STOPS = [
   /* ---- 6. BRACEBRIDGE ---- */
   {
     id:"bracebridge", lat:45.04, lng:-79.31, hook:"A town built around an illuminated waterfall.", name:"Bracebridge", region:"Muskoka", time:"2:50", image:"images/northlander-bracebridge.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"The 'Heart of Muskoka', a waterfall-laced town on the Muskoka River with a charming historic main street.",
     facts:["Modern glass shelter stop","Built around Bracebridge Falls","Santa's Village is nearby"],
     restaurants:[
@@ -186,6 +294,24 @@ const STOPS = [
   /* ---- 7. HUNTSVILLE ---- */
   {
     id:"huntsville", lat:45.327, lng:-79.216, hook:"100+ Group of Seven murals, and the gateway to Algonquin.", name:"Huntsville", region:"Muskoka", time:"3:25", image:"images/northlander-huntsville.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"The largest town in Muskoka, gateway to Algonquin Park, home of the Group of Seven murals and a lively arts scene.",
     facts:["Modern glass shelter stop","Gateway to Algonquin Provincial Park","Group of Seven outdoor mural trail"],
     restaurants:[
@@ -218,6 +344,24 @@ const STOPS = [
   /* ---- 8. SOUTH RIVER ---- */
   {
     id:"southriver", lat:45.837, lng:-79.38, hook:"The quiet back door into Algonquin's wild west side.", name:"South River", region:"Almaguin Highlands", time:"4:20", image:"images/northlander-south-river.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A quiet village in the Almaguin Highlands and the western doorway to Algonquin Park's less-travelled side.",
     facts:["Modern glass shelter stop","Gateway to Algonquin's west","Surrounded by lakes and forest"],
     restaurants:[
@@ -246,6 +390,24 @@ const STOPS = [
   /* ---- 9. TEMAGAMI ---- */
   {
     id:"temagami", lat:47.064, lng:-79.79, hook:"Paddle beneath 400-year-old red and white pines.", name:"Temagami", region:"Lake Temagami", time:"6:00", image:"images/northlander-temagami.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A storied canoe-country town set among old-growth pine and a maze of interconnected lakes.",
     facts:["Modern glass shelter stop","Famous for old-growth red & white pine","World-class canoe tripping"],
     restaurants:[
@@ -275,6 +437,24 @@ const STOPS = [
   /* ---- 10. NORTH BAY ---- */
   {
     id:"northbay", lat:46.309, lng:-79.461, hook:"A carousel, a beach and a heritage train on Lake Nipissing.", name:"North Bay", region:"Lake Nipissing", time:"6:45", image:"images/northlander-north-bay.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A regional city on Lake Nipissing, the largest centre on the route and a major hub between Toronto and the far north.",
     facts:["Full Ontario Northland station","On Lake Nipissing's shore","Historic Dionne Quintuplets connection"],
     restaurants:[
@@ -307,6 +487,24 @@ const STOPS = [
   /* ---- 11. TEMISKAMING SHORES (NEW LISKEARD) ---- */
   {
     id:"temiskaming", lat:47.509, lng:-79.677, hook:"Northern dairy country beneath a 100-metre cliff.", name:"Temiskaming Shores", region:"New Liskeard", time:"8:00", image:"images/northlander-temiskaming-shores.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A lakeside community on Lake Temiskaming, surrounded by the surprising farm belt of the 'Little Clay Belt'.",
     facts:["Modern glass shelter stop (New Liskeard)","On Lake Temiskaming","Northern dairy & farm country"],
     restaurants:[
@@ -336,6 +534,24 @@ const STOPS = [
   /* ---- 12. ENGLEHART ---- */
   {
     id:"englehart", lat:47.821, lng:-79.868, hook:"A town the railway itself built, gorge falls nearby.", name:"Englehart", region:"Timiskaming District", time:"8:35", image:"images/northlander-englehart.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A historic railway town built by Ontario Northland itself, small, proud, and rich in rail heritage.",
     facts:["Full Ontario Northland station","Founded as a railway divisional point","Near Kap-Kig-Iwan Provincial Park"],
     restaurants:[
@@ -363,6 +579,24 @@ const STOPS = [
   /* ---- 13. KIRKLAND LAKE (SWASTIKA) ---- */
   {
     id:"kirklandlake", lat:48.147, lng:-80.037, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A legendary gold-mining town, 'the town that gold built', reached via the Swastika stop just to the west.",
     facts:["Modern glass shelter stop (Swastika)","Historic gold-mining boom town","Birthplace of many NHL hockey stars"],
     restaurants:[
@@ -391,6 +625,24 @@ const STOPS = [
   /* ---- 14. MATHESON ---- */
   {
     id:"matheson", lat:48.534, lng:-80.464, hook:"22 spring-fed kettle lakes and the coach north to Cochrane.", name:"Matheson", region:"Black River-Matheson", time:"9:55", image:"images/northlander-matheson.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"A crossroads community where an express coach connects onward to Cochrane and the Polar Bear Express.",
     facts:["Modern glass shelter stop","Express coach link to Cochrane (4:30 a.m.)","Surrounded by lakes and boreal forest"],
     restaurants:[
@@ -418,6 +670,24 @@ const STOPS = [
   /* ---- 15. TIMMINS-PORCUPINE ---- */
   {
     id:"timmins", lat:48.4758, lng:-81.3305, hook:"Descend a real gold mine at the northern end of the line.", name:"Timmins-Porcupine", region:"Timmins", time:"10:40", image:"images/northlander-timmins-porcupine.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"The northern terminus, a major mining city famous for gold, the Shania Twain Centre legacy, and vast wilderness all around.",
     facts:["Northern terminus (Porcupine Station)","One of the world's great gold-mining cities","1-hour layover for Cochrane connection"],
     restaurants:[
@@ -450,6 +720,24 @@ const STOPS = [
   /* ---- 16. COCHRANE (RAIL CONNECTION) ---- */
   {
     id:"cochrane", lat:49.066, lng:-81.015, hook:"Meet polar bears, then ride the rails to James Bay.", name:"Cochrane", region:"Polar Bear Express link", time:"+ connection", image:"images/northlander-cochrane.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
     blurb:"Reached by rail or coach connection, home of the Polar Bear Express to Moosonee and the Polar Bear Habitat.",
     facts:["Connection point, not on the main line","Gateway to the Polar Bear Express","Home of the Cochrane Polar Bear Habitat"],
     restaurants:[

@@ -767,9 +767,34 @@ a{color:inherit}
   font-weight:700;color:#fff;background:var(--poster-crimson);
   padding:.2rem .55rem;border-radius:5px;white-space:nowrap;
 }
+/* Featured tag: warm gold instead of crimson, dark ink text so the
+   "Featured" label is unmistakable. Used on both .card .tag and
+   .detail-body .tag when the listing has featured:true. */
+.tag.tag-featured,
+.detail-body .tag.tag-featured{
+  background:var(--poster-gold);
+  color:var(--poster-ink);
+}
+.card-featured{
+  /* Subtle gold accent on the card frame so featured items read as
+     elevated without screaming. */
+  border-color:var(--poster-gold);
+  box-shadow:0 4px 14px rgba(220,163,60,.18);
+}
 .card .rating{color:var(--gold);font-weight:700;font-size:.86rem;white-space:nowrap}
 .card h4{font-size:1.16rem;font-weight:600;margin:.45rem 0 .25rem}
 .card .desc{font-size:.88rem;color:var(--muted)}
+/* Walking-time line below the listing name. Small, muted, and
+   prefixed by the pin icon. Reused on the detail view too. */
+.walk-line{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.78rem;color:var(--poster-rail-brown);
+  font-weight:600;margin:.05rem 0 .4rem;
+  letter-spacing:.01em;
+}
+.detail-body .walk-line{
+  font-size:.86rem;margin:.3rem 0 .8rem;
+}
 .card-cta{
   display:inline-block;margin-top:.6rem;font-size:.8rem;font-weight:700;
   color:var(--poster-crimson);
@@ -808,6 +833,62 @@ a{color:inherit}
   width:100%;aspect-ratio:16/9;background:var(--paper-2);
 }
 .detail-img img,.detail-img svg{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- swipeable photo gallery (detail view) ----------
+   Lives inside .detail-img when a listing has more than one photo.
+   .gallery-track is a flex row of full-width slides; we move
+   between slides by translating the track. Touch swipe is handled
+   in app.js; prev/next buttons are visible on desktop (hover:hover)
+   and hidden on touch so swipes are the only input. */
+.gallery .gallery-track{
+  display:flex;width:100%;height:100%;
+  transition:transform .35s cubic-bezier(.23,1,.32,1);
+  will-change:transform;
+}
+.gallery .gallery-slide{
+  flex:0 0 100%;width:100%;height:100%;
+  object-fit:cover;display:block;
+  position:relative;z-index:1;
+}
+.gallery .gallery-slide.img-failed{opacity:0;transition:opacity .22s ease}
+.gallery .gallery-prev,
+.gallery .gallery-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(36,31,26,.55);color:#f3ece0;
+  border:none;cursor:pointer;z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s ease, transform .15s ease;
+}
+.gallery .gallery-prev{left:.7rem}
+.gallery .gallery-next{right:.7rem}
+.gallery .gallery-prev:hover,
+.gallery .gallery-next:hover{background:rgba(36,31,26,.8)}
+.gallery .gallery-prev:active,
+.gallery .gallery-next:active{transform:translateY(-50%) scale(.92)}
+/* Hide arrows on touch devices: swipe is the primary input there. */
+@media (hover:none){
+  .gallery .gallery-prev,
+  .gallery .gallery-next{display:none}
+}
+.gallery .gallery-dots{
+  position:absolute;bottom:.65rem;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:.35rem;z-index:3;
+  padding:.35rem .55rem;border-radius:100px;
+  background:rgba(36,31,26,.4);
+}
+.gallery .gallery-dot{
+  width:8px;height:8px;border-radius:50%;
+  border:none;background:rgba(243,236,224,.55);
+  padding:0;cursor:pointer;
+  transition:background .2s ease, width .25s ease;
+}
+.gallery .gallery-dot.active{
+  background:#f3ece0;
+  width:22px;border-radius:4px;
+}
+
 @media(min-width:620px){
   .detail-img{aspect-ratio:21/9}
 }

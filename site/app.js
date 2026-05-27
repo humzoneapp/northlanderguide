@@ -8,6 +8,10 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 let activeStop = STOPS[0];
 let activeCat  = 'restaurants';
 let activeDetail = null;   // index of the listing being viewed, or null
+/* Saved scroll position when opening a detail view, so the back
+   button can restore the visitor to exactly where they were in
+   the list instead of snapping to the top of the page. */
+let savedScrollY = 0;
 
 const CATS = [
   {key:'restaurants',    label:'Eat & Drink',     ic:'fork-knife'},
@@ -41,6 +45,37 @@ function icon(name){ return ICONS[name] || ''; }
 
 /* a URL-safe slug from a listing name, used for shareable detail links */
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+/* ------------------------------------------------------------------
+   DISTANCE FROM STATION
+   Haversine great-circle distance in km between two coordinates,
+   then a 5 km/h walking-speed conversion to minutes. The walk
+   string rounds to the nearest 5 minutes for anything > 10 min and
+   to the exact minute under 10. Listings may also carry a manual
+   walkMins field (used by Featured slots) which overrides the
+   geographic calculation.
+------------------------------------------------------------------- */
+function haversineKm(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2
+          + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+function walkFromStation(stop, item){
+  let mins = null;
+  if(item && typeof item.walkMins === 'number') mins = item.walkMins;
+  else if(stop && item && stop.lat != null && stop.lng != null && item.lat != null && item.lng != null){
+    const km = haversineKm(stop.lat, stop.lng, item.lat, item.lng);
+    mins = (km / 5) * 60;
+  }
+  if(mins == null) return '';
+  if(mins < 1) return 'At the station';
+  const rounded = mins <= 10 ? Math.round(mins) : Math.round(mins/5) * 5;
+  return 'About ' + rounded + ' min walk from station';
+}
 
 /* ------------------------------------------------------------------
    SEASONAL HERO IMAGE
@@ -1190,6 +1225,80 @@ function imageBlock(item, cat, seed, cls){
 }
 
 /* ------------------------------------------------------------------
+   DETAIL IMAGE / GALLERY
+   For the detail view: render a swipeable gallery when the listing
+   has 2+ photos (images array), otherwise fall back to the regular
+   single-image block. Markup is built statically; setupGallery
+   wires up the touch swipe, prev/next buttons, and dot indicators
+   after the panel is in the DOM.
+------------------------------------------------------------------- */
+function detailImageBlock(item, cat, seed){
+  const fallback = cardArt(cat, seed);
+  const imgs = (item && Array.isArray(item.images)) ? item.images.filter(Boolean) : [];
+  /* Single image path: keep behaviour identical to imageBlock. */
+  if(imgs.length <= 1){
+    const single = (imgs[0]) || (item && item.image) || null;
+    if(single){
+      return `<div class="detail-img">
+        <div class="img-fallback">${fallback}</div>
+        <img src="${single}" alt="${item.name||''}" loading="lazy"
+             onerror="this.classList.add('img-failed')">
+      </div>`;
+    }
+    return `<div class="detail-img">${fallback}</div>`;
+  }
+  /* Multi-image gallery. */
+  const slides = imgs.map((src,i) => `
+    <img class="gallery-slide" src="${src}" alt="${(item.name||'')+ ' photo ' + (i+1)}"
+         loading="${i===0?'eager':'lazy'}"
+         onerror="this.classList.add('img-failed')">`).join('');
+  const dots = imgs.map((_,i) =>
+    `<button class="gallery-dot${i===0?' active':''}" type="button" data-idx="${i}" aria-label="Show photo ${i+1}"></button>`
+  ).join('');
+  return `<div class="detail-img gallery" data-len="${imgs.length}" data-idx="0">
+    <div class="img-fallback">${fallback}</div>
+    <div class="gallery-track">${slides}</div>
+    <button class="gallery-prev" type="button" aria-label="Previous photo">${icon('arrow-left')}</button>
+    <button class="gallery-next" type="button" aria-label="Next photo">${icon('arrow-right')}</button>
+    <div class="gallery-dots">${dots}</div>
+  </div>`;
+}
+function setupGallery(root){
+  const gallery = (root||document).querySelector('.gallery');
+  if(!gallery) return;
+  const track = gallery.querySelector('.gallery-track');
+  const prevBtn = gallery.querySelector('.gallery-prev');
+  const nextBtn = gallery.querySelector('.gallery-next');
+  const dots = gallery.querySelectorAll('.gallery-dot');
+  const len = parseInt(gallery.dataset.len, 10) || 1;
+  let idx = 0;
+  function go(newIdx){
+    if(newIdx < 0) newIdx = len - 1;
+    if(newIdx >= len) newIdx = 0;
+    idx = newIdx;
+    track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
+    gallery.dataset.idx = idx;
+  }
+  prevBtn && prevBtn.addEventListener('click', e => { e.stopPropagation(); go(idx - 1); });
+  nextBtn && nextBtn.addEventListener('click', e => { e.stopPropagation(); go(idx + 1); });
+  dots.forEach((d,i) => d.addEventListener('click', e => { e.stopPropagation(); go(i); }));
+  /* Touch swipe (mobile). Ignore vertical scrolls and tiny taps. */
+  let startX = 0, startY = 0;
+  gallery.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  gallery.addEventListener('touchend', e => {
+    const dx = startX - e.changedTouches[0].clientX;
+    const dy = startY - e.changedTouches[0].clientY;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){
+      go(idx + (dx > 0 ? 1 : -1));
+    }
+  });
+}
+
+/* ------------------------------------------------------------------
    INTERACTIVE MAP (Leaflet) with graceful fallback
 ------------------------------------------------------------------- */
 let map, markers={};
@@ -1322,25 +1431,49 @@ function renderStop(){
   observeReveals();
 }
 
-function renderCards(){
-  const items = activeStop[activeCat] || [];
-  const wrap = document.getElementById('cards');
-  if(!items.length){ wrap.innerHTML = `<div class="empty">No listings here yet.</div>`; return; }
-  wrap.innerHTML = items.map((it,idx)=>`
+/* Combined list of listings for the currently active stop +
+   category. Filled Featured slots from the curated data.js come
+   first, followed by the organic Google Places listings. Empty
+   Featured slots (name === '') are skipped, so the placeholder
+   blocks in data.js stay invisible until a paid listing is
+   inserted. */
+function listingsForActive(){
+  const featured = (activeStop.featured && activeStop.featured[activeCat] || [])
+    .filter(it => it && it.name && it.name.trim());
+  const organic = activeStop[activeCat] || [];
+  return featured.concat(organic);
+}
+
+/* Shared markup for a single listing tile (used by the directory
+   grid and by the "More near X" grid inside the detail view). */
+function cardMarkup(it, idx, imgCls){
+  const walk = walkFromStation(activeStop, it);
+  const ratingHtml = it.rating === 'NR'
+    ? 'New'
+    : (it.rating ? icon('star') + it.rating : '');
+  return `
     <div class="reveal">
-      <button class="card" data-idx="${idx}">
-        ${imageBlock(it, activeCat, idx, 'card-img')}
+      <button class="card${it.featured ? ' card-featured' : ''}" data-idx="${idx}">
+        ${imageBlock(it, activeCat, idx, imgCls)}
         <div class="card-body">
           <div class="toprow">
-            <span class="tag">${it.tag}</span>
-            <span class="rating">${it.rating==='NR'?'New':icon('star')+it.rating}</span>
+            <span class="tag${it.featured ? ' tag-featured' : ''}">${it.tag}</span>
+            ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
           </div>
           <h4>${it.name}</h4>
+          ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
           <div class="desc">${it.desc}</div>
           <span class="card-cta">View details ${icon('arrow-right')}</span>
         </div>
       </button>
-    </div>`).join('');
+    </div>`;
+}
+
+function renderCards(){
+  const items = listingsForActive();
+  const wrap = document.getElementById('cards');
+  if(!items.length){ wrap.innerHTML = `<div class="empty">No listings here yet.</div>`; return; }
+  wrap.innerHTML = items.map((it,idx)=>cardMarkup(it, idx, 'card-img')).join('');
   wrap.querySelectorAll('.card').forEach(c=>
     c.addEventListener('click',()=>openDetail(parseInt(c.dataset.idx,10))));
   observeReveals();
@@ -1350,23 +1483,28 @@ function renderCards(){
    DETAIL VIEW: one listing, back button, more cards below
 ------------------------------------------------------------------- */
 function renderDetail(){
-  const items = activeStop[activeCat] || [];
+  const items = listingsForActive();
   const it = items[activeDetail];
   if(!it){ activeDetail=null; renderStop(); return; }
   const others = items.map((x,i)=>({x,i})).filter(o=>o.i!==activeDetail);
+  const walk = walkFromStation(activeStop, it);
+  const ratingHtml = it.rating === 'NR'
+    ? 'New'
+    : (it.rating ? icon('star') + it.rating : '');
 
   document.getElementById('stopPanel').innerHTML = `
     <div class="stop detail" data-stop="${activeStop.id}">
       <button class="backbtn" id="backBtn">${icon('arrow-left')}Back to ${activeStop.name}</button>
       <div class="detail-hero">
-        ${imageBlock(it, activeCat, activeDetail, 'detail-img')}
+        ${detailImageBlock(it, activeCat, activeDetail)}
       </div>
       <div class="detail-body">
         <div class="toprow">
-          <span class="tag">${it.tag}</span>
-          <span class="rating">${it.rating==='NR'?'New':icon('star')+it.rating}</span>
+          <span class="tag${it.featured ? ' tag-featured' : ''}">${it.tag}</span>
+          ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
         </div>
         <h3>${it.name}</h3>
+        ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
         <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
         <p class="detail-desc">${it.details || it.desc}</p>
         <div class="share-row">
@@ -1383,39 +1521,33 @@ function renderDetail(){
 
   document.getElementById('backBtn').addEventListener('click',()=>{
     activeDetail=null; renderStop();
-    document.getElementById('explore').scrollIntoView({behavior:'smooth',block:'start'});
+    /* Restore the visitor's scroll position from before they opened
+       this detail view. Wait one frame so the new list DOM is in
+       place before we set scrollY. */
+    requestAnimationFrame(()=>window.scrollTo({top: savedScrollY, behavior: 'auto'}));
   });
   document.querySelectorAll('[data-share]').forEach(b=>
     b.addEventListener('click',()=>shareCurrent(b.dataset.share)));
 
   const mc = document.getElementById('moreCards');
   if(mc){
-    mc.innerHTML = others.map(o=>`
-      <div class="reveal">
-        <button class="card" data-idx="${o.i}">
-          ${imageBlock(o.x, activeCat, o.i, 'card-img')}
-          <div class="card-body">
-            <div class="toprow">
-              <span class="tag">${o.x.tag}</span>
-              <span class="rating">${o.x.rating==='NR'?'New':icon('star')+o.x.rating}</span>
-            </div>
-            <h4>${o.x.name}</h4>
-            <div class="desc">${o.x.desc}</div>
-            <span class="card-cta">View details ${icon('arrow-right')}</span>
-          </div>
-        </button>
-      </div>`).join('');
+    mc.innerHTML = others.map(o=>cardMarkup(o.x, o.i, 'card-img')).join('');
     mc.querySelectorAll('.card').forEach(c=>
       c.addEventListener('click',()=>openDetail(parseInt(c.dataset.idx,10))));
   }
+  /* Wire up the swipeable gallery in the detail hero, if there is one. */
+  setupGallery(document.getElementById('stopPanel'));
   observeReveals();
 }
 
 function openDetail(idx){
+  /* Save the current scroll so the back button in the detail view
+     can restore exactly where the user was in the list. */
+  savedScrollY = window.scrollY;
   activeDetail = idx;
   renderStop();
-  const it = (activeStop[activeCat]||[])[idx];
-  history.replaceState(null,'','#stop='+activeStop.id+'&cat='+activeCat+'&place='+slug(it.name));
+  const it = listingsForActive()[idx];
+  if(it) history.replaceState(null,'','#stop='+activeStop.id+'&cat='+activeCat+'&place='+slug(it.name));
   document.getElementById('explore').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1637,7 +1769,9 @@ function fromHash(){
   if(mc && CATS.find(c=>c.key===mc[1])) activeCat = mc[1];
   const mp = h.match(/place=([\w-]+)/);
   if(mp){
-    const items = activeStop[activeCat] || [];
+    /* Search the combined list (featured + organic) so deep-links
+       to Featured listings resolve the same way as organic ones. */
+    const items = listingsForActive();
     const idx = items.findIndex(x=>slug(x.name)===mp[1]);
     if(idx>=0) activeDetail = idx;
   }
@@ -1680,15 +1814,19 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     /* Photo proxy URLs in the cache are stored as relative paths
        (e.g. "/api/photo?ref=..."). Prepend the Render backend
        origin so the browser fetches the image through the photo
-       proxy endpoint instead of trying to hit the front-end host. */
+       proxy endpoint instead of trying to hit the front-end host.
+       Rewrites both the single `image` field and every entry in
+       the `images` gallery array. */
     const BACKEND = 'https://northlander-backend.onrender.com';
+    const absolutise = u => (u && u.startsWith('/api/photo')) ? (BACKEND + u) : u;
     STOPS.forEach(s => {
       const cats = ['restaurants', 'accommodations', 'parks', 'attractions'];
       cats.forEach(cat => {
         if (s[cat]) {
           s[cat].forEach(item => {
-            if (item.image && item.image.startsWith('/api/photo')) {
-              item.image = BACKEND + item.image;
+            if (item.image) item.image = absolutise(item.image);
+            if (Array.isArray(item.images)) {
+              item.images = item.images.map(absolutise);
             }
           });
         }

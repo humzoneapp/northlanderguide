@@ -51,14 +51,23 @@ async function getPlaces(lat, lng, type){
     + `?location=${lat},${lng}&radius=8000&type=${type}&key=${GOOGLE_KEY}`;
   const r = await fetch(url);
   const d = await r.json();
-  return (d.results || []).slice(0,6).map(p => ({
+  return (d.results || []).slice(0,8).map(p => ({
     name:p.name,
     tag:TYPE_TAG[type] || 'Attraction',
     desc:p.vicinity || 'Local listing.',
     rating:p.rating ? String(p.rating) : 'NR',
+    /* `image` is the single hero photo (back-compat for the card
+       thumbnail). `images` is the full gallery (up to 6 refs) for
+       the detail view swipeable gallery. */
     image:(p.photos && p.photos[0])
       ? `/api/photo?ref=${encodeURIComponent(p.photos[0].photo_reference)}`
-      : null
+      : null,
+    images:(p.photos || []).slice(0,6).map(photo =>
+      `/api/photo?ref=${encodeURIComponent(photo.photo_reference)}`),
+    /* Geographic coordinates so the front end can compute an
+       approximate walking time from the station via Haversine. */
+    lat:p.geometry && p.geometry.location ? p.geometry.location.lat : null,
+    lng:p.geometry && p.geometry.location ? p.geometry.location.lng : null
   }));
 }
 
