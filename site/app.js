@@ -1553,6 +1553,12 @@ function renderChips(filter=''){
    STOP PANEL: list view, or detail view if activeDetail is set
 ------------------------------------------------------------------- */
 function renderStop(){
+  /* Tag the slab so CSS can hide the "Back to route" bar while a
+     single listing detail is open (the detail's own "Back to
+     <stop>" bar takes over), giving one clear back button per
+     level on mobile. */
+  const slab = document.getElementById('slab');
+  if(slab) slab.classList.toggle('detail-listing', activeDetail !== null);
   if(activeDetail !== null){ renderDetail(); return; }
   const s = activeStop;
   const i = STOPS.indexOf(s);
@@ -1731,7 +1737,11 @@ function openDetail(idx){
   renderStop();
   const it = listingsForActive()[idx];
   if(it) history.replaceState(null,'','#stop='+activeStop.id+'&cat='+activeCat+'&place='+slug(it.name));
-  document.getElementById('explore').scrollIntoView({behavior:'smooth',block:'start'});
+  /* Scroll the stop nav (rail + slab) to the top so the detail's
+     back bar and image are in view. The old #explore section no
+     longer exists after the rail/slab rebuild. */
+  const target = document.getElementById('stopnav');
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ------------------------------------------------------------------

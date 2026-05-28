@@ -456,6 +456,9 @@ a{color:inherit}
   background:var(--ivory);
   padding:2rem 0;
   position:relative;
+  /* So scrollIntoView() (on card tap / back) lands below the
+     sticky topbar instead of tucking the top under it. */
+  scroll-margin-top:56px;
 }
 @media (min-width:768px){
   .stopnav{
@@ -590,52 +593,57 @@ a{color:inherit}
 }
 .slab-back{display:none}
 
-/* MOBILE: the rail is the full-screen first view; tapping a circle
-   slides the rail off to the left and slides the slab in from the
-   right. .slab-back returns the user to the rail. */
+/* MOBILE: the rail is the full-screen first view. Tapping a circle
+   hides the rail and shows the slab (with a short slide-in
+   entrance). Rail and slab toggle via display rather than absolute
+   positioning, so the page scrolls naturally, tall slab content is
+   never clipped, and the sticky back bars work against the page
+   scroll. */
 @media (max-width:767px){
   .stopnav{
-    overflow:hidden;
-    padding:1.6rem 0 2rem;
-    min-height:60vh;
+    display:block;
+    padding:1.4rem 0 2rem;
   }
-  .rail{
-    transition:transform .42s cubic-bezier(.2,.7,.2,1),
-               opacity .25s ease;
-  }
-  .stopnav.detail-open .rail{
-    transform:translateX(-100%);
-    opacity:0;
-    pointer-events:none;
-  }
+  /* Default view: rail shown, slab hidden. */
   .slab{
-    position:absolute;
-    top:1.6rem;left:0;right:0;
+    display:none;
+    overflow:visible;
+    min-height:0;
     margin:0;
-    border-left:none;border-right:none;
-    border-radius:0;
-    transform:translateX(100%);
-    transition:transform .42s cubic-bezier(.2,.7,.2,1);
+    border:none;border-radius:0;
+    box-shadow:none;
   }
-  .stopnav.detail-open .slab{transform:translateX(0)}
+  .stopnav.detail-open .rail{display:none}
+  .stopnav.detail-open .slab{
+    display:block;
+    animation:slabIn .32s cubic-bezier(.2,.7,.2,1) both;
+  }
+  /* "Back to route" bar: full-width solid sticky header. Hidden
+     while a single listing detail is open, where the detail's own
+     "Back to <stop>" bar takes over. */
   .slab-back{
     display:flex;align-items:center;gap:.4rem;
-    position:sticky;top:60px;z-index:50;
+    position:sticky;top:52px;z-index:55;
     background:var(--card);
     margin:0;
-    padding:.75rem 1rem;
+    padding:.8rem 1rem;
     border:none;
     border-bottom:1px solid rgba(140,61,34,.15);
     color:var(--poster-crimson);
     font-family:'Spline Sans',sans-serif;
-    font-size:.85rem;font-weight:700;
+    font-size:.88rem;font-weight:700;
     width:100%;text-align:left;cursor:pointer;
   }
+  .slab.detail-listing .slab-back{display:none}
   .slab-back-arrow{
     font-size:1.6rem;line-height:1;
     margin-top:-3px;
   }
   .slab-back:active{background:rgba(142,61,34,.05)}
+}
+@keyframes slabIn{
+  from{opacity:0;transform:translateX(24px)}
+  to{opacity:1;transform:none}
 }
 
 /* ---------- map preview card (tap/click) ----------
@@ -995,7 +1003,10 @@ a{color:inherit}
 .card:active{transform:translateY(-2px) scale(.99)}
 .card-img{
   position:relative;
-  width:100%;aspect-ratio:16/9;overflow:hidden;
+  /* Fixed height (not aspect-ratio) so the image area never
+     collapses to zero on mobile inside the flex card column.
+     200px tall, full width, object-fit cover. */
+  width:100%;height:200px;overflow:hidden;
   /* Loading state: a clean neutral grey instead of the warm
      amber + icon. The icon-bearing fallback only shows when the
      image genuinely cannot load (see .show-fallback below). */
@@ -1116,23 +1127,37 @@ a{color:inherit}
   from{opacity:0;transform:translateY(14px)}
   to{opacity:1;transform:none}
 }
+/* Back button: a full-width solid bar that sits ABOVE the image
+   in its own row, never over it. Escapes the .stop horizontal
+   padding so it spans the slab. On mobile it becomes sticky (with
+   its solid background) so it stays reachable while scrolling
+   without obscuring the photo. */
 .backbtn{
-  font-family:'Spline Sans',sans-serif;font-size:.86rem;font-weight:700;
-  background:var(--card);border:2px solid var(--rail);color:var(--rail);
-  border-radius:4px;padding:.55rem 1.1rem;cursor:pointer;
-  margin-bottom:1.1rem;
-  transition:transform 160ms ease-out,
-             background-color .2s ease, color .2s ease;
-  position:sticky;top:62px;z-index:60;
-  box-shadow:0 4px 14px rgba(20,50,38,.16);
+  display:flex;align-items:center;gap:.45rem;
+  margin:0 -1.25rem 1.2rem;
+  padding:.85rem 1.25rem;
+  background:var(--card);
+  border:none;border-bottom:1px solid rgba(140,61,34,.16);
+  color:var(--poster-crimson);
+  font-family:'Spline Sans',sans-serif;font-size:.9rem;font-weight:700;
+  cursor:pointer;text-align:left;width:auto;
+  transition:color .15s ease, background-color .15s ease;
 }
 @media (hover:hover) and (pointer:fine){
-  .backbtn:hover{background:var(--rail);color:#fff}
+  .backbtn:hover{color:var(--rail);background:rgba(142,61,34,.05)}
 }
-.backbtn:active{transform:scale(.97)}
+.backbtn:active{background:rgba(142,61,34,.07)}
+@media (max-width:767px){
+  .backbtn{
+    position:sticky;top:52px;z-index:54;
+  }
+}
 .detail-hero{
-  border-radius:4px;overflow:hidden;box-shadow:var(--shadow);
-  margin-bottom:1.1rem;
+  /* Full-bleed in the slab (escapes the .stop side padding) so the
+     photo lines up edge-to-edge with the full-width back bar above
+     it, matching the stop poster treatment. */
+  margin:0 -1.25rem 1.2rem;
+  overflow:hidden;
 }
 .detail-img{
   position:relative;
