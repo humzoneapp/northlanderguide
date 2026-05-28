@@ -1948,8 +1948,7 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
        origin so the browser fetches the image through the photo
        proxy endpoint instead of trying to hit the front-end host.
        Rewrites both the single `image` field and every entry in
-       the `images` gallery array, across every listing category
-       (including transportation, which also carries photo refs). */
+       the `images` gallery array, across every listing category. */
     const BACKEND = 'https://northlander-backend.onrender.com';
 
     function fixPhotoUrls(item) {
@@ -1965,13 +1964,12 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     }
 
     STOPS.forEach(s => {
-      ['restaurants', 'accommodations', 'parks', 'attractions', 'transportation', 'events'].forEach(cat => {
+      ['restaurants', 'accommodations', 'parks', 'attractions', 'events'].forEach(cat => {
         if (Array.isArray(s[cat])) {
           s[cat].forEach(item => fixPhotoUrls(item));
         }
       });
     });
-    console.log('Photo URLs rewritten for', STOPS.length, 'stops');
 
     /* Temporary diagnostic: confirm the rewrite landed on a real
        organic listing. Find the first stop that has any restaurant
