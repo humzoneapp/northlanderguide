@@ -177,6 +177,48 @@ function observeReveals(){
 }
 
 /* ------------------------------------------------------------------
+   STAT STRIP COUNT-UP
+   When the stat strip first scrolls into view, the three numbers
+   count up from zero to their targets (16 over 1s, 740 over 1.5s,
+   11 over 0.8s) on an ease-out curve. Fires once via an
+   IntersectionObserver that disconnects after the first
+   intersection. Any non-digit prefix (the "~" on "~11") is
+   preserved. Reduced-motion users skip the animation entirely and
+   keep the final values that are already in the markup.
+------------------------------------------------------------------- */
+function countUp(el, target, duration, prefix){
+  const start = performance.now();
+  function frame(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    el.textContent = prefix + Math.round(eased * target);
+    if(t < 1) requestAnimationFrame(frame);
+    else el.textContent = prefix + target; // exact final value
+  }
+  requestAnimationFrame(frame);
+}
+function animateStats(){
+  const strip = document.querySelector('.hero-stats');
+  if(!strip) return;
+  const nums = strip.querySelectorAll('b');
+  if(REDUCE_MOTION || typeof IntersectionObserver === 'undefined') return;
+  const durations = [1000, 1500, 800]; // 16, 740, ~11
+  const io = new IntersectionObserver((entries, obs)=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting) return;
+      nums.forEach((b, i)=>{
+        const raw = b.textContent.trim();
+        const prefix = (raw.match(/^[^\d]*/) || [''])[0]; // e.g. "~"
+        const target = parseInt(raw.replace(/[^\d]/g, ''), 10);
+        if(!isNaN(target)) countUp(b, target, durations[i] || 1000, prefix);
+      });
+      obs.disconnect(); // play once per page load
+    });
+  }, { threshold: 0.4 });
+  io.observe(strip);
+}
+
+/* ------------------------------------------------------------------
    HERO SCENE: fill in the pine ridge and rail ties procedurally so
    the header has real detail without any image files.
 ------------------------------------------------------------------- */
@@ -1979,6 +2021,7 @@ renderStop();
 renderEvents();
 updateRouteBar();
 observeReveals();
+animateStats();
 /* On desktop, open the slab on initial load so the visitor lands
    on a real stop immediately (default = Toronto Union via
    activeStop default, or the deep-linked stop from the hash). On
@@ -2032,24 +2075,10 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     }
 
     STOPS.forEach(s => {
-      ['restaurants', 'accommodations', 'parks', 'attractions', 'events'].forEach(cat => {
-        if (Array.isArray(s[cat])) {
-          s[cat].forEach(item => fixPhotoUrls(item));
-        }
+      ['restaurants','accommodations','parks','attractions','events'].forEach(cat => {
+        if (Array.isArray(s[cat])) s[cat].forEach(fixPhotoUrls);
       });
     });
-
-    /* Temporary diagnostic: confirm the rewrite landed on a real
-       organic listing. Find the first stop that has any restaurant
-       entries and log the name + image + images array so we can
-       eyeball the URLs in DevTools. */
-    const firstStop = STOPS.find(s => s.restaurants && s.restaurants.length > 0);
-    if (firstStop) {
-      const firstRestaurant = firstStop.restaurants[0];
-      console.log('First restaurant name:', firstRestaurant.name);
-      console.log('First restaurant image:', firstRestaurant.image);
-      console.log('First restaurant images array:', JSON.stringify(firstRestaurant.images));
-    }
 
     renderStop();
     renderEvents();
