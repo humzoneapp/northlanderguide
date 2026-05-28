@@ -1743,32 +1743,82 @@ function selectStop(id,scroll=true){
   activeStop = s;
   activeCat = 'restaurants';
   activeDetail = null;
-  renderChips(document.getElementById('searchInput').value);
-  // After the chips re-render, center the active chip horizontally
-  // inside the chip row so the user never loses their place when
-  // they glance back at the row.
-  const chipRow = document.getElementById('stopChips');
-  const activeChip = chipRow && chipRow.querySelector('.chip.active');
-  if(activeChip){
-    chipRow.scrollTo({
-      left: activeChip.offsetLeft - (chipRow.clientWidth/2) + (activeChip.offsetWidth/2),
-      behavior:'smooth'
-    });
-  }
+  /* Mark the new stop active in the rail, then re-render the
+     slab and the events list. */
+  updateRailActive(id);
   renderStop();
   renderEvents();
   history.replaceState(null,'','#stop='+id);
-  /* Snap the route-map train ring to the new active stop. No-op
-     if the map has not initialised yet (e.g. before init runs). */
-  updateRouteTrain(id);
-  if(scroll) document.getElementById('explore').scrollIntoView({behavior:'smooth',block:'start'});
+  /* On mobile, picking a stop slides the rail off and brings the
+     slab over the screen. On desktop both are visible so the
+     class just sits there as state without visual effect. */
+  openSlab();
+  if(scroll){
+    const stopnav = document.getElementById('stopnav');
+    if(stopnav) stopnav.scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
 window.selectStop = selectStop;
 
 /* ------------------------------------------------------------------
-   INIT  (+ deep-link support: #stop=huntsville&cat=restaurants&place=...)
+   STOPNAV: rail + slab open/close
+   The rail is a vertical list of all 16 stops; clicking one calls
+   selectStop() which updates the slab. openSlab/closeSlab toggle
+   the .detail-open class on the .stopnav container. Desktop is
+   always-open (both columns visible), mobile uses the class to
+   slide the rail off and the slab in.
 ------------------------------------------------------------------- */
-document.getElementById('searchInput').addEventListener('input',e=>renderChips(e.target.value));
+function buildRail(){
+  const rail = document.getElementById('rail');
+  if(!rail) return;
+  rail.innerHTML = `
+    <header class="rail-head">
+      <span class="kicker">The Route</span>
+      <h2>All 16 stops</h2>
+    </header>
+    <ul class="rail-stops" role="presentation">
+      ${STOPS.map((s,i)=>`
+        <li>
+          <button class="rail-stop" type="button"
+                  role="tab" data-id="${s.id}"
+                  aria-selected="${s.id === activeStop.id ? 'true' : 'false'}"
+                  aria-controls="slab">
+            <span class="rail-circle" aria-hidden="true">${i+1}</span>
+            <span class="rail-text">
+              <span class="rail-name">${s.name}</span>
+              <span class="rail-region">${s.region}</span>
+            </span>
+          </button>
+        </li>`).join('')}
+    </ul>
+  `;
+  rail.querySelectorAll('.rail-stop').forEach(btn=>{
+    btn.addEventListener('click', ()=>selectStop(btn.dataset.id));
+  });
+}
+function updateRailActive(id){
+  document.querySelectorAll('.rail-stop').forEach(btn=>{
+    btn.setAttribute('aria-selected', btn.dataset.id === id ? 'true' : 'false');
+  });
+}
+function openSlab(){
+  const stopnav = document.getElementById('stopnav');
+  if(stopnav) stopnav.classList.add('detail-open');
+}
+function closeSlab(){
+  const stopnav = document.getElementById('stopnav');
+  if(stopnav) stopnav.classList.remove('detail-open');
+}
+/* Mobile-only Back button on the slab returns to the rail. */
+const slabBack = document.getElementById('slabBack');
+if(slabBack){
+  slabBack.addEventListener('click', ()=>{
+    closeSlab();
+    /* Scroll back to the top of the stopnav so the rail is in view. */
+    const stopnav = document.getElementById('stopnav');
+    if(stopnav) stopnav.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
 
 const toTop = document.querySelector('.totop');
 
@@ -1912,12 +1962,18 @@ function fromHash(){
 setSeasonalHero();
 buildHeroScene();
 fromHash();
-renderChips();
+buildRail();
 renderStop();
 renderEvents();
-initMap();
 updateRouteBar();
 observeReveals();
+/* On desktop, open the slab on initial load so the visitor lands
+   on a real stop immediately (default = Toronto Union via
+   activeStop default, or the deep-linked stop from the hash). On
+   mobile, leave the slab closed so the rail is the entry view. */
+if(window.matchMedia('(min-width: 768px)').matches){
+  openSlab();
+}
 
 /* ------------------------------------------------------------------
    LIVE DATA REFRESH

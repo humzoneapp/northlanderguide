@@ -85,7 +85,7 @@ a{color:inherit}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  padding:.85rem 1.5rem;border-radius:100px;font-weight:600;
+  padding:.85rem 1.5rem;border-radius:4px;font-weight:600;
   font-size:.95rem;text-decoration:none;border:2px solid transparent;
   transition:transform .15s,background .2s,box-shadow .2s;cursor:pointer;
 }
@@ -157,7 +157,7 @@ a{color:inherit}
   background:transparent;border:0;cursor:pointer;
   width:40px;height:40px;padding:8px;
   flex-direction:column;justify-content:space-between;align-items:stretch;
-  border-radius:6px;
+  border-radius:4px;
 }
 .hamburger span{
   display:block;height:2.5px;width:100%;
@@ -432,79 +432,197 @@ a{color:inherit}
 }
 
 
-/* ---------- map ----------
-   Custom SVG route map: a vertical poster-style illustration that
-   shows all 16 stations as numbered ink circles connected by a
-   rust dashed line. Replaces the Leaflet+OSM raster map. The
-   container has cream background and a subtle frame; the SVG
-   inside scales to fit. */
-.mapsection{padding:2.6rem 0 1.4rem;background:var(--ivory)}
-#routemap{
-  margin:0 auto;
-  max-width:560px;
-  padding:1.2rem 1rem;
-  background:var(--card);
-  border:1px solid rgba(140,61,34,.18);
-  border-radius:14px;
-  box-shadow:0 8px 24px rgba(20,50,38,.10);
+/* ---------- stopnav (rail + slab) ----------
+   Replaces the old map section and the old directory chips. A
+   vertical rail of 16 station circles on the left; a content slab
+   on the right that shows the selected stop. Same metaphor on
+   every screen size; mobile uses an off-canvas slide so the slab
+   takes over the screen when a stop is open.
+   ------------------------------------------------------------------ */
+.stopnav{
+  background:var(--ivory);
+  padding:2rem 0;
+  position:relative;
 }
-.routemap-svg{
-  display:block;
-  width:100%;
-  height:auto;
-  max-height:80vh;
+@media (min-width:768px){
+  .stopnav{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:2.5rem;
+    max-width:1280px;
+    margin:0 auto;
+    padding:3rem 1.5rem 4rem;
+    align-items:start;
+  }
 }
-/* Stations: an ink-brown disc with cream numeral. Tap target is
-   the entire .route-station group; the halo enlarges the
-   invisible hit area without changing the visible dot size. */
-.route-station{cursor:pointer}
-.route-halo{fill:transparent}
-.route-dot{
-  fill:#241f1a;
-  stroke:#f3e6c8;
-  stroke-width:2;
-  transition:fill .18s ease, r .18s ease;
+
+/* RAIL: vertical list of station circles + names + regions */
+.rail{
+  position:relative;
+  padding:0 1.25rem;
 }
-.route-num{
+@media (min-width:768px){
+  .rail{
+    padding:0;
+    position:sticky;
+    top:80px;
+    align-self:start;
+    max-height:calc(100vh - 100px);
+    overflow-y:auto;
+  }
+}
+.rail-head{
+  margin:0 0 1rem 3rem;
+}
+.rail-head .kicker{display:block;margin-bottom:.2rem}
+.rail-head h2{
   font-family:'Fraunces',serif;
-  font-weight:900;font-size:11px;
-  fill:#f3e6c8;
-  pointer-events:none;
-  user-select:none;
+  font-size:1.4rem;font-weight:900;line-height:1;
+  color:var(--ink);
 }
-/* Station name label: hidden by default; revealed on hover (or
-   when this is the active station). Sits to the right of the dot
-   in poster small-caps. */
-.route-label{
+.rail-stops{
+  list-style:none;
+  margin:0;padding:0;
+  position:relative;
+}
+/* The actual rail line: a thin vertical brown rule that runs down
+   the middle of all the station circles. Sits behind the circles
+   via z-index so they read as ink dots on a printed rail. */
+.rail-stops::before{
+  content:"";
+  position:absolute;
+  left:21px;
+  top:18px;
+  bottom:18px;
+  width:2.5px;
+  background:var(--poster-rail-brown);
+  opacity:.28;
+  z-index:0;
+}
+.rail-stops li{margin:0}
+.rail-stop{
+  display:flex;align-items:center;
+  gap:.85rem;
+  padding:.55rem .5rem;
+  background:transparent;border:none;
+  width:100%;text-align:left;cursor:pointer;
   font-family:'Spline Sans',sans-serif;
-  font-size:11px;font-weight:700;
-  letter-spacing:.06em;
-  fill:#241f1a;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .2s ease;
+  color:var(--ink);
+  position:relative;
+  z-index:1;
+  border-radius:4px;
+  transition:background .15s ease;
+}
+.rail-circle{
+  flex:0 0 38px;height:38px;
+  border-radius:50%;
+  background:var(--card);
+  border:2.5px solid var(--poster-rail-brown);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:.86rem;
+  color:var(--poster-rail-brown);
+  transition:background .18s ease, border-color .18s ease,
+             color .18s ease, transform .18s ease,
+             box-shadow .18s ease;
+}
+.rail-text{
+  display:flex;flex-direction:column;
+  gap:.1rem;
+  min-width:0;flex:1;
+}
+.rail-name{
+  font-weight:700;
+  font-size:.95rem;line-height:1.15;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.rail-region{
+  font-size:.7rem;
+  color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 @media (hover:hover) and (pointer:fine){
-  .route-station:hover .route-dot{fill:#8e3d22}
-  .route-station:hover .route-label{opacity:1}
+  .rail-stop:hover{background:rgba(140,61,34,.06)}
+  .rail-stop:hover .rail-circle{
+    border-color:var(--poster-crimson);
+    color:var(--poster-crimson);
+    transform:scale(1.06);
+  }
 }
-.route-station:focus{outline:none}
-.route-station:focus-visible .route-dot{
-  stroke:#8e3d22;stroke-width:3;
+.rail-stop:active{transform:scale(.985)}
+.rail-stop[aria-selected="true"] .rail-circle{
+  background:var(--poster-crimson);
+  border-color:var(--poster-crimson);
+  color:var(--poster-cream);
+  box-shadow:0 4px 10px rgba(142,61,34,.25);
 }
-.route-station:focus-visible .route-label{opacity:1}
-/* Train ring: the soft halo + ring marker at the currently
-   selected stop. SVG transform is set by updateRouteTrain(). The
-   pulse animation gently breathes so the active stop stays
-   findable on the long vertical map. */
-.route-train{pointer-events:none}
-.route-train circle{
-  animation:routeTrainPulse 2.4s ease-in-out infinite;
-  transform-origin:center;
+.rail-stop[aria-selected="true"] .rail-name{
+  color:var(--poster-crimson);
 }
-@keyframes routeTrainPulse{
-  0%,100%{opacity:1}
-  50%{opacity:.55}
+.rail-stop:focus-visible{
+  outline:2px solid var(--poster-crimson);
+  outline-offset:2px;
+}
+
+/* SLAB: the detail panel that holds the selected stop's content */
+.slab{
+  background:var(--card);
+  border:1px solid rgba(140,61,34,.18);
+  border-radius:4px;
+  min-height:60vh;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 10px 28px rgba(20,50,38,.08);
+}
+.slab-back{display:none}
+
+/* MOBILE: the rail is the full-screen first view; tapping a circle
+   slides the rail off to the left and slides the slab in from the
+   right. .slab-back returns the user to the rail. */
+@media (max-width:767px){
+  .stopnav{
+    overflow:hidden;
+    padding:1.6rem 0 2rem;
+    min-height:60vh;
+  }
+  .rail{
+    transition:transform .42s cubic-bezier(.2,.7,.2,1),
+               opacity .25s ease;
+  }
+  .stopnav.detail-open .rail{
+    transform:translateX(-100%);
+    opacity:0;
+    pointer-events:none;
+  }
+  .slab{
+    position:absolute;
+    top:1.6rem;left:0;right:0;
+    margin:0;
+    border-left:none;border-right:none;
+    border-radius:0;
+    transform:translateX(100%);
+    transition:transform .42s cubic-bezier(.2,.7,.2,1);
+  }
+  .stopnav.detail-open .slab{transform:translateX(0)}
+  .slab-back{
+    display:flex;align-items:center;gap:.4rem;
+    position:sticky;top:60px;z-index:50;
+    background:var(--card);
+    margin:0;
+    padding:.75rem 1rem;
+    border:none;
+    border-bottom:1px solid rgba(140,61,34,.15);
+    color:var(--poster-crimson);
+    font-family:'Spline Sans',sans-serif;
+    font-size:.85rem;font-weight:700;
+    width:100%;text-align:left;cursor:pointer;
+  }
+  .slab-back-arrow{
+    font-size:1.6rem;line-height:1;
+    margin-top:-3px;
+  }
+  .slab-back:active{background:rgba(142,61,34,.05)}
 }
 
 /* ---------- map preview card (tap/click) ----------
@@ -517,7 +635,7 @@ a{color:inherit}
   visibility:hidden;
   width:100%;max-width:480px;
   background:var(--card);
-  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top-left-radius:4px;border-top-right-radius:4px;
   box-shadow:0 -14px 36px rgba(20,50,38,.24);
   z-index:2000;
   /* Closing transition: snappy ease-in so dismissal feels fast.
@@ -535,7 +653,7 @@ a{color:inherit}
 .map-preview-img{
   position:relative;width:100%;
   aspect-ratio:16/9;background:var(--paper-2);
-  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top-left-radius:4px;border-top-right-radius:4px;
   overflow:hidden;
 }
 .map-preview-img img,.map-preview-img svg{
@@ -583,7 +701,7 @@ a{color:inherit}
 @media (min-width:720px){
   .map-preview{
     bottom:1.5rem;
-    border-radius:18px;
+    border-radius:4px;
     max-width:420px;
   }
 }
@@ -600,7 +718,7 @@ a{color:inherit}
 .fallback-route li{
   display:flex;gap:.8rem;align-items:center;cursor:pointer;
   background:var(--paper);border:1.5px solid var(--line);
-  border-radius:10px;padding:.65rem .8rem;transition:border-color .15s;
+  border-radius:4px;padding:.65rem .8rem;transition:border-color .15s;
 }
 .fallback-route li:hover{border-color:var(--poster-crimson)}
 .fb-num{
@@ -618,7 +736,7 @@ a{color:inherit}
 .searchbar{padding:0 1.25rem;margin-bottom:1.1rem}
 .searchbar input{
   width:100%;font-family:'Spline Sans',sans-serif;font-size:1rem;
-  padding:.95rem 1.1rem;border:2px solid var(--line);border-radius:100px;
+  padding:.95rem 1.1rem;border:2px solid var(--line);border-radius:4px;
   background:var(--card);color:var(--ink);
   transition:border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -641,10 +759,10 @@ a{color:inherit}
   scrollbar-color:var(--poster-crimson) transparent;
 }
 .stopchips::-webkit-scrollbar{height:7px}
-.stopchips::-webkit-scrollbar-thumb{background:var(--poster-crimson);border-radius:9px}
+.stopchips::-webkit-scrollbar-thumb{background:var(--poster-crimson);border-radius:4px}
 .chip{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.85rem;
-  font-weight:600;padding:.55rem 1rem;border-radius:100px;
+  font-weight:600;padding:.55rem 1rem;border-radius:4px;
   border:2px solid var(--line);background:var(--card);color:var(--ink);
   cursor:pointer;white-space:nowrap;
   transition:transform 160ms ease-out,
@@ -659,7 +777,14 @@ a{color:inherit}
 .chip .ord{opacity:.5;margin-right:.35rem;font-variant-numeric:tabular-nums}
 
 /* ---------- stop panel ---------- */
-.stop{padding:0 1.1rem;animation:fade .22s cubic-bezier(.23,1,.32,1) both}
+.stop{padding:0 1.25rem 1.5rem;animation:fade .22s cubic-bezier(.23,1,.32,1) both}
+/* The hero is the first child of .stop and needs to fill the slab
+   edge-to-edge, so it escapes .stop's horizontal padding via a
+   matching negative margin. Everything else inside .stop stays
+   padded normally. */
+.stop > .reveal:first-child{
+  margin:0 -1.25rem 1.5rem;
+}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* ---------- full-bleed stop poster ----------
@@ -671,43 +796,29 @@ a{color:inherit}
    content but the type gets dramatic. */
 .stop-hero{
   position:relative;
-  /* Full-viewport-width escape trick: pull left/right by however
-     much the .stop padding adds, regardless of viewport size. */
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
-  width:100vw;
-  margin-top:0;margin-bottom:2rem;
+  /* Fills the slab end-to-end. The slab is its own container so the
+     hero does not need to escape to the viewport edges any more;
+     it just sits flush inside. */
+  width:100%;
+  margin:0 0 0;
   overflow:hidden;
-  box-shadow:0 12px 36px rgba(20,50,38,.18);
-  transition:transform .25s cubic-bezier(.2,.7,.2,1),
-             box-shadow .25s ease;
 }
-/* Subtle hover lift on the main stop card, matching the listing
-   cards. Suppressed on touch via (hover: hover). */
-@media (hover:hover){
-  .stop-hero:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 36px rgba(20,50,38,.22);
-  }
-}
-/* Mobile poster height: ~55vh, clamped so it never gets too short
-   on tablets or too tall on tiny phones. */
 .stop-hero svg,.stop-hero .stop-art svg{
   display:block;width:100%;
-  height:clamp(380px, 55vh, 560px);
+  height:clamp(320px, 50vh, 520px);
   object-fit:cover;
 }
 .stop-photo{
   display:block;width:100%;
-  height:clamp(380px, 55vh, 560px);
+  height:clamp(320px, 50vh, 520px);
   object-fit:cover;
 }
-/* Desktop poster height: ~75vh, the headline treatment. */
-@media(min-width:720px){
+/* Desktop poster: ~60vh, still the loudest thing in the slab. */
+@media(min-width:768px){
   .stop-hero svg,.stop-hero .stop-art svg{
-    height:clamp(520px, 75vh, 880px);
+    height:clamp(440px, 60vh, 720px);
   }
-  .stop-photo{height:clamp(520px, 75vh, 880px)}
+  .stop-photo{height:clamp(440px, 60vh, 720px)}
 }
 /* Label band: bigger, more breathable, with stronger gradient
    support so the type sits on a real darkness instead of fighting
@@ -769,7 +880,7 @@ a{color:inherit}
 .stop-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
 .stop-meta .pill{
   background:var(--card);border:1.5px solid var(--line);
-  border-radius:100px;padding:.3rem .8rem;font-size:.78rem;
+  border-radius:4px;padding:.3rem .8rem;font-size:.78rem;
 }
 .stop-meta .pill b{color:var(--rail)}
 .stop-blurb{color:#52493c;margin-bottom:1.3rem;padding:0 .15rem}
@@ -777,7 +888,7 @@ a{color:inherit}
 .share-row{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
 .share-row button{
   font-family:'Spline Sans',sans-serif;font-size:.82rem;font-weight:600;
-  padding:.5rem .95rem;border-radius:100px;cursor:pointer;
+  padding:.5rem .95rem;border-radius:4px;cursor:pointer;
   border:2px solid var(--rail);background:transparent;color:var(--rail);
   transition:transform 160ms ease-out,
              background-color .15s ease, color .15s ease;
@@ -803,7 +914,7 @@ a{color:inherit}
 }
 .catfilter button{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.84rem;
-  font-weight:600;padding:.55rem 1.05rem;border-radius:100px;cursor:pointer;
+  font-weight:600;padding:.55rem 1.05rem;border-radius:4px;cursor:pointer;
   border:2px solid var(--line);background:var(--card);color:var(--muted);
   display:flex;align-items:center;gap:.45rem;
   /* No browser-default focus outline: the default outline can
@@ -824,7 +935,7 @@ a{color:inherit}
 }
 .catfilter button .ic{font-size:1rem;line-height:1}
 .catfilter button .cnt{
-  background:var(--line);color:var(--ink);border-radius:100px;
+  background:var(--line);color:var(--ink);border-radius:4px;
   font-size:.68rem;padding:.05rem .4rem;min-width:18px;text-align:center;
   transition:background .2s ease, color .15s ease;
 }
@@ -849,7 +960,7 @@ a{color:inherit}
 .cards{display:grid;grid-template-columns:1fr;gap:.9rem}
 .card{
   background:var(--card);border:1.5px solid var(--line);
-  border-radius:18px;overflow:hidden;cursor:pointer;
+  border-radius:4px;overflow:hidden;cursor:pointer;
   text-align:left;font-family:inherit;padding:0;width:100%;
   display:flex;flex-direction:column;
   box-shadow:0 4px 14px rgba(36,31,26,.08);
@@ -890,7 +1001,7 @@ a{color:inherit}
 .card .tag{
   font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
   font-weight:700;color:#fff;background:var(--poster-crimson);
-  padding:.2rem .55rem;border-radius:5px;white-space:nowrap;
+  padding:.2rem .55rem;border-radius:2px;white-space:nowrap;
 }
 /* Featured tag: warm gold instead of crimson, dark ink text so the
    "Featured" label is unmistakable. Used on both .card .tag and
@@ -952,7 +1063,7 @@ a{color:inherit}
   min-width:64px;min-height:44px;
   padding:.5rem .75rem;
   border:2px solid var(--poster-crimson);
-  border-radius:14px;
+  border-radius:4px;
   background:var(--card);
   color:var(--poster-crimson);
   text-decoration:none;
@@ -985,7 +1096,7 @@ a{color:inherit}
 .backbtn{
   font-family:'Spline Sans',sans-serif;font-size:.86rem;font-weight:700;
   background:var(--card);border:2px solid var(--rail);color:var(--rail);
-  border-radius:100px;padding:.55rem 1.1rem;cursor:pointer;
+  border-radius:4px;padding:.55rem 1.1rem;cursor:pointer;
   margin-bottom:1.1rem;
   transition:transform 160ms ease-out,
              background-color .2s ease, color .2s ease;
@@ -997,7 +1108,7 @@ a{color:inherit}
 }
 .backbtn:active{transform:scale(.97)}
 .detail-hero{
-  border-radius:16px;overflow:hidden;box-shadow:var(--shadow);
+  border-radius:4px;overflow:hidden;box-shadow:var(--shadow);
   margin-bottom:1.1rem;
 }
 .detail-img{
@@ -1047,7 +1158,7 @@ a{color:inherit}
   position:absolute;bottom:.65rem;left:50%;
   transform:translateX(-50%);
   display:flex;gap:.35rem;z-index:3;
-  padding:.35rem .55rem;border-radius:100px;
+  padding:.35rem .55rem;border-radius:4px;
   background:rgba(36,31,26,.4);
 }
 .gallery .gallery-dot{
@@ -1071,7 +1182,7 @@ a{color:inherit}
 .detail-body .tag{
   font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
   font-weight:700;color:#fff;background:var(--poster-crimson);
-  padding:.25rem .6rem;border-radius:5px;white-space:nowrap;
+  padding:.25rem .6rem;border-radius:2px;white-space:nowrap;
 }
 .detail-body .rating{color:var(--gold);font-weight:700;font-size:.9rem}
 .detail-body h3{font-size:1.7rem;margin-bottom:.25rem}
@@ -1090,7 +1201,7 @@ a{color:inherit}
 .evcard{
   display:flex;gap:1.1rem;background:var(--card);
   border:1.5px solid var(--line);
-  border-radius:18px;padding:1rem 1.15rem;align-items:stretch;
+  border-radius:4px;padding:1rem 1.15rem;align-items:stretch;
   box-shadow:0 4px 14px rgba(36,31,26,.08);
   transition:transform .22s cubic-bezier(.2,.7,.2,1),
              box-shadow .22s ease, border-color .15s ease;
@@ -1109,7 +1220,7 @@ a{color:inherit}
   flex:0 0 78px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;background:var(--poster-crimson);
-  border-radius:14px;padding:.65rem .35rem .55rem;
+  border-radius:4px;padding:.65rem .35rem .55rem;
   box-shadow:0 4px 10px rgba(140,61,34,.25);
 }
 .evcard .date .d{
@@ -1138,7 +1249,7 @@ a{color:inherit}
 /* ---------- ad slots ---------- */
 .adslot{
   background:repeating-linear-gradient(45deg,#e8ddc8 0 11px,#e3d7bf 11px 22px);
-  border:1.5px dashed var(--line);border-radius:10px;
+  border:1.5px dashed var(--line);border-radius:4px;
   display:flex;align-items:center;justify-content:center;
   color:#a99c80;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
   font-weight:600;
@@ -1195,13 +1306,13 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
    chunky serif headline, gold ordinal badge in a square plaque. */
 .stop[data-stop="union"] .stop-hero{
   border:8px solid var(--poster-cream);
-  border-radius:18px;
+  border-radius:4px;
   box-shadow:0 14px 32px rgba(36,31,26,.22);
   background:var(--poster-cream);
 }
 .stop[data-stop="union"] .stop-hero .ord-badge{
   background:var(--poster-crimson);color:var(--poster-cream);
-  border-radius:6px;width:44px;height:44px;
+  border-radius:4px;width:44px;height:44px;
   border:3px solid var(--poster-cream);
   box-shadow:0 3px 0 rgba(36,31,26,.25);
   font-size:1.15rem;
@@ -1231,7 +1342,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop[data-stop="union"] .stop-meta .pill{
   background:var(--poster-cream);
   border:2px solid var(--poster-crimson);
-  border-radius:100px;padding:.4rem .9rem;font-size:.82rem;
+  border-radius:4px;padding:.4rem .9rem;font-size:.82rem;
   color:var(--poster-ink);font-weight:600;
 }
 .stop[data-stop="union"] .stop-meta .pill b{color:var(--poster-crimson)}
@@ -1247,7 +1358,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop[data-stop="union"] .share-row button{
   border:2px solid var(--poster-crimson);
   color:var(--poster-crimson);background:var(--poster-cream);
-  border-radius:100px;font-weight:700;
+  border-radius:4px;font-weight:700;
 }
 .stop[data-stop="union"] .share-row button:hover{
   background:var(--poster-crimson);color:var(--poster-cream);
@@ -1260,7 +1371,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop[data-stop="union"] .catfilter button{
   border:2px solid var(--poster-rail-brown);
   background:var(--poster-cream);color:var(--poster-rail-brown);
-  border-radius:100px;font-weight:700;letter-spacing:.02em;
+  border-radius:4px;font-weight:700;letter-spacing:.02em;
 }
 .stop[data-stop="union"] .catfilter button.active{
   background:var(--poster-crimson);border-color:var(--poster-crimson);
@@ -1284,7 +1395,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 /* Listing cards as small poster cards. */
 .stop[data-stop="union"] .card{
   border:2px solid var(--poster-rail-brown);
-  border-radius:18px;background:var(--poster-cream);
+  border-radius:4px;background:var(--poster-cream);
   box-shadow:0 6px 18px rgba(36,31,26,.12);
 }
 .stop[data-stop="union"] .card:hover{
@@ -1292,7 +1403,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   box-shadow:0 14px 28px rgba(36,31,26,.20);
 }
 .stop[data-stop="union"] .card .tag{
-  background:var(--poster-crimson);border-radius:3px;
+  background:var(--poster-crimson);border-radius:2px;
 }
 .stop[data-stop="union"] .card .rating{color:var(--poster-mustard)}
 .stop[data-stop="union"] .card h4{
@@ -1308,19 +1419,19 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop.detail[data-stop="union"] .backbtn{
   border:2px solid var(--poster-crimson);
   background:var(--poster-cream);color:var(--poster-crimson);
-  border-radius:100px;font-weight:800;
+  border-radius:4px;font-weight:800;
   box-shadow:0 4px 12px rgba(36,31,26,.16);
 }
 .stop.detail[data-stop="union"] .backbtn:hover{
   background:var(--poster-crimson);color:var(--poster-cream);
 }
 .stop.detail[data-stop="union"] .detail-hero{
-  border:8px solid var(--poster-cream);border-radius:18px;
+  border:8px solid var(--poster-cream);border-radius:4px;
   background:var(--poster-cream);
   box-shadow:0 14px 32px rgba(36,31,26,.20);
 }
 .stop.detail[data-stop="union"] .detail-body .tag{
-  background:var(--poster-crimson);border-radius:3px;
+  background:var(--poster-crimson);border-radius:2px;
 }
 .stop.detail[data-stop="union"] .detail-body h3{
   font-size:clamp(1.8rem,6vw,2.3rem);
@@ -1345,7 +1456,7 @@ footer{background:var(--rail);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 /* ---------- toast ---------- */
 .toast{
   position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(20px);
-  background:var(--rail);color:#f3ece0;padding:.7rem 1.2rem;border-radius:100px;
+  background:var(--rail);color:#f3ece0;padding:.7rem 1.2rem;border-radius:4px;
   font-size:.86rem;font-weight:600;box-shadow:var(--shadow);
   opacity:0;transition:all .3s;z-index:1100;pointer-events:none;
 }
