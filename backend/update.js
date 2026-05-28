@@ -56,7 +56,8 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
    richer photos array, website, phone number, an editorial summary
    and accurate weekday_text. We request only the fields we use to
    keep the bill down. Returns null on any error so the caller can
-   fall back gracefully. */
+   fall back gracefully (the listing is still produced from the
+   Nearby Search row alone). */
 async function getPlaceDetails(placeId){
   if(!placeId) return null;
   try{
@@ -65,13 +66,38 @@ async function getPlaceDetails(placeId){
       + `&fields=photos,website,formatted_phone_number,editorial_summary,opening_hours`
       + `&key=${GOOGLE_KEY}`;
     const r = await fetch(url);
+    if(!r.ok){
+      console.warn('  [Details HTTP error] place_id=' + placeId
+        + ' status=' + r.status + ' ' + r.statusText);
+      return null;
+    }
     const d = await r.json();
+    /* Google returns status=OK on success. ZERO_RESULTS is also
+       benign for a Details call (place exists but no fields).
+       Anything else is a real error worth surfacing. */
+    if(d.status && d.status !== 'OK' && d.status !== 'ZERO_RESULTS'){
+      console.warn('  [Details API error] place_id=' + placeId
+        + ' status=' + d.status
+        + ' error_message=' + (d.error_message || '(none)'));
+      return null;
+    }
     return d.result || null;
   }catch(err){
-    console.warn('  Details lookup failed for', placeId, ':', String(err));
+    console.warn('  [Details fetch threw] place_id=' + placeId
+      + ' error=' + (err && err.stack ? err.stack : String(err)));
     return null;
   }
 }
+
+/* Reverse-map Google place types back to the category names the
+   front end uses, so log lines read "union restaurants: 8 results"
+   instead of "union restaurant: 8 results". */
+const TYPE_LABELS = {
+  restaurant: 'restaurants',
+  lodging: 'accommodations',
+  park: 'parks',
+  tourist_attraction: 'attractions'
+};
 
 async function getPlaces(lat, lng, type, stopId){
   /* Union Station is the busy southern terminus, so we surface
@@ -82,7 +108,17 @@ async function getPlaces(lat, lng, type, stopId){
     + `?location=${lat},${lng}&radius=8000&type=${type}&key=${GOOGLE_KEY}`;
   const r = await fetch(url);
   const d = await r.json();
+  /* Surface Google API errors at the Nearby Search level so we
+     do not silently produce an empty stop when the key is bad,
+     the quota is exhausted, etc. */
+  if(d.status && d.status !== 'OK' && d.status !== 'ZERO_RESULTS'){
+    console.warn('  [Nearby API error] ' + stopId + ' ' + (TYPE_LABELS[type] || type)
+      + ' status=' + d.status
+      + ' error_message=' + (d.error_message || '(none)'));
+  }
   const results = (d.results || []).slice(0, limit);
+  console.log('  ' + stopId + ' ' + (TYPE_LABELS[type] || type)
+    + ': ' + results.length + ' results from Nearby Search');
 
   /* For each Nearby Search result, do a follow-up Place Details
      call to fetch the full photos array plus website / phone /
@@ -165,9 +201,17 @@ async function getTransportation(lat, lng, stopId){
         + `?location=${lat},${lng}&radius=8000&type=${t}&key=${GOOGLE_KEY}`;
       const r = await fetch(url);
       const d = await r.json();
-      raw = raw.concat((d.results || []).map(p => Object.assign({}, p, {_searchType: t})));
+      if(d.status && d.status !== 'OK' && d.status !== 'ZERO_RESULTS'){
+        console.warn('  [Nearby API error] ' + stopId + ' transportation/' + t
+          + ' status=' + d.status
+          + ' error_message=' + (d.error_message || '(none)'));
+      }
+      const typeResults = (d.results || []).map(p => Object.assign({}, p, {_searchType: t}));
+      console.log('  ' + stopId + ' transportation/' + t + ': ' + typeResults.length + ' results from Nearby Search');
+      raw = raw.concat(typeResults);
     }catch(err){
-      console.warn('  transport search failed for', t, ':', String(err));
+      console.warn('  [Nearby fetch threw] ' + stopId + ' transportation/' + t
+        + ' error=' + (err && err.stack ? err.stack : String(err)));
     }
   }
 
@@ -182,6 +226,7 @@ async function getTransportation(lat, lng, stopId){
     }
   }
   const trimmed = unique.slice(0, limit);
+  console.log('  ' + stopId + ' transportation: ' + trimmed.length + ' deduped results, enriching with Details...');
 
   /* Enrich each kept result with Place Details (photos, contact,
      hours, summary). Same 100ms gating as getPlaces. */
@@ -233,45 +278,56 @@ async function getEvents(lat, lng){
 }
 
 async function run(){
-  /* Render's free tier puts the web service to sleep after a few
-     minutes of inactivity. Ping /health first so the service is
-     warming up while we make the Google Places calls. Three
-     seconds is enough for a cold container to be ready to accept
-     the data POST at the end of this run; without it, the POST
-     sometimes lands before the server is up. */
-  const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
-  await fetch(`${serverUrl}/health`).catch(() => {});
-  console.log('Server pinged, waiting for wake-up...');
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  try{
+    /* Render's free tier puts the web service to sleep after a few
+       minutes of inactivity. Ping /health first so the service is
+       warming up while we make the Google Places calls. Three
+       seconds is enough for a cold container to be ready to accept
+       the data POST at the end of this run; without it, the POST
+       sometimes lands before the server is up. */
+    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+    await fetch(`${serverUrl}/health`).catch(() => {});
+    console.log('Server pinged, waiting for wake-up...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-  const out = {};
-  for(const [id, c] of Object.entries(STOP_COORDS)){
-    console.log('Updating', id, '...');
-    out[id] = { restaurants:[], accommodations:[], parks:[], attractions:[], transportation:[], events:[] };
-    try{
-      out[id].restaurants    = await getPlaces(c.lat, c.lng, PLACE_TYPES.restaurants,    id);
-      out[id].accommodations = await getPlaces(c.lat, c.lng, PLACE_TYPES.accommodations, id);
-      out[id].parks          = await getPlaces(c.lat, c.lng, PLACE_TYPES.parks,          id);
-      out[id].attractions    = await getPlaces(c.lat, c.lng, PLACE_TYPES.attractions,    id);
-      out[id].transportation = await getTransportation(c.lat, c.lng,                     id);
-      out[id].events         = await getEvents(c.lat, c.lng);
-    }catch(err){
-      console.warn('  skipped (error):', String(err));
+    const out = {};
+    for(const [id, c] of Object.entries(STOP_COORDS)){
+      console.log('Updating', id, '...');
+      out[id] = { restaurants:[], accommodations:[], parks:[], attractions:[], transportation:[], events:[] };
+      try{
+        out[id].restaurants    = await getPlaces(c.lat, c.lng, PLACE_TYPES.restaurants,    id);
+        out[id].accommodations = await getPlaces(c.lat, c.lng, PLACE_TYPES.accommodations, id);
+        out[id].parks          = await getPlaces(c.lat, c.lng, PLACE_TYPES.parks,          id);
+        out[id].attractions    = await getPlaces(c.lat, c.lng, PLACE_TYPES.attractions,    id);
+        out[id].transportation = await getTransportation(c.lat, c.lng,                     id);
+        out[id].events         = await getEvents(c.lat, c.lng);
+      }catch(err){
+        console.warn('  skipped (error):', err && err.stack ? err.stack : String(err));
+      }
     }
+
+    /* Total listings collected across all stops, broken down by
+       stop. Tells us at a glance whether each stop has data before
+       we ship the POST. */
+    console.log('Total listings collected:', JSON.stringify(Object.keys(out).map(k => k + ':' + Object.values(out[k]).flat().length)));
+
+    /* POST the freshly-fetched cache to the running server instead
+       of writing live-data.json to disk. On Render the filesystem is
+       ephemeral, so an in-memory store on the server side is the
+       only place the data can live reliably between requests.
+       Reuses the serverUrl declared at the top of run() for the
+       keep-alive ping. */
+    const response = await fetch(`${serverUrl}/update-data`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(out)
+    });
+    const result = await response.json();
+    console.log('Data sent to server:', result);
+  }catch(err){
+    console.error('FATAL: update run aborted ->', err && err.stack ? err.stack : String(err));
+    process.exitCode = 1;
   }
-  /* POST the freshly-fetched cache to the running server instead
-     of writing live-data.json to disk. On Render the filesystem is
-     ephemeral, so an in-memory store on the server side is the
-     only place the data can live reliably between requests.
-     Reuses the serverUrl declared at the top of run() for the
-     keep-alive ping. */
-  const response = await fetch(`${serverUrl}/update-data`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(out)
-  });
-  const result = await response.json();
-  console.log('Data sent to server:', result);
 }
 
 run();
