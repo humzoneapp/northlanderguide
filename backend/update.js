@@ -46,36 +46,77 @@ const TYPE_TAG = {
   park:'Park', tourist_attraction:'Attraction'
 };
 
+/* Tiny promise-based sleep so we can space out Place Details
+   calls. Google Places allows generous QPS but we throttle here to
+   stay polite and avoid 429s during the nightly cron run. */
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/* Fetch the full photo set for a single place_id. The Nearby
+   Search response only returns one photo per result; Place Details
+   returns the full list (up to 10 photos). Returns an empty array
+   on any error so the caller can fall back gracefully. */
+async function getPlaceDetailsPhotos(placeId){
+  if(!placeId) return [];
+  try{
+    const url = `https://maps.googleapis.com/maps/api/place/details/json`
+      + `?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${GOOGLE_KEY}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    return (d.result && d.result.photos) || [];
+  }catch(err){
+    console.warn('  Details lookup failed for', placeId, ':', String(err));
+    return [];
+  }
+}
+
 async function getPlaces(lat, lng, type){
   const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
     + `?location=${lat},${lng}&radius=8000&type=${type}&key=${GOOGLE_KEY}`;
   const r = await fetch(url);
   const d = await r.json();
-  return (d.results || []).slice(0,8).map(p => ({
-    name:p.name,
-    tag:TYPE_TAG[type] || 'Attraction',
-    desc:p.vicinity || 'Local listing.',
-    rating:p.rating ? String(p.rating) : 'NR',
-    /* `image` is the single hero photo (back-compat for the card
-       thumbnail). `images` is the full gallery (up to 6 refs) for
-       the detail view swipeable gallery. Note: Google Places
-       Nearby Search typically only returns one photo per result;
-       follow-up Place Details calls would be needed to surface
-       additional photos. Listings without extra photos will just
-       render as a single image in the front end gallery. */
-    image: (p.photos && p.photos[0]) ? '/api/photo?ref=' + encodeURIComponent(p.photos[0].photo_reference) : null,
-    images: (p.photos || []).slice(0, 6).map(photo => '/api/photo?ref=' + encodeURIComponent(photo.photo_reference)),
-    /* Geographic coordinates so the front end can compute an
-       approximate walking time from the station via Haversine. */
-    lat:p.geometry && p.geometry.location ? p.geometry.location.lat : null,
-    lng:p.geometry && p.geometry.location ? p.geometry.location.lng : null,
-    /* Today's opening hours, plucked from Google's weekday_text
-       array. weekday_text is ordered Monday (0) through Sunday (6),
-       while JS Date.getDay() returns 0 for Sunday through 6 for
-       Saturday, so we shift the index to match. Captures whatever
-       day the update job runs on, e.g. "Monday: 9:00 AM - 5:00 PM". */
-    hours: (p.opening_hours && p.opening_hours.weekday_text) ? p.opening_hours.weekday_text[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null
-  }));
+  const results = (d.results || []).slice(0, 8);
+
+  /* For each Nearby Search result, do a follow-up Place Details
+     call to fetch the full photos array. 100ms pause between calls
+     keeps the rate well under any quota and produces 8 x 4 = 32
+     Details calls per stop, ~512 per full cron run, all serialised.
+     Falls back to the single Nearby photo if Details fails or
+     returns nothing. */
+  const out = [];
+  for(const p of results){
+    await delay(100);
+    const detailsPhotos = await getPlaceDetailsPhotos(p.place_id);
+    let photos;
+    if(detailsPhotos.length){
+      photos = detailsPhotos.slice(0, 6);
+    } else {
+      photos = (p.photos && p.photos[0]) ? [p.photos[0]] : [];
+    }
+    out.push({
+      name: p.name,
+      tag: TYPE_TAG[type] || 'Attraction',
+      desc: p.vicinity || 'Local listing.',
+      rating: p.rating ? String(p.rating) : 'NR',
+      /* `image` is the single hero photo (back-compat for the card
+         thumbnail). `images` is the full gallery for the detail
+         view swipeable gallery. Both come from the Place Details
+         photo set when available, falling back to the Nearby
+         Search single photo otherwise. */
+      image: photos[0] ? '/api/photo?ref=' + encodeURIComponent(photos[0].photo_reference) : null,
+      images: photos.map(photo => '/api/photo?ref=' + encodeURIComponent(photo.photo_reference)),
+      /* Geographic coordinates so the front end can compute an
+         approximate walking time from the station via Haversine. */
+      lat: p.geometry && p.geometry.location ? p.geometry.location.lat : null,
+      lng: p.geometry && p.geometry.location ? p.geometry.location.lng : null,
+      /* Today's opening hours, plucked from Google's weekday_text
+         array. weekday_text is ordered Monday (0) through Sunday (6),
+         while JS Date.getDay() returns 0 for Sunday through 6 for
+         Saturday, so we shift the index to match. Captures whatever
+         day the update job runs on, e.g. "Monday: 9:00 AM - 5:00 PM". */
+      hours: (p.opening_hours && p.opening_hours.weekday_text) ? p.opening_hours.weekday_text[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null
+    });
+  }
+  return out;
 }
 
 async function getEvents(lat, lng){
