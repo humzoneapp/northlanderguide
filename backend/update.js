@@ -51,47 +51,62 @@ const TYPE_TAG = {
    stay polite and avoid 429s during the nightly cron run. */
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-/* Fetch the full photo set for a single place_id. The Nearby
-   Search response only returns one photo per result; Place Details
-   returns the full list (up to 10 photos). Returns an empty array
-   on any error so the caller can fall back gracefully. */
-async function getPlaceDetailsPhotos(placeId){
-  if(!placeId) return [];
+/* Fetch the full Place Details record for one place_id. The
+   Nearby Search response is sparse; Place Details returns the
+   richer photos array, website, phone number, an editorial summary
+   and accurate weekday_text. We request only the fields we use to
+   keep the bill down. Returns null on any error so the caller can
+   fall back gracefully. */
+async function getPlaceDetails(placeId){
+  if(!placeId) return null;
   try{
     const url = `https://maps.googleapis.com/maps/api/place/details/json`
-      + `?place_id=${encodeURIComponent(placeId)}&fields=photos&key=${GOOGLE_KEY}`;
+      + `?place_id=${encodeURIComponent(placeId)}`
+      + `&fields=photos,website,formatted_phone_number,editorial_summary,opening_hours`
+      + `&key=${GOOGLE_KEY}`;
     const r = await fetch(url);
     const d = await r.json();
-    return (d.result && d.result.photos) || [];
+    return d.result || null;
   }catch(err){
     console.warn('  Details lookup failed for', placeId, ':', String(err));
-    return [];
+    return null;
   }
 }
 
-async function getPlaces(lat, lng, type){
+async function getPlaces(lat, lng, type, stopId){
+  /* Union Station is the busy southern terminus, so we surface
+     more options for it (20 results per category) than the other
+     15 stops (8 each). */
+  const limit = stopId === 'union' ? 20 : 8;
   const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
     + `?location=${lat},${lng}&radius=8000&type=${type}&key=${GOOGLE_KEY}`;
   const r = await fetch(url);
   const d = await r.json();
-  const results = (d.results || []).slice(0, 8);
+  const results = (d.results || []).slice(0, limit);
 
   /* For each Nearby Search result, do a follow-up Place Details
-     call to fetch the full photos array. 100ms pause between calls
-     keeps the rate well under any quota and produces 8 x 4 = 32
-     Details calls per stop, ~512 per full cron run, all serialised.
-     Falls back to the single Nearby photo if Details fails or
-     returns nothing. */
+     call to fetch the full photos array plus website / phone /
+     editorial summary / weekday_text. 100ms pause between calls
+     keeps the rate well under quota. Falls back to the single
+     Nearby photo (and to Nearby's own opening_hours if any) when
+     Details fails or returns nothing. */
   const out = [];
   for(const p of results){
     await delay(100);
-    const detailsPhotos = await getPlaceDetailsPhotos(p.place_id);
+    const details = await getPlaceDetails(p.place_id);
+    const detailsPhotos = (details && details.photos) || [];
     let photos;
     if(detailsPhotos.length){
-      photos = detailsPhotos.slice(0, 6);
+      photos = detailsPhotos.slice(0, 10);
     } else {
       photos = (p.photos && p.photos[0]) ? [p.photos[0]] : [];
     }
+    /* Prefer Details' weekday_text (it is always present when the
+       place publishes hours). Fall back to Nearby Search if Details
+       did not include opening_hours. */
+    const wt = (details && details.opening_hours && details.opening_hours.weekday_text)
+            || (p.opening_hours && p.opening_hours.weekday_text)
+            || null;
     out.push({
       name: p.name,
       tag: TYPE_TAG[type] || 'Attraction',
@@ -101,19 +116,24 @@ async function getPlaces(lat, lng, type){
          thumbnail). `images` is the full gallery for the detail
          view swipeable gallery. Both come from the Place Details
          photo set when available, falling back to the Nearby
-         Search single photo otherwise. */
+         Search single photo otherwise. Up to 10 photos. */
       image: photos[0] ? '/api/photo?ref=' + encodeURIComponent(photos[0].photo_reference) : null,
       images: photos.map(photo => '/api/photo?ref=' + encodeURIComponent(photo.photo_reference)),
       /* Geographic coordinates so the front end can compute an
          approximate walking time from the station via Haversine. */
       lat: p.geometry && p.geometry.location ? p.geometry.location.lat : null,
       lng: p.geometry && p.geometry.location ? p.geometry.location.lng : null,
-      /* Today's opening hours, plucked from Google's weekday_text
-         array. weekday_text is ordered Monday (0) through Sunday (6),
-         while JS Date.getDay() returns 0 for Sunday through 6 for
-         Saturday, so we shift the index to match. Captures whatever
-         day the update job runs on, e.g. "Monday: 9:00 AM - 5:00 PM". */
-      hours: (p.opening_hours && p.opening_hours.weekday_text) ? p.opening_hours.weekday_text[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null
+      /* Today's opening hours from weekday_text. The array is
+         Monday-first (index 0 = Monday, index 6 = Sunday) while
+         JS Date.getDay() is Sunday-first, so we shift accordingly.
+         Captures whatever day the update job runs on, e.g.
+         "Monday: 9:00 AM - 5:00 PM". */
+      hours: wt ? wt[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null,
+      /* New fields from Place Details: rich editorial summary and
+         direct contact info for the action row on the detail view. */
+      website: (details && details.website) || null,
+      phone: (details && details.formatted_phone_number) || null,
+      description: (details && details.editorial_summary && details.editorial_summary.overview) || null
     });
   }
   return out;
@@ -143,10 +163,10 @@ async function run(){
     console.log('Updating', id, '...');
     out[id] = { restaurants:[], accommodations:[], parks:[], attractions:[], events:[] };
     try{
-      out[id].restaurants    = await getPlaces(c.lat, c.lng, PLACE_TYPES.restaurants);
-      out[id].accommodations = await getPlaces(c.lat, c.lng, PLACE_TYPES.accommodations);
-      out[id].parks          = await getPlaces(c.lat, c.lng, PLACE_TYPES.parks);
-      out[id].attractions    = await getPlaces(c.lat, c.lng, PLACE_TYPES.attractions);
+      out[id].restaurants    = await getPlaces(c.lat, c.lng, PLACE_TYPES.restaurants,    id);
+      out[id].accommodations = await getPlaces(c.lat, c.lng, PLACE_TYPES.accommodations, id);
+      out[id].parks          = await getPlaces(c.lat, c.lng, PLACE_TYPES.parks,          id);
+      out[id].attractions    = await getPlaces(c.lat, c.lng, PLACE_TYPES.attractions,    id);
       out[id].events         = await getEvents(c.lat, c.lng);
     }catch(err){
       console.warn('  skipped (error):', String(err));

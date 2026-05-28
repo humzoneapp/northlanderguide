@@ -40,7 +40,9 @@ const ICONS = {
   'external':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
   'share':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
   'link':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-  'clock':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+  'clock':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  'globe':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  'phone':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
 };
 function icon(name){ return ICONS[name] || ''; }
 
@@ -78,27 +80,33 @@ function walkFromStation(stop, item){
   return 'About ' + rounded + ' min walk from station';
 }
 
-/* Format a listing's `hours` field into a short human line.
-   Accepts both Google's "Monday: 9:00 AM - 5:00 PM" weekday_text
-   format (strips the day prefix, prepends "Open today") and free
-   text from curated Featured slots (used as-is if it already
-   starts with "Open" or "Closed"). Returns "" when there is
-   nothing to show. */
+/* Format a listing's `hours` field into a short human line. Goal
+   is "Open today: 11am to 10pm" (or "Closed today"), regardless of
+   how messy the raw string is.
+   - strips the "Monday: " day prefix Google adds (we already know
+     it is today)
+   - normalises en/em dashes and ASCII hyphens to "to"
+   - collapses ":00 AM/PM" to "am/pm" so 11:00 AM becomes 11am
+   - lowercases the AM/PM and drops the space before it
+   - free text from curated Featured slots passes through
+     untouched if it already starts with "Open" or "Closed".
+   Regex uses unicode escapes (U+2013 en dash, U+2014 em dash) so
+   no literal em dash sits in the source. */
 function formatHours(hours){
   if(!hours) return '';
   const s = String(hours).trim();
   if(!s) return '';
-  /* Strip "Monday: " / "Tuesday: " etc. when present. */
   const m = s.match(/^[A-Z][a-z]+:\s*(.+)$/);
   let rest = m ? m[1].trim() : s;
   if(/^closed/i.test(rest)) return 'Closed today';
-  /* Normalise typographic dashes and the ASCII dash to "to" so
-     the line reads "9:00 AM to 5:00 PM" instead of "9 - 5".
-     Uses unicode escapes (U+2013 en dash, U+2014 em dash) so no
-     literal em dash sits in the source. */
   rest = rest.replace(/\s+[\u2013\u2014-]\s+/g, ' to ');
+  /* Drop ":00" minutes ("11:00 AM" becomes "11 AM"). */
+  rest = rest.replace(/(\d+):00(?=\s*[AaPp][Mm])/g, '$1');
+  /* Lowercase AM/PM and drop the space ("11 AM" becomes "11am"). */
+  rest = rest.replace(/(\d+(?::\d+)?)\s*([AaPp][Mm])/g,
+    (_, num, period) => num + period.toLowerCase());
   if(/^open/i.test(rest)) return rest;
-  return 'Open today ' + rest;
+  return 'Open today: ' + rest;
 }
 
 /* ------------------------------------------------------------------
@@ -1476,6 +1484,7 @@ function cardMarkup(it, idx, imgCls){
   const ratingHtml = it.rating === 'NR'
     ? 'New'
     : (it.rating ? icon('star') + it.rating : '');
+  const desc = (it.description && it.description.trim()) ? it.description : '';
   return `
     <div class="reveal">
       <button class="card${it.featured ? ' card-featured' : ''}" data-idx="${idx}">
@@ -1486,6 +1495,7 @@ function cardMarkup(it, idx, imgCls){
             ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
           </div>
           <h4>${it.name}</h4>
+          ${desc ? `<p class="description">${desc}</p>` : ''}
           ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
           <div class="desc">${it.desc}</div>
           ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
@@ -1533,8 +1543,13 @@ function renderDetail(){
         <h3>${it.name}</h3>
         ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
         ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
+        ${(it.website || it.phone) ? `
+          <div class="action-row">
+            ${it.website ? `<a class="action-btn" href="${it.website}" target="_blank" rel="noopener" aria-label="Visit ${it.name} website">${icon('globe')}<span class="action-label">Website</span></a>` : ''}
+            ${it.phone ? `<a class="action-btn" href="tel:${it.phone.replace(/[^\d+]/g,'')}" aria-label="Call ${it.name}">${icon('phone')}<span class="action-label">Call</span></a>` : ''}
+          </div>` : ''}
         <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
-        <p class="detail-desc">${it.details || it.desc}</p>
+        <p class="detail-desc">${it.description || it.details || it.desc}</p>
         <div class="share-row">
           <button data-share="copy">${icon('link')}Copy link</button>
           <button data-share="x">${icon('share')}Share</button>
