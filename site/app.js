@@ -2072,6 +2072,7 @@ function fromHash(){
 
 setSeasonalHero();
 buildHeroScene();
+mergeStaticListings();
 fromHash();
 buildRail();
 renderStop();
@@ -2088,60 +2089,23 @@ if(window.matchMedia('(min-width: 768px)').matches){
 }
 
 /* ------------------------------------------------------------------
-   LIVE DATA REFRESH
-   After the page has rendered with curated content, try to fetch
-   the live cache from the backend. If it succeeds, swap the
-   live listings + events into the in-memory STOPS array and
-   re-render the panel and event list. If anything fails (offline,
-   404, JSON parse error, missing keys), the curated content
-   already on screen stays in place and the user never notices.
-   This fetch is fire-and-forget and never blocks initial paint.
+   STATIC LISTINGS
+   Listings and their photos are baked into site/listings-data.js by
+   backend/build-static.js, with local image paths under
+   images/listings/. We merge them into the STOPS array before the
+   first render so the directory shows real photos with zero backend
+   dependency. Curated blurbs, facts, events and featured slots in
+   data.js are left untouched. To refresh content, re-run the build
+   script and commit the regenerated files.
 ------------------------------------------------------------------- */
-fetch('https://northlander-backend.onrender.com/live-data.json')
-  .then(r => r.json())
-  .then(cache => {
-    if (!cache || !cache.stops) return;
-    STOPS.forEach(s => {
-      const c = cache.stops[s.id];
-      if (!c) return;
-      if (c.restaurants && c.restaurants.length) s.restaurants = c.restaurants;
-      if (c.accommodations && c.accommodations.length) s.accommodations = c.accommodations;
-      if (c.parks && c.parks.length) s.parks = c.parks;
-      if (c.attractions && c.attractions.length) s.attractions = c.attractions;
-      if (c.shops && c.shops.length) s.shops = c.shops;
-      if (c.events && c.events.length) s.events = c.events;
+function mergeStaticListings(){
+  const data = window.LISTINGS_DATA;
+  if(!data) return;
+  STOPS.forEach(s => {
+    const c = data[s.id];
+    if(!c) return;
+    ['restaurants','accommodations','parks','attractions','shops'].forEach(cat => {
+      if(Array.isArray(c[cat]) && c[cat].length) s[cat] = c[cat];
     });
-
-    /* Photo proxy URLs in the cache are stored as relative paths
-       (e.g. "/api/photo?ref=..."). Prepend the Render backend
-       origin so the browser fetches the image through the photo
-       proxy endpoint instead of trying to hit the front-end host.
-       Rewrites both the single `image` field and every entry in
-       the `images` gallery array, across every listing category. */
-    const BACKEND = 'https://northlander-backend.onrender.com';
-
-    function fixPhotoUrls(item) {
-      if (!item) return;
-      if (item.image && item.image.startsWith('/api/photo')) {
-        item.image = BACKEND + item.image;
-      }
-      if (Array.isArray(item.images)) {
-        item.images = item.images.map(url =>
-          url && url.startsWith('/api/photo') ? BACKEND + url : url
-        );
-      }
-    }
-
-    STOPS.forEach(s => {
-      ['restaurants','accommodations','parks','attractions','shops','events'].forEach(cat => {
-        if (Array.isArray(s[cat])) s[cat].forEach(fixPhotoUrls);
-      });
-    });
-
-    renderStop();
-    renderEvents();
-    console.log('Live data loaded successfully, updated:', cache.updated);
-  })
-  .catch(() => {
-    console.log('Live data unavailable, using curated content');
   });
+}
