@@ -1249,13 +1249,20 @@ function cardArt(cat, seed){
 function imageBlock(item, cat, seed, cls){
   const fallback = cardArt(cat, seed);
   if(item && item.image){
+    /* Loading state is just the neutral grey background on the
+       container (CSS). The illustrated fallback is hidden by
+       default and only revealed when the photo fails to load
+       (onerror flips both the img and the parent's class). */
     return `<div class="${cls}">
       <div class="img-fallback">${fallback}</div>
       <img src="${item.image}" alt="${item.name||''}" loading="lazy"
-           onerror="this.classList.add('img-failed')">
+           onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
     </div>`;
   }
-  return `<div class="${cls}">${fallback}</div>`;
+  /* No image at all on the listing: show the illustrated fallback
+     immediately (no point in showing a grey loading state for a
+     photo that does not exist). */
+  return `<div class="${cls} show-fallback"><div class="img-fallback">${fallback}</div></div>`;
 }
 
 /* ------------------------------------------------------------------
@@ -1269,23 +1276,28 @@ function imageBlock(item, cat, seed, cls){
 function detailImageBlock(item, cat, seed){
   const fallback = cardArt(cat, seed);
   const imgs = (item && Array.isArray(item.images)) ? item.images.filter(Boolean) : [];
-  /* Single image path: keep behaviour identical to imageBlock. */
+  /* Single image path: behaviour identical to imageBlock. The
+     illustrated fallback is hidden by default and only revealed
+     if the photo errors out. */
   if(imgs.length <= 1){
     const single = (imgs[0]) || (item && item.image) || null;
     if(single){
       return `<div class="detail-img">
         <div class="img-fallback">${fallback}</div>
         <img src="${single}" alt="${item.name||''}" loading="lazy"
-             onerror="this.classList.add('img-failed')">
+             onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
       </div>`;
     }
-    return `<div class="detail-img">${fallback}</div>`;
+    return `<div class="detail-img show-fallback"><div class="img-fallback">${fallback}</div></div>`;
   }
-  /* Multi-image gallery. */
+  /* Multi-image gallery. If the first slide errors, the parent
+     gets show-fallback (since the first slide is what is visible
+     on load). Once any later slide loads we will not undo it,
+     but visually the loaded slide will sit on top. */
   const slides = imgs.map((src,i) => `
     <img class="gallery-slide" src="${src}" alt="${(item.name||'')+ ' photo ' + (i+1)}"
          loading="${i===0?'eager':'lazy'}"
-         onerror="this.classList.add('img-failed')">`).join('');
+         onerror="this.classList.add('img-failed');${i===0?"this.closest('.detail-img').classList.add('show-fallback');":''}">`).join('');
   const dots = imgs.map((_,i) =>
     `<button class="gallery-dot${i===0?' active':''}" type="button" data-idx="${i}" aria-label="Show photo ${i+1}"></button>`
   ).join('');

@@ -982,15 +982,25 @@ a{color:inherit}
 .card:active{transform:translateY(-2px) scale(.99)}
 .card-img{
   position:relative;
-  width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2);
+  width:100%;aspect-ratio:16/9;overflow:hidden;
+  /* Loading state: a clean neutral grey instead of the warm
+     amber + icon. The icon-bearing fallback only shows when the
+     image genuinely cannot load (see .show-fallback below). */
+  background:#e8e4dc;
 }
 .card-img img,.card-img svg{width:100%;height:100%;object-fit:cover;display:block}
-/* Fallback art always renders behind the photo. If the photo fails,
-   we fade it out instead of snapping content, so the moment of
-   swap is hidden. */
+/* Illustrated fallback sits behind the photo, but hidden by
+   default so the loading state stays a neutral grey. Revealed via
+   the .show-fallback class on the parent, which is set either at
+   render time (listing has no image) or by the img's onerror
+   handler (image failed to load). */
 .card-img .img-fallback,.detail-img .img-fallback{
   position:absolute;inset:0;z-index:0;
+  opacity:0;
+  transition:opacity .22s ease;
 }
+.card-img.show-fallback .img-fallback,
+.detail-img.show-fallback .img-fallback{opacity:1}
 .card-img > img,.detail-img > img{
   position:relative;z-index:1;
   transition:opacity 220ms ease;
@@ -1113,7 +1123,8 @@ a{color:inherit}
 }
 .detail-img{
   position:relative;
-  width:100%;aspect-ratio:16/9;background:var(--paper-2);
+  width:100%;aspect-ratio:16/9;
+  background:#e8e4dc;
 }
 .detail-img img,.detail-img svg{width:100%;height:100%;object-fit:cover;display:block}
 
