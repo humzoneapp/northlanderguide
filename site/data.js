@@ -29,6 +29,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The southern terminus. A vast historic station in the heart of downtown Toronto, steps from the waterfront, sports venues, and the Distillery District.",
@@ -52,6 +56,7 @@ const STOPS = [
       {name:"The Omni King Edward",tag:"Luxury",desc:"Toronto's oldest luxury hotel, a short walk away.",rating:"4.6"},
       {name:"Downtown hostels & inns",tag:"Budget",desc:"Range of budget stays around the St. Lawrence area.",rating:"4.2"}
     ],
+    transportation:[],
     events:[
       {d:"14",m:"Jun",name:"Harbourfront Summer Music",where:"Harbourfront Centre",desc:"Free outdoor concerts by the lake."},
       {d:"21",m:"Jun",name:"St. Lawrence Market Festival",where:"St. Lawrence Market",desc:"Tastings and vendor showcases."},
@@ -78,6 +83,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A commuter transit hub in Richmond Hill, gateway to York Region's parks, trails and suburban dining.",
@@ -99,6 +108,7 @@ const STOPS = [
       {name:"Richmond Hill hotels",tag:"Chain Hotels",desc:"Several mid-range chain hotels near Highway 7.",rating:"4.2"},
       {name:"Local B&Bs",tag:"B&B",desc:"Quiet bed-and-breakfast options in residential Richmond Hill.",rating:"4.4"}
     ],
+    transportation:[],
     events:[
       {d:"07",m:"Jun",name:"Lake Wilcox Music Series",where:"Lake Wilcox Park",desc:"Free weekend lakeside concerts."},
       {d:"20",m:"Jun",name:"Observatory Star Party",where:"David Dunlap Observatory",desc:"Evening telescope viewing."}
@@ -124,6 +134,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A GO transit hub on the edge of farm country, the doorway to the rolling Oak Ridges Moraine and pick-your-own farms.",
@@ -144,6 +158,7 @@ const STOPS = [
       {name:"Stouffville inns",tag:"Country Inn",desc:"Small inns and guesthouses near the main street.",rating:"4.3"},
       {name:"Farm stays",tag:"Farm Stay",desc:"Seasonal farm-stay accommodation on the moraine.",rating:"4.5"}
     ],
+    transportation:[],
     events:[
       {d:"08",m:"Jun",name:"Stouffville Farmers' Market",where:"Main Street",desc:"Saturday market, May–October."},
       {d:"15",m:"Jun",name:"Strawberry Social",where:"Bruce's Mill",desc:"Seasonal berry festival."}
@@ -169,6 +184,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A small riverside community where the Black and Severn rivers meet, the unofficial gateway to cottage country.",
@@ -188,6 +207,7 @@ const STOPS = [
       {name:"Riverside cottages",tag:"Cottage",desc:"Cottage and cabin rentals where the rivers meet.",rating:"4.5"},
       {name:"Washago motels",tag:"Motel",desc:"Simple roadside motels for an overnight stop.",rating:"4.1"}
     ],
+    transportation:[],
     events:[
       {d:"01",m:"Jul",name:"Washago Canada Day",where:"Centennial Park",desc:"Riverside celebration and fireworks."},
       {d:"19",m:"Jul",name:"Riverfest",where:"Washago waterfront",desc:"Community festival and craft vendors."}
@@ -213,6 +233,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The 'Gateway to Muskoka', a lakeside town famous for its steamships, wharf and the birthplace of Norman Bethune.",
@@ -236,6 +260,7 @@ const STOPS = [
       {name:"Muskoka resorts",tag:"Resort",desc:"Classic lakeside resorts on Lake Muskoka.",rating:"4.6"},
       {name:"Lakeside B&Bs",tag:"B&B",desc:"Charming bed-and-breakfasts near downtown.",rating:"4.5"}
     ],
+    transportation:[],
     events:[
       {d:"13",m:"Jun",name:"Music on the Barge",where:"Gull Lake Park",desc:"Sunday evening concerts on a floating bandshell."},
       {d:"27",m:"Jun",name:"Wharf Farmers' Market",where:"Muskoka Wharf",desc:"Weekly market with local growers and makers."},
@@ -262,6 +287,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The 'Heart of Muskoka', a waterfall-laced town on the Muskoka River with a charming historic main street.",
@@ -284,6 +313,7 @@ const STOPS = [
       {name:"Inn at the Falls",tag:"Boutique Inn",desc:"Historic inn overlooking the Bracebridge waterfall.",rating:"4.5"},
       {name:"Muskoka cottage rentals",tag:"Cottage",desc:"Lake cottages and cabins around Bracebridge.",rating:"4.6"}
     ],
+    transportation:[],
     events:[
       {d:"06",m:"Jun",name:"Bracebridge Farmers' Market",where:"Memorial Park",desc:"Saturday market through the season."},
       {d:"05",m:"Jul",name:"Midnight Madness",where:"Downtown Bracebridge",desc:"Sidewalk sales and street entertainment."},
@@ -310,6 +340,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The largest town in Muskoka, gateway to Algonquin Park, home of the Group of Seven murals and a lively arts scene.",
@@ -334,6 +368,7 @@ const STOPS = [
       {name:"Hidden Valley Resort",tag:"Resort",desc:"Lakeside resort near Arrowhead Park.",rating:"4.4"},
       {name:"Downtown Huntsville inns",tag:"Inn",desc:"Inns and B&Bs close to the main street and murals.",rating:"4.4"}
     ],
+    transportation:[],
     events:[
       {d:"12",m:"Jun",name:"Huntsville Farmers' Market",where:"Canal Street",desc:"Thursday market with regional growers."},
       {d:"19",m:"Jul",name:"Nuit Blanche North",where:"Downtown Huntsville",desc:"Free overnight contemporary art festival."},
@@ -360,6 +395,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A quiet village in the Almaguin Highlands and the western doorway to Algonquin Park's less-travelled side.",
@@ -381,6 +420,7 @@ const STOPS = [
       {name:"Algonquin-area lodges",tag:"Lodge",desc:"Wilderness lodges near the park's west gate.",rating:"4.5"},
       {name:"Eagle Lake cabins",tag:"Cabin",desc:"Rustic cabin rentals on nearby lakes.",rating:"4.4"}
     ],
+    transportation:[],
     events:[
       {d:"05",m:"Jul",name:"South River Summerfest",where:"Village centre",desc:"Community fair with vendors and music."},
       {d:"16",m:"Aug",name:"Eagle Lake Regatta",where:"Mikisew Park",desc:"Boat races and beach activities."}
@@ -406,6 +446,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A storied canoe-country town set among old-growth pine and a maze of interconnected lakes.",
@@ -428,6 +472,7 @@ const STOPS = [
       {name:"Lakeside cabins",tag:"Cabin",desc:"Cabins and camps along Lake Temagami.",rating:"4.5"},
       {name:"Finlayson Point camping",tag:"Camping",desc:"Provincial park campground on the lake.",rating:"4.6"}
     ],
+    transportation:[],
     events:[
       {d:"26",m:"Jul",name:"Temagami Canoe Festival",where:"Town waterfront",desc:"Heritage paddling event and demonstrations."},
       {d:"02",m:"Aug",name:"Temagami Art Walk",where:"Lakeshore Drive",desc:"Local artists and crafters showcase."}
@@ -451,6 +496,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -477,6 +526,7 @@ const STOPS = [
       {name:"Lakeshore motels",tag:"Motel",desc:"Motels along the Lake Nipissing shore.",rating:"4.2"},
       {name:"North Bay B&Bs",tag:"B&B",desc:"Bed-and-breakfasts in the historic district.",rating:"4.5"}
     ],
+    transportation:[],
     events:[
       {d:"14",m:"Jun",name:"North Bay Farmers' Market",where:"Downtown Waterfront",desc:"Saturday market by the lake."},
       {d:"12",m:"Jul",name:"Summer in the Park",where:"Lee Park",desc:"Major outdoor music festival on the waterfront."},
@@ -503,6 +553,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A lakeside community on Lake Temiskaming, surrounded by the surprising farm belt of the 'Little Clay Belt'.",
@@ -525,6 +579,7 @@ const STOPS = [
       {name:"Waterfront hotels",tag:"Hotel",desc:"Hotels near the New Liskeard marina.",rating:"4.3"},
       {name:"Country B&Bs",tag:"B&B",desc:"Farm-country bed-and-breakfasts near the lake.",rating:"4.4"}
     ],
+    transportation:[],
     events:[
       {d:"21",m:"Jun",name:"Temiskaming Waterfront Market",where:"New Liskeard Marina",desc:"Weekend market and local food."},
       {d:"02",m:"Aug",name:"Fall Fair Preview Days",where:"Temiskaming Fairgrounds",desc:"Agricultural showcase and rides."}
@@ -550,6 +605,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A historic railway town built by Ontario Northland itself, small, proud, and rich in rail heritage.",
@@ -570,6 +629,7 @@ const STOPS = [
       {name:"Englehart motels",tag:"Motel",desc:"Simple, friendly motels for an overnight stop.",rating:"4.2"},
       {name:"Kap-Kig-Iwan camping",tag:"Camping",desc:"Provincial park campground by the gorge.",rating:"4.5"}
     ],
+    transportation:[],
     events:[
       {d:"28",m:"Jun",name:"Englehart Railway Days",where:"Town centre",desc:"Heritage celebration of the town's rail roots."},
       {d:"16",m:"Aug",name:"Kap-Kig-Iwan Nature Day",where:"Provincial Park",desc:"Guided hikes and family activities."}
@@ -595,6 +655,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A legendary gold-mining town, 'the town that gold built', reached via the Swastika stop just to the west.",
@@ -616,6 +680,7 @@ const STOPS = [
       {name:"Kirkland Lake hotels",tag:"Hotel",desc:"Mid-range hotels in the town centre.",rating:"4.2"},
       {name:"Esker Lakes camping",tag:"Camping",desc:"Provincial park campground among the eskers.",rating:"4.6"}
     ],
+    transportation:[],
     events:[
       {d:"05",m:"Jul",name:"Kirkland Lake Homecoming",where:"Downtown",desc:"Community festival and street events."},
       {d:"23",m:"Aug",name:"Esker Lakes Outdoor Day",where:"Esker Lakes Park",desc:"Paddling and guided nature walks."}
@@ -641,6 +706,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A crossroads community where an express coach connects onward to Cochrane and the Polar Bear Express.",
@@ -661,6 +730,7 @@ const STOPS = [
       {name:"Highway 11 motels",tag:"Motel",desc:"Roadside motels convenient for the Cochrane coach.",rating:"4.1"},
       {name:"Kettle Lakes camping",tag:"Camping",desc:"Provincial park campground on the kettle lakes.",rating:"4.6"}
     ],
+    transportation:[],
     events:[
       {d:"12",m:"Jul",name:"Matheson Community Days",where:"Town centre",desc:"Local fair with food and family games."},
       {d:"09",m:"Aug",name:"Kettle Lakes Nature Weekend",where:"Provincial Park",desc:"Guided walks and stargazing."}
@@ -684,6 +754,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -710,6 +784,7 @@ const STOPS = [
       {name:"Senator Hotel & Conference",tag:"Hotel",desc:"Established downtown Timmins hotel.",rating:"4.3"},
       {name:"Timmins motels & inns",tag:"Motel",desc:"Range of motels across the city.",rating:"4.2"}
     ],
+    transportation:[],
     events:[
       {d:"21",m:"Jun",name:"Timmins Summer Concert Series",where:"Hollinger Park",desc:"Outdoor concerts through the summer."},
       {d:"04",m:"Jul",name:"Stars and Thunder (Canada Day)",where:"Hollinger Park",desc:"Music festival and major fireworks event."},
@@ -736,6 +811,10 @@ const STOPS = [
       attractions:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"Reached by rail or coach connection, home of the Polar Bear Express to Moosonee and the Polar Bear Habitat.",
@@ -758,6 +837,7 @@ const STOPS = [
       {name:"Greenwater camping",tag:"Camping",desc:"Provincial park campground on clear lakes.",rating:"4.6"},
       {name:"Cochrane motels",tag:"Motel",desc:"Motels in town near the Polar Bear Habitat.",rating:"4.2"}
     ],
+    transportation:[],
     events:[
       {d:"19",m:"Jul",name:"Cochrane Summerfest",where:"Downtown Cochrane",desc:"Community festival with music and vendors."},
       {d:"06",m:"Aug",name:"Polar Bear Habitat Family Day",where:"Polar Bear Habitat",desc:"Special programming and keeper talks."}

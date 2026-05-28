@@ -139,6 +139,81 @@ async function getPlaces(lat, lng, type, stopId){
   return out;
 }
 
+/* Transportation runs across multiple Google Places types (taxi
+   stands, transit stations, car rentals, bus stations), since
+   Google does not have a single "transportation" type. We aggregate
+   raw Nearby Search results across all four types, dedupe by
+   place_id, cap the total (union gets more, like every other
+   category), then enrich each kept result with the same Place
+   Details lookup the other categories use. */
+async function getTransportation(lat, lng, stopId){
+  const limit = stopId === 'union' ? 20 : 8;
+  const types = ['taxi_stand', 'transit_station', 'car_rental', 'bus_station'];
+  const tagFor = {
+    taxi_stand: 'Taxi',
+    transit_station: 'Transit',
+    car_rental: 'Car rental',
+    bus_station: 'Bus'
+  };
+
+  /* Raw Nearby Search across each type. Tag each result with the
+     search type so we can label the listing later. */
+  let raw = [];
+  for(const t of types){
+    try{
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
+        + `?location=${lat},${lng}&radius=8000&type=${t}&key=${GOOGLE_KEY}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      raw = raw.concat((d.results || []).map(p => Object.assign({}, p, {_searchType: t})));
+    }catch(err){
+      console.warn('  transport search failed for', t, ':', String(err));
+    }
+  }
+
+  /* Dedupe by place_id (a single station often matches both
+     transit_station and bus_station). */
+  const seen = new Set();
+  const unique = [];
+  for(const p of raw){
+    if(p.place_id && !seen.has(p.place_id)){
+      seen.add(p.place_id);
+      unique.push(p);
+    }
+  }
+  const trimmed = unique.slice(0, limit);
+
+  /* Enrich each kept result with Place Details (photos, contact,
+     hours, summary). Same 100ms gating as getPlaces. */
+  const out = [];
+  for(const p of trimmed){
+    await delay(100);
+    const details = await getPlaceDetails(p.place_id);
+    const detailsPhotos = (details && details.photos) || [];
+    const photos = detailsPhotos.length
+      ? detailsPhotos.slice(0, 10)
+      : ((p.photos && p.photos[0]) ? [p.photos[0]] : []);
+    const wt = (details && details.opening_hours && details.opening_hours.weekday_text)
+            || (p.opening_hours && p.opening_hours.weekday_text)
+            || null;
+    out.push({
+      name: p.name,
+      tag: tagFor[p._searchType] || 'Transit',
+      desc: p.vicinity || 'Local transit option.',
+      rating: p.rating ? String(p.rating) : 'NR',
+      image: photos[0] ? '/api/photo?ref=' + encodeURIComponent(photos[0].photo_reference) : null,
+      images: photos.map(photo => '/api/photo?ref=' + encodeURIComponent(photo.photo_reference)),
+      lat: p.geometry && p.geometry.location ? p.geometry.location.lat : null,
+      lng: p.geometry && p.geometry.location ? p.geometry.location.lng : null,
+      hours: wt ? wt[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] : null,
+      website: (details && details.website) || null,
+      phone: (details && details.formatted_phone_number) || null,
+      description: (details && details.editorial_summary && details.editorial_summary.overview) || null
+    });
+  }
+  return out;
+}
+
 async function getEvents(lat, lng){
   const url = `https://www.eventbriteapi.com/v3/events/search/`
     + `?location.latitude=${lat}&location.longitude=${lng}`
@@ -161,12 +236,13 @@ async function run(){
   const out = {};
   for(const [id, c] of Object.entries(STOP_COORDS)){
     console.log('Updating', id, '...');
-    out[id] = { restaurants:[], accommodations:[], parks:[], attractions:[], events:[] };
+    out[id] = { restaurants:[], accommodations:[], parks:[], attractions:[], transportation:[], events:[] };
     try{
       out[id].restaurants    = await getPlaces(c.lat, c.lng, PLACE_TYPES.restaurants,    id);
       out[id].accommodations = await getPlaces(c.lat, c.lng, PLACE_TYPES.accommodations, id);
       out[id].parks          = await getPlaces(c.lat, c.lng, PLACE_TYPES.parks,          id);
       out[id].attractions    = await getPlaces(c.lat, c.lng, PLACE_TYPES.attractions,    id);
+      out[id].transportation = await getTransportation(c.lat, c.lng,                     id);
       out[id].events         = await getEvents(c.lat, c.lng);
     }catch(err){
       console.warn('  skipped (error):', String(err));
