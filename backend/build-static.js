@@ -90,7 +90,51 @@ const CATEGORIES = [
   { key: 'parks',          type: 'park' },
   { key: 'attractions',    type: 'tourist_attraction' }
 ];
-const SHOP_TYPES = ['store', 'shopping_mall', 'book_store', 'art_gallery', 'gift_shop'];
+/* Shop search. Places has no single "shop" type, so we run a few
+   precise shop types and merge them deduped by place_id. */
+const SHOP_QUERIES = [
+  { type: 'art_gallery' },
+  { type: 'book_store' },
+  { type: 'gift_shop' }
+];
+
+/* Shop filter, two conditions. A result is kept only if it (1) has at
+   least one real retail type AND (2) has none of the non-shop types.
+   The whitelist alone was not enough because the generic "store" type
+   is carried by coffee shops, groceries and storage firms; the
+   exclusion list removes those. */
+const RETAIL_TYPES = [
+  'art_gallery', 'book_store', 'gift_shop', 'store', 'clothing_store',
+  'jewelry_store', 'home_goods_store', 'furniture_store', 'shoe_store',
+  'florist', 'pet_store', 'bicycle_store', 'electronics_store',
+  'liquor_store', 'museum'
+];
+const EXCLUDED_TYPES = [
+  'restaurant', 'cafe', 'bar', 'meal_takeaway', 'meal_delivery',
+  'lodging', 'bank', 'finance', 'moving_company', 'storage',
+  'grocery_or_supermarket', 'supermarket', 'gas_station',
+  'real_estate_agency', 'transit_station', 'hospital', 'doctor',
+  'pharmacy', 'school', 'locality', 'political'
+];
+function hasRetailType(p) {
+  return ((p && p.types) || []).some(t => RETAIL_TYPES.includes(t));
+}
+function hasExcludedType(p) {
+  return ((p && p.types) || []).some(t => EXCLUDED_TYPES.includes(t));
+}
+
+/* Large chains to exclude from Shop results. A listing is dropped if
+   its name contains any of these (case insensitive). */
+const EXCLUDED_CHAINS = [
+  'walmart', 'canadian tire', 'home depot', 'lowes', 'costco',
+  'superstore', 'metro', 'sobeys', 'shoppers', 'rexall', 'dollarama',
+  'giant tiger', 'no frills', 'food basics', 'staples', 'best buy',
+  'sport chek', 'winners', 'homesense'
+];
+function isExcludedChain(name) {
+  const n = (name || '').toLowerCase();
+  return EXCLUDED_CHAINS.some(chain => n.includes(chain));
+}
 
 /* Human-friendly card tag per category. */
 const TAG_LABEL = {
@@ -109,9 +153,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
    Google reports the token is not ready yet. Pagination stops as soon
    as Google returns no next_page_token, so sparse stops yield only
    what exists with no forced empty pages. */
-async function nearbyAllPages(type, lat, lng, max, label) {
-  const base = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
+async function nearbyAllPages(type, lat, lng, max, label, keyword) {
+  let base = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
     + `?location=${lat},${lng}&radius=5000&type=${type}&key=${KEY}`;
+  if (keyword) base += `&keyword=${encodeURIComponent(keyword)}`;
   const all = [];
   let token = null;
   for (let page = 0; page < 3; page++) {
@@ -218,14 +263,44 @@ async function buildListing(p, catKey, stopId, index) {
   };
 }
 
+/* Read the existing generated data file back into an object, so a
+   targeted re-run can rebuild one category without touching the rest. */
+function loadExisting() {
+  if (!fs.existsSync(OUT_FILE)) return {};
+  const txt = fs.readFileSync(OUT_FILE, 'utf8');
+  const start = txt.indexOf('{');
+  const end = txt.lastIndexOf('}');
+  if (start < 0 || end < 0) return {};
+  return JSON.parse(txt.slice(start, end + 1));
+}
+
+/* Remove previously downloaded shop photos so a shops-only rebuild
+   does not leave orphaned files behind. */
+function deleteShopPhotos() {
+  let n = 0;
+  for (const f of fs.readdirSync(LISTINGS_DIR)) {
+    if (/-shops-\d+-\d+\.jpg$/.test(f)) { fs.unlinkSync(path.join(LISTINGS_DIR, f)); n++; }
+  }
+  console.log(`Removed ${n} old shop photos.`);
+}
+
 async function run() {
   fs.mkdirSync(LISTINGS_DIR, { recursive: true });
-  const data = {};
+
+  /* Pass "shops" as an argument to rebuild only the Shop category for
+     every stop, preserving the other categories already in the data
+     file: node backend/build-static.js shops */
+  const shopsOnly = process.argv[2] === 'shops';
+  const data = shopsOnly ? loadExisting() : {};
+  if (shopsOnly) {
+    console.log('Shops-only rebuild: preserving other categories.');
+    deleteShopPhotos();
+  }
 
   for (const stop of STOPS) {
-    data[stop.id] = {};
+    if (!data[stop.id]) data[stop.id] = {};
 
-    for (const cat of CATEGORIES) {
+    if (!shopsOnly) for (const cat of CATEGORIES) {
       try {
         const kept = await nearbyAllPages(cat.type, stop.lat, stop.lng, PER_CAT_LIMIT, `${stop.id} ${cat.key}`);
         const listings = [];
@@ -240,17 +315,21 @@ async function run() {
       }
     }
 
-    // Shops: query several store-like types, merge deduped by place_id.
+    // Shops: run the targeted queries, merge deduped by place_id, and
+    // drop large chains.
     try {
       const seen = new Set();
       const merged = [];
-      for (const type of SHOP_TYPES) {
+      let droppedType = 0, droppedChain = 0;
+      for (const q of SHOP_QUERIES) {
         if (merged.length >= PER_CAT_LIMIT) break;
-        const results = await nearbyAllPages(type, stop.lat, stop.lng, PER_CAT_LIMIT, `${stop.id} shops/${type}`);
+        const results = await nearbyAllPages(q.type, stop.lat, stop.lng, PER_CAT_LIMIT, `${stop.id} shops/${q.type}`);
         for (const p of results) {
           if (merged.length >= PER_CAT_LIMIT) break;
           if (!p.place_id || seen.has(p.place_id)) continue;
           seen.add(p.place_id);
+          if (!hasRetailType(p) || hasExcludedType(p)) { droppedType++; continue; }
+          if (isExcludedChain(p.name)) { droppedChain++; continue; }
           merged.push(p);
         }
       }
@@ -259,7 +338,7 @@ async function run() {
         listings.push(await buildListing(merged[i], 'shops', stop.id, i));
       }
       data[stop.id].shops = listings;
-      console.log(`${stop.id} shops: ${listings.length} merged`);
+      console.log(`${stop.id} shops: ${listings.length} kept (${droppedType} by type, ${droppedChain} chains)`);
     } catch (e) {
       console.log(`${stop.id} shops FAILED:`, e.message);
       data[stop.id].shops = [];

@@ -1449,364 +1449,356 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Chestnut Residence",
+        "name": "The Power Plant Contemporary Art Gallery",
         "tag": "Shop",
-        "desc": "89 Chestnut Street, Toronto",
-        "rating": "3",
+        "desc": "231 Queens Quay West, Toronto",
+        "rating": "4.4",
         "image": "images/listings/union-shops-0-0.jpg",
         "images": [
           "images/listings/union-shops-0-0.jpg",
           "images/listings/union-shops-0-1.jpg",
           "images/listings/union-shops-0-2.jpg"
         ],
-        "lat": 43.6540972,
-        "lng": -79.3850073,
-        "website": "http://www.chestnutresidence.utoronto.ca/",
-        "phone": "(416) 977-0707",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 11:00 PM"
+        "lat": 43.6384653,
+        "lng": -79.3818612,
+        "website": "http://www.thepowerplant.org/",
+        "phone": "(416) 973-4949",
+        "description": "Industrial-style art gallery featuring avant-garde works, along with an array of programs & events.",
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       },
       {
-        "name": "Canadian Tire",
+        "name": "Alliance Francaise Toronto - Downtown Campus",
         "tag": "Shop",
-        "desc": "839 Yonge Street, Toronto",
-        "rating": "4",
+        "desc": "24 Spadina Road, Toronto",
+        "rating": "4.3",
         "image": "images/listings/union-shops-1-0.jpg",
         "images": [
           "images/listings/union-shops-1-0.jpg",
           "images/listings/union-shops-1-1.jpg",
           "images/listings/union-shops-1-2.jpg"
         ],
-        "lat": 43.6737958,
-        "lng": -79.3876391,
-        "website": "https://www.canadiantire.ca/en/store-details/on/toronto-yonge-church-on-150.html?utm_source=google&utm_medium=lss&utm_content=150",
-        "phone": "(416) 925-9592",
+        "lat": 43.668753,
+        "lng": -79.4052322,
+        "website": "https://www.alliance-francaise.ca/en/",
+        "phone": "(416) 922-2014",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
+        "hours": "Thursday: 8:30 AM – 7:30 PM"
       },
       {
-        "name": "The UPS Store",
+        "name": "Gallery 235 - Harbourfront Centre",
         "tag": "Shop",
-        "desc": "52 Church Street, Toronto",
-        "rating": "3.9",
+        "desc": "235 Queens Quay West, Toronto",
+        "rating": "4.3",
         "image": "images/listings/union-shops-2-0.jpg",
         "images": [
           "images/listings/union-shops-2-0.jpg",
           "images/listings/union-shops-2-1.jpg",
           "images/listings/union-shops-2-2.jpg"
         ],
-        "lat": 43.6501354,
-        "lng": -79.3746446,
-        "website": "http://www.theupsstore.ca/336",
-        "phone": "(416) 363-8331",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "lat": 43.6385358,
+        "lng": -79.3831089,
+        "website": "http://www.harbourfrontcentre.com/",
+        "phone": "(416) 973-4000",
+        "description": null,
+        "hours": "Thursday: 12:00 – 6:00 PM"
       },
       {
-        "name": "Best Buy",
+        "name": "Bay of Spirits Gallery",
         "tag": "Shop",
-        "desc": "65 Dundas Street West, Toronto",
-        "rating": "3.6",
+        "desc": "250 The Esplanade, Toronto",
+        "rating": "4.5",
         "image": "images/listings/union-shops-3-0.jpg",
         "images": [
           "images/listings/union-shops-3-0.jpg",
           "images/listings/union-shops-3-1.jpg",
           "images/listings/union-shops-3-2.jpg"
         ],
-        "lat": 43.6554217,
-        "lng": -79.38302569999999,
-        "website": "https://stores.bestbuy.ca/en-ca/on/toronto/65-dundas-st-w",
-        "phone": "(866) 237-8289",
-        "description": "Chain retailer with a large array of brand-name electronics, computers, appliances & more.",
-        "hours": "Thursday: 10:00 AM – 9:00 PM"
+        "lat": 43.6497892,
+        "lng": -79.3644351,
+        "website": "http://www.bayofspirits.com/",
+        "phone": "(416) 971-5190",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Tip Top Lofts",
+        "name": "John Steinberg & Associates Hair Salon",
         "tag": "Shop",
-        "desc": "637 Lake Shore Boulevard West, Toronto",
-        "rating": "4.6",
+        "desc": "906 Dundas Street West, Toronto",
+        "rating": "4.9",
         "image": "images/listings/union-shops-4-0.jpg",
         "images": [
           "images/listings/union-shops-4-0.jpg",
           "images/listings/union-shops-4-1.jpg",
           "images/listings/union-shops-4-2.jpg"
         ],
-        "lat": 43.63537859999999,
-        "lng": -79.4022785,
-        "website": null,
-        "phone": "(416) 596-0148",
+        "lat": 43.6511529,
+        "lng": -79.41232889999999,
+        "website": "http://www.johnsteinberghair.com/",
+        "phone": "(416) 506-0268",
         "description": null,
-        "hours": "Thursday: Open 24 hours"
+        "hours": "Thursday: 11:00 AM – 7:00 PM"
       },
       {
-        "name": "Urban Outfitters",
+        "name": "Art Museum at the University of Toronto - University of Toronto Art Centre",
         "tag": "Shop",
-        "desc": "235 Yonge Street, Toronto",
-        "rating": "4",
+        "desc": "15 King's College Circle, Toronto",
+        "rating": "4.1",
         "image": "images/listings/union-shops-5-0.jpg",
         "images": [
           "images/listings/union-shops-5-0.jpg",
           "images/listings/union-shops-5-1.jpg",
           "images/listings/union-shops-5-2.jpg"
         ],
-        "lat": 43.6544692,
-        "lng": -79.3799631,
-        "website": "https://www.urbanoutfitters.com/en-ca/stores/downtown-toronto?utm_medium=organic&utm_source=google&utm_campaign=local&utm_content=25",
-        "phone": "(416) 214-1466",
-        "description": "Chain with a hipster vibe known for on-trend fashions, accessories & quirky home-decor items.",
-        "hours": "Thursday: 10:00 AM – 9:00 PM"
+        "lat": 43.6631609,
+        "lng": -79.3957289,
+        "website": "http://artmuseum.utoronto.ca/",
+        "phone": "(416) 978-8398",
+        "description": "Gallery that displays permanent Byzantine & Canadian collections, plus visiting exhibits & lectures.",
+        "hours": "Thursday: 12:00 – 5:00 PM"
       },
       {
-        "name": "Stag Shop - Adult Sex Store",
+        "name": "Dont Tell Mama",
         "tag": "Shop",
-        "desc": "239 Yonge Street, Toronto",
-        "rating": "4.9",
-        "image": "images/listings/union-shops-6-0.jpg",
-        "images": [
-          "images/listings/union-shops-6-0.jpg",
-          "images/listings/union-shops-6-1.jpg",
-          "images/listings/union-shops-6-2.jpg"
-        ],
-        "lat": 43.65465639999999,
-        "lng": -79.3800041,
-        "website": "https://stagshop.com/pages/stag-shop-toronto-one-location/?utm_source=google&utm_medium=organic&utm_campaign=local&utm_content=Toronto1",
-        "phone": "(416) 368-3507",
+        "desc": "108 Ossington Avenue, Toronto",
+        "rating": "4",
+        "image": null,
+        "images": [],
+        "lat": 43.64653860000001,
+        "lng": -79.41994509999999,
+        "website": null,
+        "phone": null,
         "description": null,
-        "hours": "Thursday: 10:00 AM – 11:00 PM"
+        "hours": null
       },
       {
-        "name": "The UPS Store",
+        "name": "Gallery 1313",
         "tag": "Shop",
-        "desc": "720 King Street West SIUTE 321, Toronto",
-        "rating": "3.3",
+        "desc": "1313 Queen Street West, Toronto",
+        "rating": "4.6",
         "image": "images/listings/union-shops-7-0.jpg",
         "images": [
           "images/listings/union-shops-7-0.jpg",
           "images/listings/union-shops-7-1.jpg",
           "images/listings/union-shops-7-2.jpg"
         ],
-        "lat": 43.6437225,
-        "lng": -79.4044088,
-        "website": "http://theupsstore.ca/287",
-        "phone": "(416) 366-5700",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "lat": 43.6410629,
+        "lng": -79.43345699999999,
+        "website": "https://g1313.org/",
+        "phone": "(416) 536-6778",
+        "description": null,
+        "hours": "Thursday: 1:00 – 5:00 PM"
       },
       {
-        "name": "The UPS Store",
+        "name": "Preservation House",
         "tag": "Shop",
-        "desc": "777 Bay Street C208B, Toronto",
-        "rating": "4.5",
+        "desc": "461 King Street East, Toronto",
+        "rating": "5",
         "image": "images/listings/union-shops-8-0.jpg",
         "images": [
           "images/listings/union-shops-8-0.jpg",
           "images/listings/union-shops-8-1.jpg",
           "images/listings/union-shops-8-2.jpg"
         ],
-        "lat": 43.660489,
-        "lng": -79.384447,
-        "website": "http://theupsstore.ca/386",
-        "phone": "(416) 964-3794",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "lat": 43.65388470000001,
+        "lng": -79.3609373,
+        "website": "http://www.preservationhouse.com/",
+        "phone": "(416) 368-6890",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Canadian Tire",
+        "name": "Twist Gallery",
         "tag": "Shop",
-        "desc": "1025 Lake Shore Boulevard East, Toronto",
-        "rating": "3.9",
+        "desc": "1100 Queen Street West, Toronto",
+        "rating": "4.8",
         "image": "images/listings/union-shops-9-0.jpg",
         "images": [
           "images/listings/union-shops-9-0.jpg",
           "images/listings/union-shops-9-1.jpg",
           "images/listings/union-shops-9-2.jpg"
         ],
-        "lat": 43.65827789999999,
-        "lng": -79.3286291,
-        "website": "https://www.canadiantire.ca/en/store-details/on/leslie-lake-shore-on-654.html?utm_source=google&utm_medium=lss&utm_content=654",
-        "phone": "(416) 778-0102",
+        "lat": 43.6435709,
+        "lng": -79.4228856,
+        "website": "http://www.twistgallery.ca/",
+        "phone": "(416) 588-2222",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       },
       {
-        "name": "Metro",
+        "name": "Nicholas Metivier Gallery",
         "tag": "Shop",
-        "desc": "735 College Street, Toronto",
-        "rating": "4",
+        "desc": "190 Richmond Street East, Toronto",
+        "rating": "4.8",
         "image": "images/listings/union-shops-10-0.jpg",
         "images": [
           "images/listings/union-shops-10-0.jpg",
           "images/listings/union-shops-10-1.jpg",
           "images/listings/union-shops-10-2.jpg"
         ],
-        "lat": 43.65418,
-        "lng": -79.4194151,
-        "website": "https://www.metro.ca/en/find-a-grocery/312?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(416) 533-2515",
+        "lat": 43.652915,
+        "lng": -79.37175599999999,
+        "website": "http://www.metiviergallery.com/",
+        "phone": "(416) 205-9000",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 11:00 PM"
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "ella + elliot",
+        "name": "Trinity Square Video",
         "tag": "Shop",
-        "desc": "188 Strachan Avenue, Toronto",
-        "rating": "3.8",
+        "desc": "401 Richmond Street West #121, Toronto",
+        "rating": "4.9",
         "image": "images/listings/union-shops-11-0.jpg",
         "images": [
           "images/listings/union-shops-11-0.jpg",
           "images/listings/union-shops-11-1.jpg",
           "images/listings/union-shops-11-2.jpg"
         ],
-        "lat": 43.6449126,
-        "lng": -79.4132588,
-        "website": "http://www.ellaandelliot.com/",
-        "phone": "(416) 850-7890",
+        "lat": 43.647884,
+        "lng": -79.394823,
+        "website": "http://www.trinitysquarevideo.com/",
+        "phone": "(416) 593-1332",
         "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
+        "hours": "Thursday: 12:00 – 6:00 PM"
       },
       {
-        "name": "Staples",
+        "name": "Loch Gallery",
         "tag": "Shop",
-        "desc": "375 University Avenue, Toronto",
-        "rating": "3.8",
+        "desc": "16 Hazelton Avenue, Toronto",
+        "rating": "4.7",
         "image": "images/listings/union-shops-12-0.jpg",
         "images": [
           "images/listings/union-shops-12-0.jpg",
           "images/listings/union-shops-12-1.jpg",
           "images/listings/union-shops-12-2.jpg"
         ],
-        "lat": 43.6535675,
-        "lng": -79.3871005,
-        "website": "https://stores.staples.ca/on/toronto/office-supplies-ca-25.html",
-        "phone": "(416) 598-4818",
-        "description": "Chain retailer offering brand-name electronics & print services, plus office supplies & furniture.",
-        "hours": "Thursday: 8:00 AM – 7:00 PM"
+        "lat": 43.671309,
+        "lng": -79.393537,
+        "website": "http://www.lochgallery.com/",
+        "phone": "(416) 964-9050",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "The Market Gallery",
         "tag": "Shop",
-        "desc": "55 York Street, Toronto",
-        "rating": "3.9",
+        "desc": "95 Front Street East, Toronto",
+        "rating": "4.3",
         "image": "images/listings/union-shops-13-0.jpg",
         "images": [
           "images/listings/union-shops-13-0.jpg",
           "images/listings/union-shops-13-1.jpg",
           "images/listings/union-shops-13-2.jpg"
         ],
-        "lat": 43.6461046,
-        "lng": -79.3825715,
-        "website": "https://locations.timhortons.ca/en/on/toronto/55-york-st/",
-        "phone": "(416) 363-1055",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 11:00 PM"
+        "lat": 43.64873,
+        "lng": -79.371541,
+        "website": "http://www.toronto.ca/marketgallery",
+        "phone": "(416) 392-7604",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Gucci",
+        "name": "Art Boulle",
         "tag": "Shop",
-        "desc": "130 Bloor Street West Suite 102, Toronto",
-        "rating": "4.1",
+        "desc": "401 Bay Street Suite 1600, Toronto",
+        "rating": "5",
         "image": "images/listings/union-shops-14-0.jpg",
         "images": [
           "images/listings/union-shops-14-0.jpg",
           "images/listings/union-shops-14-1.jpg",
           "images/listings/union-shops-14-2.jpg"
         ],
-        "lat": 43.66921869999999,
-        "lng": -79.3927898,
-        "website": "https://www.gucci.com/global/store/130-bloor-street-west?utm_source=yext_ca&utm_medium=storemarketing&utm_campaign=gbp_23256&y_source=1_MTI0NDExNy03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
-        "phone": "(416) 963-5127",
-        "description": "Luxury brand known for modern, Italian-crafted leather goods, apparel & accessories for men & women.",
-        "hours": "Thursday: 11:00 AM – 7:00 PM"
+        "lat": 43.65172870000001,
+        "lng": -79.3813893,
+        "website": "http://www.artboulle.com/",
+        "phone": "(416) 781-4969",
+        "description": null,
+        "hours": "Thursday: 9:00 AM – 5:00 PM"
       },
       {
-        "name": "The Home Depot",
+        "name": "Women's Art Association Of Canada",
         "tag": "Shop",
-        "desc": "1000 Gerrard Street East, Toronto",
-        "rating": "4",
+        "desc": "23 Prince Arthur Avenue, Toronto",
+        "rating": "4.6",
         "image": "images/listings/union-shops-15-0.jpg",
         "images": [
           "images/listings/union-shops-15-0.jpg",
           "images/listings/union-shops-15-1.jpg",
           "images/listings/union-shops-15-2.jpg"
         ],
-        "lat": 43.6693401,
-        "lng": -79.3384056,
-        "website": "https://stores.homedepot.ca/on/toronto/home-improvement-toronto-on-7080.html?utm_source=google&utm_medium=organic&utm_campaign=local&utm_content=7080",
-        "phone": "(416) 462-6270",
-        "description": "Chain home improvement retailer for tools, appliances & other products (some offer truck rentals).",
-        "hours": "Thursday: 6:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Food Basics",
-        "tag": "Shop",
-        "desc": "238 Wellesley Street East, Toronto",
-        "rating": "3.6",
-        "image": "images/listings/union-shops-16-0.jpg",
-        "images": [
-          "images/listings/union-shops-16-0.jpg",
-          "images/listings/union-shops-16-1.jpg",
-          "images/listings/union-shops-16-2.jpg"
-        ],
-        "lat": 43.66814389999999,
-        "lng": -79.37175959999999,
-        "website": "http://www.foodbasics.ca/?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(416) 925-5052",
+        "lat": 43.6693451,
+        "lng": -79.39629269999999,
+        "website": "http://www.womensartofcanada.ca/",
+        "phone": "(416) 922-2060",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
+        "hours": "Thursday: 11:00 AM – 5:00 PM"
       },
       {
-        "name": "The UPS Store",
+        "name": "Toronto Digital Centre",
         "tag": "Shop",
-        "desc": "719 Bloor Street West #101, Toronto",
-        "rating": "4.3",
+        "desc": "1 Yonge Street, Toronto",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.6424384,
+        "lng": -79.3745555,
+        "website": null,
+        "phone": "(416) 821-7238",
+        "description": null,
+        "hours": "Thursday: 9:00 AM – 5:00 PM"
+      },
+      {
+        "name": "canadianartgroup.com",
+        "tag": "Shop",
+        "desc": "55 Avenue Road #2975, Toronto",
+        "rating": "5",
         "image": "images/listings/union-shops-17-0.jpg",
         "images": [
           "images/listings/union-shops-17-0.jpg",
           "images/listings/union-shops-17-1.jpg",
           "images/listings/union-shops-17-2.jpg"
         ],
-        "lat": 43.6634278,
-        "lng": -79.4180588,
-        "website": "http://theupsstore.ca/436",
-        "phone": "(416) 645-1740",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 8:30 AM – 6:30 PM"
+        "lat": 43.6713223,
+        "lng": -79.3947378,
+        "website": "http://www.canadianartgroup.com/",
+        "phone": "(416) 774-8575",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Walking On A Cloud",
+        "name": "Silver Snail",
         "tag": "Shop",
-        "desc": "67 Yonge Street, Toronto",
-        "rating": "4",
+        "desc": "809 Queen Street West, Toronto",
+        "rating": "4.4",
         "image": "images/listings/union-shops-18-0.jpg",
         "images": [
           "images/listings/union-shops-18-0.jpg",
           "images/listings/union-shops-18-1.jpg",
           "images/listings/union-shops-18-2.jpg"
         ],
-        "lat": 43.64877,
-        "lng": -79.3775086,
-        "website": "https://www.walkingonacloudshoes.ca/",
-        "phone": "(416) 214-0848",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 7:00 PM"
+        "lat": 43.6460389,
+        "lng": -79.40896889999999,
+        "website": "http://www.silversnail.com/",
+        "phone": "(647) 646-0889",
+        "description": "Comic book shop stocked with a broad selection of new items, collectibles, toys & games.",
+        "hours": "Thursday: 11:00 AM – 8:00 PM"
       },
       {
-        "name": "Vistek Toronto",
+        "name": "AnimeXtreme Inc.",
         "tag": "Shop",
-        "desc": "496 Queen Street East, Toronto",
-        "rating": "4.6",
+        "desc": "327 Spadina Avenue Main Floor, Toronto",
+        "rating": "3.4",
         "image": "images/listings/union-shops-19-0.jpg",
         "images": [
           "images/listings/union-shops-19-0.jpg",
           "images/listings/union-shops-19-1.jpg",
           "images/listings/union-shops-19-2.jpg"
         ],
-        "lat": 43.6568416,
-        "lng": -79.3599747,
-        "website": "http://www.vistek.ca/",
-        "phone": "(416) 365-1777",
-        "description": "Outpost of a chain offering still & video cameras, computers, commercial printers & rentals.",
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
+        "lat": 43.6545736,
+        "lng": -79.3982242,
+        "website": "http://animextreme.ca/",
+        "phone": "(416) 979-0399",
+        "description": "Niche shop stocked with Japanese anime imports, from movies & books to model kits, toys & figurines.",
+        "hours": "Thursday: 12:00 – 6:00 PM"
       }
     ]
   },
@@ -3219,63 +3211,59 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Best Buy",
+        "name": "Dadashi Art Gallery",
         "tag": "Shop",
-        "desc": "225 High Tech Road Unit 3, Richmond Hill",
-        "rating": "3.6",
+        "desc": "9875 Yonge Street, Richmond Hill",
+        "rating": "4.3",
         "image": "images/listings/langstaff-shops-0-0.jpg",
         "images": [
           "images/listings/langstaff-shops-0-0.jpg",
           "images/listings/langstaff-shops-0-1.jpg",
           "images/listings/langstaff-shops-0-2.jpg"
         ],
-        "lat": 43.8419634,
-        "lng": -79.4175206,
-        "website": "https://stores.bestbuy.ca/en-ca/on/richmond-hill/225-high-tech-rd-unit-3",
-        "phone": "(866) 237-8289",
-        "description": "Chain retailer with a large array of brand-name electronics, computers, appliances & more.",
+        "lat": 43.8682753,
+        "lng": -79.43606179999999,
+        "website": "http://dadashigallery.com/",
+        "phone": "(416) 250-6050",
+        "description": null,
         "hours": "Thursday: 10:00 AM – 8:00 PM"
       },
       {
-        "name": "The Home Depot",
+        "name": "Irena Art Gallery",
         "tag": "Shop",
-        "desc": "50 Red Maple Road, Richmond Hill",
-        "rating": "4.1",
+        "desc": "7163 Yonge Street Unit 228, Thornhill",
+        "rating": "3.8",
         "image": "images/listings/langstaff-shops-1-0.jpg",
         "images": [
           "images/listings/langstaff-shops-1-0.jpg",
           "images/listings/langstaff-shops-1-1.jpg",
           "images/listings/langstaff-shops-1-2.jpg"
         ],
-        "lat": 43.8408848,
-        "lng": -79.4237948,
-        "website": "https://stores.homedepot.ca/on/richmondhill/home-improvement-richmondhill-on-7106.html?utm_source=google&utm_medium=organic&utm_campaign=local&utm_content=7106",
-        "phone": "(905) 763-2311",
-        "description": "Chain home improvement retailer for tools, appliances & other products (some offer truck rentals).",
-        "hours": "Thursday: 6:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Sobeys Clark & Hilda",
-        "tag": "Shop",
-        "desc": "441 Clark Avenue West, Thornhill",
-        "rating": "4.2",
-        "image": "images/listings/langstaff-shops-2-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-2-0.jpg",
-          "images/listings/langstaff-shops-2-1.jpg",
-          "images/listings/langstaff-shops-2-2.jpg"
-        ],
-        "lat": 43.80454399999999,
-        "lng": -79.437891,
-        "website": "https://www.sobeys.com/stores/sobeys-clark-hilda/?utm_source=G&utm_medium=lpm&utm_campaign=Sobeys",
-        "phone": "(905) 764-3770",
+        "lat": 43.8025412,
+        "lng": -79.420717,
+        "website": "http://www.alijanpour.com/",
+        "phone": "(416) 733-1483",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
+        "hours": "Thursday: 10:00 AM – 8:00 PM"
       },
       {
-        "name": "Silent Sports",
+        "name": "Joan of Art Corporation Art Conslnts",
         "tag": "Shop",
-        "desc": "111 Doncaster Avenue, Thornhill",
+        "desc": "515 Sharron Bay South, Richmond Hill",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.8828401,
+        "lng": -79.4402808,
+        "website": "https://joanart.com/",
+        "phone": "(905) 737-9191",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Burr House Craft Gallery & Tea Room",
+        "tag": "Shop",
+        "desc": "530 Carrville Road, Richmond Hill",
         "rating": "4.7",
         "image": "images/listings/langstaff-shops-3-0.jpg",
         "images": [
@@ -3283,203 +3271,259 @@ window.LISTINGS_DATA = {
           "images/listings/langstaff-shops-3-1.jpg",
           "images/listings/langstaff-shops-3-2.jpg"
         ],
-        "lat": 43.8046798,
-        "lng": -79.4123695,
-        "website": "https://www.silentsports.com/",
-        "phone": "(905) 889-3772",
+        "lat": 43.8497051,
+        "lng": -79.4497951,
+        "website": null,
+        "phone": "(905) 884-0327",
         "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
+        "hours": null
       },
       {
-        "name": "Staples",
+        "name": "Dadashi Art Gallery",
         "tag": "Shop",
-        "desc": "45 Red Maple Road, Richmond Hill",
-        "rating": "4",
+        "desc": "6303 Yonge Street, North York",
+        "rating": "4.3",
         "image": "images/listings/langstaff-shops-4-0.jpg",
         "images": [
           "images/listings/langstaff-shops-4-0.jpg",
           "images/listings/langstaff-shops-4-1.jpg",
           "images/listings/langstaff-shops-4-2.jpg"
         ],
-        "lat": 43.84154400000001,
-        "lng": -79.4221294,
-        "website": "https://stores.staples.ca/on/richmondhill/office-supplies-ca-155.html",
-        "phone": "(905) 882-6995",
-        "description": "Chain retailer offering brand-name electronics & print services, plus office supplies & furniture.",
-        "hours": "Thursday: 9:00 AM – 9:00 PM"
+        "lat": 43.7956868,
+        "lng": -79.419215,
+        "website": "https://www.gallerydadashi.com/",
+        "phone": "(416) 268-8776",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 7:00 PM"
       },
       {
-        "name": "Food Basics",
+        "name": "Ray's Picture Frames and Art Centre Inc.",
         "tag": "Shop",
-        "desc": "10 Royal Orchard Boulevard, Thornhill",
-        "rating": "3.8",
+        "desc": "9174 Yonge Street, Richmond Hill",
+        "rating": "4.4",
         "image": "images/listings/langstaff-shops-5-0.jpg",
         "images": [
           "images/listings/langstaff-shops-5-0.jpg",
           "images/listings/langstaff-shops-5-1.jpg",
           "images/listings/langstaff-shops-5-2.jpg"
         ],
-        "lat": 43.8237581,
-        "lng": -79.4241411,
-        "website": "http://www.foodbasics.ca/?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(905) 764-8555",
+        "lat": 43.8507495,
+        "lng": -79.4333525,
+        "website": null,
+        "phone": "(905) 707-6279",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
+        "hours": "Thursday: 10:00 AM – 8:00 PM"
       },
       {
-        "name": "The UPS Store",
+        "name": "MoodPlain",
         "tag": "Shop",
-        "desc": "155 East Beaver Creek Road Ste 24, Richmond Hill",
-        "rating": "2.8",
-        "image": "images/listings/langstaff-shops-6-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-6-0.jpg",
-          "images/listings/langstaff-shops-6-1.jpg",
-          "images/listings/langstaff-shops-6-2.jpg"
-        ],
-        "lat": 43.849099,
-        "lng": -79.3781453,
-        "website": "http://theupsstore.ca/29",
-        "phone": "(905) 889-2554",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "desc": "9050 Yonge Street Unit 210, Richmond Hill",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.847827,
+        "lng": -79.4324999,
+        "website": null,
+        "phone": "(416) 550-6815",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Tim Hortons",
+        "name": "Showcase AI",
         "tag": "Shop",
-        "desc": "50a Red Maple Road, Richmond Hill",
-        "rating": "3.7",
+        "desc": "8129 Yonge Street, Thornhill",
+        "rating": "NR",
         "image": "images/listings/langstaff-shops-7-0.jpg",
         "images": [
           "images/listings/langstaff-shops-7-0.jpg",
           "images/listings/langstaff-shops-7-1.jpg",
           "images/listings/langstaff-shops-7-2.jpg"
         ],
-        "lat": 43.8404373,
-        "lng": -79.42235869999999,
-        "website": "http://locations.timhortons.ca/en/on/richmond-hill/50a-red-maple-rd",
-        "phone": "(905) 881-4566",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 10:00 PM"
+        "lat": 43.826012,
+        "lng": -79.4261855,
+        "website": null,
+        "phone": "(416) 388-4655",
+        "description": null,
+        "hours": "Thursday: Open 24 hours"
       },
       {
-        "name": "ALDO",
+        "name": "Urban Customz Hillcrest Mall - Custom Printed T-Shirts, Apparel and Art",
         "tag": "Shop",
-        "desc": "9350 Yonge Street E006A, Richmond Hill",
-        "rating": "3.7",
+        "desc": "9350 Yonge Street, Richmond Hill",
+        "rating": "4.7",
         "image": "images/listings/langstaff-shops-8-0.jpg",
         "images": [
           "images/listings/langstaff-shops-8-0.jpg",
           "images/listings/langstaff-shops-8-1.jpg",
           "images/listings/langstaff-shops-8-2.jpg"
         ],
-        "lat": 43.85485449999999,
-        "lng": -79.436539,
-        "website": "https://www.aldoshoes.com/ca/en?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(905) 770-2399",
-        "description": "Chain store featuring men's & women's shoes, boots & accessories in fashionable styles.",
+        "lat": 43.8546701,
+        "lng": -79.43698409999999,
+        "website": "https://urbancustomz.com/pages/custom-t-shirts-richmond-hill",
+        "phone": "(905) 884-1880",
+        "description": null,
         "hours": "Thursday: 10:00 AM – 9:00 PM"
       },
       {
-        "name": "The UPS Store",
+        "name": "shanooshart",
         "tag": "Shop",
-        "desc": "8707 Dufferin Street #10, Thornhill",
-        "rating": "4",
-        "image": "images/listings/langstaff-shops-9-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-9-0.jpg",
-          "images/listings/langstaff-shops-9-1.jpg",
-          "images/listings/langstaff-shops-9-2.jpg"
-        ],
-        "lat": 43.82950390000001,
-        "lng": -79.4780471,
-        "website": "http://www.theupsstore.ca/361",
-        "phone": "(905) 771-0845",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "desc": "9580 Yonge Street, Richmond Hill",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.861073,
+        "lng": -79.4359249,
+        "website": null,
+        "phone": null,
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Tim Hortons",
+        "name": "Narsis Gallery",
         "tag": "Shop",
-        "desc": "9275 Bayview Avenue Building B, Richmond Hill",
-        "rating": "3.6",
-        "image": "images/listings/langstaff-shops-10-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-10-0.jpg",
-          "images/listings/langstaff-shops-10-1.jpg",
-          "images/listings/langstaff-shops-10-2.jpg"
-        ],
-        "lat": 43.8571497,
-        "lng": -79.4098669,
-        "website": "https://locations.timhortons.ca/en/on/richmond-hill/9275-bayview-ave",
-        "phone": "(905) 731-3672",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
+        "desc": "111 Valleymede Drive, Richmond Hill",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.8454336,
+        "lng": -79.397578,
+        "website": null,
+        "phone": null,
+        "description": null,
+        "hours": null
       },
       {
-        "name": "The UPS Store",
+        "name": "Robert West Heritage House",
         "tag": "Shop",
-        "desc": "8171 Yonge Street, Thornhill",
-        "rating": "4.5",
+        "desc": "7780 Yonge Street, Thornhill",
+        "rating": "NR",
         "image": "images/listings/langstaff-shops-11-0.jpg",
         "images": [
           "images/listings/langstaff-shops-11-0.jpg",
           "images/listings/langstaff-shops-11-1.jpg",
           "images/listings/langstaff-shops-11-2.jpg"
         ],
-        "lat": 43.8269135,
-        "lng": -79.4262279,
-        "website": "http://theupsstore.ca/204",
-        "phone": "(905) 763-8800",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "lat": 43.81715519999999,
+        "lng": -79.4250479,
+        "website": "http://thornhillheritagefoundation.org/wb/pages/home/2021-art-contest.php",
+        "phone": null,
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Rogers",
+        "name": "33 Deva-loka Art Studio 三十三天造物",
         "tag": "Shop",
-        "desc": "9200 Bathurst Street Unit C0013, Thornhill",
-        "rating": "3.8",
+        "desc": "7711 Yonge Street #201E, Markham",
+        "rating": "4.9",
         "image": "images/listings/langstaff-shops-12-0.jpg",
         "images": [
           "images/listings/langstaff-shops-12-0.jpg",
           "images/listings/langstaff-shops-12-1.jpg",
           "images/listings/langstaff-shops-12-2.jpg"
         ],
-        "lat": 43.84713259999999,
-        "lng": -79.4591026,
-        "website": "https://www.rogers.com/stores/thornhill/rutherford-village-shopping-centre",
-        "phone": "(905) 889-7831",
+        "lat": 43.8156464,
+        "lng": -79.4240751,
+        "website": "http://iryan9741.web.97jindianzi.com/vip_iryan9741.html",
+        "phone": "(519) 729-5872",
         "description": null,
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
+        "hours": "Thursday: 11:00 AM – 8:00 PM"
       },
       {
-        "name": "What A Bagel",
+        "name": "YM Art Gallery & Art Gala Inc",
         "tag": "Shop",
-        "desc": "9330 Bathurst Street, Richmond Hill",
-        "rating": "4.3",
+        "desc": "100 West Beaver Creek Road #13, Richmond Hill",
+        "rating": "4.5",
         "image": "images/listings/langstaff-shops-13-0.jpg",
         "images": [
           "images/listings/langstaff-shops-13-0.jpg",
           "images/listings/langstaff-shops-13-1.jpg",
           "images/listings/langstaff-shops-13-2.jpg"
         ],
-        "lat": 43.8490606,
-        "lng": -79.4596664,
-        "website": "http://www.whatabagel.com/",
-        "phone": "(905) 417-5600",
-        "description": "Bagel bakery serving the house specialty, plus breakfasts & sandwiches, morning to mid-afternoon.",
-        "hours": "Thursday: 6:30 AM – 5:00 PM"
+        "lat": 43.8511823,
+        "lng": -79.3940435,
+        "website": "https://www.ymartgallery.ca/",
+        "phone": "(905) 763-8108",
+        "description": null,
+        "hours": "Thursday: 9:30 AM – 6:00 PM"
+      },
+      {
+        "name": "Unwind Art Studio and gallery",
+        "tag": "Shop",
+        "desc": "85 West Wilmot Street #3, Richmond Hill",
+        "rating": "4.9",
+        "image": "images/listings/langstaff-shops-14-0.jpg",
+        "images": [
+          "images/listings/langstaff-shops-14-0.jpg",
+          "images/listings/langstaff-shops-14-1.jpg",
+          "images/listings/langstaff-shops-14-2.jpg"
+        ],
+        "lat": 43.85167879999999,
+        "lng": -79.3910535,
+        "website": "http://www.unwindartstudio.com/",
+        "phone": "(416) 567-6794",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Rohan Home Designs & Gallery",
+        "tag": "Shop",
+        "desc": "170 West Beaver Creek Road #2, Richmond Hill",
+        "rating": "5",
+        "image": "images/listings/langstaff-shops-15-0.jpg",
+        "images": [
+          "images/listings/langstaff-shops-15-0.jpg",
+          "images/listings/langstaff-shops-15-1.jpg",
+          "images/listings/langstaff-shops-15-2.jpg"
+        ],
+        "lat": 43.8472543,
+        "lng": -79.3881796,
+        "website": "http://www.rohanhomedesigns.com/",
+        "phone": "(647) 997-0200",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "Oblivion Ink Studios",
+        "tag": "Shop",
+        "desc": "#111, 9005 Leslie Street, Richmond Hill",
+        "rating": "4.9",
+        "image": "images/listings/langstaff-shops-16-0.jpg",
+        "images": [
+          "images/listings/langstaff-shops-16-0.jpg",
+          "images/listings/langstaff-shops-16-1.jpg",
+          "images/listings/langstaff-shops-16-2.jpg"
+        ],
+        "lat": 43.8459541,
+        "lng": -79.3822496,
+        "website": "http://oblivioninkstudios.com/",
+        "phone": "(647) 609-7548",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Lili Art Studio",
+        "tag": "Shop",
+        "desc": "7700 Bathurst Street, Vaughan",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 43.8102132,
+        "lng": -79.45099429999999,
+        "website": "https://www.artbylili.ca/",
+        "phone": null,
+        "description": null,
+        "hours": null
       },
       {
         "name": "Heroes World",
         "tag": "Shop",
         "desc": "9078 Leslie Street Unit #1, Richmond Hill",
         "rating": "4.7",
-        "image": "images/listings/langstaff-shops-14-0.jpg",
+        "image": "images/listings/langstaff-shops-18-0.jpg",
         "images": [
-          "images/listings/langstaff-shops-14-0.jpg",
-          "images/listings/langstaff-shops-14-1.jpg",
-          "images/listings/langstaff-shops-14-2.jpg"
+          "images/listings/langstaff-shops-18-0.jpg",
+          "images/listings/langstaff-shops-18-1.jpg",
+          "images/listings/langstaff-shops-18-2.jpg"
         ],
         "lat": 43.85290920000001,
         "lng": -79.3857111,
@@ -3489,94 +3533,22 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 11:00 AM – 7:00 PM"
       },
       {
-        "name": "Yonge Steeles Ford Lincoln",
+        "name": "Planet X",
         "tag": "Shop",
-        "desc": "7120 Yonge Street, Thornhill",
-        "rating": "4.2",
-        "image": "images/listings/langstaff-shops-15-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-15-0.jpg",
-          "images/listings/langstaff-shops-15-1.jpg",
-          "images/listings/langstaff-shops-15-2.jpg"
-        ],
-        "lat": 43.8012381,
-        "lng": -79.4218223,
-        "website": "https://yongesteelesfordlincoln.com/",
-        "phone": "(905) 889-7343",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "9005 Leslie Street Unit 1 & 2, Richmond Hill",
-        "rating": "3.9",
-        "image": "images/listings/langstaff-shops-16-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-16-0.jpg",
-          "images/listings/langstaff-shops-16-1.jpg",
-          "images/listings/langstaff-shops-16-2.jpg"
-        ],
-        "lat": 43.8453233,
-        "lng": -79.3820209,
-        "website": "https://locations.timhortons.ca/en/on/richmond-hill/9005-leslie-st",
-        "phone": "(905) 882-9990",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 10:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "7689 Yonge Street, Thornhill",
-        "rating": "3.9",
-        "image": "images/listings/langstaff-shops-17-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-17-0.jpg",
-          "images/listings/langstaff-shops-17-1.jpg",
-          "images/listings/langstaff-shops-17-2.jpg"
-        ],
-        "lat": 43.8150695,
-        "lng": -79.4234835,
-        "website": "https://locations.timhortons.ca/en/on/thornhill/7689-yonge-st",
-        "phone": "(905) 709-9128",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:30 AM – 10:30 PM"
-      },
-      {
-        "name": "Promenade Shopping Centre",
-        "tag": "Shop",
-        "desc": "1 Promenade Circle, Thornhill",
-        "rating": "4.1",
-        "image": "images/listings/langstaff-shops-18-0.jpg",
-        "images": [
-          "images/listings/langstaff-shops-18-0.jpg",
-          "images/listings/langstaff-shops-18-1.jpg",
-          "images/listings/langstaff-shops-18-2.jpg"
-        ],
-        "lat": 43.8068338,
-        "lng": -79.4538852,
-        "website": "http://www.promenade.ca/",
-        "phone": "(905) 764-0020",
-        "description": "Functional, spacious indoor shopping mall with a wide array of clothing, retail & electronics shops.",
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Walmart Supercentre",
-        "tag": "Shop",
-        "desc": "255 Silver Linden Drive, Richmond Hill",
-        "rating": "3.8",
+        "desc": "815 Major Mackenzie Drive East, Richmond Hill",
+        "rating": "4.4",
         "image": "images/listings/langstaff-shops-19-0.jpg",
         "images": [
           "images/listings/langstaff-shops-19-0.jpg",
           "images/listings/langstaff-shops-19-1.jpg",
           "images/listings/langstaff-shops-19-2.jpg"
         ],
-        "lat": 43.8420667,
-        "lng": -79.4158803,
-        "website": "https://www.walmart.ca/en/store/1116?utm_source=local&utm_medium=listings&utm_campaign=sc&cmpid=gmb",
-        "phone": "(905) 747-0628",
+        "lat": 43.8756958,
+        "lng": -79.41398869999999,
+        "website": "http://www.eplanetx.com/",
+        "phone": "(905) 883-9324",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 11:00 PM"
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       }
     ]
   },
@@ -4476,274 +4448,6 @@ window.LISTINGS_DATA = {
         "phone": "(905) 415-1851",
         "description": null,
         "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "LeResco Leather Restoration",
-        "tag": "Shop",
-        "desc": "11 Cardico Drive, Gormley",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 43.95492589999999,
-        "lng": -79.3842781,
-        "website": null,
-        "phone": "(905) 888-8802",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Tarcova Precast Ltd",
-        "tag": "Shop",
-        "desc": "13053 Woodbine Avenue, Gormley",
-        "rating": "4.5",
-        "image": "images/listings/gormley-shops-5-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-5-0.jpg",
-          "images/listings/gormley-shops-5-1.jpg",
-          "images/listings/gormley-shops-5-2.jpg"
-        ],
-        "lat": 43.9618845,
-        "lng": -79.3819242,
-        "website": "https://www.tarcova.com/",
-        "phone": "(905) 888-1060",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Jenkins Soil Mixtures",
-        "tag": "Shop",
-        "desc": "12519 Woodbine Avenue, Gormley",
-        "rating": "4.1",
-        "image": null,
-        "images": [],
-        "lat": 43.94975660000001,
-        "lng": -79.3761444,
-        "website": "https://jenkinssoil.ca/",
-        "phone": "(905) 773-2000",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Greenhawk Equestrian Sport - Gormley",
-        "tag": "Shop",
-        "desc": "5 Gormley Industrial Avenue, Gormley",
-        "rating": "4.6",
-        "image": "images/listings/gormley-shops-7-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-7-0.jpg",
-          "images/listings/gormley-shops-7-1.jpg",
-          "images/listings/gormley-shops-7-2.jpg"
-        ],
-        "lat": 43.94436759999999,
-        "lng": -79.37761739999999,
-        "website": "http://www.greenhawk.com/",
-        "phone": "(905) 888-4666",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Bl Woodworking Des",
-        "tag": "Shop",
-        "desc": "15 Gormley Industrial Avenue, Gormley",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 43.9443996,
-        "lng": -79.3763857,
-        "website": "http://www.blwoodworking.ca/",
-        "phone": "(905) 888-8817",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Manchee Leathers",
-        "tag": "Shop",
-        "desc": "11 Cardico Drive, Gormley",
-        "rating": "NR",
-        "image": "images/listings/gormley-shops-9-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-9-0.jpg"
-        ],
-        "lat": 43.95492589999999,
-        "lng": -79.3842781,
-        "website": "http://mancheeleathers.com/",
-        "phone": "(905) 888-0777",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 4:00 PM"
-      },
-      {
-        "name": "Petro-Canada",
-        "tag": "Shop",
-        "desc": "2329 Stouffville Side Rd, Gormley",
-        "rating": "3.5",
-        "image": "images/listings/gormley-shops-10-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-10-0.jpg",
-          "images/listings/gormley-shops-10-1.jpg",
-          "images/listings/gormley-shops-10-2.jpg"
-        ],
-        "lat": 43.94171430000001,
-        "lng": -79.3785393,
-        "website": "https://www.petro-canada.ca/en/personal/gas-station-locations/2329-stouffville-side-road-gormley?utm_source=G&utm_medium=lpm&utm_campaign=suncor",
-        "phone": "(905) 887-5528",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "12332 Woodbine Avenue, Gormley",
-        "rating": "3.7",
-        "image": "images/listings/gormley-shops-11-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-11-0.jpg",
-          "images/listings/gormley-shops-11-1.jpg",
-          "images/listings/gormley-shops-11-2.jpg"
-        ],
-        "lat": 43.9428756,
-        "lng": -79.3796497,
-        "website": "http://locations.timhortons.ca/en/on/gormley/12332-woodbine-ave",
-        "phone": "(905) 888-1444",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "HUSKY/ESSO",
-        "tag": "Shop",
-        "desc": "2210 Stouffville Road, Gormley",
-        "rating": "3.5",
-        "image": "images/listings/gormley-shops-12-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-12-0.jpg",
-          "images/listings/gormley-shops-12-1.jpg",
-          "images/listings/gormley-shops-12-2.jpg"
-        ],
-        "lat": 43.942144,
-        "lng": -79.37968599999999,
-        "website": null,
-        "phone": "(905) 887-0040",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Spectrodata Communications Inc.",
-        "tag": "Shop",
-        "desc": "4160 19th Avenue, Markham",
-        "rating": "1",
-        "image": "images/listings/gormley-shops-13-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-13-0.jpg"
-        ],
-        "lat": 43.93156419999999,
-        "lng": -79.3382532,
-        "website": "http://www.spectrodata.com/",
-        "phone": "(905) 475-5199",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 4:30 PM"
-      },
-      {
-        "name": "B. E. Larkin Equipment",
-        "tag": "Shop",
-        "desc": "3769 Stouffville Road, Gormley",
-        "rating": "4.3",
-        "image": "images/listings/gormley-shops-14-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-14-0.jpg",
-          "images/listings/gormley-shops-14-1.jpg",
-          "images/listings/gormley-shops-14-2.jpg"
-        ],
-        "lat": 43.9521179,
-        "lng": -79.33209219999999,
-        "website": "http://www.larkinequipment.com/",
-        "phone": "(905) 887-0802",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Kennedy Greenhouses",
-        "tag": "Shop",
-        "desc": "11574 Kennedy Road, Markham",
-        "rating": "4.5",
-        "image": "images/listings/gormley-shops-15-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-15-0.jpg",
-          "images/listings/gormley-shops-15-1.jpg",
-          "images/listings/gormley-shops-15-2.jpg"
-        ],
-        "lat": 43.93571159999999,
-        "lng": -79.3289411,
-        "website": "http://kennedygreenhouses.square.site/",
-        "phone": "(833) 425-6667",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Jolana's Exceptional Home Decor",
-        "tag": "Shop",
-        "desc": "Gormley",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 43.97587499999999,
-        "lng": -79.385975,
-        "website": "https://www.jolanas.com/",
-        "phone": "(905) 888-5225",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Honda Canada Inc",
-        "tag": "Shop",
-        "desc": "180 Honda Boulevard Suite 200, Markham",
-        "rating": "2.5",
-        "image": "images/listings/gormley-shops-17-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-17-0.jpg",
-          "images/listings/gormley-shops-17-1.jpg",
-          "images/listings/gormley-shops-17-2.jpg"
-        ],
-        "lat": 43.9148761,
-        "lng": -79.3838765,
-        "website": "https://www.honda.ca/",
-        "phone": "(888) 946-6329",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 7:30 PM"
-      },
-      {
-        "name": "Circling Hawk Honey & Mead",
-        "tag": "Shop",
-        "desc": "13433 Leslie Street, Richmond Hill",
-        "rating": "4.9",
-        "image": "images/listings/gormley-shops-18-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-18-0.jpg",
-          "images/listings/gormley-shops-18-1.jpg",
-          "images/listings/gormley-shops-18-2.jpg"
-        ],
-        "lat": 43.9653489,
-        "lng": -79.40738929999999,
-        "website": "http://www.circlinghawkfarm.com/",
-        "phone": "(289) 809-4360",
-        "description": null,
-        "hours": "Thursday: 1:00 – 5:00 PM"
-      },
-      {
-        "name": "Inspired Stone Corporation",
-        "tag": "Shop",
-        "desc": "13878 Woodbine Avenue #2, Gormley",
-        "rating": "5",
-        "image": "images/listings/gormley-shops-19-0.jpg",
-        "images": [
-          "images/listings/gormley-shops-19-0.jpg",
-          "images/listings/gormley-shops-19-1.jpg",
-          "images/listings/gormley-shops-19-2.jpg"
-        ],
-        "lat": 43.9818723,
-        "lng": -79.38770819999999,
-        "website": "http://house2050.ca/",
-        "phone": "(905) 713-0062",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
       }
     ]
   },
@@ -5346,15 +5050,50 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
+        "name": "Washago Art Gallery & Club",
+        "tag": "Shop",
+        "desc": "4361 Hamilton Street, Washago",
+        "rating": "5",
+        "image": "images/listings/washago-shops-0-0.jpg",
+        "images": [
+          "images/listings/washago-shops-0-0.jpg",
+          "images/listings/washago-shops-0-1.jpg"
+        ],
+        "lat": 44.75065310000001,
+        "lng": -79.33393,
+        "website": "https://washago.art/",
+        "phone": null,
+        "description": null,
+        "hours": "Thursday: Closed"
+      },
+      {
+        "name": "R. Vander Meer Fine Arts and Fly Fishing",
+        "tag": "Shop",
+        "desc": "3378 Muskoka Street, Washago",
+        "rating": "5",
+        "image": "images/listings/washago-shops-1-0.jpg",
+        "images": [
+          "images/listings/washago-shops-1-0.jpg",
+          "images/listings/washago-shops-1-1.jpg",
+          "images/listings/washago-shops-1-2.jpg"
+        ],
+        "lat": 44.75066229999999,
+        "lng": -79.3336451,
+        "website": "https://vandermeerfineartsandflyfishing.ca/",
+        "phone": "(705) 325-4874",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 4:00 PM"
+      },
+      {
         "name": "Ellwood Epps Sporting Goods",
         "tag": "Shop",
         "desc": "9431 Ontario 11, Severn",
         "rating": "4.3",
-        "image": "images/listings/washago-shops-0-0.jpg",
+        "image": "images/listings/washago-shops-2-0.jpg",
         "images": [
-          "images/listings/washago-shops-0-0.jpg",
-          "images/listings/washago-shops-0-1.jpg",
-          "images/listings/washago-shops-0-2.jpg"
+          "images/listings/washago-shops-2-0.jpg",
+          "images/listings/washago-shops-2-1.jpg",
+          "images/listings/washago-shops-2-2.jpg"
         ],
         "lat": 44.716921,
         "lng": -79.37963599999999,
@@ -5368,11 +5107,11 @@ window.LISTINGS_DATA = {
         "tag": "Shop",
         "desc": "9333 Ontario 11, Severn",
         "rating": "4.2",
-        "image": "images/listings/washago-shops-1-0.jpg",
+        "image": "images/listings/washago-shops-3-0.jpg",
         "images": [
-          "images/listings/washago-shops-1-0.jpg",
-          "images/listings/washago-shops-1-1.jpg",
-          "images/listings/washago-shops-1-2.jpg"
+          "images/listings/washago-shops-3-0.jpg",
+          "images/listings/washago-shops-3-1.jpg",
+          "images/listings/washago-shops-3-2.jpg"
         ],
         "lat": 44.71293639999999,
         "lng": -79.38269799999999,
@@ -5380,314 +5119,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 689-5333",
         "description": null,
         "hours": "Thursday: 7:00 AM – 4:00 PM"
-      },
-      {
-        "name": "Blaine's Automotive And Tire",
-        "tag": "Shop",
-        "desc": "10950 Ontario 11, Severn Bridge",
-        "rating": "4.8",
-        "image": "images/listings/washago-shops-2-0.jpg",
-        "images": [
-          "images/listings/washago-shops-2-0.jpg",
-          "images/listings/washago-shops-2-1.jpg",
-          "images/listings/washago-shops-2-2.jpg"
-        ],
-        "lat": 44.773696,
-        "lng": -79.335285,
-        "website": "https://www.blainesautomotive.com/",
-        "phone": "(705) 689-2291",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Washago Home Hardware",
-        "tag": "Shop",
-        "desc": "3375 Muskoka Street, Washago",
-        "rating": "4.8",
-        "image": "images/listings/washago-shops-3-0.jpg",
-        "images": [
-          "images/listings/washago-shops-3-0.jpg",
-          "images/listings/washago-shops-3-1.jpg",
-          "images/listings/washago-shops-3-2.jpg"
-        ],
-        "lat": 44.7506986,
-        "lng": -79.33308459999999,
-        "website": "https://www.homehardware.ca/en/store/11336?utm_source=google&utm_medium=organic_search&utm_campaign=local_seo&utm_content=11336",
-        "phone": "(705) 689-2611",
-        "description": "Branch of a chain store offering products like paint, tools, grills & home-improvement supplies.",
-        "hours": "Thursday: 7:30 AM – 6:00 PM"
-      },
-      {
-        "name": "Old Muskokie Smokies",
-        "tag": "Shop",
-        "desc": "8065 Rama Road, Washago",
-        "rating": "4.8",
-        "image": "images/listings/washago-shops-4-0.jpg",
-        "images": [
-          "images/listings/washago-shops-4-0.jpg"
-        ],
-        "lat": 44.73888009999999,
-        "lng": -79.3308715,
-        "website": null,
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "ChocOlatte",
-        "tag": "Shop",
-        "desc": "3395 Muskoka Street, Washago",
-        "rating": "NR",
-        "image": "images/listings/washago-shops-5-0.jpg",
-        "images": [
-          "images/listings/washago-shops-5-0.jpg",
-          "images/listings/washago-shops-5-1.jpg",
-          "images/listings/washago-shops-5-2.jpg"
-        ],
-        "lat": 44.7498798,
-        "lng": -79.3334146,
-        "website": null,
-        "phone": "(647) 222-3163",
-        "description": null,
-        "hours": "Thursday: 12:00 – 7:00 PM"
-      },
-      {
-        "name": "Scoopz",
-        "tag": "Shop",
-        "desc": "3395 Muskoka Street, Washago",
-        "rating": "5",
-        "image": "images/listings/washago-shops-6-0.jpg",
-        "images": [
-          "images/listings/washago-shops-6-0.jpg",
-          "images/listings/washago-shops-6-1.jpg",
-          "images/listings/washago-shops-6-2.jpg"
-        ],
-        "lat": 44.7498798,
-        "lng": -79.3334146,
-        "website": "https://m.facebook.com/scoopzwashago",
-        "phone": "(647) 222-3163",
-        "description": null,
-        "hours": "Thursday: 12:00 – 7:00 PM"
-      },
-      {
-        "name": "Muskoka Grocery",
-        "tag": "Shop",
-        "desc": "3391 Muskoka Street, Washago",
-        "rating": "4",
-        "image": "images/listings/washago-shops-7-0.jpg",
-        "images": [
-          "images/listings/washago-shops-7-0.jpg",
-          "images/listings/washago-shops-7-1.jpg",
-          "images/listings/washago-shops-7-2.jpg"
-        ],
-        "lat": 44.74995729999999,
-        "lng": -79.3333972,
-        "website": null,
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "The Bakery",
-        "tag": "Shop",
-        "desc": "3386 Muskoka Street, Washago",
-        "rating": "4.6",
-        "image": "images/listings/washago-shops-8-0.jpg",
-        "images": [
-          "images/listings/washago-shops-8-0.jpg",
-          "images/listings/washago-shops-8-1.jpg",
-          "images/listings/washago-shops-8-2.jpg"
-        ],
-        "lat": 44.7504189,
-        "lng": -79.3337827,
-        "website": "http://www.canoefreshfoods.ca/bakery-1-1-1",
-        "phone": null,
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Canoe Fresh Food Market",
-        "tag": "Shop",
-        "desc": "3384 Muskoka Street, Washago",
-        "rating": "4.6",
-        "image": "images/listings/washago-shops-9-0.jpg",
-        "images": [
-          "images/listings/washago-shops-9-0.jpg",
-          "images/listings/washago-shops-9-1.jpg",
-          "images/listings/washago-shops-9-2.jpg"
-        ],
-        "lat": 44.75049380000001,
-        "lng": -79.3338002,
-        "website": "http://www.canoefreshfoods.ca/",
-        "phone": "(705) 514-5000",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Beers Family Pharmacy",
-        "tag": "Shop",
-        "desc": "3381 Muskoka Street, Washago",
-        "rating": "5",
-        "image": "images/listings/washago-shops-10-0.jpg",
-        "images": [
-          "images/listings/washago-shops-10-0.jpg",
-          "images/listings/washago-shops-10-1.jpg",
-          "images/listings/washago-shops-10-2.jpg"
-        ],
-        "lat": 44.75042560000001,
-        "lng": -79.3331175,
-        "website": null,
-        "phone": "(705) 689-5515",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Living Well Apothecary",
-        "tag": "Shop",
-        "desc": "3363 Muskoka Street, Washago",
-        "rating": "4.5",
-        "image": "images/listings/washago-shops-11-0.jpg",
-        "images": [
-          "images/listings/washago-shops-11-0.jpg",
-          "images/listings/washago-shops-11-1.jpg",
-          "images/listings/washago-shops-11-2.jpg"
-        ],
-        "lat": 44.7512374,
-        "lng": -79.3329465,
-        "website": "http://www.livingwellapothecary.com/",
-        "phone": "(705) 514-1129",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 4:30 PM"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "8409 Simcoe County Road 169, Washago",
-        "rating": "4.4",
-        "image": "images/listings/washago-shops-12-0.jpg",
-        "images": [
-          "images/listings/washago-shops-12-0.jpg",
-          "images/listings/washago-shops-12-1.jpg",
-          "images/listings/washago-shops-12-2.jpg"
-        ],
-        "lat": 44.75338879999999,
-        "lng": -79.33670099999999,
-        "website": "https://www.lcbo.com/en/stores/highway-169-highway-11-469?utm_medium=location&utm_source=google&utm_campaign=store469&utm_content=website",
-        "phone": "(705) 689-5110",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "jamesgamesnmore",
-        "tag": "Shop",
-        "desc": "Floral park, Washago",
-        "rating": "NR",
-        "image": "images/listings/washago-shops-13-0.jpg",
-        "images": [
-          "images/listings/washago-shops-13-0.jpg"
-        ],
-        "lat": 44.7157268,
-        "lng": -79.33976659999999,
-        "website": "https://www.jamesgamesnmore.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=3719608913616397703",
-        "phone": null,
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Black River Tattoo Studio",
-        "tag": "Shop",
-        "desc": "West River Road, Washago",
-        "rating": "5",
-        "image": "images/listings/washago-shops-14-0.jpg",
-        "images": [
-          "images/listings/washago-shops-14-0.jpg",
-          "images/listings/washago-shops-14-1.jpg",
-          "images/listings/washago-shops-14-2.jpg"
-        ],
-        "lat": 44.7453391,
-        "lng": -79.3150474,
-        "website": "http://www.blackrivertattoo.ca/",
-        "phone": null,
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Darryl Hollingsworth Ent",
-        "tag": "Shop",
-        "desc": "3305 Lake St George Boulevard, Washago",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 44.73670239999999,
-        "lng": -79.3790394,
-        "website": null,
-        "phone": "(705) 772-4091",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Busyy Bee Boutique",
-        "tag": "Shop",
-        "desc": "7543 East River Road, Washago",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 44.7398617,
-        "lng": -79.31003059999999,
-        "website": "https://busyybeeboutique.myshopify.com/",
-        "phone": "(705) 279-7543",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Cakes by Sarah",
-        "tag": "Shop",
-        "desc": "3262 Lake St George Boulevard, Washago",
-        "rating": "4.7",
-        "image": "images/listings/washago-shops-17-0.jpg",
-        "images": [
-          "images/listings/washago-shops-17-0.jpg",
-          "images/listings/washago-shops-17-1.jpg",
-          "images/listings/washago-shops-17-2.jpg"
-        ],
-        "lat": 44.7355479,
-        "lng": -79.3811075,
-        "website": "https://www.facebook.com/CakesbySarahBrunne/",
-        "phone": "(705) 331-0489",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Blue Collar Canada",
-        "tag": "Shop",
-        "desc": "2897 Fairgrounds Road, Washago",
-        "rating": "5",
-        "image": "images/listings/washago-shops-18-0.jpg",
-        "images": [
-          "images/listings/washago-shops-18-0.jpg",
-          "images/listings/washago-shops-18-1.jpg",
-          "images/listings/washago-shops-18-2.jpg"
-        ],
-        "lat": 44.74321379999999,
-        "lng": -79.3045839,
-        "website": "http://www.bluecollarcanada.ca/",
-        "phone": "(705) 345-7168",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Select Appliance",
-        "tag": "Shop",
-        "desc": "9397-9425 Ontario 11, Orillia",
-        "rating": "3",
-        "image": null,
-        "images": [],
-        "lat": 44.7159108,
-        "lng": -79.38049040000001,
-        "website": null,
-        "phone": "(705) 689-3788",
-        "description": null,
-        "hours": null
       }
     ]
   },
@@ -6913,348 +6344,22 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Tim Hortons",
+        "name": "Discover Arts Muskoka",
         "tag": "Shop",
-        "desc": "150 Talisman Drive, Gravenhurst",
-        "rating": "3.5",
+        "desc": "Town of, 100 Muskoka Road North, Gravenhurst",
+        "rating": "5",
         "image": "images/listings/gravenhurst-shops-0-0.jpg",
         "images": [
           "images/listings/gravenhurst-shops-0-0.jpg",
           "images/listings/gravenhurst-shops-0-1.jpg",
           "images/listings/gravenhurst-shops-0-2.jpg"
         ],
-        "lat": 44.9078916,
-        "lng": -79.3686046,
-        "website": "https://locations.timhortons.ca/en/on/gravenhurst/150-talisman-rd",
-        "phone": "(705) 687-4709",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "2329 11 Highway South, Gravenhurst",
-        "rating": "3.5",
-        "image": "images/listings/gravenhurst-shops-1-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-1-0.jpg",
-          "images/listings/gravenhurst-shops-1-1.jpg",
-          "images/listings/gravenhurst-shops-1-2.jpg"
-        ],
-        "lat": 44.8862987,
-        "lng": -79.34927809999999,
-        "website": "https://locations.timhortons.ca/en/on/gravenhurst/2329-hwy-11-s",
-        "phone": "(705) 687-8277",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Master Movers & Storage",
-        "tag": "Shop",
-        "desc": "250 Edward Street, Gravenhurst",
-        "rating": "4.4",
-        "image": null,
-        "images": [],
-        "lat": 44.90868359999999,
-        "lng": -79.371433,
-        "website": "http://mastermovers.ca/",
-        "phone": "(705) 687-6550",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Wayne's Tire Discounter",
-        "tag": "Shop",
-        "desc": "696 Muskoka Road North, Gravenhurst",
-        "rating": "4.7",
-        "image": "images/listings/gravenhurst-shops-3-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-3-0.jpg",
-          "images/listings/gravenhurst-shops-3-1.jpg",
-          "images/listings/gravenhurst-shops-3-2.jpg"
-        ],
-        "lat": 44.924959,
-        "lng": -79.376262,
-        "website": "http://www.waynestirediscounter.ca/",
-        "phone": "(705) 687-2552",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Pet Valu",
-        "tag": "Shop",
-        "desc": "351 Talisman Drive #7, Gravenhurst",
-        "rating": "4.4",
-        "image": "images/listings/gravenhurst-shops-4-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-4-0.jpg",
-          "images/listings/gravenhurst-shops-4-1.jpg",
-          "images/listings/gravenhurst-shops-4-2.jpg"
-        ],
-        "lat": 44.90607869999999,
-        "lng": -79.36912439999999,
-        "website": "https://store.petvalu.ca/location/2292/",
-        "phone": "(705) 687-7671",
-        "description": "Retail chain carrying food, supplies, toys & other products for pets such as dogs, cats & reptiles.",
-        "hours": "Thursday: 9:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Power Products Ont",
-        "tag": "Shop",
-        "desc": "860 Muskoka Road South, Gravenhurst",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 44.9132401,
-        "lng": -79.3709264,
+        "lat": 44.9200103,
+        "lng": -79.3739626,
         "website": null,
-        "phone": "(705) 687-6304",
+        "phone": null,
         "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Bakery",
-        "tag": "Shop",
-        "desc": "141 Brock Street, Gravenhurst",
-        "rating": "4.7",
-        "image": "images/listings/gravenhurst-shops-6-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-6-0.jpg",
-          "images/listings/gravenhurst-shops-6-1.jpg",
-          "images/listings/gravenhurst-shops-6-2.jpg"
-        ],
-        "lat": 44.919765,
-        "lng": -79.37330229999999,
-        "website": "http://thebakeryingravenhurst.ca/",
-        "phone": "(705) 687-2579",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Muskoka Aluminum & Vinyl",
-        "tag": "Shop",
-        "desc": "845 Muskoka Road South, Gravenhurst",
-        "rating": "3.5",
-        "image": "images/listings/gravenhurst-shops-7-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-7-0.jpg",
-          "images/listings/gravenhurst-shops-7-1.jpg",
-          "images/listings/gravenhurst-shops-7-2.jpg"
-        ],
-        "lat": 44.913184,
-        "lng": -79.3716003,
-        "website": "http://www.muskokaaluminum.com/",
-        "phone": "(705) 687-6722",
-        "description": null,
-        "hours": "Thursday: 7:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Muskoka Signs And Graphics",
-        "tag": "Shop",
-        "desc": "115 Industrial Drive, Gravenhurst",
-        "rating": "4.6",
-        "image": null,
-        "images": [],
-        "lat": 44.9364096,
-        "lng": -79.3634673,
-        "website": "http://www.muskokasigns.com/",
-        "phone": "(705) 687-6222",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Hawkestone Soap Company",
-        "tag": "Shop",
-        "desc": "Town of, 260 Bay Street, Gravenhurst",
-        "rating": "4.8",
-        "image": "images/listings/gravenhurst-shops-9-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-9-0.jpg",
-          "images/listings/gravenhurst-shops-9-1.jpg",
-          "images/listings/gravenhurst-shops-9-2.jpg"
-        ],
-        "lat": 44.9194525,
-        "lng": -79.3765365,
-        "website": "https://hawkestonesoapco.com/",
-        "phone": "(705) 345-2612",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Northland Performance",
-        "tag": "Shop",
-        "desc": "451 Bethune Drive North, Gravenhurst",
-        "rating": "4.2",
-        "image": "images/listings/gravenhurst-shops-10-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-10-0.jpg",
-          "images/listings/gravenhurst-shops-10-1.jpg",
-          "images/listings/gravenhurst-shops-10-2.jpg"
-        ],
-        "lat": 44.92860899999999,
-        "lng": -79.370812,
-        "website": "https://nolimitsperformance.ca/",
-        "phone": "(705) 684-8010",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Bayview Boats Inc",
-        "tag": "Shop",
-        "desc": "1255 George Beard Lane, Gravenhurst",
-        "rating": "4.8",
-        "image": "images/listings/gravenhurst-shops-11-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-11-0.jpg",
-          "images/listings/gravenhurst-shops-11-1.jpg",
-          "images/listings/gravenhurst-shops-11-2.jpg"
-        ],
-        "lat": 44.909114,
-        "lng": -79.37303,
-        "website": "http://www.bayviewboats.com/",
-        "phone": "(705) 687-7170",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 4:30 PM"
-      },
-      {
-        "name": "Scuba Shack Ltd.",
-        "tag": "Shop",
-        "desc": "141 Hotchkiss Street, Gravenhurst",
-        "rating": "5",
-        "image": "images/listings/gravenhurst-shops-12-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-12-0.jpg",
-          "images/listings/gravenhurst-shops-12-1.jpg",
-          "images/listings/gravenhurst-shops-12-2.jpg"
-        ],
-        "lat": 44.9186815,
-        "lng": -79.3741161,
-        "website": "http://www.scubashack.ca/",
-        "phone": "(705) 687-5879",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Lynn Valley Manufacturing",
-        "tag": "Shop",
-        "desc": "140 Progress Road, Gravenhurst",
-        "rating": "5",
-        "image": "images/listings/gravenhurst-shops-13-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-13-0.jpg",
-          "images/listings/gravenhurst-shops-13-1.jpg",
-          "images/listings/gravenhurst-shops-13-2.jpg"
-        ],
-        "lat": 44.9381677,
-        "lng": -79.361458,
-        "website": "https://lynnvalleymfg.com/",
-        "phone": "(705) 687-8816",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Well Fed - Sandwich Shop",
-        "tag": "Shop",
-        "desc": "150 Hotchkiss Street, Gravenhurst",
-        "rating": "4.7",
-        "image": "images/listings/gravenhurst-shops-14-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-14-0.jpg",
-          "images/listings/gravenhurst-shops-14-1.jpg",
-          "images/listings/gravenhurst-shops-14-2.jpg"
-        ],
-        "lat": 44.91887390000001,
-        "lng": -79.3744186,
-        "website": "https://wellfedeatery.com/",
-        "phone": "(705) 394-2206",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Earth, Stone & Fire Inc.",
-        "tag": "Shop",
-        "desc": "2368 Ontario 11, Gravenhurst",
-        "rating": "4.6",
-        "image": "images/listings/gravenhurst-shops-15-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-15-0.jpg",
-          "images/listings/gravenhurst-shops-15-1.jpg",
-          "images/listings/gravenhurst-shops-15-2.jpg"
-        ],
-        "lat": 44.89050789999999,
-        "lng": -79.3529272,
-        "website": "http://www.northernrock.biz/",
-        "phone": "(705) 687-4400",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 4:30 PM"
-      },
-      {
-        "name": "DRUGStore Pharmacy",
-        "tag": "Shop",
-        "desc": "290 First Street North, Gravenhurst",
-        "rating": "4.3",
-        "image": null,
-        "images": [],
-        "lat": 44.921671,
-        "lng": -79.372407,
-        "website": "https://mypharmacy.pchealth.ca/en?utm_source=G&utm_medium=LPM&utm_campaign=Loblaws",
-        "phone": "(705) 687-1588",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Allair Media Inc.",
-        "tag": "Shop",
-        "desc": "241 Bay Street, Gravenhurst",
-        "rating": "4.2",
-        "image": "images/listings/gravenhurst-shops-17-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-17-0.jpg",
-          "images/listings/gravenhurst-shops-17-1.jpg",
-          "images/listings/gravenhurst-shops-17-2.jpg"
-        ],
-        "lat": 44.9191504,
-        "lng": -79.37617519999999,
-        "website": "http://www.allairmedia.com/",
-        "phone": "(705) 681-0258",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Northern Exposure",
-        "tag": "Shop",
-        "desc": "1480 Muskoka District Road 18, Gravenhurst",
-        "rating": "3.5",
-        "image": "images/listings/gravenhurst-shops-18-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-18-0.jpg",
-          "images/listings/gravenhurst-shops-18-1.jpg",
-          "images/listings/gravenhurst-shops-18-2.jpg"
-        ],
-        "lat": 44.9357391,
-        "lng": -79.38486189999999,
-        "website": null,
-        "phone": "(705) 684-9980",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Amplifon Hearing",
-        "tag": "Shop",
-        "desc": "241 Brock Street #3, Gravenhurst",
-        "rating": "5",
-        "image": "images/listings/gravenhurst-shops-19-0.jpg",
-        "images": [
-          "images/listings/gravenhurst-shops-19-0.jpg",
-          "images/listings/gravenhurst-shops-19-1.jpg",
-          "images/listings/gravenhurst-shops-19-2.jpg"
-        ],
-        "lat": 44.9200664,
-        "lng": -79.37180230000001,
-        "website": "https://www.amplifon.com/ca/branch-locator/hearing-clinics-gravenhurst-on/amplifon-gravenhurst-241-brock-st-s90001C65",
-        "phone": "(705) 684-8300",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 12:00 PM, 1:00 – 4:00 PM"
+        "hours": "Thursday: 10:00 AM – 6:00 PM"
       }
     ]
   },
@@ -8385,87 +7490,230 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "The UPS Store",
+        "name": "MARTINS Framing, Gallery & Art Supplies",
         "tag": "Shop",
-        "desc": "200 Manitoba Street #3, Bracebridge",
-        "rating": "4",
+        "desc": "10 Taylor Road, Bracebridge",
+        "rating": "5",
         "image": "images/listings/bracebridge-shops-0-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-0-0.jpg",
           "images/listings/bracebridge-shops-0-1.jpg",
           "images/listings/bracebridge-shops-0-2.jpg"
         ],
-        "lat": 45.0440529,
-        "lng": -79.3169219,
-        "website": "http://theupsstore.ca/276",
-        "phone": "(705) 646-2153",
-        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
-        "hours": "Thursday: 9:00 AM – 6:30 PM"
+        "lat": 45.0417005,
+        "lng": -79.3101221,
+        "website": "https://www.martinsframing.ca/",
+        "phone": "(705) 645-9444",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Walmart Supercentre",
+        "name": "Chancery Art Gallery",
         "tag": "Shop",
-        "desc": "40 Depot Drive, Bracebridge",
-        "rating": "3.9",
+        "desc": "10 Chancery Lane, Bracebridge",
+        "rating": "NR",
         "image": "images/listings/bracebridge-shops-1-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-1-0.jpg",
-          "images/listings/bracebridge-shops-1-1.jpg",
-          "images/listings/bracebridge-shops-1-2.jpg"
+          "images/listings/bracebridge-shops-1-1.jpg"
         ],
-        "lat": 45.0465014,
-        "lng": -79.2897387,
-        "website": "https://www.walmart.ca/en/store/1054?utm_source=local&utm_medium=listings&utm_campaign=sc&cmpid=gmb",
-        "phone": "(705) 646-0550",
+        "lat": 45.0406776,
+        "lng": -79.3101958,
+        "website": "https://www.chanceryart.com/",
+        "phone": "(705) 646-0514",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
+        "hours": null
       },
       {
-        "name": "Tim Hortons",
+        "name": "Miranda Britton",
         "tag": "Shop",
-        "desc": "9 Depot Drive, Bracebridge",
-        "rating": "3.9",
+        "desc": "169 Manitoba Street, Bracebridge",
+        "rating": "5",
         "image": "images/listings/bracebridge-shops-2-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-2-0.jpg",
           "images/listings/bracebridge-shops-2-1.jpg",
           "images/listings/bracebridge-shops-2-2.jpg"
         ],
-        "lat": 45.05006969999999,
-        "lng": -79.2935926,
-        "website": "https://locations.timhortons.ca/en/on/bracebridge/9-depot-dr",
-        "phone": "(705) 646-9834",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 4:00 AM – 10:00 PM"
+        "lat": 45.0438177,
+        "lng": -79.3152841,
+        "website": "http://www.mirandabritton.com/",
+        "phone": "(705) 640-6452",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Tim Hortons",
+        "name": "Col Mitchell Artist Studio & Boutique",
         "tag": "Shop",
-        "desc": "295 Wellington Street, Bracebridge",
-        "rating": "3.8",
+        "desc": "1221 Cedar Lane, Bracebridge",
+        "rating": "5",
         "image": "images/listings/bracebridge-shops-3-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-3-0.jpg",
           "images/listings/bracebridge-shops-3-1.jpg",
           "images/listings/bracebridge-shops-3-2.jpg"
         ],
-        "lat": 45.043631,
-        "lng": -79.3225707,
-        "website": "https://locations.timhortons.ca/en/on/bracebridge/295-wellington-st/",
-        "phone": "(705) 645-7237",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 4:00 AM – 11:00 PM"
+        "lat": 45.05897699999999,
+        "lng": -79.29697999999999,
+        "website": "http://colmitchell.com/",
+        "phone": "(705) 783-0120",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 4:00 PM"
+      },
+      {
+        "name": "Heron's Nest Studio Gallery",
+        "tag": "Shop",
+        "desc": "95 Muskoka Road, Bracebridge",
+        "rating": "5",
+        "image": "images/listings/bracebridge-shops-4-0.jpg",
+        "images": [
+          "images/listings/bracebridge-shops-4-0.jpg",
+          "images/listings/bracebridge-shops-4-1.jpg",
+          "images/listings/bracebridge-shops-4-2.jpg"
+        ],
+        "lat": 45.03845599999999,
+        "lng": -79.3049166,
+        "website": "https://herons-nest-studio-gallery.square.site/",
+        "phone": "(705) 646-3663",
+        "description": null,
+        "hours": "Thursday: Closed"
+      },
+      {
+        "name": "Art Expressions by Allison",
+        "tag": "Shop",
+        "desc": "7 Chestnut Hill, Bracebridge",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 45.0493432,
+        "lng": -79.3211989,
+        "website": null,
+        "phone": "(705) 645-7221",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "The Alexandra Luke Gallery",
+        "tag": "Shop",
+        "desc": "1086 Partridge Lane, Bracebridge",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 45.0556371,
+        "lng": -79.36870499999999,
+        "website": "http://www.alexandralukegallery.com/",
+        "phone": "(807) 577-0608",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Annex",
+        "tag": "Shop",
+        "desc": "27 Manitoba Street, Bracebridge",
+        "rating": "4.8",
+        "image": "images/listings/bracebridge-shops-7-0.jpg",
+        "images": [
+          "images/listings/bracebridge-shops-7-0.jpg",
+          "images/listings/bracebridge-shops-7-1.jpg",
+          "images/listings/bracebridge-shops-7-2.jpg"
+        ],
+        "lat": 45.0409562,
+        "lng": -79.30947259999999,
+        "website": "http://www.artannex.ca/",
+        "phone": "(705) 646-0223",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "Cloud Gallery Muskoka",
+        "tag": "Shop",
+        "desc": "10 Taylor Road, Bracebridge",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 45.0416533,
+        "lng": -79.310024,
+        "website": "https://cloudgallery.ca/",
+        "phone": "(705) 330-6445",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "Muskoka Arts and Crafts | MA&C ON MAIN",
+        "tag": "Shop",
+        "desc": "Town of, 63 Manitoba Street, Bracebridge",
+        "rating": "5",
+        "image": "images/listings/bracebridge-shops-9-0.jpg",
+        "images": [
+          "images/listings/bracebridge-shops-9-0.jpg",
+          "images/listings/bracebridge-shops-9-1.jpg",
+          "images/listings/bracebridge-shops-9-2.jpg"
+        ],
+        "lat": 45.04159489999999,
+        "lng": -79.310757,
+        "website": "https://muskokaartsandcrafts.com/",
+        "phone": "(705) 645-5501",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "Pine Tree Quilters’ Guild of Muskoka",
+        "tag": "Shop",
+        "desc": "Muskoka Lumber Community Centre, 56 Salmon Avenue, Bracebridge",
+        "rating": "NR",
+        "image": "images/listings/bracebridge-shops-10-0.jpg",
+        "images": [
+          "images/listings/bracebridge-shops-10-0.jpg"
+        ],
+        "lat": 45.03911550000001,
+        "lng": -79.32668919999999,
+        "website": "http://www.pinetreequiltersguildofmuskoka.com/",
+        "phone": "(705) 645-8888",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Stan W Tait Jewellery Studio and Art Gallery",
+        "tag": "Shop",
+        "desc": "17 Southview Crescent, Bracebridge",
+        "rating": "5",
+        "image": "images/listings/bracebridge-shops-11-0.jpg",
+        "images": [
+          "images/listings/bracebridge-shops-11-0.jpg",
+          "images/listings/bracebridge-shops-11-1.jpg",
+          "images/listings/bracebridge-shops-11-2.jpg"
+        ],
+        "lat": 45.047496,
+        "lng": -79.3254606,
+        "website": "http://www.stantait.com/",
+        "phone": "(705) 801-6520",
+        "description": null,
+        "hours": "Thursday: Closed"
+      },
+      {
+        "name": "Green Forest Gallery",
+        "tag": "Shop",
+        "desc": "345 Ecclestone Drive, Bracebridge",
+        "rating": "1",
+        "image": null,
+        "images": [],
+        "lat": 45.0260786,
+        "lng": -79.3119454,
+        "website": null,
+        "phone": "(416) 543-8841",
+        "description": null,
+        "hours": null
       },
       {
         "name": "Minds Alive Muskoka Bracebridge",
         "tag": "Shop",
         "desc": "68 Manitoba Street, Bracebridge",
         "rating": "4.7",
-        "image": "images/listings/bracebridge-shops-4-0.jpg",
+        "image": "images/listings/bracebridge-shops-13-0.jpg",
         "images": [
-          "images/listings/bracebridge-shops-4-0.jpg",
-          "images/listings/bracebridge-shops-4-1.jpg",
-          "images/listings/bracebridge-shops-4-2.jpg"
+          "images/listings/bracebridge-shops-13-0.jpg",
+          "images/listings/bracebridge-shops-13-1.jpg",
+          "images/listings/bracebridge-shops-13-2.jpg"
         ],
         "lat": 45.0415023,
         "lng": -79.31132,
@@ -8475,262 +7723,104 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 10:00 AM – 6:00 PM"
       },
       {
-        "name": "Liv Outside",
+        "name": "Muskoka Books",
         "tag": "Shop",
-        "desc": "271 Ecclestone Drive, Bracebridge",
-        "rating": "4.3",
-        "image": "images/listings/bracebridge-shops-5-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-5-0.jpg",
-          "images/listings/bracebridge-shops-5-1.jpg",
-          "images/listings/bracebridge-shops-5-2.jpg"
-        ],
-        "lat": 45.0327515,
-        "lng": -79.3119724,
-        "website": "https://www.livoutside.ca/?utm_source=google&utm_medium=gbp&utm_campaign=GMB",
-        "phone": "(705) 646-0492",
+        "desc": "24 Manitoba Street, Bracebridge",
+        "rating": "5",
+        "image": null,
+        "images": [],
+        "lat": 45.0405649,
+        "lng": -79.3096395,
+        "website": "http://muskokabooks.ca/",
+        "phone": "(705) 645-6451",
         "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
+        "hours": "Thursday: 10:00 AM – 5:30 PM"
       },
       {
-        "name": "Staples",
+        "name": "Cedar Canoe Books",
         "tag": "Shop",
-        "desc": "500 Muskoka District Road 118 West Unit 102, Bracebridge",
-        "rating": "4.2",
-        "image": "images/listings/bracebridge-shops-6-0.jpg",
+        "desc": "22 Manitoba Street, Bracebridge",
+        "rating": "5",
+        "image": "images/listings/bracebridge-shops-15-0.jpg",
         "images": [
-          "images/listings/bracebridge-shops-6-0.jpg",
-          "images/listings/bracebridge-shops-6-1.jpg",
-          "images/listings/bracebridge-shops-6-2.jpg"
+          "images/listings/bracebridge-shops-15-0.jpg",
+          "images/listings/bracebridge-shops-15-1.jpg",
+          "images/listings/bracebridge-shops-15-2.jpg"
         ],
-        "lat": 45.0423875,
-        "lng": -79.3270084,
-        "website": "https://stores.staples.ca/on/bracebridge/office-supplies-ca-435.html",
-        "phone": "(705) 646-2775",
-        "description": "Chain retailer offering brand-name electronics & print services, plus office supplies & furniture.",
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Ecclestone Cycle and Swim",
-        "tag": "Shop",
-        "desc": "230 Ecclestone Drive, Bracebridge",
-        "rating": "4.6",
-        "image": "images/listings/bracebridge-shops-7-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-7-0.jpg",
-          "images/listings/bracebridge-shops-7-1.jpg",
-          "images/listings/bracebridge-shops-7-2.jpg"
-        ],
-        "lat": 45.03378559999999,
-        "lng": -79.3124383,
-        "website": "http://www.ecclestonecycle.com/",
-        "phone": "(705) 645-1166",
+        "lat": 45.0405523,
+        "lng": -79.3094904,
+        "website": "https://www.cedarcanoebooks.com/",
+        "phone": "(705) 640-5366",
         "description": null,
         "hours": "Thursday: 10:00 AM – 6:00 PM"
       },
       {
-        "name": "The Fire Within",
+        "name": "The Owl Pen",
         "tag": "Shop",
-        "desc": "1080 Taylor Court, Bracebridge",
-        "rating": "4.1",
-        "image": "images/listings/bracebridge-shops-8-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-8-0.jpg",
-          "images/listings/bracebridge-shops-8-1.jpg",
-          "images/listings/bracebridge-shops-8-2.jpg"
-        ],
-        "lat": 45.05599000000001,
-        "lng": -79.29081599999999,
-        "website": "http://www.thefirewithinmuskoka.ca/",
-        "phone": "(705) 645-1575",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Mark's",
-        "tag": "Shop",
-        "desc": "Shopping Centre, 500 Muskoka District Road 118 West #2, Bracebridge",
-        "rating": "4.4",
-        "image": "images/listings/bracebridge-shops-9-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-9-0.jpg",
-          "images/listings/bracebridge-shops-9-1.jpg",
-          "images/listings/bracebridge-shops-9-2.jpg"
-        ],
-        "lat": 45.0423363,
-        "lng": -79.32691129999999,
-        "website": "https://www.marks.com/en/store-details/on/bracebridge-747.html?utm_source=google&utm_medium=GMB&utm_campaign=GMB_Listing",
-        "phone": "(705) 645-1042",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Speedy Glass Bracebridge",
-        "tag": "Shop",
-        "desc": "271 Ecclestone Drive, Bracebridge",
+        "desc": "58 Manitoba Street, Bracebridge",
         "rating": "4.7",
-        "image": "images/listings/bracebridge-shops-10-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-10-0.jpg",
-          "images/listings/bracebridge-shops-10-1.jpg",
-          "images/listings/bracebridge-shops-10-2.jpg"
-        ],
-        "lat": 45.0325484,
-        "lng": -79.3120609,
-        "website": "https://www.speedyglass.ca/en/service-centre/on/bracebridge/speedy-glass-bracebridge?utm_source=google&utm_medium=local&utm_campaign=Speedy%20Glass%20Bracebridge",
-        "phone": "(705) 645-2886",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Fullertons PAC",
-        "tag": "Shop",
-        "desc": "20 Barron Drive, Bracebridge",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 45.0574752,
-        "lng": -79.28847429999999,
-        "website": "http://www.fullertonspac.com/",
-        "phone": "(705) 646-0051",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Simcoe Building Centre",
-        "tag": "Shop",
-        "desc": "261 Cedar Lane, Bracebridge",
-        "rating": "4.3",
-        "image": "images/listings/bracebridge-shops-12-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-12-0.jpg",
-          "images/listings/bracebridge-shops-12-1.jpg",
-          "images/listings/bracebridge-shops-12-2.jpg"
-        ],
-        "lat": 45.019587,
-        "lng": -79.2993486,
-        "website": "https://www.simcoesolutions.com/simcoe-building-centre?utm_source=gmblisting&utm_medium=organic&utm_campaign=gmb",
-        "phone": "(705) 645-5296",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Oliver's Coffee",
-        "tag": "Shop",
-        "desc": "440 Ecclestone Drive, Bracebridge",
-        "rating": "4.2",
-        "image": "images/listings/bracebridge-shops-13-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-13-0.jpg"
-        ],
-        "lat": 45.0185636,
-        "lng": -79.31418670000001,
-        "website": "https://oliverscoffee.ca/",
-        "phone": "(705) 645-3301",
-        "description": null,
-        "hours": "Thursday: 6:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Silver Daisy",
-        "tag": "Shop",
-        "desc": "12 Chancery Lane, Bracebridge",
-        "rating": "4.8",
-        "image": "images/listings/bracebridge-shops-14-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-14-0.jpg",
-          "images/listings/bracebridge-shops-14-1.jpg",
-          "images/listings/bracebridge-shops-14-2.jpg"
-        ],
-        "lat": 45.0406631,
-        "lng": -79.3103594,
-        "website": "http://thesilverdaisy.com/",
-        "phone": "(705) 646-0063",
-        "description": null,
-        "hours": "Thursday: 12:00 – 6:00 PM"
-      },
-      {
-        "name": "Wally's Garage",
-        "tag": "Shop",
-        "desc": "147 Ecclestone Drive, Bracebridge",
-        "rating": "4.5",
-        "image": "images/listings/bracebridge-shops-15-0.jpg",
-        "images": [
-          "images/listings/bracebridge-shops-15-0.jpg"
-        ],
-        "lat": 45.03510900000001,
-        "lng": -79.308793,
-        "website": "http://wallys-garage.com/",
-        "phone": "(705) 645-5976",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Muskoka Paint & Decorating",
-        "tag": "Shop",
-        "desc": "The Paint Store On The Hill, 23 Monck Road, Bracebridge",
-        "rating": "4.9",
         "image": "images/listings/bracebridge-shops-16-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-16-0.jpg",
           "images/listings/bracebridge-shops-16-1.jpg",
           "images/listings/bracebridge-shops-16-2.jpg"
         ],
-        "lat": 45.0449326,
-        "lng": -79.32059110000002,
-        "website": "http://muskokapaint.com/",
-        "phone": "(705) 645-8800",
+        "lat": 45.0412338,
+        "lng": -79.310746,
+        "website": "https://m.facebook.com/pages/The-Owl-Pen/264846973614913",
+        "phone": "(705) 645-1966",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 5:00 PM"
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Subaru of Muskoka",
+        "name": "Fruit of the Vine Christian Books @ Maple Orchard Farms",
         "tag": "Shop",
-        "desc": "365 Ecclestone Drive, Bracebridge",
-        "rating": "4.6",
+        "desc": "14 Gray Road, Bracebridge",
+        "rating": "5",
         "image": "images/listings/bracebridge-shops-17-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-17-0.jpg",
           "images/listings/bracebridge-shops-17-1.jpg",
           "images/listings/bracebridge-shops-17-2.jpg"
         ],
-        "lat": 45.0233034,
-        "lng": -79.31184859999999,
-        "website": "https://www.subaruofmuskoka.ca/",
-        "phone": "(705) 646-2338",
+        "lat": 45.0408012,
+        "lng": -79.2944679,
+        "website": null,
+        "phone": "(705) 645-3054",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 6:00 PM"
+        "hours": "Thursday: 10:00 AM – 4:00 PM"
       },
       {
-        "name": "EMCO Bracebridge",
+        "name": "Kens Komics & Kollectibles",
         "tag": "Shop",
-        "desc": "440 Ecclestone Drive Unit 19, Bracebridge",
-        "rating": "5",
+        "desc": "Town of, Bracebridge",
+        "rating": "NR",
         "image": null,
         "images": [],
-        "lat": 45.018444,
-        "lng": -79.3152008,
-        "website": "https://emco.ca/stores/emco-bracebridge/",
-        "phone": "(705) 646-1600",
+        "lat": 45.0499387,
+        "lng": -79.332017,
+        "website": "https://www.facebook.com/marketplace/you/selling",
+        "phone": "(705) 204-1957",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 4:30 PM"
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "MicroAge Computer Centre",
+        "name": "The UPS Store",
         "tag": "Shop",
-        "desc": "115 Manitoba Street, Bracebridge",
-        "rating": "4.8",
+        "desc": "200 Manitoba Street #3, Bracebridge",
+        "rating": "4",
         "image": "images/listings/bracebridge-shops-19-0.jpg",
         "images": [
           "images/listings/bracebridge-shops-19-0.jpg",
           "images/listings/bracebridge-shops-19-1.jpg",
           "images/listings/bracebridge-shops-19-2.jpg"
         ],
-        "lat": 45.042741,
-        "lng": -79.313108,
-        "website": "http://www.microage.ca/",
-        "phone": "(705) 645-5279",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 4:00 PM"
+        "lat": 45.0440529,
+        "lng": -79.3169219,
+        "website": "http://theupsstore.ca/276",
+        "phone": "(705) 646-2153",
+        "description": "Store offering shipping, packaging, printing & other services, plus office supplies.",
+        "hours": "Thursday: 9:00 AM – 6:30 PM"
       }
     ]
   },
@@ -9948,58 +9038,126 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Tim Hortons",
+        "name": "Red Pine Art Supply / Collaborate Gallery",
         "tag": "Shop",
-        "desc": "180 West Road, Huntsville",
-        "rating": "3.8",
+        "desc": "6 West Street North #1, Huntsville",
+        "rating": "4.6",
         "image": "images/listings/huntsville-shops-0-0.jpg",
         "images": [
           "images/listings/huntsville-shops-0-0.jpg",
           "images/listings/huntsville-shops-0-1.jpg",
           "images/listings/huntsville-shops-0-2.jpg"
         ],
-        "lat": 45.3320617,
-        "lng": -79.23463629999999,
-        "website": "https://locations.timhortons.ca/en/on/huntsville/180-west-rd",
-        "phone": "(705) 789-0011",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 4:00 AM – 10:30 PM"
+        "lat": 45.3267988,
+        "lng": -79.2185769,
+        "website": "http://redpineart.ca/",
+        "phone": "(705) 784-0220",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       },
       {
-        "name": "Staples",
+        "name": "Coles Art Market",
         "tag": "Shop",
-        "desc": "91 King William Street #102, Huntsville",
-        "rating": "3.8",
+        "desc": "14 Main Street East #1, Huntsville",
+        "rating": "4.9",
         "image": "images/listings/huntsville-shops-1-0.jpg",
         "images": [
           "images/listings/huntsville-shops-1-0.jpg",
           "images/listings/huntsville-shops-1-1.jpg",
           "images/listings/huntsville-shops-1-2.jpg"
         ],
-        "lat": 45.33560440000001,
-        "lng": -79.2027706,
-        "website": "https://stores.staples.ca/on/huntsville/office-supplies-ca-324.html",
-        "phone": "(705) 789-5817",
-        "description": "Chain retailer offering brand-name electronics & print services, plus office supplies & furniture.",
-        "hours": "Thursday: 9:00 AM – 7:00 PM"
+        "lat": 45.3264134,
+        "lng": -79.21914249999999,
+        "website": "http://www.colesart.ca/",
+        "phone": "(705) 789-3205",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Bullock's Your Independent Grocer",
+        "name": "The Artsy Pear Studio",
         "tag": "Shop",
-        "desc": "131 Howland Drive, Huntsville",
-        "rating": "4.2",
-        "image": "images/listings/huntsville-shops-2-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-2-0.jpg",
-          "images/listings/huntsville-shops-2-1.jpg",
-          "images/listings/huntsville-shops-2-2.jpg"
-        ],
-        "lat": 45.344803,
-        "lng": -79.227068,
-        "website": "https://www.yourindependentgrocer.ca/store-locator/details/2719?utm_source=G&utm_medium=LPM&utm_campaign=Loblaws",
-        "phone": "(705) 789-6972",
+        "desc": "35 King William Street, Huntsville",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 45.33133770000001,
+        "lng": -79.2091311,
+        "website": "http://www.artsypear.com/",
+        "phone": "(705) 571-1241",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 9:00 PM"
+        "hours": null
+      },
+      {
+        "name": "Eclipse Art Gallery",
+        "tag": "Shop",
+        "desc": "3 Brunel Road, Huntsville",
+        "rating": "5",
+        "image": "images/listings/huntsville-shops-3-0.jpg",
+        "images": [
+          "images/listings/huntsville-shops-3-0.jpg",
+          "images/listings/huntsville-shops-3-1.jpg",
+          "images/listings/huntsville-shops-3-2.jpg"
+        ],
+        "lat": 45.3266695,
+        "lng": -79.21650079999999,
+        "website": "http://www.eclipseartgallery.ca/",
+        "phone": "(705) 783-2579",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 5:00 PM"
+      },
+      {
+        "name": "The Potter's Studio & Gallery",
+        "tag": "Shop",
+        "desc": "16 Brunel Road, Huntsville",
+        "rating": "4.9",
+        "image": "images/listings/huntsville-shops-4-0.jpg",
+        "images": [
+          "images/listings/huntsville-shops-4-0.jpg",
+          "images/listings/huntsville-shops-4-1.jpg",
+          "images/listings/huntsville-shops-4-2.jpg"
+        ],
+        "lat": 45.3259728,
+        "lng": -79.21551509999999,
+        "website": "http://www.thepottersstudio.com/",
+        "phone": "(705) 783-0242",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "Minds Alive Muskoka Huntsville",
+        "tag": "Shop",
+        "desc": "19 Main Street East Unit 2&3, Huntsville",
+        "rating": "4.2",
+        "image": "images/listings/huntsville-shops-5-0.jpg",
+        "images": [
+          "images/listings/huntsville-shops-5-0.jpg",
+          "images/listings/huntsville-shops-5-1.jpg",
+          "images/listings/huntsville-shops-5-2.jpg"
+        ],
+        "lat": 45.32600799999999,
+        "lng": -79.219121,
+        "website": "http://mindsalivemuskoka.ca/",
+        "phone": "(705) 787-0709",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 6:00 PM"
+      },
+      {
+        "name": "Cedar Canoe Books",
+        "tag": "Shop",
+        "desc": "72 Main Street East, Huntsville",
+        "rating": "4.9",
+        "image": "images/listings/huntsville-shops-6-0.jpg",
+        "images": [
+          "images/listings/huntsville-shops-6-0.jpg",
+          "images/listings/huntsville-shops-6-1.jpg",
+          "images/listings/huntsville-shops-6-2.jpg"
+        ],
+        "lat": 45.327151,
+        "lng": -79.216842,
+        "website": "http://www.cedarcanoebooks.com/",
+        "phone": "(705) 789-2000",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 6:00 PM"
       },
       {
         "name": "Wine Rack",
@@ -10014,294 +9172,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 789-4188",
         "description": null,
         "hours": "Thursday: 10:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "44 Ontario 60, Huntsville",
-        "rating": "3.8",
-        "image": "images/listings/huntsville-shops-4-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-4-0.jpg",
-          "images/listings/huntsville-shops-4-1.jpg",
-          "images/listings/huntsville-shops-4-2.jpg"
-        ],
-        "lat": 45.33783690000001,
-        "lng": -79.20171619999999,
-        "website": "https://locations.timhortons.ca/en/on/huntsville/44-hwy-60",
-        "phone": "(705) 787-0946",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 9:30 PM"
-      },
-      {
-        "name": "Hyundai of Muskoka",
-        "tag": "Shop",
-        "desc": "20 King William Street, Huntsville",
-        "rating": "4.6",
-        "image": "images/listings/huntsville-shops-5-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-5-0.jpg",
-          "images/listings/huntsville-shops-5-1.jpg",
-          "images/listings/huntsville-shops-5-2.jpg"
-        ],
-        "lat": 45.3305435,
-        "lng": -79.2106475,
-        "website": "http://www.hyundaiofmuskoka.com/",
-        "phone": "(705) 789-7505",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Huntsville's Hometown IDA Drugstore",
-        "tag": "Shop",
-        "desc": "10 Main Street East, Huntsville",
-        "rating": "4.5",
-        "image": "images/listings/huntsville-shops-6-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-6-0.jpg",
-          "images/listings/huntsville-shops-6-1.jpg",
-          "images/listings/huntsville-shops-6-2.jpg"
-        ],
-        "lat": 45.3264831,
-        "lng": -79.2193472,
-        "website": "https://www.huntsvilleshometownida.ca/",
-        "phone": "(705) 789-2561",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Muskoka Bear Wear",
-        "tag": "Shop",
-        "desc": "51 Main Street East, Huntsville",
-        "rating": "4.5",
-        "image": "images/listings/huntsville-shops-7-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-7-0.jpg",
-          "images/listings/huntsville-shops-7-1.jpg",
-          "images/listings/huntsville-shops-7-2.jpg"
-        ],
-        "lat": 45.32669259999999,
-        "lng": -79.2173236,
-        "website": "https://muskokabearwear.com/",
-        "phone": "(705) 789-4000",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Efficient Wood & Gas",
-        "tag": "Shop",
-        "desc": "45 King William Street, Huntsville",
-        "rating": "4.9",
-        "image": "images/listings/huntsville-shops-8-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-8-0.jpg",
-          "images/listings/huntsville-shops-8-1.jpg",
-          "images/listings/huntsville-shops-8-2.jpg"
-        ],
-        "lat": 45.3318715,
-        "lng": -79.20819689999999,
-        "website": "http://www.efficientwoodgas.com/",
-        "phone": "(705) 789-8313",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Wooden Penny",
-        "tag": "Shop",
-        "desc": "84 Main Street East, Huntsville",
-        "rating": "4.6",
-        "image": "images/listings/huntsville-shops-9-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-9-0.jpg",
-          "images/listings/huntsville-shops-9-1.jpg",
-          "images/listings/huntsville-shops-9-2.jpg"
-        ],
-        "lat": 45.32719960000001,
-        "lng": -79.2165899,
-        "website": "https://woodenpenny.ca/",
-        "phone": "(705) 788-2560",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "HearingLife",
-        "tag": "Shop",
-        "desc": "48 King William Street #3, Huntsville",
-        "rating": "3.9",
-        "image": "images/listings/huntsville-shops-10-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-10-0.jpg",
-          "images/listings/huntsville-shops-10-1.jpg",
-          "images/listings/huntsville-shops-10-2.jpg"
-        ],
-        "lat": 45.3326521,
-        "lng": -79.2080928,
-        "website": "https://www.hearinglife.ca/centers/ontario/huntsville?utm_source=organic&utm_medium=gmb_clinic&utm_campaign=ca_lo_mkt_gmb+clinic%7Cgmb-hl-clinic%7C&utm_content=gmb_link&utm_term=link_website&referral_source=gmb-hl-clinic",
-        "phone": "(705) 789-9293",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 4:30 PM"
-      },
-      {
-        "name": "Petro-Canada",
-        "tag": "Shop",
-        "desc": "59 King William Street, Huntsville",
-        "rating": "4.2",
-        "image": "images/listings/huntsville-shops-11-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-11-0.jpg",
-          "images/listings/huntsville-shops-11-1.jpg",
-          "images/listings/huntsville-shops-11-2.jpg"
-        ],
-        "lat": 45.33282,
-        "lng": -79.20649,
-        "website": "https://www.petro-canada.ca/en/personal/gas-station-locations/59-king-william-st-huntsville?utm_source=G&utm_medium=lpm&utm_campaign=suncor",
-        "phone": "(705) 789-9997",
-        "description": null,
-        "hours": "Thursday: 5:00 AM – 10:00 PM"
-      },
-      {
-        "name": "Kelly's Furniture",
-        "tag": "Shop",
-        "desc": "144 Ontario 60, Huntsville",
-        "rating": "4.6",
-        "image": "images/listings/huntsville-shops-12-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-12-0.jpg",
-          "images/listings/huntsville-shops-12-1.jpg",
-          "images/listings/huntsville-shops-12-2.jpg"
-        ],
-        "lat": 45.3383951,
-        "lng": -79.19740449999999,
-        "website": null,
-        "phone": "(705) 789-0439",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Soapstones Natural Skincare",
-        "tag": "Shop",
-        "desc": "54 Main Street East, Huntsville",
-        "rating": "4.9",
-        "image": "images/listings/huntsville-shops-13-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-13-0.jpg",
-          "images/listings/huntsville-shops-13-1.jpg",
-          "images/listings/huntsville-shops-13-2.jpg"
-        ],
-        "lat": 45.327034,
-        "lng": -79.21721,
-        "website": "http://soapstones.ca/",
-        "phone": "(705) 224-7627",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "The Great Vine",
-        "tag": "Shop",
-        "desc": "36 Main Street East, Huntsville",
-        "rating": "4.9",
-        "image": "images/listings/huntsville-shops-14-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-14-0.jpg",
-          "images/listings/huntsville-shops-14-1.jpg",
-          "images/listings/huntsville-shops-14-2.jpg"
-        ],
-        "lat": 45.326774,
-        "lng": -79.2180143,
-        "website": "http://thegreatvine.ca/",
-        "phone": "(705) 789-3737",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Muskoka Jewellery Design",
-        "tag": "Shop",
-        "desc": "68 Main Street East, Huntsville",
-        "rating": "4.7",
-        "image": "images/listings/huntsville-shops-15-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-15-0.jpg",
-          "images/listings/huntsville-shops-15-1.jpg",
-          "images/listings/huntsville-shops-15-2.jpg"
-        ],
-        "lat": 45.3271254,
-        "lng": -79.2169775,
-        "website": "https://muskokajewellerydesign.com/",
-        "phone": "(705) 788-0795",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Ron Henry Jewellers",
-        "tag": "Shop",
-        "desc": "19 Main Street East, Huntsville",
-        "rating": "4.3",
-        "image": "images/listings/huntsville-shops-16-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-16-0.jpg",
-          "images/listings/huntsville-shops-16-1.jpg",
-          "images/listings/huntsville-shops-16-2.jpg"
-        ],
-        "lat": 45.32600799999999,
-        "lng": -79.219121,
-        "website": "http://www.ronhenryjewellers.com/",
-        "phone": "(705) 789-3773",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Reflections Of Muskoka",
-        "tag": "Shop",
-        "desc": "49 Main Street East, Huntsville",
-        "rating": "4.5",
-        "image": "images/listings/huntsville-shops-17-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-17-0.jpg",
-          "images/listings/huntsville-shops-17-1.jpg",
-          "images/listings/huntsville-shops-17-2.jpg"
-        ],
-        "lat": 45.3266526,
-        "lng": -79.21745729999999,
-        "website": null,
-        "phone": "(705) 789-3240",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Spectacles Vision Centre",
-        "tag": "Shop",
-        "desc": "77 Main Street East, Huntsville",
-        "rating": "4.6",
-        "image": "images/listings/huntsville-shops-18-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-18-0.jpg",
-          "images/listings/huntsville-shops-18-1.jpg",
-          "images/listings/huntsville-shops-18-2.jpg"
-        ],
-        "lat": 45.327162,
-        "lng": -79.215982,
-        "website": "https://www.spectaclesvision.com/",
-        "phone": "(705) 788-7733",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Red Pine Art Supply / Collaborate Gallery",
-        "tag": "Shop",
-        "desc": "6 West Street North #1, Huntsville",
-        "rating": "4.6",
-        "image": "images/listings/huntsville-shops-19-0.jpg",
-        "images": [
-          "images/listings/huntsville-shops-19-0.jpg",
-          "images/listings/huntsville-shops-19-1.jpg",
-          "images/listings/huntsville-shops-19-2.jpg"
-        ],
-        "lat": 45.3267988,
-        "lng": -79.2185769,
-        "website": "http://redpineart.ca/",
-        "phone": "(705) 784-0220",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 6:00 PM"
       }
     ]
   },
@@ -10809,333 +9679,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 386-7442",
         "description": null,
         "hours": "Thursday: 8:00 AM – 4:30 PM"
-      },
-      {
-        "name": "River Bear Crafts",
-        "tag": "Shop",
-        "desc": "68 Machar Strong Boundary Road East, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-1-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-1-0.jpg",
-          "images/listings/southriver-shops-1-1.jpg",
-          "images/listings/southriver-shops-1-2.jpg"
-        ],
-        "lat": 45.8249223,
-        "lng": -79.36694039999999,
-        "website": "http://www.facebook.com/RiverBearCrafts",
-        "phone": "(705) 386-1333",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "South River Freshmart",
-        "tag": "Shop",
-        "desc": "298 Highway 124, South River",
-        "rating": "3.9",
-        "image": "images/listings/southriver-shops-2-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-2-0.jpg",
-          "images/listings/southriver-shops-2-1.jpg",
-          "images/listings/southriver-shops-2-2.jpg"
-        ],
-        "lat": 45.8379974,
-        "lng": -79.37854,
-        "website": null,
-        "phone": "(705) 386-0045",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Northern Crafter's Collective",
-        "tag": "Shop",
-        "desc": "302 Highway 124, South River",
-        "rating": "4.4",
-        "image": "images/listings/southriver-shops-3-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-3-0.jpg",
-          "images/listings/southriver-shops-3-1.jpg",
-          "images/listings/southriver-shops-3-2.jpg"
-        ],
-        "lat": 45.8383994,
-        "lng": -79.3785549,
-        "website": null,
-        "phone": "(705) 840-8685",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 6:00 PM"
-      },
-      {
-        "name": "South River Scoops and Bakeshop",
-        "tag": "Shop",
-        "desc": "306 Highway 124, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-4-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-4-0.jpg",
-          "images/listings/southriver-shops-4-1.jpg",
-          "images/listings/southriver-shops-4-2.jpg"
-        ],
-        "lat": 45.83877030000001,
-        "lng": -79.37879980000001,
-        "website": "https://south-river-scoops-and-bakeshop.square.site/",
-        "phone": "(705) 822-2989",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "BentSpoon Bakery",
-        "tag": "Shop",
-        "desc": "306 Highway 124, South River",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 45.83877030000001,
-        "lng": -79.37879980000001,
-        "website": null,
-        "phone": "(705) 495-7184",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Cheat Day Cafe",
-        "tag": "Shop",
-        "desc": "306 Highway 124 Unit 2, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-6-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-6-0.jpg",
-          "images/listings/southriver-shops-6-1.jpg",
-          "images/listings/southriver-shops-6-2.jpg"
-        ],
-        "lat": 45.83878439999999,
-        "lng": -79.3788143,
-        "website": "https://www.clover.com/online-ordering/cheat-day-cafe?utm_source=ig&utm_medium=social&utm_content=link_in_bio",
-        "phone": "(705) 826-6098",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "287 Highway 124, South River",
-        "rating": "4.2",
-        "image": "images/listings/southriver-shops-7-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-7-0.jpg",
-          "images/listings/southriver-shops-7-1.jpg",
-          "images/listings/southriver-shops-7-2.jpg"
-        ],
-        "lat": 45.8369949,
-        "lng": -79.3767795,
-        "website": "https://www.lcbo.com/en/stores/highway-124-ottawa-159?utm_medium=location&utm_source=google&utm_campaign=store159&utm_content=website",
-        "phone": "(705) 386-2541",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Guardian SOUTH RIVER PHARMACY",
-        "tag": "Shop",
-        "desc": "311 Highway 124, South River",
-        "rating": "4.6",
-        "image": "images/listings/southriver-shops-8-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-8-0.jpg",
-          "images/listings/southriver-shops-8-1.jpg",
-          "images/listings/southriver-shops-8-2.jpg"
-        ],
-        "lat": 45.839468,
-        "lng": -79.378705,
-        "website": "https://www.guardian-ida-remedysrx.ca/en/ontario/south-river/south-river-pharmacy-7065783?utm_source=google&utm_medium=maps&utm_campaign=local_presence",
-        "phone": "(705) 386-0636",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "South River Scoops 'N' More",
-        "tag": "Shop",
-        "desc": "281 Highway 124, South River",
-        "rating": "4.8",
-        "image": "images/listings/southriver-shops-9-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-9-0.jpg",
-          "images/listings/southriver-shops-9-1.jpg",
-          "images/listings/southriver-shops-9-2.jpg"
-        ],
-        "lat": 45.8359905,
-        "lng": -79.3763417,
-        "website": "https://www.southriverscoopsnmore.com/",
-        "phone": "(705) 386-2313",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Kwik Way",
-        "tag": "Shop",
-        "desc": "1 Montreal Avenue, South River",
-        "rating": "4.5",
-        "image": "images/listings/southriver-shops-10-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-10-0.jpg",
-          "images/listings/southriver-shops-10-1.jpg"
-        ],
-        "lat": 45.84056339999999,
-        "lng": -79.37910579999999,
-        "website": null,
-        "phone": "(705) 386-0606",
-        "description": null,
-        "hours": "Thursday: 6:00 AM – 9:00 PM"
-      },
-      {
-        "name": "People's Value Store",
-        "tag": "Shop",
-        "desc": "101 Ottawa Avenue, South River",
-        "rating": "3.5",
-        "image": null,
-        "images": [],
-        "lat": 45.8411815,
-        "lng": -79.378909,
-        "website": null,
-        "phone": "(705) 386-0706",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Turtle Joe's Coffee to Go",
-        "tag": "Shop",
-        "desc": "102 Ottawa Avenue, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-12-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-12-0.jpg"
-        ],
-        "lat": 45.841283,
-        "lng": -79.379396,
-        "website": null,
-        "phone": "(705) 386-9463",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 4:00 PM"
-      },
-      {
-        "name": "Corner Wines",
-        "tag": "Shop",
-        "desc": "102 Ottawa Avenue, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-13-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-13-0.jpg",
-          "images/listings/southriver-shops-13-1.jpg",
-          "images/listings/southriver-shops-13-2.jpg"
-        ],
-        "lat": 45.841283,
-        "lng": -79.379396,
-        "website": null,
-        "phone": "(705) 386-9463",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 4:00 PM"
-      },
-      {
-        "name": "That Fits You",
-        "tag": "Shop",
-        "desc": "93 Ottawa Avenue, South River",
-        "rating": "5",
-        "image": "images/listings/southriver-shops-14-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-14-0.jpg",
-          "images/listings/southriver-shops-14-1.jpg",
-          "images/listings/southriver-shops-14-2.jpg"
-        ],
-        "lat": 45.84132579999999,
-        "lng": -79.3778645,
-        "website": "https://thatfitsyou.ca/",
-        "phone": "(705) 386-8888",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "South River Buds",
-        "tag": "Shop",
-        "desc": "19 Isabella Street, South River",
-        "rating": "4.2",
-        "image": "images/listings/southriver-shops-15-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-15-0.jpg",
-          "images/listings/southriver-shops-15-1.jpg",
-          "images/listings/southriver-shops-15-2.jpg"
-        ],
-        "lat": 45.84221729999999,
-        "lng": -79.3771751,
-        "website": "http://www.southriverbuds.ca/",
-        "phone": "(705) 386-1264",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Northern Feet - Health Clinic",
-        "tag": "Shop",
-        "desc": "7 Main Street, South River",
-        "rating": "NR",
-        "image": "images/listings/southriver-shops-16-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-16-0.jpg",
-          "images/listings/southriver-shops-16-1.jpg",
-          "images/listings/southriver-shops-16-2.jpg"
-        ],
-        "lat": 45.843258,
-        "lng": -79.37406179999999,
-        "website": null,
-        "phone": "(705) 386-9857",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Artisan Village",
-        "tag": "Shop",
-        "desc": "11077 Highway 124, South River",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 45.8222696,
-        "lng": -79.3687565,
-        "website": null,
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Crystal Cave Mineral Exhibit & Crystal Shop",
-        "tag": "Shop",
-        "desc": "11077 Highway 124, South River",
-        "rating": "4.9",
-        "image": "images/listings/southriver-shops-18-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-18-0.jpg",
-          "images/listings/southriver-shops-18-1.jpg",
-          "images/listings/southriver-shops-18-2.jpg"
-        ],
-        "lat": 45.8222411,
-        "lng": -79.3685845,
-        "website": "http://www.crystalcavecanada.com/",
-        "phone": "(705) 386-7774",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Factory by Laura Brandt",
-        "tag": "Shop",
-        "desc": "11077 Highway 124, South River",
-        "rating": "NR",
-        "image": "images/listings/southriver-shops-19-0.jpg",
-        "images": [
-          "images/listings/southriver-shops-19-0.jpg",
-          "images/listings/southriver-shops-19-1.jpg",
-          "images/listings/southriver-shops-19-2.jpg"
-        ],
-        "lat": 45.8224225,
-        "lng": -79.3680766,
-        "website": "https://www.instagram.com/thecementfactory?igsh=dGtoeW5nNWp3N2xh",
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: Closed"
       }
     ]
   },
@@ -11532,275 +10075,15 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Our Daily Bread Groceries and More",
+        "name": "Living Temagami ~ Arts & Culture Centre",
         "tag": "Shop",
-        "desc": "6722 Ontario 11, Temagami",
-        "rating": "4.5",
+        "desc": "6715 Ontario 11, Temagami",
+        "rating": "4.9",
         "image": "images/listings/temagami-shops-0-0.jpg",
         "images": [
           "images/listings/temagami-shops-0-0.jpg",
           "images/listings/temagami-shops-0-1.jpg",
           "images/listings/temagami-shops-0-2.jpg"
-        ],
-        "lat": 47.0643046,
-        "lng": -79.7904068,
-        "website": "https://www.facebook.com/OurDailyBreadGroceriesAndMore/",
-        "phone": "(705) 569-3600",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Petro-Canada",
-        "tag": "Shop",
-        "desc": "6692 Ontario 11, Temagami",
-        "rating": "3.7",
-        "image": "images/listings/temagami-shops-1-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-1-0.jpg",
-          "images/listings/temagami-shops-1-1.jpg",
-          "images/listings/temagami-shops-1-2.jpg"
-        ],
-        "lat": 47.0621222,
-        "lng": -79.79079170000001,
-        "website": "https://www.petro-canada.ca/en/personal/gas-station-locations/6692-hwy-11-n-temagami?utm_source=G&utm_medium=lpm&utm_campaign=suncor",
-        "phone": "(705) 316-0890",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Temagami Marine",
-        "tag": "Shop",
-        "desc": "52 Temagami Marine Road, Temagami",
-        "rating": "4.6",
-        "image": "images/listings/temagami-shops-2-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-2-0.jpg",
-          "images/listings/temagami-shops-2-1.jpg",
-          "images/listings/temagami-shops-2-2.jpg"
-        ],
-        "lat": 47.05030319999999,
-        "lng": -79.8012115,
-        "website": "http://www.temagamimarine.com/",
-        "phone": "(705) 569-3221",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Temagami Outfitting Company",
-        "tag": "Shop",
-        "desc": "11 Lakeshore Drive, Temagami",
-        "rating": "4.7",
-        "image": "images/listings/temagami-shops-3-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-3-0.jpg",
-          "images/listings/temagami-shops-3-1.jpg",
-          "images/listings/temagami-shops-3-2.jpg"
-        ],
-        "lat": 47.0630374,
-        "lng": -79.79258469999999,
-        "website": "http://www.temagamioutfitting.ca/",
-        "phone": "(416) 835-0963",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "3 Wildflower Avenue, Temagami",
-        "rating": "4.7",
-        "image": "images/listings/temagami-shops-4-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-4-0.jpg",
-          "images/listings/temagami-shops-4-1.jpg",
-          "images/listings/temagami-shops-4-2.jpg"
-        ],
-        "lat": 47.06391429999999,
-        "lng": -79.79004859999999,
-        "website": "https://www.lcbo.com/en/stores/highway-11-wildflower-241?utm_medium=location&utm_source=google&utm_campaign=store241&utm_content=website",
-        "phone": "(705) 569-3410",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Temagami Cannabis Company",
-        "tag": "Shop",
-        "desc": "6716 Ontario 11, Temagami",
-        "rating": "4.8",
-        "image": "images/listings/temagami-shops-5-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-5-0.jpg",
-          "images/listings/temagami-shops-5-1.jpg",
-          "images/listings/temagami-shops-5-2.jpg"
-        ],
-        "lat": 47.0637797,
-        "lng": -79.78976209999999,
-        "website": "http://temagamicannabis.co/",
-        "phone": "(705) 995-0684",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Thornloe Cheese",
-        "tag": "Shop",
-        "desc": "6722 Ontario 11, Temagami",
-        "rating": "3.5",
-        "image": null,
-        "images": [],
-        "lat": 47.0642941,
-        "lng": -79.7904715,
-        "website": null,
-        "phone": "(705) 569-2552",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Northland Traders",
-        "tag": "Shop",
-        "desc": "6722 Ontario 11, Temagami",
-        "rating": "4.8",
-        "image": "images/listings/temagami-shops-7-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-7-0.jpg",
-          "images/listings/temagami-shops-7-1.jpg",
-          "images/listings/temagami-shops-7-2.jpg"
-        ],
-        "lat": 47.0642941,
-        "lng": -79.7904715,
-        "website": null,
-        "phone": "(705) 569-3600",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "One Stop Trading Post",
-        "tag": "Shop",
-        "desc": "11 Hwy N, Temagami",
-        "rating": "4.8",
-        "image": "images/listings/temagami-shops-8-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-8-0.jpg",
-          "images/listings/temagami-shops-8-1.jpg",
-          "images/listings/temagami-shops-8-2.jpg"
-        ],
-        "lat": 47.0634441,
-        "lng": -79.789817,
-        "website": null,
-        "phone": "(705) 569-3888",
-        "description": null,
-        "hours": "Thursday: 10:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Docks Plus Temagami",
-        "tag": "Shop",
-        "desc": "6703 Ontario 11, Temagami",
-        "rating": "5",
-        "image": "images/listings/temagami-shops-9-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-9-0.jpg",
-          "images/listings/temagami-shops-9-1.jpg",
-          "images/listings/temagami-shops-9-2.jpg"
-        ],
-        "lat": 47.0628411,
-        "lng": -79.7896046,
-        "website": "http://www.docksplustemagami.ca/",
-        "phone": "(705) 569-4600",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Pharmasave Temagami",
-        "tag": "Shop",
-        "desc": "6729 Ontario 11, Temagami",
-        "rating": "4.9",
-        "image": "images/listings/temagami-shops-10-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-10-0.jpg",
-          "images/listings/temagami-shops-10-1.jpg"
-        ],
-        "lat": 47.0651214,
-        "lng": -79.7893577,
-        "website": "https://pharmasave.com/temagami",
-        "phone": "(705) 569-2300",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Diamonds & Birch",
-        "tag": "Shop",
-        "desc": "6731 Ontario 11, Temagami",
-        "rating": "5",
-        "image": "images/listings/temagami-shops-11-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-11-0.jpg",
-          "images/listings/temagami-shops-11-1.jpg"
-        ],
-        "lat": 47.0651821,
-        "lng": -79.7893307,
-        "website": null,
-        "phone": "(705) 569-4443",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Drifters General Store",
-        "tag": "Shop",
-        "desc": "6 Lakeshore Drive, Temagami",
-        "rating": "4.2",
-        "image": "images/listings/temagami-shops-12-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-12-0.jpg",
-          "images/listings/temagami-shops-12-1.jpg",
-          "images/listings/temagami-shops-12-2.jpg"
-        ],
-        "lat": 47.06264369999999,
-        "lng": -79.7909459,
-        "website": "https://www.facebook.com/groups/6036056656406876/",
-        "phone": "(705) 569-3738",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Country Style",
-        "tag": "Shop",
-        "desc": "Petro Canada, 6692 Ontario 11, Temagami",
-        "rating": "4.2",
-        "image": "images/listings/temagami-shops-13-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-13-0.jpg",
-          "images/listings/temagami-shops-13-1.jpg",
-          "images/listings/temagami-shops-13-2.jpg"
-        ],
-        "lat": 47.062135,
-        "lng": -79.79081300000001,
-        "website": "https://locations.countrystyle.com/?utm_source=G&utm_medium=LPM&utm_campaign=MTY",
-        "phone": "(705) 569-3310",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Jae's Customs",
-        "tag": "Shop",
-        "desc": "Ojibway Lane, Temagami",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 47.0663437,
-        "lng": -79.7890986,
-        "website": null,
-        "phone": "(705) 622-5591",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Living Temagami ~ Arts & Culture Centre",
-        "tag": "Shop",
-        "desc": "6715 Ontario 11, Temagami",
-        "rating": "4.9",
-        "image": "images/listings/temagami-shops-15-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-15-0.jpg",
-          "images/listings/temagami-shops-15-1.jpg",
-          "images/listings/temagami-shops-15-2.jpg"
         ],
         "lat": 47.06378609999999,
         "lng": -79.7888782,
@@ -11820,56 +10103,6 @@ window.LISTINGS_DATA = {
         "lng": -79.7892375,
         "website": "http://shirleyrosecockburn.com/",
         "phone": "(705) 978-1424",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Temagami",
-        "tag": "Shop",
-        "desc": "Temagami",
-        "rating": "NR",
-        "image": "images/listings/temagami-shops-17-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-17-0.jpg",
-          "images/listings/temagami-shops-17-1.jpg",
-          "images/listings/temagami-shops-17-2.jpg"
-        ],
-        "lat": 47.0633734,
-        "lng": -79.7895671,
-        "website": "http://www.temagami.ca/",
-        "phone": null,
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Lakeland Airways Ltd",
-        "tag": "Shop",
-        "desc": "25 Lakeshore Drive, Temagami",
-        "rating": "4.5",
-        "image": "images/listings/temagami-shops-18-0.jpg",
-        "images": [
-          "images/listings/temagami-shops-18-0.jpg",
-          "images/listings/temagami-shops-18-1.jpg",
-          "images/listings/temagami-shops-18-2.jpg"
-        ],
-        "lat": 47.06287390000001,
-        "lng": -79.792977,
-        "website": "https://lakelandairways.ca/",
-        "phone": "(705) 569-3455",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Century 21 Blue Sky Region Realty Inc Brokerage",
-        "tag": "Shop",
-        "desc": "6716 Ontario 11, Temagami",
-        "rating": "4.5",
-        "image": null,
-        "images": [],
-        "lat": 47.063771,
-        "lng": -79.789727,
-        "website": null,
-        "phone": "(705) 569-4500",
         "description": null,
         "hours": null
       }
@@ -13195,202 +11428,184 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "American Eagle",
+        "name": "W.K.P. Kennedy Gallery",
         "tag": "Shop",
-        "desc": "1500 Fisher Street Unit 178 / 179, North Bay",
-        "rating": "4.2",
+        "desc": "150 Main Street East, North Bay",
+        "rating": "4.5",
         "image": "images/listings/northbay-shops-0-0.jpg",
         "images": [
           "images/listings/northbay-shops-0-0.jpg",
           "images/listings/northbay-shops-0-1.jpg",
           "images/listings/northbay-shops-0-2.jpg"
         ],
-        "lat": 46.31483739999999,
-        "lng": -79.44082619999999,
-        "website": "https://storelocations.ae.com/ca/on/north-bay/00907-1500-fisher-street.html",
-        "phone": "(705) 476-6002",
-        "description": "Chain selling trendy casualwear, shoes, accessories & loungewear for guys & girls.",
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Food Basics",
-        "tag": "Shop",
-        "desc": "1901 Cassells Street, North Bay",
-        "rating": "4",
-        "image": "images/listings/northbay-shops-1-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-1-0.jpg",
-          "images/listings/northbay-shops-1-1.jpg",
-          "images/listings/northbay-shops-1-2.jpg"
-        ],
-        "lat": 46.3170954,
-        "lng": -79.4453485,
-        "website": "http://www.foodbasics.ca/?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 472-8031",
+        "lat": 46.3098491,
+        "lng": -79.4630627,
+        "website": "https://capitolcentre.org/",
+        "phone": "(705) 474-1944",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
+        "hours": "Thursday: 12:00 – 4:00 PM"
       },
       {
-        "name": "RONA Lakeview Builders Supplies",
+        "name": "Joan Ferneyhough Gallery",
         "tag": "Shop",
-        "desc": "523 McGaughey Avenue, North Bay",
-        "rating": "4.1",
-        "image": "images/listings/northbay-shops-2-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-2-0.jpg",
-          "images/listings/northbay-shops-2-1.jpg",
-          "images/listings/northbay-shops-2-2.jpg"
-        ],
-        "lat": 46.3107558,
-        "lng": -79.44384989999999,
-        "website": "https://www.rona.ca/en/store/ontario/north-bay/rona-lakeview-builders-supplies-north-bay-08885?cm_mmc=organic_search-_-yext-_-gmb-_-website&utm_medium=organic_search&utm_source=yext&utm_campaign=gmb&utm_content=website",
-        "phone": "(705) 474-4400",
+        "desc": "157 1st Avenue East, North Bay",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 46.31129859999999,
+        "lng": -79.4602077,
+        "website": null,
+        "phone": "(705) 476-1534",
         "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
+        "hours": "Thursday: 11:00 AM – 5:00 PM"
       },
       {
-        "name": "Sobeys Algonquin",
+        "name": "Line Gallery",
         "tag": "Shop",
-        "desc": "1899 Algonquin Avenue, North Bay",
-        "rating": "4.2",
+        "desc": "897 Main Street West, North Bay",
+        "rating": "5",
+        "image": null,
+        "images": [],
+        "lat": 46.3183799,
+        "lng": -79.4749946,
+        "website": null,
+        "phone": "(705) 476-7471",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "The Capitol Centre",
+        "tag": "Shop",
+        "desc": "150 Main Street East, North Bay",
+        "rating": "4.6",
         "image": "images/listings/northbay-shops-3-0.jpg",
         "images": [
           "images/listings/northbay-shops-3-0.jpg",
           "images/listings/northbay-shops-3-1.jpg",
           "images/listings/northbay-shops-3-2.jpg"
         ],
-        "lat": 46.331212,
-        "lng": -79.46758899999999,
-        "website": "https://www.sobeys.com/stores/sobeys-algonquin/?utm_source=G&utm_medium=lpm&utm_campaign=Sobeys",
-        "phone": "(705) 472-4001",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
+        "lat": 46.3098487,
+        "lng": -79.4630306,
+        "website": "http://capitolcentre.org/",
+        "phone": "(705) 474-4747",
+        "description": "Long-standing entertainment venue featuring musicals, live comedy, concerts & family shows.",
+        "hours": "Thursday: 12:00 – 4:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "White Water Gallery",
         "tag": "Shop",
-        "desc": "368 Lakeshore Drive, North Bay",
-        "rating": "3.8",
+        "desc": "159 Main Street East, North Bay",
+        "rating": "4.6",
         "image": "images/listings/northbay-shops-4-0.jpg",
         "images": [
           "images/listings/northbay-shops-4-0.jpg",
           "images/listings/northbay-shops-4-1.jpg",
           "images/listings/northbay-shops-4-2.jpg"
         ],
-        "lat": 46.2801801,
-        "lng": -79.4458562,
-        "website": "http://locations.timhortons.ca/en/on/north-bay/368-lakeshore-dr",
-        "phone": "(705) 474-2431",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 10:30 PM"
-      },
-      {
-        "name": "The UPS Drop Off Access Point",
-        "tag": "Shop",
-        "desc": "107 Shirreff Avenue, North Bay",
-        "rating": "3.3",
-        "image": "images/listings/northbay-shops-5-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-5-0.jpg",
-          "images/listings/northbay-shops-5-1.jpg",
-          "images/listings/northbay-shops-5-2.jpg"
-        ],
-        "lat": 46.33160059999999,
-        "lng": -79.46433019999999,
-        "website": null,
-        "phone": "(705) 497-1385",
+        "lat": 46.3094397,
+        "lng": -79.46334019999999,
+        "website": "https://whitewatergallery.com/",
+        "phone": "(705) 476-2444",
         "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
+        "hours": "Thursday: 12:00 – 5:00 PM"
       },
       {
-        "name": "The Home Depot",
+        "name": "Art On Main",
         "tag": "Shop",
-        "desc": "1275 Seymour Street, North Bay",
+        "desc": "171 Main Street West, North Bay",
         "rating": "4",
-        "image": "images/listings/northbay-shops-6-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-6-0.jpg",
-          "images/listings/northbay-shops-6-1.jpg",
-          "images/listings/northbay-shops-6-2.jpg"
-        ],
-        "lat": 46.3065338,
-        "lng": -79.4375534,
-        "website": "https://stores.homedepot.ca/on/northbay/home-improvement-northbay-on-7160.html?utm_source=google&utm_medium=organic&utm_campaign=local&utm_content=7160",
-        "phone": "(705) 845-2300",
-        "description": "Chain home improvement retailer for tools, appliances & other products (some offer truck rentals).",
-        "hours": "Thursday: 7:00 AM – 9:00 PM"
+        "image": null,
+        "images": [],
+        "lat": 46.3115958,
+        "lng": -79.4653247,
+        "website": null,
+        "phone": "(705) 840-1753",
+        "description": null,
+        "hours": null
       },
       {
-        "name": "Tim Hortons",
+        "name": "The Westlake Gallery",
         "tag": "Shop",
-        "desc": "114 Drury Street, North Bay",
-        "rating": "3.9",
+        "desc": "374 Fraser Street #4, North Bay",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 46.3125653,
+        "lng": -79.46486999999999,
+        "website": null,
+        "phone": "(705) 497-1619",
+        "description": null,
+        "hours": "Thursday: 9:00 AM – 5:00 AM"
+      },
+      {
+        "name": "Good Atlas",
+        "tag": "Shop",
+        "desc": "348 Fraser Street, North Bay",
+        "rating": "5",
         "image": "images/listings/northbay-shops-7-0.jpg",
         "images": [
           "images/listings/northbay-shops-7-0.jpg",
           "images/listings/northbay-shops-7-1.jpg",
           "images/listings/northbay-shops-7-2.jpg"
         ],
-        "lat": 46.30980349999999,
-        "lng": -79.4398963,
-        "website": "https://locations.timhortons.ca/en/on/north-bay/114-drury-st",
-        "phone": "(705) 495-1669",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
+        "lat": 46.3125478,
+        "lng": -79.465054,
+        "website": "http://www.goodatlas.ca/",
+        "phone": "(416) 561-6576",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "Bloch Bauers Gallery of Fine Art",
         "tag": "Shop",
-        "desc": "1050 Cassells Street, North Bay",
-        "rating": "3.6",
+        "desc": "222 McIntyre Street West Suite 104, North Bay",
+        "rating": "5",
         "image": "images/listings/northbay-shops-8-0.jpg",
         "images": [
           "images/listings/northbay-shops-8-0.jpg",
           "images/listings/northbay-shops-8-1.jpg",
           "images/listings/northbay-shops-8-2.jpg"
         ],
-        "lat": 46.3169677,
-        "lng": -79.45872949999999,
-        "website": "https://locations.timhortons.ca/en/",
-        "phone": "(705) 474-3233",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 11:00 PM"
+        "lat": 46.3129761,
+        "lng": -79.4643677,
+        "website": "http://blochbauersgallery.ca/",
+        "phone": "(705) 223-9898",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 6:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "ARTICUL22",
         "tag": "Shop",
-        "desc": "975 McKeown Avenue, North Bay",
-        "rating": "3.9",
+        "desc": "1184 Cassells Street, North Bay",
+        "rating": "NR",
         "image": "images/listings/northbay-shops-9-0.jpg",
         "images": [
           "images/listings/northbay-shops-9-0.jpg",
           "images/listings/northbay-shops-9-1.jpg",
           "images/listings/northbay-shops-9-2.jpg"
         ],
-        "lat": 46.33422299999999,
-        "lng": -79.4690385,
-        "website": "https://locations.timhortons.ca/en/on/north-bay/975-mckeown-ave",
-        "phone": "(705) 495-0764",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
+        "lat": 46.3182362,
+        "lng": -79.4553818,
+        "website": null,
+        "phone": "(705) 499-7764",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 6:00 PM"
       },
       {
-        "name": "Suzy Shier | Le Château",
+        "name": "Dreamwalker Fine Arts",
         "tag": "Shop",
-        "desc": "1500 Fisher Street Unit #33, North Bay",
-        "rating": "4.3",
+        "desc": "343 Lansdowne Avenue, North Bay",
+        "rating": "NR",
         "image": "images/listings/northbay-shops-10-0.jpg",
         "images": [
-          "images/listings/northbay-shops-10-0.jpg",
-          "images/listings/northbay-shops-10-1.jpg",
-          "images/listings/northbay-shops-10-2.jpg"
+          "images/listings/northbay-shops-10-0.jpg"
         ],
-        "lat": 46.314481,
-        "lng": -79.440456,
-        "website": "https://suzyshier.com/collections/clothing-new-arrivals?utm_source=GMB",
-        "phone": "(705) 472-5411",
+        "lat": 46.3255074,
+        "lng": -79.4584263,
+        "website": null,
+        "phone": "(705) 491-6960",
         "description": null,
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
+        "hours": null
       },
       {
         "name": "Darkhorse Comics",
@@ -13411,137 +11626,15 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 11:00 AM – 5:00 PM"
       },
       {
-        "name": "Canadian Tire",
+        "name": "Creative Learning Toys",
         "tag": "Shop",
-        "desc": "890 McKeown Avenue, North Bay",
-        "rating": "4",
+        "desc": "181 Main Street West, North Bay",
+        "rating": "4.9",
         "image": "images/listings/northbay-shops-12-0.jpg",
         "images": [
           "images/listings/northbay-shops-12-0.jpg",
           "images/listings/northbay-shops-12-1.jpg",
           "images/listings/northbay-shops-12-2.jpg"
-        ],
-        "lat": 46.3312526,
-        "lng": -79.4704136,
-        "website": "https://www.canadiantire.ca/en/store-details/on/north-bay-on-72.html?utm_source=google&utm_medium=lss&utm_content=72",
-        "phone": "(705) 472-3000",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Wine Rack",
-        "tag": "Shop",
-        "desc": "Inside Metro, 390 Lakeshore Drive, North Bay",
-        "rating": "4.6",
-        "image": null,
-        "images": [],
-        "lat": 46.27878339999999,
-        "lng": -79.4442957,
-        "website": "http://www.winerack.com/",
-        "phone": "(705) 825-7741",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
-      },
-      {
-        "name": "Culligan",
-        "tag": "Shop",
-        "desc": "789 McKeown Avenue #1, North Bay",
-        "rating": "3.7",
-        "image": "images/listings/northbay-shops-14-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-14-0.jpg",
-          "images/listings/northbay-shops-14-1.jpg",
-          "images/listings/northbay-shops-14-2.jpg"
-        ],
-        "lat": 46.3327965,
-        "lng": -79.4753088,
-        "website": "https://www.heyculliganman.com/?utm_source=google&utm_medium=gmb",
-        "phone": "(705) 728-4782",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Cycle Works",
-        "tag": "Shop",
-        "desc": "593 John Street, North Bay",
-        "rating": "4.8",
-        "image": "images/listings/northbay-shops-15-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-15-0.jpg",
-          "images/listings/northbay-shops-15-1.jpg",
-          "images/listings/northbay-shops-15-2.jpg"
-        ],
-        "lat": 46.30498059999999,
-        "lng": -79.4549167,
-        "website": "https://www.cycleworksnorthbay.ca/",
-        "phone": "(705) 472-5662",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Hart",
-        "tag": "Shop",
-        "desc": "300 Lakeshore Drive, North Bay",
-        "rating": "3.8",
-        "image": "images/listings/northbay-shops-16-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-16-0.jpg",
-          "images/listings/northbay-shops-16-1.jpg",
-          "images/listings/northbay-shops-16-2.jpg"
-        ],
-        "lat": 46.2828636,
-        "lng": -79.4457726,
-        "website": "https://hartstores.com/",
-        "phone": "(705) 474-6659",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Shoppers Drug Mart",
-        "tag": "Shop",
-        "desc": "2025 Cassells Street, North Bay",
-        "rating": "3.6",
-        "image": "images/listings/northbay-shops-17-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-17-0.jpg",
-          "images/listings/northbay-shops-17-1.jpg",
-          "images/listings/northbay-shops-17-2.jpg"
-        ],
-        "lat": 46.317211,
-        "lng": -79.444779,
-        "website": "https://www.shoppersdrugmart.ca/en/store-locator/store/665/?utm_source=G&utm_medium=lpm&utm_campaign=LPM_SDM",
-        "phone": "(705) 474-8200",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 12:00 AM"
-      },
-      {
-        "name": "Best Buy",
-        "tag": "Shop",
-        "desc": "1500 Fisher Street, North Bay",
-        "rating": "3.8",
-        "image": "images/listings/northbay-shops-18-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-18-0.jpg",
-          "images/listings/northbay-shops-18-1.jpg",
-          "images/listings/northbay-shops-18-2.jpg"
-        ],
-        "lat": 46.31303339999999,
-        "lng": -79.4408259,
-        "website": "https://stores.bestbuy.ca/en-ca/on/north-bay/1500-fisher-st",
-        "phone": "(866) 237-8289",
-        "description": "Chain retailer with a large array of brand-name electronics, computers, appliances & more.",
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Creative Learning Toys",
-        "tag": "Shop",
-        "desc": "181 Main Street West, North Bay",
-        "rating": "4.9",
-        "image": "images/listings/northbay-shops-19-0.jpg",
-        "images": [
-          "images/listings/northbay-shops-19-0.jpg",
-          "images/listings/northbay-shops-19-1.jpg",
-          "images/listings/northbay-shops-19-2.jpg"
         ],
         "lat": 46.3117549,
         "lng": -79.46545499999999,
@@ -13549,6 +11642,128 @@ window.LISTINGS_DATA = {
         "phone": "(705) 472-9832",
         "description": null,
         "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "The Campus Shop - Nipissing University",
+        "tag": "Shop",
+        "desc": "North Bay",
+        "rating": "3",
+        "image": "images/listings/northbay-shops-13-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-13-0.jpg",
+          "images/listings/northbay-shops-13-1.jpg",
+          "images/listings/northbay-shops-13-2.jpg"
+        ],
+        "lat": 46.310977,
+        "lng": -79.4619996,
+        "website": "https://www.bkstr.com/canadorecampusstore/home?cm_mmc=OrganicSearch-_-GoogleMyBusiness-_-Google-_-7914",
+        "phone": "(705) 474-7600",
+        "description": null,
+        "hours": "Thursday: 8:30 AM – 4:00 PM"
+      },
+      {
+        "name": "Value Village",
+        "tag": "Shop",
+        "desc": "390 Lakeshore Drive, North Bay",
+        "rating": "3.7",
+        "image": "images/listings/northbay-shops-14-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-14-0.jpg",
+          "images/listings/northbay-shops-14-1.jpg",
+          "images/listings/northbay-shops-14-2.jpg"
+        ],
+        "lat": 46.2797194,
+        "lng": -79.44443729999999,
+        "website": "https://stores.savers.com/on/northbay/valuevillage-thrift-store-2076.html",
+        "phone": "(705) 476-1888",
+        "description": "Thrift store chain offering secondhand clothing, footwear, furniture, books & household items.",
+        "hours": "Thursday: 9:00 AM – 9:00 PM"
+      },
+      {
+        "name": "Coles - Northgate Shopping Centre",
+        "tag": "Shop",
+        "desc": "1500 Fisher Street, North Bay",
+        "rating": "4.3",
+        "image": "images/listings/northbay-shops-15-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-15-0.jpg",
+          "images/listings/northbay-shops-15-1.jpg",
+          "images/listings/northbay-shops-15-2.jpg"
+        ],
+        "lat": 46.31375289999999,
+        "lng": -79.4399177,
+        "website": "https://www.indigo.ca/en-ca/store-locator/north-bay-coles-northgate-shopping-centre.html",
+        "phone": "(705) 476-1550",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 8:00 PM"
+      },
+      {
+        "name": "Canadore College Bookstore The Shoppe",
+        "tag": "Shop",
+        "desc": "60 Commerce Crescent, North Bay",
+        "rating": "3.7",
+        "image": "images/listings/northbay-shops-16-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-16-0.jpg"
+        ],
+        "lat": 46.3154018,
+        "lng": -79.427646,
+        "website": "https://www.bkstr.com/canadorecampusstore/home?cm_mmc=OrganicSearch-_-GoogleMyBusiness-_-Google-_-3099",
+        "phone": "(705) 474-7600",
+        "description": "Campus bookstore chain offering new, used & digital textbooks, plus school-branded merchandise.",
+        "hours": "Thursday: 9:00 AM – 12:00 PM"
+      },
+      {
+        "name": "ALLISON THE BOOKMAN",
+        "tag": "Shop",
+        "desc": "342 Main Street East, North Bay",
+        "rating": "4.7",
+        "image": "images/listings/northbay-shops-17-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-17-0.jpg",
+          "images/listings/northbay-shops-17-1.jpg",
+          "images/listings/northbay-shops-17-2.jpg"
+        ],
+        "lat": 46.3071595,
+        "lng": -79.4608356,
+        "website": "http://allisonthebookman.com/",
+        "phone": "(705) 476-1450",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
+      },
+      {
+        "name": "The Wizard's Nook & Oddities",
+        "tag": "Shop",
+        "desc": "110 Main Street East, North Bay",
+        "rating": "5",
+        "image": "images/listings/northbay-shops-18-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-18-0.jpg",
+          "images/listings/northbay-shops-18-1.jpg",
+          "images/listings/northbay-shops-18-2.jpg"
+        ],
+        "lat": 46.3102694,
+        "lng": -79.46372769999999,
+        "website": "https://www.wizardnook.ca/",
+        "phone": "(249) 202-2267",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 5:00 PM"
+      },
+      {
+        "name": "Mudshark - Records and Books",
+        "tag": "Shop",
+        "desc": "112 Main Street West unit D, North Bay",
+        "rating": "4.4",
+        "image": "images/listings/northbay-shops-19-0.jpg",
+        "images": [
+          "images/listings/northbay-shops-19-0.jpg"
+        ],
+        "lat": 46.3107903,
+        "lng": -79.4641422,
+        "website": "https://highroadrecords.ca/pages/north-bay-record-store",
+        "phone": "(705) 478-0619",
+        "description": null,
+        "hours": "Thursday: 11:00 AM – 7:00 PM"
       }
     ]
   },
@@ -14355,15 +12570,47 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "RONA New Liskeard",
+        "name": "Foto Shop. Gallery",
         "tag": "Shop",
-        "desc": "245 Whitewood Avenue West, Temiskaming Shores",
-        "rating": "3.8",
+        "desc": "32 Lakeshore Road North, New Liskeard",
+        "rating": "4.7",
         "image": "images/listings/temiskaming-shops-0-0.jpg",
         "images": [
           "images/listings/temiskaming-shops-0-0.jpg",
           "images/listings/temiskaming-shops-0-1.jpg",
           "images/listings/temiskaming-shops-0-2.jpg"
+        ],
+        "lat": 47.50777530000001,
+        "lng": -79.67484979999999,
+        "website": "https://www.foto-shop-gallery.com/",
+        "phone": "(705) 647-5436",
+        "description": null,
+        "hours": "Thursday: 9:30 AM – 4:00 PM"
+      },
+      {
+        "name": "Aunt Mikaela's Creative Corner",
+        "tag": "Shop",
+        "desc": "885710 Ontario 65, Temiskaming Shores",
+        "rating": "NR",
+        "image": null,
+        "images": [],
+        "lat": 47.5172544,
+        "lng": -79.7039868,
+        "website": "http://auntmikaela.com/",
+        "phone": "(705) 648-1595",
+        "description": null,
+        "hours": null
+      },
+      {
+        "name": "RONA New Liskeard",
+        "tag": "Shop",
+        "desc": "245 Whitewood Avenue West, Temiskaming Shores",
+        "rating": "3.8",
+        "image": "images/listings/temiskaming-shops-2-0.jpg",
+        "images": [
+          "images/listings/temiskaming-shops-2-0.jpg",
+          "images/listings/temiskaming-shops-2-1.jpg",
+          "images/listings/temiskaming-shops-2-2.jpg"
         ],
         "lat": 47.50901609999999,
         "lng": -79.6811852,
@@ -14373,33 +12620,15 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 7:00 AM – 5:00 PM"
       },
       {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "883307 Ontario 65, Temiskaming Shores",
-        "rating": "3.9",
-        "image": "images/listings/temiskaming-shops-1-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-1-0.jpg",
-          "images/listings/temiskaming-shops-1-1.jpg",
-          "images/listings/temiskaming-shops-1-2.jpg"
-        ],
-        "lat": 47.52589709999999,
-        "lng": -79.6731034,
-        "website": "https://locations.timhortons.ca/en/on/new-liskeard/883307-highway-65-e",
-        "phone": "(705) 647-8288",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
         "name": "Kal Tire",
         "tag": "Shop",
         "desc": "250 Armstrong Street North, Temiskaming Shores",
         "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-2-0.jpg",
+        "image": "images/listings/temiskaming-shops-3-0.jpg",
         "images": [
-          "images/listings/temiskaming-shops-2-0.jpg",
-          "images/listings/temiskaming-shops-2-1.jpg",
-          "images/listings/temiskaming-shops-2-2.jpg"
+          "images/listings/temiskaming-shops-3-0.jpg",
+          "images/listings/temiskaming-shops-3-1.jpg",
+          "images/listings/temiskaming-shops-3-2.jpg"
         ],
         "lat": 47.515395,
         "lng": -79.672718,
@@ -14409,51 +12638,15 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 7:30 AM – 6:00 PM"
       },
       {
-        "name": "Food Basics",
+        "name": "Bonanza Furniture",
         "tag": "Shop",
-        "desc": "11 B 65, Temiskaming Shores",
-        "rating": "4.2",
-        "image": "images/listings/temiskaming-shops-3-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-3-0.jpg",
-          "images/listings/temiskaming-shops-3-1.jpg",
-          "images/listings/temiskaming-shops-3-2.jpg"
-        ],
-        "lat": 47.52527389999999,
-        "lng": -79.6723439,
-        "website": "http://www.foodbasics.ca/?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 647-7649",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Canadian Tire",
-        "tag": "Shop",
-        "desc": "997431, Ontario 11, Temiskaming Shores",
-        "rating": "4.1",
+        "desc": "997465 Ontario 11, New Liskeard",
+        "rating": "3.9",
         "image": "images/listings/temiskaming-shops-4-0.jpg",
         "images": [
           "images/listings/temiskaming-shops-4-0.jpg",
           "images/listings/temiskaming-shops-4-1.jpg",
           "images/listings/temiskaming-shops-4-2.jpg"
-        ],
-        "lat": 47.53117279999999,
-        "lng": -79.6719837,
-        "website": "https://www.canadiantire.ca/en/store-details/on/new-liskeard-on-68.html?utm_source=google&utm_medium=lss&utm_content=68",
-        "phone": "(705) 647-7331",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Bonanza Furniture",
-        "tag": "Shop",
-        "desc": "997465 Ontario 11, New Liskeard",
-        "rating": "3.9",
-        "image": "images/listings/temiskaming-shops-5-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-5-0.jpg",
-          "images/listings/temiskaming-shops-5-1.jpg",
-          "images/listings/temiskaming-shops-5-2.jpg"
         ],
         "lat": 47.53410939999999,
         "lng": -79.6722398,
@@ -14461,253 +12654,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 647-8384",
         "description": null,
         "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "54 May Street South, Temiskaming Shores",
-        "rating": "3.9",
-        "image": "images/listings/temiskaming-shops-6-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-6-0.jpg",
-          "images/listings/temiskaming-shops-6-1.jpg",
-          "images/listings/temiskaming-shops-6-2.jpg"
-        ],
-        "lat": 47.5071681,
-        "lng": -79.67040159999999,
-        "website": "https://locations.timhortons.ca/en/on/new-liskeard/54-may-st",
-        "phone": "(705) 647-4733",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Howey Bros",
-        "tag": "Shop",
-        "desc": "57 Whitewood Avenue West, New Liskeard",
-        "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-7-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-7-0.jpg",
-          "images/listings/temiskaming-shops-7-1.jpg",
-          "images/listings/temiskaming-shops-7-2.jpg"
-        ],
-        "lat": 47.5086693,
-        "lng": -79.673784,
-        "website": null,
-        "phone": "(705) 647-9444",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Unique Home Centre",
-        "tag": "Shop",
-        "desc": "883336 Ontario 65, Temiskaming Shores",
-        "rating": "4.6",
-        "image": "images/listings/temiskaming-shops-8-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-8-0.jpg",
-          "images/listings/temiskaming-shops-8-1.jpg",
-          "images/listings/temiskaming-shops-8-2.jpg"
-        ],
-        "lat": 47.527006,
-        "lng": -79.6750828,
-        "website": "https://www.uniquehomecentre.com/",
-        "phone": "(705) 647-5348",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Circle K",
-        "tag": "Shop",
-        "desc": "14 Paget Street South, Temiskaming Shores",
-        "rating": "3.5",
-        "image": "images/listings/temiskaming-shops-9-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-9-0.jpg",
-          "images/listings/temiskaming-shops-9-1.jpg",
-          "images/listings/temiskaming-shops-9-2.jpg"
-        ],
-        "lat": 47.5085263,
-        "lng": -79.6743408,
-        "website": "https://www.circlek.com/ca/ontario/store-locator/CA/new-liskeard/14-paget-street-south/0800102?utm_source=google&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 647-9229",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Goldbelt New Liskard",
-        "tag": "Shop",
-        "desc": "23 Paget Street South, Temiskaming Shores",
-        "rating": "4.6",
-        "image": "images/listings/temiskaming-shops-10-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-10-0.jpg",
-          "images/listings/temiskaming-shops-10-1.jpg",
-          "images/listings/temiskaming-shops-10-2.jpg"
-        ],
-        "lat": 47.5079289,
-        "lng": -79.6739427,
-        "website": "http://goldbelttire.com/",
-        "phone": "(705) 647-4354",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Bridge Country Feeds",
-        "tag": "Shop",
-        "desc": "40 Scott Street, New Liskeard",
-        "rating": "4.8",
-        "image": null,
-        "images": [],
-        "lat": 47.5092367,
-        "lng": -79.6844346,
-        "website": null,
-        "phone": "(705) 647-7771",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 4:00 PM"
-      },
-      {
-        "name": "VJ Trailer Sales",
-        "tag": "Shop",
-        "desc": "95 Craven Drive, Temiskaming Shores",
-        "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-12-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-12-0.jpg",
-          "images/listings/temiskaming-shops-12-1.jpg",
-          "images/listings/temiskaming-shops-12-2.jpg"
-        ],
-        "lat": 47.513911,
-        "lng": -79.69356309999999,
-        "website": "http://vjtrailers.com/",
-        "phone": "(705) 647-2079",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Yves' Prime Cut Meats",
-        "tag": "Shop",
-        "desc": "883317 Ontario 65, New Liskeard",
-        "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-13-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-13-0.jpg",
-          "images/listings/temiskaming-shops-13-1.jpg",
-          "images/listings/temiskaming-shops-13-2.jpg"
-        ],
-        "lat": 47.52668629999999,
-        "lng": -79.67356199999999,
-        "website": null,
-        "phone": "(705) 647-9837",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "McKnight's Men's Wear Ltd",
-        "tag": "Shop",
-        "desc": "23 Whitewood Avenue West, New Liskeard",
-        "rating": "4.7",
-        "image": "images/listings/temiskaming-shops-14-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-14-0.jpg",
-          "images/listings/temiskaming-shops-14-1.jpg",
-          "images/listings/temiskaming-shops-14-2.jpg"
-        ],
-        "lat": 47.5087035,
-        "lng": -79.6724553,
-        "website": "https://www.facebook.com/mcknightsmw",
-        "phone": "(705) 647-4050",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "The Match Factory",
-        "tag": "Shop",
-        "desc": "50 Armstrong Street North, New Liskeard",
-        "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-15-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-15-0.jpg",
-          "images/listings/temiskaming-shops-15-1.jpg",
-          "images/listings/temiskaming-shops-15-2.jpg"
-        ],
-        "lat": 47.50985060000001,
-        "lng": -79.6716871,
-        "website": "http://matchfactoryfibres.square.site/",
-        "phone": "(705) 647-5899",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Breault's Discount Warehouse",
-        "tag": "Shop",
-        "desc": "74 Scott Street, Temiskaming Shores",
-        "rating": "4.8",
-        "image": "images/listings/temiskaming-shops-16-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-16-0.jpg",
-          "images/listings/temiskaming-shops-16-1.jpg",
-          "images/listings/temiskaming-shops-16-2.jpg"
-        ],
-        "lat": 47.510761,
-        "lng": -79.6843241,
-        "website": "https://www.facebook.com/breaultsdiscountw",
-        "phone": "(705) 647-4412",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Salvation Army Thrift Store",
-        "tag": "Shop",
-        "desc": "101 Whitewood Avenue West, Temiskaming Shores",
-        "rating": "4.4",
-        "image": "images/listings/temiskaming-shops-17-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-17-0.jpg",
-          "images/listings/temiskaming-shops-17-1.jpg"
-        ],
-        "lat": 47.5087212,
-        "lng": -79.67562629999999,
-        "website": "https://salvationarmy.ca/",
-        "phone": "(705) 647-4030",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 4:00 PM"
-      },
-      {
-        "name": "New Liskeard Esso",
-        "tag": "Shop",
-        "desc": "883340 Ontario 65, Temiskaming Shores",
-        "rating": "3.7",
-        "image": "images/listings/temiskaming-shops-18-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-18-0.jpg",
-          "images/listings/temiskaming-shops-18-1.jpg",
-          "images/listings/temiskaming-shops-18-2.jpg"
-        ],
-        "lat": 47.5274607,
-        "lng": -79.6749523,
-        "website": "https://www.esso.ca/en/gas-station/newliskeard-on-newliskeardesso-318736",
-        "phone": "(705) 647-7616",
-        "description": null,
-        "hours": "Thursday: 6:00 AM – 9:30 PM"
-      },
-      {
-        "name": "Waypoint Convenience",
-        "tag": "Shop",
-        "desc": "58 Armstrong Street, Temiskaming Shores",
-        "rating": "4.5",
-        "image": "images/listings/temiskaming-shops-19-0.jpg",
-        "images": [
-          "images/listings/temiskaming-shops-19-0.jpg",
-          "images/listings/temiskaming-shops-19-1.jpg",
-          "images/listings/temiskaming-shops-19-2.jpg"
-        ],
-        "lat": 47.510146,
-        "lng": -79.6717548,
-        "website": "https://waypointconvenience.com/",
-        "phone": "(705) 805-3085",
-        "description": null,
-        "hours": "Thursday: 6:00 AM – 10:00 PM"
       }
     ]
   },
@@ -15027,51 +12973,15 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Englehart Motel & Restaurant",
+        "name": "LCBO",
         "tag": "Shop",
-        "desc": "The Englehart Motel, 334416 Ontario 11, Englehart",
-        "rating": "3.6",
+        "desc": "65 4th Avenue, Englehart",
+        "rating": "4.4",
         "image": "images/listings/englehart-shops-0-0.jpg",
         "images": [
           "images/listings/englehart-shops-0-0.jpg",
           "images/listings/englehart-shops-0-1.jpg",
           "images/listings/englehart-shops-0-2.jpg"
-        ],
-        "lat": 47.81830719999999,
-        "lng": -79.86603509999999,
-        "website": "http://www.englehartmotel.ca/",
-        "phone": "(705) 544-2226",
-        "description": "No-frills roadside inn with free WiFi & bare-bones rooms, plus an on-site restaurant & bar.",
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
-      },
-      {
-        "name": "Travis & Lisa's Your Independent Grocer Englehart",
-        "tag": "Shop",
-        "desc": "66 4th Avenue, Englehart",
-        "rating": "4.2",
-        "image": "images/listings/englehart-shops-1-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-1-0.jpg",
-          "images/listings/englehart-shops-1-1.jpg",
-          "images/listings/englehart-shops-1-2.jpg"
-        ],
-        "lat": 47.825503,
-        "lng": -79.874014,
-        "website": "https://www.yourindependentgrocer.ca/store-locator/details/5131?utm_source=G&utm_medium=LPM&utm_campaign=Loblaws",
-        "phone": "(705) 544-2201",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "65 4th Avenue, Englehart",
-        "rating": "4.4",
-        "image": "images/listings/englehart-shops-2-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-2-0.jpg",
-          "images/listings/englehart-shops-2-1.jpg",
-          "images/listings/englehart-shops-2-2.jpg"
         ],
         "lat": 47.82563469999999,
         "lng": -79.8741202,
@@ -15079,282 +12989,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 544-2549",
         "description": null,
         "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "NAPA Auto Parts - NAPA Associate Englehart",
-        "tag": "Shop",
-        "desc": "334421 Ontario 11, Englehart",
-        "rating": "4.3",
-        "image": null,
-        "images": [],
-        "lat": 47.819284,
-        "lng": -79.8720498,
-        "website": "https://www.napacanada.com/en/on/englehart/store/1007561?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 544-2188",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Peters' Garage Signature Tire",
-        "tag": "Shop",
-        "desc": "334625 Ontario 11, Englehart",
-        "rating": "4.7",
-        "image": "images/listings/englehart-shops-4-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-4-0.jpg",
-          "images/listings/englehart-shops-4-1.jpg",
-          "images/listings/englehart-shops-4-2.jpg"
-        ],
-        "lat": 47.8285827,
-        "lng": -79.88951109999999,
-        "website": "http://signaturetire.ca/dealer/peters-garage-signature-tire/",
-        "phone": "(705) 544-2354",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Knead A Treat",
-        "tag": "Shop",
-        "desc": "Pond Road, Englehart",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 47.82414960000001,
-        "lng": -79.8735705,
-        "website": null,
-        "phone": "(705) 207-7939",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Sam's Vape Shop",
-        "tag": "Shop",
-        "desc": "46 3rd Street Unit #1, Englehart",
-        "rating": "NR",
-        "image": "images/listings/englehart-shops-6-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-6-0.jpg"
-        ],
-        "lat": 47.8250258,
-        "lng": -79.87288559999999,
-        "website": null,
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Sam'S'Pot",
-        "tag": "Shop",
-        "desc": "46 3rd Street unit #3, Englehart",
-        "rating": "4.9",
-        "image": "images/listings/englehart-shops-7-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-7-0.jpg"
-        ],
-        "lat": 47.8250258,
-        "lng": -79.87288559999999,
-        "website": "http://www.no.website.com/",
-        "phone": null,
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 9:00 PM"
-      },
-      {
-        "name": "GarLin's Gifts Inc. (GarLin’s Gift Gallery Plus)",
-        "tag": "Shop",
-        "desc": "56 4th Avenue, Englehart",
-        "rating": "4.7",
-        "image": "images/listings/englehart-shops-8-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-8-0.jpg",
-          "images/listings/englehart-shops-8-1.jpg",
-          "images/listings/englehart-shops-8-2.jpg"
-        ],
-        "lat": 47.82529710000001,
-        "lng": -79.8726647,
-        "website": "http://garlinsgiftgalleryplus.com/",
-        "phone": "(705) 544-8050",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Bloom River",
-        "tag": "Shop",
-        "desc": "47 3rd Street, Englehart",
-        "rating": "5",
-        "image": "images/listings/englehart-shops-9-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-9-0.jpg",
-          "images/listings/englehart-shops-9-1.jpg",
-          "images/listings/englehart-shops-9-2.jpg"
-        ],
-        "lat": 47.8248483,
-        "lng": -79.8734711,
-        "website": "http://www.bloomriver.ca/",
-        "phone": "(855) 800-5459",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Englehart Variety Ltd",
-        "tag": "Shop",
-        "desc": "45 3rd Street, Englehart",
-        "rating": "4.5",
-        "image": "images/listings/englehart-shops-10-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-10-0.jpg"
-        ],
-        "lat": 47.8251104,
-        "lng": -79.8732981,
-        "website": null,
-        "phone": "(705) 544-7400",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Pharmasave Marshall's",
-        "tag": "Shop",
-        "desc": "43 3rd Street, Englehart",
-        "rating": "4",
-        "image": "images/listings/englehart-shops-11-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-11-0.jpg",
-          "images/listings/englehart-shops-11-1.jpg"
-        ],
-        "lat": 47.825116,
-        "lng": -79.8733508,
-        "website": "https://pharmasave.com/englehart",
-        "phone": "(705) 544-7878",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Williams & Scott Hardware",
-        "tag": "Shop",
-        "desc": "47 4th Avenue, Englehart",
-        "rating": "4.7",
-        "image": "images/listings/englehart-shops-12-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-12-0.jpg"
-        ],
-        "lat": 47.8257747,
-        "lng": -79.8720586,
-        "website": "http://williamsandscotthardware.ca/",
-        "phone": "(705) 544-2002",
-        "description": "Hardware store stocking household tools, garden supplies, home decor & more.",
-        "hours": "Thursday: 8:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Mac & Eddies",
-        "tag": "Shop",
-        "desc": "39 3rd Street Unit E, Englehart",
-        "rating": "5",
-        "image": "images/listings/englehart-shops-13-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-13-0.jpg",
-          "images/listings/englehart-shops-13-1.jpg",
-          "images/listings/englehart-shops-13-2.jpg"
-        ],
-        "lat": 47.8258429,
-        "lng": -79.8732759,
-        "website": "https://www.macandeddies.com/",
-        "phone": "(519) 636-2697",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "The Quilted Nest",
-        "tag": "Shop",
-        "desc": "39 A 3rd Street, Englehart",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 47.8260797,
-        "lng": -79.8733867,
-        "website": null,
-        "phone": "(519) 636-2697",
-        "description": null,
-        "hours": "Thursday: 10:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Chilly Willy’s Sweet Treats and Ice Cream Shop",
-        "tag": "Shop",
-        "desc": "39 3rd Street Unit E, Englehart",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 47.8260797,
-        "lng": -79.8733867,
-        "website": null,
-        "phone": "(705) 544-3238",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Shoppe Around the Corner",
-        "tag": "Shop",
-        "desc": "39 3rd Street Unit A, Englehart",
-        "rating": "5",
-        "image": "images/listings/englehart-shops-16-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-16-0.jpg",
-          "images/listings/englehart-shops-16-1.jpg",
-          "images/listings/englehart-shops-16-2.jpg"
-        ],
-        "lat": 47.8260797,
-        "lng": -79.8733867,
-        "website": "http://shoppearoundthecorner.ca/",
-        "phone": "(519) 636-2697",
-        "description": null,
-        "hours": "Thursday: 10:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Rx Drug Mart - Englehart",
-        "tag": "Shop",
-        "desc": "63 5th Street, Englehart",
-        "rating": "4.3",
-        "image": null,
-        "images": [],
-        "lat": 47.82262100000001,
-        "lng": -79.879189,
-        "website": "https://www.pharmaconnect.ca/appointment/0ab684f6-6e33-4390-98ab-56e83cdb9bda",
-        "phone": "(705) 544-8054",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "141 4th Avenue, Englehart",
-        "rating": "3.5",
-        "image": "images/listings/englehart-shops-18-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-18-0.jpg",
-          "images/listings/englehart-shops-18-1.jpg",
-          "images/listings/englehart-shops-18-2.jpg"
-        ],
-        "lat": 47.82572680000001,
-        "lng": -79.8842455,
-        "website": "https://locations.timhortons.ca/en/on/englehart/141-4th-avenue",
-        "phone": "(705) 544-1930",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 10:00 PM"
-      },
-      {
-        "name": "Esso",
-        "tag": "Shop",
-        "desc": "27 7th Street, Englehart",
-        "rating": "4",
-        "image": "images/listings/englehart-shops-19-0.jpg",
-        "images": [
-          "images/listings/englehart-shops-19-0.jpg",
-          "images/listings/englehart-shops-19-1.jpg"
-        ],
-        "lat": 47.8264064,
-        "lng": -79.88436899999999,
-        "website": "https://www.esso.ca/en-ca",
-        "phone": "(604) 266-1486",
-        "description": null,
-        "hours": null
       }
     ]
   },
@@ -16204,40 +13838,38 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Tim Hortons",
+        "name": "Museum of Northern History at Sir Harry Oakes Chateau",
         "tag": "Shop",
-        "desc": "175 Government Road West, Kirkland Lake",
-        "rating": "4.1",
+        "desc": "2 Chateau Drive, Kirkland Lake",
+        "rating": "4.6",
         "image": "images/listings/kirklandlake-shops-0-0.jpg",
         "images": [
           "images/listings/kirklandlake-shops-0-0.jpg",
           "images/listings/kirklandlake-shops-0-1.jpg",
           "images/listings/kirklandlake-shops-0-2.jpg"
         ],
-        "lat": 48.1467252,
-        "lng": -80.0457457,
-        "website": "https://locations.timhortons.ca/en/on/kirkland-lake/175-government-rd-west",
-        "phone": "(705) 567-9588",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
+        "lat": 48.1485203,
+        "lng": -80.04801739999999,
+        "website": null,
+        "phone": "(705) 568-8800",
+        "description": null,
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "The Stope",
         "tag": "Shop",
-        "desc": "70 Government Road East, Kirkland Lake",
-        "rating": "3.9",
+        "desc": "17 Government Road West, Kirkland Lake",
+        "rating": "NR",
         "image": "images/listings/kirklandlake-shops-1-0.jpg",
         "images": [
-          "images/listings/kirklandlake-shops-1-0.jpg",
-          "images/listings/kirklandlake-shops-1-1.jpg",
-          "images/listings/kirklandlake-shops-1-2.jpg"
+          "images/listings/kirklandlake-shops-1-0.jpg"
         ],
-        "lat": 48.15458109999999,
-        "lng": -80.0279278,
-        "website": "https://locations.timhortons.ca/en/on/kirkland-lake/70-government-rd-east",
-        "phone": "(705) 567-2424",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: 5:00 AM – 10:00 PM"
+        "lat": 48.1501763,
+        "lng": -80.03420419999999,
+        "website": null,
+        "phone": null,
+        "description": null,
+        "hours": null
       },
       {
         "name": "Kal Tire",
@@ -16258,33 +13890,15 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 7:30 AM – 6:00 PM"
       },
       {
-        "name": "Northern Freedom Homes & Recreation / Storage",
+        "name": "Goldbelt Tire & Supply Ltd.",
         "tag": "Shop",
-        "desc": "20 Archer Drive, Kirkland Lake",
-        "rating": "4",
+        "desc": "15 Nipissing Lane, Kirkland Lake",
+        "rating": "4.7",
         "image": "images/listings/kirklandlake-shops-3-0.jpg",
         "images": [
           "images/listings/kirklandlake-shops-3-0.jpg",
           "images/listings/kirklandlake-shops-3-1.jpg",
           "images/listings/kirklandlake-shops-3-2.jpg"
-        ],
-        "lat": 48.133132,
-        "lng": -80.06485239999999,
-        "website": "https://www.northernfreedomstorage.com/",
-        "phone": "(705) 567-5291",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Goldbelt Tire & Supply Ltd.",
-        "tag": "Shop",
-        "desc": "15 Nipissing Lane, Kirkland Lake",
-        "rating": "4.7",
-        "image": "images/listings/kirklandlake-shops-4-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-4-0.jpg",
-          "images/listings/kirklandlake-shops-4-1.jpg",
-          "images/listings/kirklandlake-shops-4-2.jpg"
         ],
         "lat": 48.1565212,
         "lng": -80.0312577,
@@ -16292,255 +13906,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 567-9211",
         "description": null,
         "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Jewel Box",
-        "tag": "Shop",
-        "desc": "17 Government Road West, Kirkland Lake",
-        "rating": "5",
-        "image": "images/listings/kirklandlake-shops-5-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-5-0.jpg",
-          "images/listings/kirklandlake-shops-5-1.jpg",
-          "images/listings/kirklandlake-shops-5-2.jpg"
-        ],
-        "lat": 48.1501763,
-        "lng": -80.03420419999999,
-        "website": "http://www.jewelboxkl.com/",
-        "phone": "(705) 567-4151",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Dorothy's Flower Shop",
-        "tag": "Shop",
-        "desc": "5 Chateau Drive, Kirkland Lake",
-        "rating": "4.1",
-        "image": "images/listings/kirklandlake-shops-6-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-6-0.jpg",
-          "images/listings/kirklandlake-shops-6-1.jpg",
-          "images/listings/kirklandlake-shops-6-2.jpg"
-        ],
-        "lat": 48.1478236,
-        "lng": -80.0485623,
-        "website": "https://www.dorothysflowers.net/",
-        "phone": "(705) 568-8719",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 4:00 PM"
-      },
-      {
-        "name": "Kirkland Pharmacy PharmaChoice",
-        "tag": "Shop",
-        "desc": "38 Government Road West, Kirkland Lake",
-        "rating": "4.6",
-        "image": "images/listings/kirklandlake-shops-7-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-7-0.jpg",
-          "images/listings/kirklandlake-shops-7-1.jpg",
-          "images/listings/kirklandlake-shops-7-2.jpg"
-        ],
-        "lat": 48.150241,
-        "lng": -80.03596499999999,
-        "website": "http://www.kirklandpharmacy.com/",
-        "phone": "(705) 567-3223",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Crusader Property Maintenance Inc.",
-        "tag": "Shop",
-        "desc": "51 4th Street, Kirkland Lake",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 48.1491142,
-        "lng": -80.0273828,
-        "website": null,
-        "phone": "(705) 805-9146",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Great Outdoor Center",
-        "tag": "Shop",
-        "desc": "953 Government Road West, Kirkland Lake",
-        "rating": "4.4",
-        "image": "images/listings/kirklandlake-shops-9-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-9-0.jpg",
-          "images/listings/kirklandlake-shops-9-1.jpg",
-          "images/listings/kirklandlake-shops-9-2.jpg"
-        ],
-        "lat": 48.130833,
-        "lng": -80.0690633,
-        "website": "http://greatoutdoorcenter.com/?utm_source=google&utm_medium=organic&utm_campaign=GMB-service",
-        "phone": "(705) 567-4411",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Northern Gold Buyers",
-        "tag": "Shop",
-        "desc": "Kirkland Lake",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 48.1497512,
-        "lng": -80.03608129999999,
-        "website": null,
-        "phone": "(705) 568-7659",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Creative D Signs",
-        "tag": "Shop",
-        "desc": "28 Government Road West, Kirkland Lake",
-        "rating": "4.8",
-        "image": "images/listings/kirklandlake-shops-11-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-11-0.jpg"
-        ],
-        "lat": 48.1504061,
-        "lng": -80.03531219999999,
-        "website": "https://www.facebook.com/creativedsignskl/",
-        "phone": "(705) 567-2400",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Sutherland Printing Limited",
-        "tag": "Shop",
-        "desc": "25 Government Road East, Kirkland Lake",
-        "rating": "4.9",
-        "image": "images/listings/kirklandlake-shops-12-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-12-0.jpg",
-          "images/listings/kirklandlake-shops-12-1.jpg",
-          "images/listings/kirklandlake-shops-12-2.jpg"
-        ],
-        "lat": 48.1531392,
-        "lng": -80.0310658,
-        "website": "http://www.sutherlandprinting.ca/",
-        "phone": "(705) 567-5055",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Benson Autoparts",
-        "tag": "Shop",
-        "desc": "17 Government Road East, Kirkland Lake",
-        "rating": "4.9",
-        "image": "images/listings/kirklandlake-shops-13-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-13-0.jpg",
-          "images/listings/kirklandlake-shops-13-1.jpg"
-        ],
-        "lat": 48.1525253,
-        "lng": -80.03138249999999,
-        "website": "http://www.bensonautoparts.com/",
-        "phone": "(705) 567-6063",
-        "description": null,
-        "hours": "Thursday: 7:30 AM – 5:00 PM"
-      },
-      {
-        "name": "easyhome Lease to Own",
-        "tag": "Shop",
-        "desc": "150 Government Road West Unit 185, Kirkland Lake",
-        "rating": "4.6",
-        "image": null,
-        "images": [],
-        "lat": 48.1480178,
-        "lng": -80.0456746,
-        "website": "https://easyhome.ca/?utm_source=yext&utm_medium=referral&utm_campaign=businessdirectory&y_source=1_MjAzMzA4MTgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
-        "phone": "(705) 567-1130",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Loblaw Pharmacy",
-        "tag": "Shop",
-        "desc": "15 McChesney Avenue, Kirkland Lake",
-        "rating": "3.2",
-        "image": "images/listings/kirklandlake-shops-15-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-15-0.jpg"
-        ],
-        "lat": 48.145596,
-        "lng": -80.042501,
-        "website": "https://www.pchealth.ca/en/health/pharmacist-consultations/?utm_source=G&utm_medium=LPM&utm_campaign=Loblaws",
-        "phone": "(705) 567-4941",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Hart",
-        "tag": "Shop",
-        "desc": "150 Government Road West, Kirkland Lake",
-        "rating": "4",
-        "image": "images/listings/kirklandlake-shops-16-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-16-0.jpg",
-          "images/listings/kirklandlake-shops-16-1.jpg",
-          "images/listings/kirklandlake-shops-16-2.jpg"
-        ],
-        "lat": 48.1477991,
-        "lng": -80.04514549999999,
-        "website": "https://hartstores.com/",
-        "phone": "(705) 567-2696",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 6:00 PM"
-      },
-      {
-        "name": "Pet Valu",
-        "tag": "Shop",
-        "desc": "90 Government Road West, Kirkland Lake",
-        "rating": "4.6",
-        "image": "images/listings/kirklandlake-shops-17-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-17-0.jpg",
-          "images/listings/kirklandlake-shops-17-1.jpg",
-          "images/listings/kirklandlake-shops-17-2.jpg"
-        ],
-        "lat": 48.14879169999999,
-        "lng": -80.03899179999999,
-        "website": "https://store.petvalu.ca/location/2331/",
-        "phone": "(705) 567-2413",
-        "description": "Retail chain carrying food, supplies, toys & other products for pets such as dogs, cats & reptiles.",
-        "hours": "Thursday: 9:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Northern Bargains",
-        "tag": "Shop",
-        "desc": "49 Government Road West, Kirkland Lake",
-        "rating": "4.4",
-        "image": "images/listings/kirklandlake-shops-18-0.jpg",
-        "images": [
-          "images/listings/kirklandlake-shops-18-0.jpg",
-          "images/listings/kirklandlake-shops-18-1.jpg",
-          "images/listings/kirklandlake-shops-18-2.jpg"
-        ],
-        "lat": 48.1498607,
-        "lng": -80.0362899,
-        "website": null,
-        "phone": "(705) 567-6400",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "The Vault",
-        "tag": "Shop",
-        "desc": "24 Duncan Avenue South, Kirkland Lake",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 48.1506351,
-        "lng": -80.03244939999999,
-        "website": null,
-        "phone": "(705) 567-5041",
-        "description": null,
-        "hours": null
       }
     ]
   },
@@ -16732,264 +14097,14 @@ window.LISTINGS_DATA = {
         "hours": "Thursday: 7:30 AM – 5:00 PM"
       },
       {
-        "name": "Wrig Signs Diane Wrigglesworth",
-        "tag": "Shop",
-        "desc": "438 Marilyn Avenue, Matheson",
-        "rating": "NR",
-        "image": "images/listings/matheson-shops-2-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-2-0.jpg"
-        ],
-        "lat": 48.529843,
-        "lng": -80.4615492,
-        "website": null,
-        "phone": "(705) 221-6122",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Pro Pharm Ltd",
-        "tag": "Shop",
-        "desc": "Matheson",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 48.5338059,
-        "lng": -80.4640886,
-        "website": null,
-        "phone": "(705) 273-1033",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Peace By The Gram",
-        "tag": "Shop",
-        "desc": "366 Fourth Avenue, Matheson",
-        "rating": "4.8",
-        "image": "images/listings/matheson-shops-4-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-4-0.jpg",
-          "images/listings/matheson-shops-4-1.jpg",
-          "images/listings/matheson-shops-4-2.jpg"
-        ],
-        "lat": 48.5331763,
-        "lng": -80.4636902,
-        "website": "https://www.peacebythegram.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=18373283203980903253",
-        "phone": "(705) 707-9679",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 9:00 PM"
-      },
-      {
-        "name": "D & L Confectionery",
-        "tag": "Shop",
-        "desc": "412 Fifth Ave, Matheson",
-        "rating": "5",
-        "image": "images/listings/matheson-shops-5-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-5-0.jpg",
-          "images/listings/matheson-shops-5-1.jpg",
-          "images/listings/matheson-shops-5-2.jpg"
-        ],
-        "lat": 48.5353097,
-        "lng": -80.4652552,
-        "website": null,
-        "phone": "(705) 273-2293",
-        "description": null,
-        "hours": "Thursday: 5:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Guardian Willis Pharmacy",
-        "tag": "Shop",
-        "desc": "414 5th Avenue, Matheson",
-        "rating": "5",
-        "image": "images/listings/matheson-shops-6-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-6-0.jpg",
-          "images/listings/matheson-shops-6-1.jpg"
-        ],
-        "lat": 48.535471,
-        "lng": -80.46510700000002,
-        "website": "https://www.guardian-ida-remedysrx.ca/en/ontario/matheson/willis-pharmacy-7005458?utm_source=google&utm_medium=maps&utm_campaign=local_presence",
-        "phone": "(705) 273-2202",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Collins Home Hardware Building Centre",
-        "tag": "Shop",
-        "desc": "413 5th Avenue, Matheson",
-        "rating": "4.1",
-        "image": null,
-        "images": [],
-        "lat": 48.5353339,
-        "lng": -80.4658125,
-        "website": "https://www.homehardware.ca/en/store/10916?utm_source=google&utm_medium=organic_search&utm_campaign=local_seo&utm_content=10916",
-        "phone": "(705) 273-1890",
-        "description": "Branch of a chain store offering products like paint, tools, grills & home-improvement supplies.",
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "A & G Freshmart",
-        "tag": "Shop",
-        "desc": "417 5th Avenue, Matheson",
-        "rating": "4.2",
-        "image": null,
-        "images": [],
-        "lat": 48.5355432,
-        "lng": -80.465604,
-        "website": "https://www.facebook.com/ag.freshmart/",
-        "phone": "(705) 273-1661",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "423 Ontario 11, Matheson",
-        "rating": "4.6",
-        "image": "images/listings/matheson-shops-9-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-9-0.jpg",
-          "images/listings/matheson-shops-9-1.jpg"
-        ],
-        "lat": 48.53220930000001,
-        "lng": -80.46261989999999,
-        "website": "https://www.lcbo.com/en/stores/highway-11-burton-162?utm_medium=location&utm_source=google&utm_campaign=store162&utm_content=website",
-        "phone": "(705) 273-2833",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Tanny Cannabis Oasis",
-        "tag": "Shop",
-        "desc": "362 McDougall Street Unit B, Matheson",
-        "rating": "5",
-        "image": "images/listings/matheson-shops-10-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-10-0.jpg",
-          "images/listings/matheson-shops-10-1.jpg",
-          "images/listings/matheson-shops-10-2.jpg"
-        ],
-        "lat": 48.5363033,
-        "lng": -80.4664238,
-        "website": "https://tannycannabisoasis.ca/",
-        "phone": "(705) 406-7788",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Tanny Convenience Store",
-        "tag": "Shop",
-        "desc": "362 Macdougall Avenue, Matheson",
-        "rating": "4.4",
-        "image": "images/listings/matheson-shops-11-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-11-0.jpg",
-          "images/listings/matheson-shops-11-1.jpg",
-          "images/listings/matheson-shops-11-2.jpg"
-        ],
-        "lat": 48.5363353,
-        "lng": -80.4664554,
-        "website": "http://tannyconveniencestore.com/",
-        "phone": "(705) 273-3090",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Matheson Chrysler Dodge Jeep Ram LTD",
-        "tag": "Shop",
-        "desc": "349 Ontario 11, Matheson",
-        "rating": "4.2",
-        "image": "images/listings/matheson-shops-12-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-12-0.jpg",
-          "images/listings/matheson-shops-12-1.jpg",
-          "images/listings/matheson-shops-12-2.jpg"
-        ],
-        "lat": 48.5325427,
-        "lng": -80.46854479999999,
-        "website": "http://www.mathesonchrysler.com/",
-        "phone": "(705) 273-2112",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Matheson Chrysler Ltd.",
-        "tag": "Shop",
-        "desc": "444 6th Avenue, Matheson",
-        "rating": "1",
-        "image": "images/listings/matheson-shops-13-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-13-0.jpg"
-        ],
-        "lat": 48.5324554,
-        "lng": -80.46870419999999,
-        "website": "https://www.mathesonchrysler.com/",
-        "phone": "(877) 881-7276",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "HeavenLee Treats Freeze Dried Candy & Snacks",
-        "tag": "Shop",
-        "desc": "449 7th Avenue, Matheson",
-        "rating": "5",
-        "image": "images/listings/matheson-shops-14-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-14-0.jpg",
-          "images/listings/matheson-shops-14-1.jpg",
-          "images/listings/matheson-shops-14-2.jpg"
-        ],
-        "lat": 48.5368963,
-        "lng": -80.46870489999999,
-        "website": "https://www.heavenleetreats.com/",
-        "phone": "(705) 288-1841",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Matheson",
-        "tag": "Shop",
-        "desc": "Matheson",
-        "rating": "NR",
-        "image": "images/listings/matheson-shops-15-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-15-0.jpg",
-          "images/listings/matheson-shops-15-1.jpg",
-          "images/listings/matheson-shops-15-2.jpg"
-        ],
-        "lat": 48.5338059,
-        "lng": -80.4640886,
-        "website": null,
-        "phone": null,
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Centre de services Desjardins Matheson",
-        "tag": "Shop",
-        "desc": "436 5th Avenue, Matheson",
-        "rating": "NR",
-        "image": "images/listings/matheson-shops-16-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-16-0.jpg"
-        ],
-        "lat": 48.536324,
-        "lng": -80.467659,
-        "website": "https://www.desjardins.com/82900901-95533",
-        "phone": "(705) 273-2442",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 12:30 PM, 1:30 – 4:00 PM"
-      },
-      {
         "name": "Thelma Miles Museum",
         "tag": "Shop",
         "desc": "374 Hough Road, Matheson",
         "rating": "5",
-        "image": "images/listings/matheson-shops-17-0.jpg",
+        "image": "images/listings/matheson-shops-2-0.jpg",
         "images": [
-          "images/listings/matheson-shops-17-0.jpg",
-          "images/listings/matheson-shops-17-1.jpg"
+          "images/listings/matheson-shops-2-0.jpg",
+          "images/listings/matheson-shops-2-1.jpg"
         ],
         "lat": 48.5309457,
         "lng": -80.46562809999999,
@@ -16999,36 +14114,20 @@ window.LISTINGS_DATA = {
         "hours": null
       },
       {
-        "name": "Esso",
+        "name": "Wrig Signs Diane Wrigglesworth",
         "tag": "Shop",
-        "desc": "430 Ontario 11, Matheson",
-        "rating": "3.8",
-        "image": "images/listings/matheson-shops-18-0.jpg",
-        "images": [
-          "images/listings/matheson-shops-18-0.jpg",
-          "images/listings/matheson-shops-18-1.jpg",
-          "images/listings/matheson-shops-18-2.jpg"
-        ],
-        "lat": 48.533064,
-        "lng": -80.46314199999999,
-        "website": "https://www.esso.ca/en-ca/find-station/ESSO-MATHESON-ON-ALARIEESSO-200303509?utm_source=google&utm_medium=organic&utm_campaign=gmb",
-        "phone": "(705) 273-2435",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Joseph H Kennedy Public School",
-        "tag": "Shop",
-        "desc": "422 Fourth Avenue, Matheson",
+        "desc": "438 Marilyn Avenue, Matheson",
         "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 48.535742,
-        "lng": -80.4635172,
-        "website": "https://jhkps.dsb1.ca/",
-        "phone": "(705) 273-2324",
+        "image": "images/listings/matheson-shops-3-0.jpg",
+        "images": [
+          "images/listings/matheson-shops-3-0.jpg"
+        ],
+        "lat": 48.529843,
+        "lng": -80.4615492,
+        "website": null,
+        "phone": "(705) 221-6122",
         "description": null,
-        "hours": null
+        "hours": "Thursday: 9:00 AM – 5:00 PM"
       }
     ]
   },
@@ -18113,355 +15212,50 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Walmart Supercentre",
+        "name": "Jump City Comics",
         "tag": "Shop",
-        "desc": "1870 Riverside Drive, Timmins",
-        "rating": "3.8",
+        "desc": "101 Mall, Basement, 38 Pine Street North, Timmins",
+        "rating": "4.9",
         "image": "images/listings/timmins-shops-0-0.jpg",
         "images": [
           "images/listings/timmins-shops-0-0.jpg",
           "images/listings/timmins-shops-0-1.jpg",
           "images/listings/timmins-shops-0-2.jpg"
         ],
-        "lat": 48.4748525,
-        "lng": -81.3932208,
-        "website": "https://www.walmart.ca/en/store/3104?utm_source=local&utm_medium=listings&utm_campaign=sc&cmpid=gmb",
-        "phone": "(705) 267-6451",
+        "lat": 48.47669699999999,
+        "lng": -81.327883,
+        "website": "https://jumpcitycomics101.ca/",
+        "phone": "(705) 531-3136",
         "description": null,
-        "hours": "Thursday: 7:00 AM – 10:00 PM"
+        "hours": "Thursday: 10:00 AM – 5:00 PM"
       },
       {
-        "name": "Tim Hortons",
+        "name": "Coles - Timmins Square",
         "tag": "Shop",
-        "desc": "1445 Riverside Drive, Timmins",
-        "rating": "3.9",
-        "image": "images/listings/timmins-shops-1-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-1-0.jpg",
-          "images/listings/timmins-shops-1-1.jpg",
-          "images/listings/timmins-shops-1-2.jpg"
-        ],
-        "lat": 48.4720488,
-        "lng": -81.37946699999999,
-        "website": "https://locations.timhortons.ca/en/on/timmins/1445-riverside-dr/",
-        "phone": "(705) 268-5858",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Rexall",
-        "tag": "Shop",
-        "desc": "119 Pine Street South, Timmins",
-        "rating": "3.3",
-        "image": "images/listings/timmins-shops-2-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-2-0.jpg"
-        ],
-        "lat": 48.473525,
-        "lng": -81.328633,
-        "website": "https://www.rexall.ca/storelocator/store/6904?utm_source=gbp&utm_medium=organic&utm_campaign=6904",
-        "phone": "(705) 267-6422",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 6:00 PM"
-      },
-      {
-        "name": "Bargain Shop The",
-        "tag": "Shop",
-        "desc": "414 Algonquin Boulevard East, Timmins",
-        "rating": "3.8",
-        "image": "images/listings/timmins-shops-3-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-3-0.jpg",
-          "images/listings/timmins-shops-3-1.jpg",
-          "images/listings/timmins-shops-3-2.jpg"
-        ],
-        "lat": 48.4769535,
-        "lng": -81.3230957,
-        "website": "https://www.thebargainshop.com/",
-        "phone": "(705) 268-3383",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 6:00 PM"
-      },
-      {
-        "name": "Kal Tire",
-        "tag": "Shop",
-        "desc": "1919 Riverside Drive, Timmins",
+        "desc": "1500 Riverside Drive, Timmins",
         "rating": "4.4",
-        "image": "images/listings/timmins-shops-4-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-4-0.jpg",
-          "images/listings/timmins-shops-4-1.jpg",
-          "images/listings/timmins-shops-4-2.jpg"
-        ],
-        "lat": 48.471975,
-        "lng": -81.394564,
-        "website": "https://www.kaltire.com/en/locations/?store=846-timmins-store&utm_source=G&utm_medium=LPM&utm_campaign=KalTire",
-        "phone": "(705) 268-7474",
-        "description": null,
-        "hours": "Thursday: 7:30 AM – 6:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "400 Algonquin Boulevard East, Timmins",
-        "rating": "3.8",
-        "image": "images/listings/timmins-shops-5-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-5-0.jpg",
-          "images/listings/timmins-shops-5-1.jpg",
-          "images/listings/timmins-shops-5-2.jpg"
-        ],
-        "lat": 48.4770422,
-        "lng": -81.3240957,
-        "website": "https://locations.timhortons.ca/en/on/timmins/400-algonquin-blvd-e",
-        "phone": "(705) 267-5250",
-        "description": "Canadian chain for signature premium-blend coffee, plus light fare, pastries & breakfast sandwiches.",
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Dollarama",
-        "tag": "Shop",
-        "desc": "1850 Riverside Drive, Timmins",
-        "rating": "4.2",
-        "image": "images/listings/timmins-shops-6-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-6-0.jpg",
-          "images/listings/timmins-shops-6-1.jpg",
-          "images/listings/timmins-shops-6-2.jpg"
-        ],
-        "lat": 48.473036,
-        "lng": -81.39269999999999,
-        "website": "https://www.dollarama.com/en-CA/locations/on/timmins-1850-riverside-dr?utm_source=G&utm_medium=LPM&utm_campaign=Dollarama",
-        "phone": "(888) 365-4266",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Timmins Home Hardware Building Centre",
-        "tag": "Shop",
-        "desc": "1700 Riverside Drive, Timmins",
-        "rating": "4.3",
-        "image": "images/listings/timmins-shops-7-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-7-0.jpg",
-          "images/listings/timmins-shops-7-1.jpg",
-          "images/listings/timmins-shops-7-2.jpg"
-        ],
-        "lat": 48.4733761,
-        "lng": -81.3863226,
-        "website": "https://www.homehardware.ca/en/store/13215?utm_source=google&utm_medium=organic_search&utm_campaign=local_seo&utm_content=13215",
-        "phone": "(705) 267-6295",
-        "description": "Branch of a chain store offering products like paint, tools, grills & home-improvement supplies.",
-        "hours": "Thursday: 8:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Action Car And Truck Accessories - Timmins",
-        "tag": "Shop",
-        "desc": "855 Algonquin Boulevard East, Timmins",
-        "rating": "4.4",
-        "image": "images/listings/timmins-shops-8-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-8-0.jpg",
-          "images/listings/timmins-shops-8-1.jpg",
-          "images/listings/timmins-shops-8-2.jpg"
-        ],
-        "lat": 48.4764781,
-        "lng": -81.3090809,
-        "website": "https://www.actiontrucks.com/timmins-ontario-location",
-        "phone": "(705) 360-5545",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Pet Valu",
-        "tag": "Shop",
-        "desc": "100 Waterloo Road, Timmins",
-        "rating": "4.6",
-        "image": "images/listings/timmins-shops-9-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-9-0.jpg",
-          "images/listings/timmins-shops-9-1.jpg",
-          "images/listings/timmins-shops-9-2.jpg"
-        ],
-        "lat": 48.47766190000001,
-        "lng": -81.3370935,
-        "website": "https://store.petvalu.ca/location/2180/",
-        "phone": "(705) 264-4027",
-        "description": "Retail chain carrying food, supplies, toys & other products for pets such as dogs, cats & reptiles.",
-        "hours": "Thursday: 8:30 AM – 9:00 PM"
-      },
-      {
-        "name": "Peoples Jewellers",
-        "tag": "Shop",
-        "desc": "1500 Riverside Drive Ste. 46, Timmins",
-        "rating": "4.8",
-        "image": "images/listings/timmins-shops-10-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-10-0.jpg",
-          "images/listings/timmins-shops-10-1.jpg",
-          "images/listings/timmins-shops-10-2.jpg"
-        ],
-        "lat": 48.4737642,
-        "lng": -81.3829279,
-        "website": "https://stores.peoplesjewellers.com/on/timmins/5207?cid=seo-listings",
-        "phone": "(705) 267-6484",
+        "image": null,
+        "images": [],
+        "lat": 48.4742026,
+        "lng": -81.3825834,
+        "website": "https://www.indigo.ca/en-ca/store-locator/timmins-coles-timmins-square.html",
+        "phone": "(705) 268-5093",
         "description": null,
         "hours": "Thursday: 10:00 AM – 8:00 PM"
       },
       {
-        "name": "R & S Vision Centre",
+        "name": "Savor the pages",
         "tag": "Shop",
-        "desc": "100 Waterloo Road Unit 4, Timmins",
-        "rating": "4.6",
-        "image": "images/listings/timmins-shops-11-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-11-0.jpg",
-          "images/listings/timmins-shops-11-1.jpg"
-        ],
-        "lat": 48.4782117,
-        "lng": -81.3372878,
-        "website": "https://www.rsvisioncentre.com/",
-        "phone": "(705) 267-7327",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Dixon Electric",
-        "tag": "Shop",
-        "desc": "33 Iroquois Road East, Timmins",
-        "rating": "4.7",
-        "image": "images/listings/timmins-shops-12-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-12-0.jpg",
-          "images/listings/timmins-shops-12-1.jpg",
-          "images/listings/timmins-shops-12-2.jpg"
-        ],
-        "lat": 48.460111,
-        "lng": -81.334628,
-        "website": "http://www.dixonelectric.ca/?utm_source=google&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 264-6100",
-        "description": null,
-        "hours": "Thursday: 7:30 AM – 4:30 PM"
-      },
-      {
-        "name": "Queens Second Hand Store",
-        "tag": "Shop",
-        "desc": "228 Pine Street South, Timmins",
-        "rating": "4.3",
-        "image": "images/listings/timmins-shops-13-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-13-0.jpg"
-        ],
-        "lat": 48.4715625,
-        "lng": -81.3282619,
-        "website": "http://www.queenssecondhandstore.20m.com/",
-        "phone": "(705) 264-6363",
-        "description": null,
-        "hours": "Thursday: 1:00 – 4:00 PM"
-      },
-      {
-        "name": "Pine Dairy Bar",
-        "tag": "Shop",
-        "desc": "141 Pine Street South, Timmins",
-        "rating": "4.1",
-        "image": "images/listings/timmins-shops-14-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-14-0.jpg",
-          "images/listings/timmins-shops-14-1.jpg",
-          "images/listings/timmins-shops-14-2.jpg"
-        ],
-        "lat": 48.4732277,
-        "lng": -81.3284366,
-        "website": null,
-        "phone": "(705) 264-3050",
-        "description": null,
-        "hours": "Thursday: 11:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Benson Autoparts",
-        "tag": "Shop",
-        "desc": "870 Algonquin Boulevard East #4, Timmins",
-        "rating": "4.7",
+        "desc": "264 Victoria Avenue, Timmins",
+        "rating": "NR",
         "image": null,
         "images": [],
-        "lat": 48.47726220000001,
-        "lng": -81.30902999999999,
-        "website": "http://www.bensonautoparts.com/",
-        "phone": "(705) 268-2307",
+        "lat": 48.4916699,
+        "lng": -81.3433065,
+        "website": null,
+        "phone": null,
         "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Motion (formerly Motion Specialties) | Mobility Equipment & Stairlifts",
-        "tag": "Shop",
-        "desc": "77 Waterloo Road, Timmins",
-        "rating": "4.4",
-        "image": "images/listings/timmins-shops-16-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-16-0.jpg",
-          "images/listings/timmins-shops-16-1.jpg",
-          "images/listings/timmins-shops-16-2.jpg"
-        ],
-        "lat": 48.4779005,
-        "lng": -81.33972849999999,
-        "website": "http://www.motioncares.ca/locations/timmins",
-        "phone": "(705) 360-1941",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 5:00 PM"
-      },
-      {
-        "name": "The Hollinger House Bakery & Deli",
-        "tag": "Shop",
-        "desc": "100 Waterloo Road, Timmins",
-        "rating": "4.8",
-        "image": "images/listings/timmins-shops-17-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-17-0.jpg",
-          "images/listings/timmins-shops-17-1.jpg",
-          "images/listings/timmins-shops-17-2.jpg"
-        ],
-        "lat": 48.4776045,
-        "lng": -81.3372649,
-        "website": "http://www.hollingerhousebakery.com/",
-        "phone": "(705) 267-6704",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Little Bit Western Feed & Supplies",
-        "tag": "Shop",
-        "desc": "372 Algonquin Boulevard West, Timmins",
-        "rating": "4.4",
-        "image": "images/listings/timmins-shops-18-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-18-0.jpg",
-          "images/listings/timmins-shops-18-1.jpg",
-          "images/listings/timmins-shops-18-2.jpg"
-        ],
-        "lat": 48.476412,
-        "lng": -81.3463151,
-        "website": "http://www.littlebitwestern.ca/",
-        "phone": "(705) 268-0822",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Timmins Health Food Centre",
-        "tag": "Shop",
-        "desc": "156 Cedar Street South, Timmins",
-        "rating": "4.6",
-        "image": "images/listings/timmins-shops-19-0.jpg",
-        "images": [
-          "images/listings/timmins-shops-19-0.jpg",
-          "images/listings/timmins-shops-19-1.jpg",
-          "images/listings/timmins-shops-19-2.jpg"
-        ],
-        "lat": 48.4729395,
-        "lng": -81.329173,
-        "website": "https://www.facebook.com/Timminshealthfoodcentre/",
-        "phone": "(705) 264-8668",
-        "description": null,
-        "hours": "Thursday: 9:30 AM – 5:30 PM"
+        "hours": null
       }
     ]
   },
@@ -19238,69 +16032,15 @@ window.LISTINGS_DATA = {
     ],
     "shops": [
       {
-        "name": "Giant Tiger",
+        "name": "LCBO",
         "tag": "Shop",
-        "desc": "180 6th Avenue, Cochrane",
-        "rating": "4.2",
+        "desc": "137 4th Street, Cochrane",
+        "rating": "4.5",
         "image": "images/listings/cochrane-shops-0-0.jpg",
         "images": [
           "images/listings/cochrane-shops-0-0.jpg",
           "images/listings/cochrane-shops-0-1.jpg",
           "images/listings/cochrane-shops-0-2.jpg"
-        ],
-        "lat": 49.0633819,
-        "lng": -81.0246611,
-        "website": "https://stores.gianttiger.com/on/cochrane/cochrane-6th-avenue-00017.html",
-        "phone": "(705) 272-1369",
-        "description": "Big store offering an eclectic mix of household items, beauty products, clothes & food.",
-        "hours": "Thursday: 8:00 AM – 9:00 PM"
-      },
-      {
-        "name": "Canadian Tire",
-        "tag": "Shop",
-        "desc": "201, Ontario 11, Cochrane",
-        "rating": "4.2",
-        "image": "images/listings/cochrane-shops-1-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-1-0.jpg",
-          "images/listings/cochrane-shops-1-1.jpg",
-          "images/listings/cochrane-shops-1-2.jpg"
-        ],
-        "lat": 49.06002559999999,
-        "lng": -81.0448854,
-        "website": "https://www.canadiantire.ca/en/store-details/on/cochrane-on-24.html?utm_source=google&utm_medium=lss&utm_content=24",
-        "phone": "(705) 272-4341",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 7:00 PM"
-      },
-      {
-        "name": "Tim Hortons",
-        "tag": "Shop",
-        "desc": "73 Ontario 11, Cochrane",
-        "rating": "3.4",
-        "image": "images/listings/cochrane-shops-2-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-2-0.jpg",
-          "images/listings/cochrane-shops-2-1.jpg",
-          "images/listings/cochrane-shops-2-2.jpg"
-        ],
-        "lat": 49.0589598,
-        "lng": -81.035229,
-        "website": "https://locations.timhortons.ca/en/on/cochrane/hwy-11-and-10-victoria-ave",
-        "phone": "(705) 272-3544",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "LCBO",
-        "tag": "Shop",
-        "desc": "137 4th Street, Cochrane",
-        "rating": "4.5",
-        "image": "images/listings/cochrane-shops-3-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-3-0.jpg",
-          "images/listings/cochrane-shops-3-1.jpg",
-          "images/listings/cochrane-shops-3-2.jpg"
         ],
         "lat": 49.0637913,
         "lng": -81.0262125,
@@ -19314,11 +16054,11 @@ window.LISTINGS_DATA = {
         "tag": "Shop",
         "desc": "93 3rd Avenue, Cochrane",
         "rating": "4.5",
-        "image": "images/listings/cochrane-shops-4-0.jpg",
+        "image": "images/listings/cochrane-shops-1-0.jpg",
         "images": [
-          "images/listings/cochrane-shops-4-0.jpg",
-          "images/listings/cochrane-shops-4-1.jpg",
-          "images/listings/cochrane-shops-4-2.jpg"
+          "images/listings/cochrane-shops-1-0.jpg",
+          "images/listings/cochrane-shops-1-1.jpg",
+          "images/listings/cochrane-shops-1-2.jpg"
         ],
         "lat": 49.06160860000001,
         "lng": -81.0270239,
@@ -19326,262 +16066,6 @@ window.LISTINGS_DATA = {
         "phone": "(705) 272-5771",
         "description": null,
         "hours": "Thursday: 8:30 AM – 5:30 PM"
-      },
-      {
-        "name": "Brisson Castle Building Centre",
-        "tag": "Shop",
-        "desc": "21 5th Street, Cochrane",
-        "rating": "3.8",
-        "image": "images/listings/cochrane-shops-5-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-5-0.jpg",
-          "images/listings/cochrane-shops-5-1.jpg",
-          "images/listings/cochrane-shops-5-2.jpg"
-        ],
-        "lat": 49.06558,
-        "lng": -81.035665,
-        "website": "http://www.brissoncastle.com/",
-        "phone": "(705) 272-4235",
-        "description": null,
-        "hours": null
-      },
-      {
-        "name": "Micro Solve",
-        "tag": "Shop",
-        "desc": "113 6th Avenue, Cochrane",
-        "rating": "4.4",
-        "image": "images/listings/cochrane-shops-6-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-6-0.jpg",
-          "images/listings/cochrane-shops-6-1.jpg"
-        ],
-        "lat": 49.0615412,
-        "lng": -81.02526329999999,
-        "website": "http://www.microsolve.ca/",
-        "phone": "(705) 272-6446",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:00 PM"
-      },
-      {
-        "name": "NeedleWorks Studio Canada",
-        "tag": "Shop",
-        "desc": "142 3rd Avenue, Cochrane",
-        "rating": "5",
-        "image": "images/listings/cochrane-shops-7-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-7-0.jpg",
-          "images/listings/cochrane-shops-7-1.jpg",
-          "images/listings/cochrane-shops-7-2.jpg"
-        ],
-        "lat": 49.0621587,
-        "lng": -81.0293439,
-        "website": "http://www.needleworkscanada.ca/",
-        "phone": "(705) 272-6701",
-        "description": null,
-        "hours": "Thursday: 10:00 AM – 5:00 PM"
-      },
-      {
-        "name": "NAPA Auto Parts - Martel Auto Parts Ltd",
-        "tag": "Shop",
-        "desc": "115 6th Avenue, Cochrane",
-        "rating": "4.5",
-        "image": "images/listings/cochrane-shops-8-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-8-0.jpg",
-          "images/listings/cochrane-shops-8-1.jpg",
-          "images/listings/cochrane-shops-8-2.jpg"
-        ],
-        "lat": 49.0616347,
-        "lng": -81.02537889999999,
-        "website": "https://www.napacanada.com/en/on/cochrane/store/1005390?utm_source=G&utm_medium=local&utm_campaign=google-local",
-        "phone": "(705) 272-2525",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 5:00 PM"
-      },
-      {
-        "name": "Cochrane Pet Services",
-        "tag": "Shop",
-        "desc": "76 6th Avenue, Cochrane",
-        "rating": "4.8",
-        "image": "images/listings/cochrane-shops-9-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-9-0.jpg",
-          "images/listings/cochrane-shops-9-1.jpg"
-        ],
-        "lat": 49.06094530000001,
-        "lng": -81.0247704,
-        "website": "https://www.cochranepetservices.com/",
-        "phone": "(705) 272-6050",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Allan's Home Hardware",
-        "tag": "Shop",
-        "desc": "127 5th Avenue, Cochrane",
-        "rating": "5",
-        "image": null,
-        "images": [],
-        "lat": 49.0617159,
-        "lng": -81.0270759,
-        "website": "http://storelocator.bell.ca/bellca/en/ON/Cochrane/Allan-s-Home-Hardware/BN104",
-        "phone": "(705) 272-4271",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 3:30 PM"
-      },
-      {
-        "name": "R&R Automotive and Industrial Supplies Ltd",
-        "tag": "Shop",
-        "desc": "174 3rd Avenue, Cochrane",
-        "rating": "4.7",
-        "image": null,
-        "images": [],
-        "lat": 49.0630069,
-        "lng": -81.0294531,
-        "website": null,
-        "phone": "(705) 272-7278",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Bruneau's Travel Centre Ltd",
-        "tag": "Shop",
-        "desc": "65 Ontario 11, Cochrane",
-        "rating": "4.5",
-        "image": "images/listings/cochrane-shops-12-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-12-0.jpg",
-          "images/listings/cochrane-shops-12-1.jpg",
-          "images/listings/cochrane-shops-12-2.jpg"
-        ],
-        "lat": 49.059347,
-        "lng": -81.0347784,
-        "website": null,
-        "phone": "(705) 272-4303",
-        "description": null,
-        "hours": "Thursday: 8:00 AM – 8:00 PM"
-      },
-      {
-        "name": "Petro-Canada & Petro-Pass / BVD Cochrane",
-        "tag": "Shop",
-        "desc": "54 Ontario 11, Cochrane",
-        "rating": "3.6",
-        "image": "images/listings/cochrane-shops-13-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-13-0.jpg",
-          "images/listings/cochrane-shops-13-1.jpg",
-          "images/listings/cochrane-shops-13-2.jpg"
-        ],
-        "lat": 49.0582702,
-        "lng": -81.0343075,
-        "website": "https://www.petro-canada.ca/en/personal/gas-station-locations/54-hwy-11-west-cochrane?utm_source=G&utm_medium=lpm&utm_campaign=suncor",
-        "phone": "(705) 272-2737",
-        "description": null,
-        "hours": "Thursday: Open 24 hours"
-      },
-      {
-        "name": "Bourque's Auto Sales",
-        "tag": "Shop",
-        "desc": "110 Ontario 11, Cochrane",
-        "rating": "4.8",
-        "image": "images/listings/cochrane-shops-14-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-14-0.jpg",
-          "images/listings/cochrane-shops-14-1.jpg",
-          "images/listings/cochrane-shops-14-2.jpg"
-        ],
-        "lat": 49.0583456,
-        "lng": -81.03789789999999,
-        "website": "http://www.bourqueauto.com/",
-        "phone": "(705) 272-6959",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 5:30 PM"
-      },
-      {
-        "name": "B & R Water Treatment",
-        "tag": "Shop",
-        "desc": "540 Genier Road, Cochrane",
-        "rating": "5",
-        "image": "images/listings/cochrane-shops-15-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-15-0.jpg",
-          "images/listings/cochrane-shops-15-1.jpg",
-          "images/listings/cochrane-shops-15-2.jpg"
-        ],
-        "lat": 49.0835231,
-        "lng": -81.0024224,
-        "website": "http://www.brwatertreatment.ca/",
-        "phone": "(705) 272-6305",
-        "description": null,
-        "hours": "Thursday: 7:00 AM – 5:00 PM"
-      },
-      {
-        "name": "Wallace Drug Store",
-        "tag": "Shop",
-        "desc": "109 6th Avenue, Cochrane",
-        "rating": "4.7",
-        "image": "images/listings/cochrane-shops-16-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-16-0.jpg",
-          "images/listings/cochrane-shops-16-1.jpg",
-          "images/listings/cochrane-shops-16-2.jpg"
-        ],
-        "lat": 49.061419,
-        "lng": -81.0254226,
-        "website": "https://wallacedrugstore.ca/7052724381",
-        "phone": "(705) 272-4381",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 6:00 PM"
-      },
-      {
-        "name": "Y&S Incorporated",
-        "tag": "Shop",
-        "desc": "80 6th Avenue, Cochrane",
-        "rating": "5",
-        "image": "images/listings/cochrane-shops-17-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-17-0.jpg",
-          "images/listings/cochrane-shops-17-1.jpg",
-          "images/listings/cochrane-shops-17-2.jpg"
-        ],
-        "lat": 49.0610532,
-        "lng": -81.024715,
-        "website": "http://www.facebook.com/ysincorporated1",
-        "phone": "(705) 272-6773",
-        "description": null,
-        "hours": "Thursday: 8:30 AM – 4:00 PM"
-      },
-      {
-        "name": "Johnson's TV & Appliances",
-        "tag": "Shop",
-        "desc": "116 6th Avenue, Cochrane",
-        "rating": "NR",
-        "image": null,
-        "images": [],
-        "lat": 49.0615348,
-        "lng": -81.0248209,
-        "website": null,
-        "phone": "(705) 272-4242",
-        "description": null,
-        "hours": "Thursday: 9:00 AM – 5:30 PM"
-      },
-      {
-        "name": "Allan's Home Hardware Building Centre",
-        "tag": "Shop",
-        "desc": "119 Railway Street, Cochrane",
-        "rating": "4.1",
-        "image": "images/listings/cochrane-shops-19-0.jpg",
-        "images": [
-          "images/listings/cochrane-shops-19-0.jpg",
-          "images/listings/cochrane-shops-19-1.jpg",
-          "images/listings/cochrane-shops-19-2.jpg"
-        ],
-        "lat": 49.0615912,
-        "lng": -81.0270647,
-        "website": "https://www.homehardware.ca/store/14106?utm_source=google&utm_medium=organic_search&utm_campaign=local_seo&utm_content=14106",
-        "phone": "(705) 272-4271",
-        "description": "Branch of a chain store offering products like paint, tools, grills & home-improvement supplies.",
-        "hours": "Thursday: 8:30 AM – 5:00 PM"
       }
     ]
   }
