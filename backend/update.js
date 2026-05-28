@@ -233,6 +233,17 @@ async function getEvents(lat, lng){
 }
 
 async function run(){
+  /* Render's free tier puts the web service to sleep after a few
+     minutes of inactivity. Ping /health first so the service is
+     warming up while we make the Google Places calls. Three
+     seconds is enough for a cold container to be ready to accept
+     the data POST at the end of this run; without it, the POST
+     sometimes lands before the server is up. */
+  const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+  await fetch(`${serverUrl}/health`).catch(() => {});
+  console.log('Server pinged, waiting for wake-up...');
+  await new Promise(resolve => setTimeout(resolve, 3000));
+
   const out = {};
   for(const [id, c] of Object.entries(STOP_COORDS)){
     console.log('Updating', id, '...');
@@ -252,9 +263,8 @@ async function run(){
      of writing live-data.json to disk. On Render the filesystem is
      ephemeral, so an in-memory store on the server side is the
      only place the data can live reliably between requests.
-     SERVER_URL points to the deployed backend; defaults to local
-     so the same script works in development. */
-  const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+     Reuses the serverUrl declared at the top of run() for the
+     keep-alive ping. */
   const response = await fetch(`${serverUrl}/update-data`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
