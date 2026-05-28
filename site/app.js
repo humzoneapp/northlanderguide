@@ -1301,9 +1301,12 @@ function imageBlock(item, cat, seed, cls){
        container (CSS). The illustrated fallback is hidden by
        default and only revealed when the photo fails to load
        (onerror flips both the img and the parent's class). */
+    /* Not loading="lazy": on mobile the slab is rendered while
+       display:none, and WebKit never loads lazy images inserted into
+       a hidden subtree, leaving photos blank on phones/iPad. */
     return `<div class="${cls}">
       <div class="img-fallback">${fallback}</div>
-      <img src="${item.image}" alt="${item.name||''}" loading="lazy" decoding="async"
+      <img src="${item.image}" alt="${item.name||''}" decoding="async"
            onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
     </div>`;
   }
@@ -1332,7 +1335,7 @@ function detailImageBlock(item, cat, seed){
     if(single){
       return `<div class="detail-img">
         <div class="img-fallback">${fallback}</div>
-        <img src="${single}" alt="${item.name||''}" loading="lazy" decoding="async"
+        <img src="${single}" alt="${item.name||''}" decoding="async"
              onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
       </div>`;
     }

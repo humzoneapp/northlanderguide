@@ -340,7 +340,7 @@ a{color:inherit}
      smaller end of the clamp lets it wrap naturally to two lines
      rather than forcing a <br>. text-wrap:balance keeps the wrap
      points even. */
-  font-size:clamp(2.5rem,7.5vw,5.25rem);
+  font-size:clamp(3.25rem,8vw,6rem);
   letter-spacing:-.02em;line-height:1.02;
   text-wrap:balance;
   /* More breathing room below the headline so the train shows
