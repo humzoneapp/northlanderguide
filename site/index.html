@@ -16,9 +16,10 @@
      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 ================================================================== -->
 
-<!-- Leaflet: free, open-source interactive maps (no API key needed) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Custom SVG route map (built by buildRouteMap() in app.js).
+     Replaced the Leaflet+OSM raster tiles so the route reads as a
+     poster illustration instead of a generic web map. -->
+
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,7 +119,7 @@
     <h2>Follow the line north</h2>
     <p>Tap any station to jump straight to its guide.</p>
   </div>
-  <div id="leafmap"></div>
+  <div id="routemap"></div>
 </section>
 
 <!-- Map preview card. Shown when a pin is tapped or clicked.

@@ -1333,65 +1333,149 @@ function setupGallery(root){
 }
 
 /* ------------------------------------------------------------------
-   INTERACTIVE MAP (Leaflet) with graceful fallback
-------------------------------------------------------------------- */
-let map, markers={};
-function initMap(){
-  if(typeof L === 'undefined'){ renderRouteFallback(); return; }
-  try{
-    map = L.map('leafmap',{scrollWheelZoom:false}).setView([46.3,-79.9], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution:'\u00A9 OpenStreetMap contributors', maxZoom:13
-    }).addTo(map);
-    const line = STOPS.map(s=>[s.lat,s.lng]);
-    L.polyline(line,{color:'#8e3d22',weight:4,opacity:.85,dashArray:'2 8'}).addTo(map);
-    STOPS.forEach((s,i)=>{
-      const icon = L.divIcon({ className:'',
-        html:`<div style="background:#0e3b2c;color:#fff;width:26px;height:26px;
-              border-radius:50%;border:2.5px solid #8e3d22;display:flex;
-              align-items:center;justify-content:center;font:700 12px Spline Sans,sans-serif;
-              box-shadow:0 2px 6px rgba(0,0,0,.4)">${i+1}</div>`,
-        iconSize:[26,26], iconAnchor:[13,13] });
-      const m = L.marker([s.lat,s.lng],{icon}).addTo(map);
-      // Desktop hover: short name tooltip. CSS hides tooltips on
-      // touch devices via (hover: none) so a tap shows the preview
-      // card instead of a transient tooltip.
-      m.bindTooltip(s.name, {
-        className:'map-tip', direction:'top', offset:[0,-14], opacity:1,
-      });
-      // Tap/click on the marker: show the site-styled preview card.
-      m.on('click', ()=>openMapPreview(s));
-      markers[s.id]=m;
-    });
-    // Tap the map background (not a marker) to dismiss the preview.
-    map.on('click', closeMapPreview);
-    map.fitBounds(L.latLngBounds(line).pad(0.12));
+   CUSTOM ROUTE MAP (illustrated SVG ribbon)
+   Replaces the previous Leaflet+OpenStreetMap raster tiles with a
+   hand-drawn vertical poster of the route. Stations are numbered
+   ink circles; the route is a rust-coloured dashed line; a small
+   train ring sits at the currently-selected stop and snaps along
+   the route when the user picks a different chip. Click handlers
+   on each station call openMapPreview() (the existing site-styled
+   card flow), so the tap-to-preview UX is unchanged.
 
-    // Desktop scroll zoom, gated by Ctrl/Cmd so a plain mousewheel
-    // scroll over the map still scrolls the page. Mobile pinch zoom
-    // (touchZoom) is on by default and untouched here.
-    const mapEl = document.getElementById('leafmap');
-    mapEl.addEventListener('wheel', (e)=>{
-      if(!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      const rect = mapEl.getBoundingClientRect();
-      const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
-      const latlng = map.containerPointToLatLng(point);
-      const delta = e.deltaY < 0 ? 1 : -1;
-      map.setZoomAround(latlng, map.getZoom() + delta);
-    }, {passive:false});
-  }catch(err){ console.warn('Map failed:', err); renderRouteFallback(); }
+   Coordinate projection (lat/lng -> SVG):
+     y = 880 - (lat - 43.6) * 145    (north = top)
+     x = 200 + (lng + 80)  * 65      (slight east-west wobble)
+   The SVG viewBox is 400 x 900; the container is responsive.
+------------------------------------------------------------------- */
+const ROUTE_VIEW = { w: 400, h: 900 };
+function routeXY(stop){
+  return {
+    x: +(200 + (stop.lng + 80) * 65).toFixed(1),
+    y: +(880 - (stop.lat - 43.6) * 145).toFixed(1)
+  };
 }
-function renderRouteFallback(){
-  const el = document.getElementById('leafmap');
-  el.classList.add('map-fallback'); el.style.height='auto';
-  el.innerHTML = `<div class="fallback-note">Interactive map unavailable. Tap a stop below.</div>
-    <ol class="fallback-route">
-      ${STOPS.map((s,i)=>`<li data-id="${s.id}">
-        <span class="fb-num">${i+1}</span>
-        <span class="fb-body"><b>${s.name}</b><em>${s.hook}</em></span></li>`).join('')}
-    </ol>`;
-  el.querySelectorAll('li').forEach(li=>li.addEventListener('click',()=>selectStop(li.dataset.id)));
+
+function buildRouteMap(){
+  const pts = STOPS.map(s => Object.assign({ s }, routeXY(s)));
+
+  /* Smooth-ish route line: connect each pair of stations with a
+     quadratic curve through their midpoint, so the path has a
+     hand-drawn quality instead of straight segments. */
+  let d = `M${pts[0].x} ${pts[0].y}`;
+  for(let i=1; i<pts.length; i++){
+    const a = pts[i-1], b = pts[i];
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    d += ` Q${a.x} ${a.y} ${mx.toFixed(1)} ${my.toFixed(1)}`;
+  }
+  d += ` L${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
+
+  const stations = pts.map((p,i) => `
+    <g class="route-station" data-id="${p.s.id}" tabindex="0"
+       role="button" aria-label="${p.s.name}, stop ${i+1}"
+       transform="translate(${p.x}, ${p.y})">
+      <circle class="route-halo" r="22"/>
+      <circle class="route-dot" r="13"/>
+      <text class="route-num" y="4" text-anchor="middle">${i+1}</text>
+      <text class="route-label" x="20" y="4">${p.s.name}</text>
+    </g>`).join('');
+
+  /* Small decorative ink-textured tree clusters in the middle
+     stretch so the empty cream paper does not feel sterile. */
+  const trees = Array.from({length: 26}, (_,i) => {
+    const tx = 30 + ((i * 73) % 340);
+    const ty = 180 + ((i * 47) % 540);
+    return `<polygon points="${tx},${ty} ${tx-5},${ty+9} ${tx+5},${ty+9}"/>`;
+  }).join('');
+
+  const first = pts[0];
+  return `
+    <svg viewBox="0 0 ${ROUTE_VIEW.w} ${ROUTE_VIEW.h}"
+         preserveAspectRatio="xMidYMid meet"
+         xmlns="http://www.w3.org/2000/svg"
+         class="routemap-svg" role="img"
+         aria-label="Illustrated map of the Northlander route, Toronto to Cochrane">
+
+      <!-- Paper background -->
+      <rect width="${ROUTE_VIEW.w}" height="${ROUTE_VIEW.h}" fill="#f6ecd2"/>
+
+      <!-- James Bay hint at the top -->
+      <path d="M0 0 Q120 38 200 24 Q300 18 400 0 L400 64 Q300 86 200 70 Q100 88 0 60 Z"
+            fill="#7ea29e" opacity="0.32"/>
+      <text x="200" y="42" text-anchor="middle"
+            font-family="Fraunces, serif" font-style="italic"
+            font-size="11" fill="#2c5258" letter-spacing="1">James Bay</text>
+
+      <!-- Faint forest texture in the middle of the route -->
+      <g fill="#1f3d2d" opacity="0.10">${trees}</g>
+
+      <!-- Lake Ontario at the bottom -->
+      <path d="M0 868 Q200 858 400 868 L400 900 L0 900 Z"
+            fill="#456f6c" opacity="0.55"/>
+      <text x="200" y="893" text-anchor="middle"
+            font-family="Fraunces, serif" font-style="italic"
+            font-size="11" fill="#f3e6c8" letter-spacing="1">Lake Ontario</text>
+
+      <!-- Route line (rust, dashed) -->
+      <path d="${d}" fill="none" stroke="#8e3d22"
+            stroke-width="3.5" stroke-linecap="round"
+            stroke-dasharray="2 7" opacity="0.85"/>
+
+      <!-- Stations -->
+      ${stations}
+
+      <!-- Train ring at the active stop (snaps when user selects) -->
+      <g class="route-train" transform="translate(${first.x}, ${first.y})" aria-hidden="true">
+        <circle r="26" fill="#8e3d22" opacity="0.12"/>
+        <circle r="20" fill="none" stroke="#8e3d22" stroke-width="2.5"/>
+        <circle r="14.5" fill="none" stroke="#f6ecd2" stroke-width="1.5"/>
+      </g>
+
+      <!-- Compass / north indicator -->
+      <g transform="translate(360, 90)" font-family="Fraunces, serif">
+        <circle r="20" fill="#f3e6c8" stroke="#8e3d22" stroke-width="1.5"/>
+        <text y="0" text-anchor="middle" font-size="16" font-weight="900" fill="#8e3d22">N</text>
+        <text y="13" text-anchor="middle" font-size="6" fill="#6b4528" letter-spacing="2">NORTH</text>
+      </g>
+    </svg>`;
+}
+
+function updateRouteTrain(stopId){
+  const train = document.querySelector('.route-train');
+  if(!train) return;
+  const stop = STOPS.find(s => s.id === stopId);
+  if(!stop) return;
+  const { x, y } = routeXY(stop);
+  train.setAttribute('transform', `translate(${x}, ${y})`);
+}
+
+function initMap(){
+  const host = document.getElementById('routemap');
+  if(!host) return;
+  host.innerHTML = buildRouteMap();
+  /* Click + Enter/Space on a station opens the existing site
+     preview card. The station is the focusable element with
+     role=button. */
+  host.querySelectorAll('.route-station').forEach(g => {
+    const open = () => {
+      const s = STOPS.find(x => x.id === g.dataset.id);
+      if(s) openMapPreview(s);
+    };
+    g.addEventListener('click', open);
+    g.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        open();
+      }
+    });
+  });
+  /* Click on the map background (away from a station) closes the
+     preview, matching the previous Leaflet behaviour. */
+  host.addEventListener('click', e => {
+    if(!e.target.closest('.route-station')) closeMapPreview();
+  });
+  /* Park the train ring at whichever stop is currently active. */
+  if(activeStop && activeStop.id) updateRouteTrain(activeStop.id);
 }
 
 /* ------------------------------------------------------------------
@@ -1674,7 +1758,9 @@ function selectStop(id,scroll=true){
   renderStop();
   renderEvents();
   history.replaceState(null,'','#stop='+id);
-  if(markers[id] && markers[id].openPopup) markers[id].openPopup();
+  /* Snap the route-map train ring to the new active stop. No-op
+     if the map has not initialised yet (e.g. before init runs). */
+  updateRouteTrain(id);
   if(scroll) document.getElementById('explore').scrollIntoView({behavior:'smooth',block:'start'});
 }
 window.selectStop = selectStop;
@@ -1759,13 +1845,14 @@ if(mapPreview){
     if(e.key === 'Escape' && mapPreview.classList.contains('open')) closeMapPreview();
   });
 
-  // Tap anywhere outside the card (and outside a marker) closes it.
-  // Marker clicks are excluded so the marker's own handler can swap
-  // in the new stop's preview instead of triggering a close.
+  // Tap anywhere outside the card (and outside a route-map station)
+  // closes it. Station clicks are excluded so the station's own
+  // handler can swap in the new stop's preview instead of
+  // triggering a close.
   document.addEventListener('click', e=>{
     if(!mapPreview.classList.contains('open')) return;
     if(mapPreview.contains(e.target)) return;
-    if(e.target.closest('.leaflet-marker-icon')) return;
+    if(e.target.closest('.route-station')) return;
     closeMapPreview();
   });
 }
