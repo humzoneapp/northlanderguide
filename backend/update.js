@@ -58,12 +58,13 @@ async function getPlaces(lat, lng, type){
     rating:p.rating ? String(p.rating) : 'NR',
     /* `image` is the single hero photo (back-compat for the card
        thumbnail). `images` is the full gallery (up to 6 refs) for
-       the detail view swipeable gallery. */
-    image:(p.photos && p.photos[0])
-      ? `/api/photo?ref=${encodeURIComponent(p.photos[0].photo_reference)}`
-      : null,
-    images:(p.photos || []).slice(0,6).map(photo =>
-      `/api/photo?ref=${encodeURIComponent(photo.photo_reference)}`),
+       the detail view swipeable gallery. Note: Google Places
+       Nearby Search typically only returns one photo per result;
+       follow-up Place Details calls would be needed to surface
+       additional photos. Listings without extra photos will just
+       render as a single image in the front end gallery. */
+    image: (p.photos && p.photos[0]) ? '/api/photo?ref=' + encodeURIComponent(p.photos[0].photo_reference) : null,
+    images: (p.photos || []).slice(0, 6).map(photo => '/api/photo?ref=' + encodeURIComponent(photo.photo_reference)),
     /* Geographic coordinates so the front end can compute an
        approximate walking time from the station via Haversine. */
     lat:p.geometry && p.geometry.location ? p.geometry.location.lat : null,
