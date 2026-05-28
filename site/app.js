@@ -1861,22 +1861,30 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
        origin so the browser fetches the image through the photo
        proxy endpoint instead of trying to hit the front-end host.
        Rewrites both the single `image` field and every entry in
-       the `images` gallery array. */
+       the `images` gallery array, across every listing category
+       (including transportation, which also carries photo refs). */
     const BACKEND = 'https://northlander-backend.onrender.com';
-    const absolutise = u => (u && u.startsWith('/api/photo')) ? (BACKEND + u) : u;
+
+    function fixPhotoUrls(item) {
+      if (!item) return;
+      if (item.image && item.image.startsWith('/api/photo')) {
+        item.image = BACKEND + item.image;
+      }
+      if (Array.isArray(item.images)) {
+        item.images = item.images.map(url =>
+          url && url.startsWith('/api/photo') ? BACKEND + url : url
+        );
+      }
+    }
+
     STOPS.forEach(s => {
-      const cats = ['restaurants', 'accommodations', 'parks', 'attractions'];
-      cats.forEach(cat => {
-        if (s[cat]) {
-          s[cat].forEach(item => {
-            if (item.image) item.image = absolutise(item.image);
-            if (Array.isArray(item.images)) {
-              item.images = item.images.map(absolutise);
-            }
-          });
+      ['restaurants', 'accommodations', 'parks', 'attractions', 'transportation', 'events'].forEach(cat => {
+        if (Array.isArray(s[cat])) {
+          s[cat].forEach(item => fixPhotoUrls(item));
         }
       });
     });
+    console.log('Photo URLs rewritten for', STOPS.length, 'stops');
 
     renderStop();
     renderEvents();
