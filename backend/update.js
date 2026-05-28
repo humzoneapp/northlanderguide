@@ -51,10 +51,12 @@ const STOPS = [
 async function run() {
   const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
 
-  // Wake up the server
+  // Wake up the server. Render's free tier can take several
+  // seconds to spin a cold container back up, so we give it a
+  // longer head start (8s) before we start POSTing data at it.
   await fetch(`${serverUrl}/health`).catch(() => {});
-  console.log('Server pinged, waiting 3s...');
-  await new Promise(r => setTimeout(r, 3000));
+  console.log('Server pinged, waiting 8s for wake-up...');
+  await new Promise(r => setTimeout(r, 8000));
 
   const out = {};
 
@@ -134,17 +136,41 @@ async function run() {
 
   console.log('Phase 2 complete.');
 
-  // PHASE 3: POST to server
-  try {
-    const response = await fetch(`${serverUrl}/update-data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(out)
-    });
-    const result = await response.json();
-    console.log('Data sent to server:', result);
-  } catch(e) {
-    console.log('POST to server failed:', e.message);
+  // PHASE 3: POST to server, then verify the data actually landed.
+  async function postData() {
+    try {
+      const response = await fetch(`${serverUrl}/update-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(out)
+      });
+      const result = await response.json();
+      console.log('Data sent to server:', result);
+    } catch(e) {
+      console.log('POST to server failed:', e.message);
+    }
+  }
+  // Read /health and report whether the server is now holding data.
+  async function hasData() {
+    try {
+      const r = await fetch(`${serverUrl}/health`);
+      const h = await r.json();
+      console.log('Health after POST: hasData =', h.hasData, ', updated =', h.updated);
+      return h.hasData === true;
+    } catch(e) {
+      console.log('Health check failed:', e.message);
+      return false;
+    }
+  }
+
+  await postData();
+  // If the data did not stick (e.g. the container was still waking
+  // when the first POST arrived), wait 5s and try exactly once more.
+  if (!(await hasData())) {
+    console.log('hasData false after first POST, waiting 5s and retrying once...');
+    await new Promise(r => setTimeout(r, 5000));
+    await postData();
+    await hasData();
   }
 }
 
