@@ -1886,6 +1886,18 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     });
     console.log('Photo URLs rewritten for', STOPS.length, 'stops');
 
+    /* Temporary diagnostic: confirm the rewrite landed on a real
+       organic listing. Find the first stop that has any restaurant
+       entries and log the name + image + images array so we can
+       eyeball the URLs in DevTools. */
+    const firstStop = STOPS.find(s => s.restaurants && s.restaurants.length > 0);
+    if (firstStop) {
+      const firstRestaurant = firstStop.restaurants[0];
+      console.log('First restaurant name:', firstRestaurant.name);
+      console.log('First restaurant image:', firstRestaurant.image);
+      console.log('First restaurant images array:', JSON.stringify(firstRestaurant.images));
+    }
+
     renderStop();
     renderEvents();
     console.log('Live data loaded successfully, updated:', cache.updated);
