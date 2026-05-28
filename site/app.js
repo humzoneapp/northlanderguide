@@ -1303,7 +1303,7 @@ function imageBlock(item, cat, seed, cls){
        (onerror flips both the img and the parent's class). */
     return `<div class="${cls}">
       <div class="img-fallback">${fallback}</div>
-      <img src="${item.image}" alt="${item.name||''}" loading="lazy"
+      <img src="${item.image}" alt="${item.name||''}" loading="lazy" decoding="async"
            onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
     </div>`;
   }
@@ -1332,7 +1332,7 @@ function detailImageBlock(item, cat, seed){
     if(single){
       return `<div class="detail-img">
         <div class="img-fallback">${fallback}</div>
-        <img src="${single}" alt="${item.name||''}" loading="lazy"
+        <img src="${single}" alt="${item.name||''}" loading="lazy" decoding="async"
              onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
       </div>`;
     }
@@ -1344,7 +1344,7 @@ function detailImageBlock(item, cat, seed){
      but visually the loaded slide will sit on top. */
   const slides = imgs.map((src,i) => `
     <img class="gallery-slide" src="${src}" alt="${(item.name||'')+ ' photo ' + (i+1)}"
-         loading="${i===0?'eager':'lazy'}"
+         loading="${i===0?'eager':'lazy'}" decoding="async"
          onerror="this.classList.add('img-failed');${i===0?"this.closest('.detail-img').classList.add('show-fallback');":''}">`).join('');
   const dots = imgs.map((_,i) =>
     `<button class="gallery-dot${i===0?' active':''}" type="button" data-idx="${i}" aria-label="Show photo ${i+1}"></button>`
@@ -1579,6 +1579,7 @@ function renderStop(){
           <div class="ord-badge">${i+1}</div>
           ${ s.image
               ? `<img class="stop-photo" src="${s.image}" alt="${s.name}"
+                   fetchpriority="high" decoding="async"
                    onerror="this.outerHTML='<div class=&quot;stop-art&quot;>'+document.getElementById('art${i}').innerHTML+'</div>'">
                  <div id="art${i}" style="display:none">${heroArt}</div>`
               : heroArt }

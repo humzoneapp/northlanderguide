@@ -864,15 +864,20 @@ a{color:inherit}
    the photo. */
 .stop-hero .label{
   position:absolute;left:0;right:0;bottom:0;
-  padding:3rem 1.6rem 1.8rem;
+  /* Taller gradient with a smoother multi-stop fade, so the dark
+     area reads as a gentle wash up the image rather than a hard
+     band. Spans the full width of the poster (no max-width cap)
+     so there is no visible edge where the gradient stops. */
+  padding:5.5rem 1.6rem 1.8rem;
   background:linear-gradient(
     transparent 0%,
-    rgba(14,30,22,.55) 45%,
-    rgba(14,30,22,.92) 100%);
+    rgba(14,30,22,.18) 28%,
+    rgba(14,30,22,.55) 62%,
+    rgba(14,30,22,.95) 100%);
   color:#f3ece0;
 }
 @media(min-width:720px){
-  .stop-hero .label{padding:5rem 3rem 3rem;max-width:880px}
+  .stop-hero .label{padding:9rem 3rem 3rem}
 }
 /* Ord badge: bigger and squarer, like a poster's plate number. */
 .stop-hero .ord-badge{
