@@ -14,12 +14,24 @@ let activeDetail = null;   // index of the listing being viewed, or null
 let savedScrollY = 0;
 
 const CATS = [
-  {key:'restaurants',    label:'Eat & Drink',     ic:'fork-knife'},
-  {key:'accommodations', label:'Stay',            ic:'bed'},
-  {key:'parks',          label:'Parks & Nature',  ic:'tree'},
-  {key:'attractions',    label:'Attractions',     ic:'pin'},
-  {key:'transportation', label:'Transportation',  ic:'bus'}
+  {key:'restaurants',    label:'Eat & Drink',  ic:'fork-knife'},
+  {key:'accommodations', label:'Stay',         ic:'bed'},
+  {key:'parks',          label:'Nature',       ic:'tree'},
+  {key:'attractions',    label:'See & Do',     ic:'pin'},
+  {key:'shops',          label:'Shop',         ic:'shop'},
+  {key:'transportation', label:'Transport',    ic:'bus'}
 ];
+
+/* Category header image shown above the listing cards. Keyed by the
+   internal data key, not the display label. */
+const CAT_HEADER_IMG = {
+  restaurants:    'images/northlander-eat-and-drink.jpeg',
+  accommodations: 'images/northlander-places-to-stay.jpeg',
+  parks:          'images/northlander-nature-and-trails.jpeg',
+  attractions:    'images/northlander-see-and-do.jpeg',
+  shops:          'images/northlander-shop-local.jpeg',
+  transportation: 'images/northlander-transportation.jpeg'
+};
 function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
 
 /* ------------------------------------------------------------------
@@ -44,7 +56,8 @@ const ICONS = {
   'clock':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   'globe':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
   'phone':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
-  'bus':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="6" y1="13" x2="9" y2="13"/><line x1="15" y1="13" x2="18" y2="13"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>'
+  'bus':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="6" y1="13" x2="9" y2="13"/><line x1="15" y1="13" x2="18" y2="13"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>',
+  'shop':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>'
 };
 function icon(name){ return ICONS[name] || ''; }
 
@@ -1227,7 +1240,8 @@ function cardArt(cat, seed){
     restaurants:    {bg1:'#f6e7c4', bg2:'#c46f2c', ic:'#8e3d22'},
     accommodations: {bg1:'#f6e7c4', bg2:'#c89525', ic:'#6b4528'},
     parks:          {bg1:'#7ea29e', bg2:'#1f3d2d', ic:'#f3e6c8'},
-    attractions:    {bg1:'#c46f2c', bg2:'#8e3d22', ic:'#f3e6c8'}
+    attractions:    {bg1:'#c46f2c', bg2:'#8e3d22', ic:'#f3e6c8'},
+    shops:          {bg1:'#f6e7c4', bg2:'#b07a3a', ic:'#6b4528'}
   };
   const p = palettes[cat] || palettes.attractions;
 
@@ -1269,7 +1283,11 @@ function cardArt(cat, seed){
     // background instead of looking like a separate dot.
     attractions: `
       <path d="M200 60 C 222 60 240 78 240 100 C 240 134 200 180 200 180 C 200 180 160 134 160 100 C 160 78 178 60 200 60 Z" fill="${p.ic}"/>
-      <circle cx="200" cy="98" r="11" fill="${p.bg2}"/>`
+      <circle cx="200" cy="98" r="11" fill="${p.bg2}"/>`,
+    // Shopping bag: a trapezoid body with a rounded handle arc.
+    shops: `
+      <path d="M166 96 h68 l7 78 a8 8 0 0 1-8 9 H167 a8 8 0 0 1-8-9 Z" fill="${p.ic}"/>
+      <path d="M184 96 a16 16 0 0 1 32 0" fill="none" stroke="${p.ic}" stroke-width="7" stroke-linecap="round"/>`
   };
 
   const sid = `cg${cat}${seed}`;
@@ -1609,6 +1627,11 @@ function renderStop(){
             <span class="ic">${icon(c.ic)}</span>${c.label}<span class="cnt">${count}</span></button>`;
         }).join('')}
       </div>
+      <div class="cat-header">
+        <img src="${CAT_HEADER_IMG[activeCat]||''}" alt="${catLabel(activeCat)}" decoding="async"
+             onerror="this.closest('.cat-header').classList.add('img-failed')">
+        <div class="cat-header-label">${catLabel(activeCat)}</div>
+      </div>
       <div class="cards" id="cards"></div>
     </div>`;
   document.querySelectorAll('#catFilter button').forEach(b=>
@@ -1671,6 +1694,20 @@ function renderCards(){
   observeReveals();
 }
 
+/* Build a Google Maps URL for a listing. When the listing carries
+   coordinates (lat/lng from the Places backend) it opens turn-by-turn
+   directions; otherwise it falls back to a name + description search.
+   The maps.google.com links open the Maps app on mobile and a new
+   browser tab on desktop. */
+function mapsUrl(it){
+  if(it && it.lat != null && it.lng != null){
+    return 'https://www.google.com/maps/dir/?api=1&destination='
+      + encodeURIComponent(it.lat + ',' + it.lng);
+  }
+  const query = [it && it.name, it && it.desc].filter(Boolean).join(', ');
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+}
+
 /* ------------------------------------------------------------------
    DETAIL VIEW: one listing, back button, more cards below
 ------------------------------------------------------------------- */
@@ -1699,11 +1736,11 @@ function renderDetail(){
         <h3>${it.name}</h3>
         ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
         ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
-        ${(it.website || it.phone) ? `
-          <div class="action-row">
-            ${it.website ? `<a class="action-btn" href="${it.website}" target="_blank" rel="noopener" aria-label="Visit ${it.name} website">${icon('globe')}<span class="action-label">Website</span></a>` : ''}
-            ${it.phone ? `<a class="action-btn" href="tel:${it.phone.replace(/[^\d+]/g,'')}" aria-label="Call ${it.name}">${icon('phone')}<span class="action-label">Call</span></a>` : ''}
-          </div>` : ''}
+        <div class="action-row">
+          ${it.website ? `<a class="action-btn" href="${it.website}" target="_blank" rel="noopener" aria-label="Visit ${it.name} website">${icon('globe')}<span class="action-label">Website</span></a>` : ''}
+          ${it.phone ? `<a class="action-btn" href="tel:${it.phone.replace(/[^\d+]/g,'')}" aria-label="Call ${it.name}">${icon('phone')}<span class="action-label">Call</span></a>` : ''}
+          <a class="action-btn" href="${mapsUrl(it)}" target="_blank" rel="noopener" aria-label="Open ${it.name} in Google Maps">${icon('pin')}<span class="action-label">Map</span></a>
+        </div>
         <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
         <p class="detail-desc">${it.description || it.details || it.desc}</p>
         <div class="share-row">
@@ -2071,6 +2108,7 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
       if (c.accommodations && c.accommodations.length) s.accommodations = c.accommodations;
       if (c.parks && c.parks.length) s.parks = c.parks;
       if (c.attractions && c.attractions.length) s.attractions = c.attractions;
+      if (c.shops && c.shops.length) s.shops = c.shops;
       if (c.events && c.events.length) s.events = c.events;
     });
 
@@ -2095,7 +2133,7 @@ fetch('https://northlander-backend.onrender.com/live-data.json')
     }
 
     STOPS.forEach(s => {
-      ['restaurants','accommodations','parks','attractions','events'].forEach(cat => {
+      ['restaurants','accommodations','parks','attractions','shops','events'].forEach(cat => {
         if (Array.isArray(s[cat])) s[cat].forEach(fixPhotoUrls);
       });
     });

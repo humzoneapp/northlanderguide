@@ -62,7 +62,7 @@ async function run() {
 
   // PHASE 1: Nearby Search for all stops
   for (const stop of STOPS) {
-    out[stop.id] = { restaurants: [], accommodations: [], parks: [], attractions: [], events: [] };
+    out[stop.id] = { restaurants: [], accommodations: [], parks: [], attractions: [], shops: [], events: [] };
 
     const categories = [
       { key: 'restaurants',    type: 'restaurant' },
@@ -101,13 +101,53 @@ async function run() {
         console.log(`${stop.id} ${cat.key} FAILED:`, e.message);
       }
     }
+
+    // Shop: Google Places has no single "shop" type, so query a set of
+    // store-like types, merge the results deduped by place_id, and keep
+    // up to 8 per stop.
+    try {
+      const shopTypes = ['store', 'shopping_mall', 'book_store', 'art_gallery', 'gift_shop'];
+      const seen = new Set();
+      const shops = [];
+      for (const type of shopTypes) {
+        if (shops.length >= 8) break;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${stop.lat},${stop.lng}&radius=5000&type=${type}&key=${process.env.GOOGLE_PLACES_KEY}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        console.log(`${stop.id} shops/${type}: ${(d.results||[]).length} results, status: ${d.status}`);
+        for (const p of (d.results || [])) {
+          if (shops.length >= 8) break;
+          if (!p.place_id || seen.has(p.place_id)) continue;
+          seen.add(p.place_id);
+          shops.push({
+            name: p.name,
+            tag: 'shops',
+            desc: p.vicinity || '',
+            rating: p.rating ? String(p.rating) : 'NR',
+            image: (p.photos && p.photos[0]) ? '/api/photo?ref=' + encodeURIComponent(p.photos[0].photo_reference) : null,
+            images: (p.photos || []).slice(0, 10).map(ph => '/api/photo?ref=' + encodeURIComponent(ph.photo_reference)),
+            lat: p.geometry && p.geometry.location ? p.geometry.location.lat : null,
+            lng: p.geometry && p.geometry.location ? p.geometry.location.lng : null,
+            place_id: p.place_id || null,
+            website: null,
+            phone: null,
+            description: null,
+            hours: null
+          });
+        }
+      }
+      out[stop.id].shops = shops;
+      console.log(`${stop.id} shops: ${shops.length} merged results`);
+    } catch(e) {
+      console.log(`${stop.id} shops FAILED:`, e.message);
+    }
   }
 
   console.log('Phase 1 complete. Stop count:', Object.keys(out).length);
 
   // PHASE 2: Enhance with Place Details (optional, non-blocking)
   for (const stopId of Object.keys(out)) {
-    for (const cat of ['restaurants', 'accommodations', 'parks', 'attractions']) {
+    for (const cat of ['restaurants', 'accommodations', 'parks', 'attractions', 'shops']) {
       for (const listing of out[stopId][cat]) {
         if (!listing.place_id) continue;
         try {

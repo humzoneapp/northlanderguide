@@ -33,6 +33,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The southern terminus. A vast historic station in the heart of downtown Toronto, steps from the waterfront, sports venues, and the Distillery District.",
@@ -87,6 +91,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A commuter transit hub in Richmond Hill, gateway to York Region's parks, trails and suburban dining.",
@@ -136,6 +144,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -188,6 +200,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A small riverside community where the Black and Severn rivers meet, the unofficial gateway to cottage country.",
@@ -235,6 +251,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -291,6 +311,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"The 'Heart of Muskoka', a waterfall-laced town on the Muskoka River with a charming historic main street.",
@@ -342,6 +366,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -399,6 +427,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A quiet village in the Almaguin Highlands and the western doorway to Algonquin Park's less-travelled side.",
@@ -448,6 +480,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -500,6 +536,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -557,6 +597,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A lakeside community on Lake Temiskaming, surrounded by the surprising farm belt of the 'Little Clay Belt'.",
@@ -609,6 +653,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A historic railway town built by Ontario Northland itself, small, proud, and rich in rail heritage.",
@@ -657,6 +705,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -710,6 +762,10 @@ const STOPS = [
       transportation:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
     },
     blurb:"A crossroads community where an express coach connects onward to Cochrane and the Polar Bear Express.",
@@ -758,6 +814,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
@@ -813,6 +873,10 @@ const STOPS = [
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ],
       transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
       ]
