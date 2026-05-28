@@ -186,14 +186,20 @@ function observeReveals(){
    preserved. Reduced-motion users skip the animation entirely and
    keep the final values that are already in the markup.
 ------------------------------------------------------------------- */
+/* Render "<prefix><value>" with any non-digit prefix (the "~")
+   wrapped in a .approx span so its small/raised/faint styling
+   survives the count-up rewrite. */
+function renderStatValue(el, prefix, value){
+  el.innerHTML = (prefix ? '<span class="approx">' + prefix + '</span>' : '') + value;
+}
 function countUp(el, target, duration, prefix){
   const start = performance.now();
   function frame(now){
     const t = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
-    el.textContent = prefix + Math.round(eased * target);
+    renderStatValue(el, prefix, Math.round(eased * target));
     if(t < 1) requestAnimationFrame(frame);
-    else el.textContent = prefix + target; // exact final value
+    else renderStatValue(el, prefix, target); // exact final value
   }
   requestAnimationFrame(frame);
 }
