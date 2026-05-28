@@ -841,6 +841,9 @@ a{color:inherit}
   width:100%;
   margin:0 0 0;
   overflow:hidden;
+  /* Warm placeholder tone behind the poster so it fades up from cream
+     instead of flashing white before the photo paints. */
+  background:#e8e4dc;
 }
 .stop-hero svg,.stop-hero .stop-art svg{
   display:block;width:100%;
