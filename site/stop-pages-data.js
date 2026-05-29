@@ -895,5 +895,339 @@ window.FAQS_DATA = [
     "sortOrder": 5
   }
 ];
-window.DONT_FORGET_DATA = [];
+window.DONT_FORGET_DATA = [
+  {
+    "item": "Bug spray",
+    "why": "Blackflies in May-June and mosquitoes all summer are legendary in Northern Ontario",
+    "triggerType": "Season: Summer",
+    "stop": "All Stops",
+    "icon": "🦟",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Bring a book or download a podcast",
+    "why": "The train ride is part of the experience, enjoy it",
+    "triggerType": "Always Include",
+    "stop": "All Stops",
+    "icon": "📚",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Explore the Huntsville art galleries on Main Street",
+    "why": "Huntsville has a thriving arts scene with galleries showcasing Muskoka and Group of Seven inspired work",
+    "triggerType": "Stop Specific",
+    "stop": "Huntsville",
+    "icon": "🎨",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Book the Kidd Mine tour in advance",
+    "why": "The underground mine tour is one of the best experiences in Northern Ontario and fills up fast",
+    "triggerType": "Stop Specific",
+    "stop": "Timmins",
+    "icon": "🏭",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Binoculars",
+    "why": "Loons, herons, eagles, moose and more are common sights along the route",
+    "triggerType": "Activity: Wildlife",
+    "stop": "All Stops",
+    "icon": "🔭",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Water bottle, at least 1 litre",
+    "why": "Most trails don't have water sources, especially shorter day hikes",
+    "triggerType": "Activity: Hiking",
+    "stop": "All Stops",
+    "icon": "💦",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Download your train ticket to your phone",
+    "why": "Northlander tickets on your phone saves scrambling at the station",
+    "triggerType": "Always Include",
+    "stop": "All Stops",
+    "icon": "🎫",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Get a Temagami canoe route map before you go",
+    "why": "The lake system is vast and beautiful and easy to get lost in without a map",
+    "triggerType": "Stop Specific",
+    "stop": "Temagami",
+    "icon": "🗺️",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Confirm check-in time with your accommodation",
+    "why": "The train arrives at specific times, make sure your place can accommodate",
+    "triggerType": "Activity: Staying Over",
+    "stop": "All Stops",
+    "icon": "🔑",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Download offline trail maps before you go",
+    "why": "Cell service on trails north of Huntsville is unreliable",
+    "triggerType": "Activity: Hiking",
+    "stop": "All Stops",
+    "icon": "🗺️",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Camera with a good lens",
+    "why": "Fall colours in Muskoka and Temagami are world-class, your phone camera will not do it justice",
+    "triggerType": "Season: Fall",
+    "stop": "All Stops",
+    "icon": "📷",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Check the Polar Bear Express schedule to Moosonee",
+    "why": "If you want to see James Bay, plan an overnight in Cochrane",
+    "triggerType": "Stop Specific",
+    "stop": "Cochrane",
+    "icon": "🚂",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Dry bag for your phone and wallet",
+    "why": "One capsize ruins a trip if your phone is not protected",
+    "triggerType": "Activity: Paddling",
+    "stop": "All Stops",
+    "icon": "💧",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Water shoes or sandals you don't mind getting wet",
+    "why": "Launches are often rocky or muddy",
+    "triggerType": "Activity: Paddling",
+    "stop": "All Stops",
+    "icon": "👟",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Visit the Museum of Northern History",
+    "why": "The gold rush history here is genuinely fascinating and the museum tells it brilliantly",
+    "triggerType": "Stop Specific",
+    "stop": "Kirkland Lake",
+    "icon": "⛏️",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Make a reservation for dinner spots",
+    "why": "Popular restaurants in Muskoka especially fill up fast in summer",
+    "triggerType": "Activity: Dining",
+    "stop": "All Stops",
+    "icon": "📞",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Walk to Kap-Kig-Iwan Provincial Park waterfalls",
+    "why": "One of the most underrated waterfalls in Ontario, less than 10 minutes from the station",
+    "triggerType": "Stop Specific",
+    "stop": "Englehart",
+    "icon": "🌊",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Arrange a taxi from the Swastika station to town",
+    "why": "The Kirkland Lake station is in Swastika, about 6km from downtown. Taxis available but call ahead",
+    "triggerType": "Stop Specific",
+    "stop": "Kirkland Lake",
+    "icon": "🚕",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Check the RMS Segwun steamship schedule",
+    "why": "The oldest operating steamship in North America runs out of Gravenhurst and is not to be missed",
+    "triggerType": "Stop Specific",
+    "stop": "Gravenhurst",
+    "icon": "🚢",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Visit the Discovery North Bay Museum",
+    "why": "North Bay has a rich railway and aviation history worth an hour of your time",
+    "triggerType": "Stop Specific",
+    "stop": "North Bay",
+    "icon": "🚂",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Walk to Bracebridge Falls from the station",
+    "why": "The waterfall is about 10 minutes walk and spectacular in spring runoff",
+    "triggerType": "Stop Specific",
+    "stop": "Bracebridge",
+    "icon": "💧",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "A full change of clothes in a dry bag",
+    "why": "You will want dry clothes for the train ride home",
+    "triggerType": "Activity: Paddling",
+    "stop": "All Stops",
+    "icon": "👕",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Proper hiking footwear",
+    "why": "Trails in Northern Ontario can be rocky, rooted, and muddy",
+    "triggerType": "Activity: Hiking",
+    "stop": "All Stops",
+    "icon": "🥾",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Book canoe or kayak rental in advance",
+    "why": "Rentals fill up fast in summer and the outfitters are small operations",
+    "triggerType": "Stop Specific",
+    "stop": "Temagami",
+    "icon": "🛶",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Bring cash",
+    "why": "Many small town restaurants and shops are cash only",
+    "triggerType": "Always Include",
+    "stop": "All Stops",
+    "icon": "💳",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Visit the Bethune Memorial House",
+    "why": "Birthplace of Dr Norman Bethune, a Canadian hero celebrated more in China than in Canada",
+    "triggerType": "Stop Specific",
+    "stop": "Gravenhurst",
+    "icon": "🏥",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Waterproof jacket",
+    "why": "Spring in Northern Ontario means mud season, be prepared",
+    "triggerType": "Season: Spring",
+    "stop": "All Stops",
+    "icon": "🌧️",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Check kitchen closing time, not just restaurant closing time",
+    "why": "Small town kitchens often stop taking orders an hour before close",
+    "triggerType": "Activity: Dining",
+    "stop": "All Stops",
+    "icon": "⏰",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Save Northlander Guide offline",
+    "why": "Cell service can be spotty north of North Bay",
+    "triggerType": "Always Include",
+    "stop": "All Stops",
+    "icon": "📱",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Visit Devil's Rock for the view",
+    "why": "A 300 foot cliff dropping straight into Lake Timiskaming. One of Ontario's most dramatic viewpoints",
+    "triggerType": "Stop Specific",
+    "stop": "Temiskaming Shores",
+    "icon": "🏔️",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Call ahead to confirm hours",
+    "why": "Small town businesses sometimes keep their own hours, especially off-season",
+    "triggerType": "Multiple Stops",
+    "stop": "All Stops",
+    "icon": "📞",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Book the Polar Bear Habitat in advance",
+    "why": "It is the main attraction in Cochrane and spots can fill up",
+    "triggerType": "Stop Specific",
+    "stop": "Cochrane",
+    "icon": "🐻‍❄️",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Warm layers, not one heavy coat",
+    "why": "Temperatures can drop fast, especially north of North Bay",
+    "triggerType": "Season: Winter",
+    "stop": "All Stops",
+    "icon": "🧤",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Pick up a trail map at the station",
+    "why": "South River is the quiet back door to Algonquin and trail access is excellent",
+    "triggerType": "Stop Specific",
+    "stop": "South River",
+    "icon": "🌲",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Ice cleats or microspikes",
+    "why": "Station platforms and sidewalks can be icy in winter",
+    "triggerType": "Season: Winter",
+    "stop": "All Stops",
+    "icon": "🥾",
+    "priority": "Essential",
+    "sortOrder": null
+  },
+  {
+    "item": "Insulated thermos",
+    "why": "A hot drink on the train through a snowy landscape is peak Northlander",
+    "triggerType": "Season: Winter",
+    "stop": "All Stops",
+    "icon": "☕",
+    "priority": "Recommended",
+    "sortOrder": null
+  },
+  {
+    "item": "Sunscreen",
+    "why": "Reflections off lakes can surprise you even on cloudy days",
+    "triggerType": "Season: Summer",
+    "stop": "All Stops",
+    "icon": "☀️",
+    "priority": "Essential",
+    "sortOrder": null
+  }
+];
 window.STOP_TIPS_DATA = [];

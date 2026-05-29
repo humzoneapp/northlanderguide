@@ -195,6 +195,7 @@
 .sp-df-list{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px;margin:24px 0 0}
 .sp-df-item{display:flex;gap:14px;align-items:flex-start}
 .sp-df-item .ph-light,.sp-df-item .ph{font-size:26px;color:var(--sp-rust);flex:none;margin-top:2px}
+.sp-df-item .sp-df-emoji{font-size:24px;line-height:1;flex:none;width:28px;text-align:center;margin-top:2px}
 .sp-df-name{font-weight:600;font-size:15px;color:var(--sp-ink)}
 .sp-df-why{font-size:13px;color:var(--sp-muted);margin-top:3px;line-height:1.5}
 .sp-df-badge{display:inline-block;background:var(--sp-rust);color:#fff;font-size:10px;font-weight:700;

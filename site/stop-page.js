@@ -230,10 +230,17 @@
   /* DON'T FORGET */
   html += '<section class="sp-section"><h2 class="sp-h2">Before You Board</h2>'
     + (dfItems.length
-      ? '<div class="sp-df-list">' + dfItems.map(d =>
-        '<div class="sp-df-item"><i class="ph-light ' + esc((d.icon || 'ph-circle').replace(/^ph(-fill)?\s+/, '')) + '" aria-hidden="true"></i>'
-        + '<div><span class="sp-df-name">' + esc(d.item) + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
-        + (d.why ? '<div class="sp-df-why">' + esc(d.why) + '</div>' : '') + '</div></div>').join('') + '</div>'
+      ? '<div class="sp-df-list">' + dfItems.map(d => {
+        const ic = String(d.icon || '').trim();
+        const icHtml = ic && /^ph-/.test(ic)
+          ? '<i class="ph-light ' + esc(ic.replace(/^ph(-fill)?\s+/, '')) + '" aria-hidden="true"></i>'
+          : ic
+            ? '<span class="sp-df-emoji" aria-hidden="true">' + esc(ic) + '</span>'
+            : '<i class="ph-light ph-circle" aria-hidden="true"></i>';
+        return '<div class="sp-df-item">' + icHtml
+          + '<div><span class="sp-df-name">' + esc(d.item) + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
+          + (d.why ? '<div class="sp-df-why">' + esc(d.why) + '</div>' : '') + '</div></div>';
+      }).join('') + '</div>'
       : '<p class="sp-empty">Packing tips for this stop are coming soon.</p>')
     + '</section>';
 
