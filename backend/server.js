@@ -40,6 +40,28 @@ const PORT = process.env.PORT || 3000;
 const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
 const EVENTBRITE_TOKEN = process.env.EVENTBRITE_TOKEN;
 
+/* Station coordinates for each stop, in route order. Used by
+   /walking-distance to find the origin for the Distance Matrix call.
+   Keep in sync with build-static.js and site/data.js. */
+const STOPS = [
+  { id: 'union',        lat: 43.6453, lng: -79.3806 },
+  { id: 'langstaff',    lat: 43.84,   lng: -79.428  },
+  { id: 'gormley',      lat: 43.946,  lng: -79.365  },
+  { id: 'washago',      lat: 44.735,  lng: -79.345  },
+  { id: 'gravenhurst',  lat: 44.917,  lng: -79.37   },
+  { id: 'bracebridge',  lat: 45.04,   lng: -79.31   },
+  { id: 'huntsville',   lat: 45.327,  lng: -79.216  },
+  { id: 'southriver',   lat: 45.837,  lng: -79.38   },
+  { id: 'temagami',     lat: 47.064,  lng: -79.79   },
+  { id: 'northbay',     lat: 46.309,  lng: -79.461  },
+  { id: 'temiskaming',  lat: 47.509,  lng: -79.677  },
+  { id: 'englehart',    lat: 47.821,  lng: -79.868  },
+  { id: 'kirklandlake', lat: 48.147,  lng: -80.037  },
+  { id: 'matheson',     lat: 48.534,  lng: -80.464  },
+  { id: 'timmins',      lat: 48.4758, lng: -81.3305 },
+  { id: 'cochrane',     lat: 49.066,  lng: -81.015  }
+];
+
 /* In-memory live data cache. Populated by POST /update-data (called
    by update.js after it fetches fresh content from Google + Eventbrite)
    and read by GET /live-data.json. Held in memory instead of a file
@@ -104,6 +126,37 @@ app.get('/api/photo', async (req, res) => {
     res.send(buf);
   }catch(err){
     res.status(502).json({error:'Photo upstream failed', detail:String(err)});
+  }
+});
+
+/* ---- /walking-distance : walking time and distance from a stop's
+   station to a listing's coordinates, via Google Distance Matrix.
+   GET /walking-distance?stopId=union&lat=43.6432&lng=-79.4246
+   Returns { walkMins, walkDistance } or nulls on any failure so
+   callers (build-static.js, Airtable automation) never break. ---- */
+app.get('/walking-distance', async (req, res) => {
+  const { stopId, lat, lng } = req.query;
+  const stop = STOPS.find(s => s.id === stopId);
+  if (!GOOGLE_KEY || !stop || !lat || !lng) {
+    return res.json({ walkMins: null, walkDistance: null });
+  }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json`
+      + `?origins=${stop.lat},${stop.lng}`
+      + `&destinations=${encodeURIComponent(lat + ',' + lng)}`
+      + `&mode=walking&key=${GOOGLE_KEY}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    const el = data.rows && data.rows[0] && data.rows[0].elements && data.rows[0].elements[0];
+    if (!el || el.status !== 'OK' || !el.duration) {
+      return res.json({ walkMins: null, walkDistance: null });
+    }
+    res.json({
+      walkMins: Math.round(el.duration.value / 60),
+      walkDistance: el.distance ? el.distance.text : null
+    });
+  } catch (err) {
+    res.json({ walkMins: null, walkDistance: null });
   }
 });
 

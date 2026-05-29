@@ -46,6 +46,11 @@ if (!KEY) {
   process.exit(1);
 }
 
+/* Base URL of the backend that exposes /walking-distance. Defaults to
+   the deployed server; override with SERVER_URL in backend/.env (for
+   example http://localhost:3000 when testing against a local server). */
+const SERVER_URL = (process.env.SERVER_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 const SITE_DIR     = path.join(__dirname, '..', 'site');
 const LISTINGS_DIR = path.join(SITE_DIR, 'images', 'listings');
 const OUT_FILE     = path.join(SITE_DIR, 'listings-data.js');
@@ -247,6 +252,24 @@ async function buildListing(p, catKey, stopId, index) {
     if (pth) images.push(pth);
     await sleep(50);
   }
+  const lat = p.geometry && p.geometry.location ? p.geometry.location.lat : null;
+  const lng = p.geometry && p.geometry.location ? p.geometry.location.lng : null;
+
+  /* Accurate walking time and distance from the stop's station, via the
+     backend /walking-distance endpoint (which calls Google Distance
+     Matrix). Leave nulls on any failure so the build never breaks. */
+  let walkMins = null, walkDistance = null;
+  if (lat != null && lng != null) {
+    try {
+      const wr = await fetch(`${SERVER_URL}/walking-distance`
+        + `?stopId=${encodeURIComponent(stopId)}&lat=${lat}&lng=${lng}`);
+      const wd = await wr.json();
+      walkMins = wd.walkMins;
+      walkDistance = wd.walkDistance;
+    } catch (err) { /* leave nulls */ }
+    await sleep(60);
+  }
+
   return {
     name: p.name || '',
     tag: TAG_LABEL[catKey] || 'Place',
@@ -254,12 +277,14 @@ async function buildListing(p, catKey, stopId, index) {
     rating: p.rating ? String(p.rating) : 'NR',
     image: images[0] || null,
     images,
-    lat: p.geometry && p.geometry.location ? p.geometry.location.lat : null,
-    lng: p.geometry && p.geometry.location ? p.geometry.location.lng : null,
+    lat,
+    lng,
     website: extra.website || null,
     phone: extra.phone || null,
     description: extra.description || null,
-    hours: extra.hours || null
+    hours: extra.hours || null,
+    walkMins,
+    walkDistance
   };
 }
 
