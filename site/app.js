@@ -21,6 +21,14 @@ const CATS = [
   {key:'shops',          label:'Shop',         ic:'shop'},
   {key:'transportation', label:'Transport',    ic:'bus'}
 ];
+/* Short label shown in the card tag pill. Used as a fallback when the
+   listing has no .tag of its own (Airtable rows do not carry the
+   Google-Places-derived tags that the original static build did). */
+const TAG_BY_CAT = {
+  restaurants:'Restaurant', accommodations:'Stay', parks:'Nature',
+  attractions:'Attraction', shops:'Shop', transportation:'Transport'
+};
+function tagFor(it){ return it.tag || TAG_BY_CAT[activeCat] || 'Place'; }
 
 /* Category header image shown above the listing cards. Keyed by the
    internal data key, not the display label. */
@@ -1683,7 +1691,7 @@ function cardMarkup(it, idx, imgCls){
         ${imageBlock(it, activeCat, idx, imgCls)}
         <div class="card-body">
           <div class="toprow">
-            <span class="tag${it.featured ? ' tag-featured' : ''}">${it.tag}</span>
+            <span class="tag${it.featured ? ' tag-featured' : ''}">${tagFor(it)}</span>
             ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
           </div>
           <h4>${it.name}</h4>
@@ -1745,7 +1753,7 @@ function renderDetail(){
       </div>
       <div class="detail-body">
         <div class="toprow">
-          <span class="tag${it.featured ? ' tag-featured' : ''}">${it.tag}</span>
+          <span class="tag${it.featured ? ' tag-featured' : ''}">${tagFor(it)}</span>
           ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
         </div>
         <h3>${it.name}</h3>
