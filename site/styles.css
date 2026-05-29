@@ -351,9 +351,10 @@ a{color:inherit}
   font-size:clamp(3.25rem,8vw,6rem);
   letter-spacing:-.02em;line-height:1.02;
   text-wrap:balance;
-  /* More breathing room below the headline so the train shows
-     through between the title and the tagline on desktop. */
-  margin:0 0 2.8rem;
+  /* Generous space below the headline so the painted train shows
+     through cleanly between the title and the tagline on desktop.
+     Scales down on shorter viewports so mobile stays compact. */
+  margin:0 0 clamp(2.2rem,9vh,6rem);
   color:var(--poster-cream);
   text-shadow:0 2px 10px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.5);
 }
