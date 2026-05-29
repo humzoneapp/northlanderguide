@@ -4,7 +4,6 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/stops/:stopid", "destination": "/stops/index.html" },
-    { "source": "/stops", "destination": "/stops/index.html" }
+    { "source": "/stops/:path*", "destination": "/stops/index.html" }
   ]
 }
