@@ -1146,6 +1146,26 @@ a{color:inherit}
   margin:.35rem 0 .4rem;
 }
 
+/* Discount badge on a listing card plus the discount detail line in the
+   detail view. Both use the rusty brown poster-crimson accent so a
+   member discount reads as a small, warm callout. */
+.discount-badge{
+  display:inline-flex;align-items:center;gap:.3rem;
+  font-size:.68rem;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:#fff;
+  background:var(--poster-crimson);
+  padding:.22rem .5rem;border-radius:3px;
+  margin:.1rem 0 .45rem;
+}
+.discount-badge .icon{width:.9em;height:.9em}
+.detail-body .discount-line{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.88rem;font-weight:600;
+  color:var(--poster-crimson);
+  margin:.2rem 0 .8rem;
+}
+.detail-body .discount-line .icon{width:1em;height:1em;flex:none}
+
 /* Action row on the detail view: globe + phone buttons under the
    hours line. Vertical icon-over-label layout, comfortable tap
    targets (min 44px each), rusty crimson on hover-able tint. */

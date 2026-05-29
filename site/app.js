@@ -57,7 +57,8 @@ const ICONS = {
   'globe':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
   'phone':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
   'bus':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="6" y1="13" x2="9" y2="13"/><line x1="15" y1="13" x2="18" y2="13"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>',
-  'shop':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>'
+  'shop':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+  'tag':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1.2"/></svg>'
 };
 function icon(name){ return ICONS[name] || ''; }
 
@@ -1314,7 +1315,11 @@ function cardArt(cat, seed){
    principle (crossfade is the same idea, simpler). */
 function imageBlock(item, cat, seed, cls){
   const fallback = cardArt(cat, seed);
-  if(item && item.image){
+  /* Prefer Airtable photos (full URLs), then the static build image. */
+  const hero = (item && Array.isArray(item.photos) && item.photos.length)
+    ? item.photos[0]
+    : (item && item.image);
+  if(hero){
     /* Loading state is just the neutral grey background on the
        container (CSS). The illustrated fallback is hidden by
        default and only revealed when the photo fails to load
@@ -1324,7 +1329,7 @@ function imageBlock(item, cat, seed, cls){
        a hidden subtree, leaving photos blank on phones/iPad. */
     return `<div class="${cls}">
       <div class="img-fallback">${fallback}</div>
-      <img src="${item.image}" alt="${item.name||''}" decoding="async"
+      <img src="${hero}" alt="${item.name||''}" decoding="async"
            onerror="this.classList.add('img-failed');this.parentNode.classList.add('show-fallback')">
     </div>`;
   }
@@ -1344,7 +1349,12 @@ function imageBlock(item, cat, seed, cls){
 ------------------------------------------------------------------- */
 function detailImageBlock(item, cat, seed){
   const fallback = cardArt(cat, seed);
-  const imgs = (item && Array.isArray(item.images)) ? item.images.filter(Boolean) : [];
+  /* Prefer Airtable photos (full URLs); fall back to the static build
+     images array. Both are used directly as image src values. */
+  const photos = (item && Array.isArray(item.photos)) ? item.photos.filter(Boolean) : [];
+  const imgs = photos.length
+    ? photos
+    : ((item && Array.isArray(item.images)) ? item.images.filter(Boolean) : []);
   /* Single image path: behaviour identical to imageBlock. The
      illustrated fallback is hidden by default and only revealed
      if the photo errors out. */
@@ -1660,10 +1670,10 @@ function listingsForActive(){
 function cardMarkup(it, idx, imgCls){
   const walk = walkFromStation(activeStop, it);
   const hrs = formatHours(it.hours);
-  const ratingHtml = it.rating === 'NR'
+  const ratingHtml = (!it.rating || it.rating === 'NR')
     ? 'New'
-    : (it.rating ? icon('star') + it.rating : '');
-  const desc = (it.description && it.description.trim()) ? it.description : '';
+    : icon('star') + Number(it.rating).toFixed(1);
+  const blurb = (it.desc && it.desc.trim()) ? it.desc : '';
   return `
     <div class="reveal">
       <button class="card${it.featured ? ' card-featured' : ''}" data-idx="${idx}">
@@ -1674,9 +1684,10 @@ function cardMarkup(it, idx, imgCls){
             ${ratingHtml ? `<span class="rating">${ratingHtml}</span>` : ''}
           </div>
           <h4>${it.name}</h4>
-          ${desc ? `<p class="description">${desc}</p>` : ''}
+          ${it.address ? `<div class="desc">${it.address}</div>` : ''}
+          ${blurb ? `<p class="description">${blurb}</p>` : ''}
           ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
-          <div class="desc">${it.desc}</div>
+          ${it.discountOffered ? `<span class="discount-badge">${icon('tag')}Discount</span>` : ''}
           ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
           <span class="card-cta">View details ${icon('arrow-right')}</span>
         </div>
@@ -1704,7 +1715,7 @@ function mapsUrl(it){
     return 'https://www.google.com/maps/dir/?api=1&destination='
       + encodeURIComponent(it.lat + ',' + it.lng);
   }
-  const query = [it && it.name, it && it.desc].filter(Boolean).join(', ');
+  const query = [it && it.name, it && it.address].filter(Boolean).join(', ');
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
 }
 
@@ -1718,9 +1729,9 @@ function renderDetail(){
   const others = items.map((x,i)=>({x,i})).filter(o=>o.i!==activeDetail);
   const walk = walkFromStation(activeStop, it);
   const hrs = formatHours(it.hours);
-  const ratingHtml = it.rating === 'NR'
+  const ratingHtml = (!it.rating || it.rating === 'NR')
     ? 'New'
-    : (it.rating ? icon('star') + it.rating : '');
+    : icon('star') + Number(it.rating).toFixed(1);
 
   document.getElementById('stopPanel').innerHTML = `
     <div class="stop detail" data-stop="${activeStop.id}">
@@ -1736,13 +1747,14 @@ function renderDetail(){
         <h3>${it.name}</h3>
         ${walk ? `<div class="walk-line">${icon('pin')}${walk}</div>` : ''}
         ${hrs ? `<div class="hours-line">${icon('clock')}${hrs}</div>` : ''}
+        ${it.discountOffered && it.discountDetails ? `<div class="discount-line">${icon('tag')}${it.discountDetails}</div>` : ''}
         <div class="action-row">
           ${it.website ? `<a class="action-btn" href="${it.website}" target="_blank" rel="noopener" aria-label="Visit ${it.name} website">${icon('globe')}<span class="action-label">Website</span></a>` : ''}
           ${it.phone ? `<a class="action-btn" href="tel:${it.phone.replace(/[^\d+]/g,'')}" aria-label="Call ${it.name}">${icon('phone')}<span class="action-label">Call</span></a>` : ''}
           <a class="action-btn" href="${mapsUrl(it)}" target="_blank" rel="noopener" aria-label="Open ${it.name} in Google Maps">${icon('pin')}<span class="action-label">Map</span></a>
         </div>
-        <div class="detail-loc">${icon('pin')} ${catLabel(activeCat)} \u00B7 ${activeStop.name}, ${activeStop.region}</div>
-        <p class="detail-desc">${it.description || it.details || it.desc}</p>
+        <div class="detail-loc">${icon('pin')} ${it.address ? it.address : catLabel(activeCat) + ' \u00B7 ' + activeStop.name + ', ' + activeStop.region}</div>
+        ${it.desc ? `<p class="detail-desc">${it.desc}</p>` : ''}
         <div class="share-row">
           <button data-share="copy">${icon('link')}Copy link</button>
           <button data-share="x">${icon('share')}Share</button>
