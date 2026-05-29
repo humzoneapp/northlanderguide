@@ -326,6 +326,11 @@
     const el = document.getElementById('spMap');
     if (!el || typeof L === 'undefined' || meta.lat == null) { if (el) el.innerHTML = ''; return; }
     const map = L.map(el, { scrollWheelZoom: false }).setView([meta.lat, meta.lng], 14);
+    /* Desktop convenience: when the cursor is over the map, allow the
+       scroll wheel to zoom; otherwise leave it disabled so the page
+       can scroll normally past the map. */
+    el.addEventListener('mouseenter', () => map.scrollWheelZoom.enable());
+    el.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);

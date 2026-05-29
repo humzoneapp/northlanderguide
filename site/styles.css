@@ -1481,7 +1481,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop-explorer-btn:hover { color: var(--gold); }
 .stop-explorer-btn i {
   color: #c4860f;
-  font-size: 1.3em;
+  font-size: 1.15em;
   animation: lanternGlow 3s ease-in-out infinite;
 }
 @keyframes lanternGlow {
@@ -1503,7 +1503,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   transition: color .15s ease;
 }
 .nav-dropdown-toggle:hover, .nav-dropdown.open .nav-dropdown-toggle { color: var(--gold); }
-.nav-dropdown-toggle i { font-size: 1.1em; transition: transform .2s; }
+.nav-dropdown-toggle i { font-size: 1.15em; transition: transform .2s; }
 .nav-dropdown.open .nav-dropdown-toggle i { transform: rotate(180deg); }
 .nav-dropdown-panel {
   position: absolute; top: 100%; right: 0;

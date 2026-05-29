@@ -81,7 +81,7 @@
 }
 
 /* ---------- editorial intro (two-column) ---------- */
-.sp-intro{display:grid;grid-template-columns:65% 35%;gap:48px;margin:40px 0 0;align-items:start}
+.sp-intro{display:grid;grid-template-columns:65% 35%;gap:48px;margin:60px 0 0;align-items:start}
 .sp-intro-body p{font-family:'Fraunces',Georgia,serif;font-size:18px;line-height:1.8;
   color:var(--sp-ink);margin:0 0 20px;text-align:left}
 .sp-intro-aside{padding-top:6px;border-left:2px solid var(--sp-rust);padding-left:24px}
@@ -133,7 +133,7 @@
 @keyframes sp-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ---------- listings + map ---------- */
-.sp-explore{display:grid;grid-template-columns:40% 60%;gap:28px;align-items:start}
+.sp-explore{display:grid;grid-template-columns:2fr 3fr;gap:28px;align-items:start}
 .sp-map{height:520px;border:3px solid var(--sp-green);background:var(--sp-offivory)}
 .sp-map .leaflet-container{height:100%;width:100%;background:var(--sp-offivory);font-family:'Spline Sans',sans-serif}
 .sp-marker{display:block;border-radius:50%;border:2px solid var(--sp-ivory);box-sizing:border-box}
