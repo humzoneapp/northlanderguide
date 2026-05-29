@@ -17,7 +17,7 @@ const CATS = [
   {key:'restaurants',    label:'Eat & Drink',  ic:'fork-knife'},
   {key:'accommodations', label:'Stay',         ic:'bed'},
   {key:'parks',          label:'Nature',       ic:'tree'},
-  {key:'attractions',    label:'See & Do',     ic:'pin'},
+  {key:'attractions',    label:'See & Do',     ic:'eye'},
   {key:'shops',          label:'Shop',         ic:'shop'},
   {key:'transportation', label:'Transport',    ic:'bus'}
 ];
@@ -35,32 +35,33 @@ const CAT_HEADER_IMG = {
 function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
 
 /* ------------------------------------------------------------------
-   INLINE SVG ICONS
-   All UI icons live here as a single library. Every icon uses
-   currentColor so it inherits the text colour of its parent, and
-   every icon is sized in `em` so it scales with the surrounding
-   font-size. icon(name) returns the SVG string for the template.
+   PHOSPHOR ICONS
+   All UI icons are Phosphor Icons, loaded from the CDN stylesheets
+   in index.html. icon(name) maps a semantic name to a Phosphor class
+   and returns the <i> tag for templates. Light weight is the default;
+   the fill weight (ph-fill) is reserved for active states.
 ------------------------------------------------------------------- */
 const ICONS = {
-  'fork-knife': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7a2 2 0 0 0 2 2h2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6a2 2 0 0 0 2 2h3v7"/></svg>',
-  'bed':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
-  'tree':       '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L7 8 H9 L5 14 H8 L3 20 H21 L18 14 H21 L17 8 H19 Z"/><rect x="11" y="20" width="2" height="3"/></svg>',
-  'pin':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
-  'star':       '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>',
-  'arrow-left': '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
-  'arrow-right':'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
-  'arrow-up':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
-  'external':   '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
-  'share':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
-  'link':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-  'clock':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-  'globe':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-  'phone':      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
-  'bus':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="11" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="6" y1="13" x2="9" y2="13"/><line x1="15" y1="13" x2="18" y2="13"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>',
-  'shop':       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
-  'tag':        '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1.2"/></svg>'
+  'fork-knife': 'ph-fork-knife',
+  'bed':        'ph-bed',
+  'tree':       'ph-tree',
+  'pin':        'ph-map-pin',
+  'eye':        'ph-eye',
+  'star':       'ph-star',
+  'arrow-left': 'ph-arrow-left',
+  'arrow-right':'ph-arrow-right',
+  'arrow-up':   'ph-arrow-up',
+  'external':   'ph-arrow-square-out',
+  'share':      'ph-share-network',
+  'link':       'ph-link',
+  'clock':      'ph-clock',
+  'globe':      'ph-globe',
+  'phone':      'ph-phone',
+  'bus':        'ph-bus',
+  'shop':       'ph-shopping-bag',
+  'tag':        'ph-tag'
 };
-function icon(name){ return ICONS[name] || ''; }
+function icon(name){ const c = ICONS[name]; return c ? `<i class="ph-light ${c}" aria-hidden="true"></i>` : ''; }
 
 /* a URL-safe slug from a listing name, used for shareable detail links */
 function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
