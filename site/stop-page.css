@@ -1,0 +1,246 @@
+/* ==================================================================
+   STOP PAGE - editorial design (vintage railway travel magazine)
+   Loaded after styles.css; scoped under .stop-page-body / .sp- prefix.
+   ================================================================== */
+.stop-page-body{
+  --sp-ivory:#f5f0e8;
+  --sp-green:#0a2d21;
+  --sp-rust:#7d3a1e;
+  --sp-amber:#c4860f;
+  --sp-offivory:#ede8da;
+  --sp-cream:#ede0cc;
+  --sp-ink:#241f1a;
+  --sp-muted:#5a4f3d;
+  background:var(--sp-ivory);
+  color:var(--sp-ink);
+  font-family:'Spline Sans',system-ui,sans-serif;
+}
+.stop-page-body main{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+
+/* Paper texture: pure-CSS thin diagonal lines, very faint. */
+.sp-paper{
+  background-image:repeating-linear-gradient(45deg,
+    rgba(45,30,20,.03) 0, rgba(45,30,20,.03) 1px, transparent 1px, transparent 8px);
+}
+
+/* ---------- section labels + headings ---------- */
+.sp-label{
+  font-family:'Spline Sans',sans-serif;
+  text-transform:uppercase;letter-spacing:.2em;font-size:11px;font-weight:600;
+  color:var(--sp-rust);margin:0 0 14px;
+}
+.sp-h2{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--sp-green);
+  font-size:clamp(2rem,4vw,3rem);line-height:1.05;margin:0 0 24px;letter-spacing:-.01em}
+
+/* ---------- HERO (magazine cover) ---------- */
+.sp-hero{position:relative;width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+.sp-hero-frame{position:relative;height:70vh;min-height:420px;overflow:hidden}
+.sp-hero-frame img{width:100%;height:100%;object-fit:cover;display:block;
+  opacity:0;transition:opacity .4s ease-out}
+.sp-hero-frame img.loaded{opacity:1}
+.sp-hero-travel{
+  position:absolute;top:18px;right:18px;z-index:3;
+  background:var(--sp-ivory);color:var(--sp-rust);
+  border:2px solid var(--sp-rust);
+  font-size:13px;font-weight:600;letter-spacing:.04em;
+  padding:7px 14px;max-width:240px;line-height:1.3;
+}
+/* Stop name overlaps the bottom edge: half on the image, half on ivory. */
+.sp-hero-titlewrap{position:relative;max-width:1180px;margin:-0.55em auto 0;padding:0 24px;z-index:4}
+.sp-hero-title{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;color:var(--sp-green);
+  font-size:clamp(52px,9vw,108px);line-height:.92;letter-spacing:-.02em;margin:0;
+  text-shadow:2px 2px 0 rgba(190,175,150,.55);
+  transform:translateY(18px);opacity:0;
+}
+.sp-hero-title.in{transform:translateY(0);opacity:1;transition:transform .4s ease-out,opacity .4s ease-out}
+.sp-hero-tagline{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+  color:var(--sp-rust);font-size:clamp(18px,2.4vw,26px);line-height:1.3;
+  margin:14px 0 0;max-width:780px;
+}
+
+/* ---------- breadcrumb ---------- */
+.sp-breadcrumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:600;
+  color:var(--sp-muted);margin:34px 0 0}
+.sp-breadcrumb a{color:var(--sp-muted);text-decoration:none}
+.sp-breadcrumb a:hover{color:var(--sp-rust)}
+.sp-breadcrumb .ph-light,.sp-breadcrumb .ph{color:var(--sp-rust);font-size:14px}
+.sp-breadcrumb .here{color:var(--sp-ink)}
+
+/* ---------- best for pills ---------- */
+.sp-bestfor{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+.sp-pill{
+  border:2px solid var(--sp-rust);color:var(--sp-rust);background:var(--sp-ivory);
+  font-size:13px;font-weight:600;letter-spacing:.03em;padding:6px 13px;border-radius:0;
+  white-space:nowrap;
+}
+
+/* ---------- editorial intro (two-column) ---------- */
+.sp-intro{display:grid;grid-template-columns:65% 35%;gap:48px;margin:40px 0 0;align-items:start}
+.sp-intro-body p{font-family:'Fraunces',Georgia,serif;font-size:18px;line-height:1.8;
+  color:var(--sp-ink);margin:0 0 20px;text-align:left}
+.sp-intro-aside{padding-top:6px;border-left:2px solid var(--sp-rust);padding-left:24px}
+.sp-pullquote{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+  font-size:28px;line-height:1.3;color:var(--sp-rust);margin:0 0 28px}
+.sp-stat{margin-top:8px}
+.sp-stat-num{font-family:'Fraunces',Georgia,serif;font-weight:700;color:var(--sp-green);
+  font-size:48px;line-height:1;display:block}
+.sp-stat-label{text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:600;
+  color:var(--sp-muted);margin-top:8px;display:block}
+
+/* ---------- chapter divider ---------- */
+.sp-divider{position:relative;height:1px;background:var(--sp-green);margin:64px 0;border:0}
+.sp-divider::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--sp-green)}
+.sp-divider-badge{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:42px;height:42px;border-radius:50%;background:var(--sp-green);color:var(--sp-ivory);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+
+/* ---------- getting here / around ---------- */
+.sp-two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.sp-card{background:var(--sp-ivory);border-top:4px solid var(--sp-rust);padding:24px 24px 28px}
+.sp-card p{font-family:'Fraunces',Georgia,serif;font-size:17px;line-height:1.75;margin:0;color:var(--sp-ink)}
+
+/* ---------- seasonal highlights (asymmetric) ---------- */
+.sp-seasons-wrap{background:var(--sp-offivory);margin:0 -24px;padding:40px 24px}
+.sp-seasons-inner{max-width:1132px;margin:0 auto}
+.sp-seasons{display:grid;grid-template-columns:1fr 2fr 1fr;grid-template-rows:auto auto;gap:18px}
+.sp-season{background:var(--sp-ivory);border:1px solid #d9cfba;padding:22px}
+.sp-season .ph-light,.sp-season .ph{font-size:48px;color:var(--sp-rust);display:block;margin-bottom:10px}
+.sp-season-name{text-transform:uppercase;letter-spacing:.2em;font-size:11px;font-weight:600;
+  color:var(--sp-muted);margin:0 0 10px}
+.sp-season-text{font-family:'Fraunces',Georgia,serif;font-size:15px;line-height:1.6;color:var(--sp-ink);margin:0}
+.sp-season-summer{grid-column:1;grid-row:1/3}
+.sp-season-spring{grid-column:2;grid-row:1}
+.sp-season-fall{grid-column:2;grid-row:2}
+.sp-season-winter{grid-column:3;grid-row:1/3}
+
+/* ---------- fun facts ticker ---------- */
+.sp-ticker{background:var(--sp-green);color:var(--sp-ivory);overflow:hidden;
+  margin:0 -24px;padding:18px 0;white-space:nowrap}
+.sp-ticker-track{display:inline-flex;align-items:center;gap:0;animation:sp-scroll 40s linear infinite}
+.sp-ticker:hover .sp-ticker-track{animation-play-state:paused}
+.sp-ticker-item{display:inline-flex;align-items:center;gap:14px;padding:0 28px}
+.sp-ticker-cat{text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:600;color:var(--sp-amber)}
+.sp-ticker-fact{font-family:'Fraunces',Georgia,serif;font-size:16px;color:var(--sp-ivory)}
+.sp-ticker-dot{width:5px;height:5px;border-radius:50%;background:var(--sp-amber);flex:none}
+@keyframes sp-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- listings + map ---------- */
+.sp-explore{display:grid;grid-template-columns:40% 60%;gap:28px;align-items:start}
+.sp-map{height:520px;border:3px solid var(--sp-green);background:var(--sp-offivory)}
+.sp-map .leaflet-container{height:100%;width:100%;background:var(--sp-offivory);font-family:'Spline Sans',sans-serif}
+.sp-marker{display:block;border-radius:50%;border:2px solid var(--sp-ivory);box-sizing:border-box}
+.sp-tabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 20px;border-bottom:1px solid #d9cfba}
+.sp-tab{background:none;border:0;border-bottom:3px solid transparent;color:var(--sp-muted);
+  font-family:'Spline Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;
+  padding:8px 12px;cursor:pointer;text-transform:uppercase}
+.sp-tab.active{color:var(--sp-rust);border-bottom-color:var(--sp-rust)}
+.sp-listings{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.sp-empty{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--sp-muted);font-size:16px;padding:20px 0}
+
+/* listing card (mirrors main site card, lighter chrome) */
+.sp-lcard{background:var(--sp-ivory);border:1px solid #d9cfba;padding:16px;display:flex;flex-direction:column}
+.sp-lcard .sp-lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sp-lc-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#fff;
+  background:var(--sp-rust);padding:3px 8px}
+.sp-lc-rating{color:var(--sp-amber);font-weight:700;font-size:14px;white-space:nowrap}
+.sp-lcard h4{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;margin:10px 0 4px;color:var(--sp-ink)}
+.sp-lc-addr{font-size:13px;color:var(--sp-muted);margin:0 0 6px}
+.sp-lc-walk{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  color:var(--sp-rust);letter-spacing:.02em}
+
+/* walking figure: pure-CSS legs that "walk" in place */
+.sp-walker{display:inline-block;width:14px;height:14px;position:relative}
+.sp-walker::before,.sp-walker::after{content:"";position:absolute;bottom:0;left:6px;width:2px;height:8px;
+  background:var(--sp-rust);transform-origin:top center}
+.sp-walker::before{animation:sp-stepA .6s steps(2,end) infinite}
+.sp-walker::after{animation:sp-stepB .6s steps(2,end) infinite}
+@keyframes sp-stepA{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
+@keyframes sp-stepB{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+
+/* ---------- events placeholder ---------- */
+.sp-events-empty{background:var(--sp-offivory);border:1px solid #d9cfba;padding:46px 28px;text-align:left}
+.sp-events-empty .ph-light,.sp-events-empty .ph{font-size:46px;color:var(--sp-rust);display:block;margin-bottom:14px}
+.sp-events-empty p{font-family:'Fraunces',Georgia,serif;font-size:18px;color:var(--sp-ink);margin:0 0 14px;max-width:560px}
+.sp-events-empty a{color:var(--sp-rust);font-weight:600}
+
+/* ---------- FAQ accordion ---------- */
+.sp-faq{border-left:4px solid var(--sp-rust);padding:0 0 0 22px;margin:0 0 14px}
+.sp-faq-q{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;
+  background:none;border:0;cursor:pointer;text-align:left;padding:18px 0;
+  font-family:'Spline Sans',sans-serif;font-size:16px;font-weight:500;color:var(--sp-ink)}
+.sp-faq-q .ph-light,.sp-faq-q .ph{color:var(--sp-rust);font-size:22px;flex:none}
+.sp-faq-a{font-family:'Fraunces',Georgia,serif;font-size:16px;line-height:1.7;color:var(--sp-muted);
+  max-height:0;overflow:hidden;transition:max-height .3s ease;padding-right:24px}
+.sp-faq.open .sp-faq-a{max-height:600px;padding-bottom:18px}
+
+/* ---------- nearby stops (railway platform signs) ---------- */
+.sp-nearby{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.sp-platform{background:var(--sp-green);color:var(--sp-ivory);padding:26px;display:flex;align-items:center;gap:20px;text-decoration:none}
+.sp-platform-num{flex:none;width:60px;height:60px;border-radius:50%;border:2px solid var(--sp-amber);
+  display:flex;align-items:center;justify-content:center;color:var(--sp-amber);
+  font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:26px}
+.sp-platform-name{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:26px;color:var(--sp-ivory);line-height:1.05;margin:0}
+.sp-platform-region{text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:#b9c9bf;margin:6px 0 12px}
+.sp-platform-btn{display:inline-block;border:2px solid var(--sp-ivory);color:var(--sp-ivory);
+  font-size:12px;font-weight:600;letter-spacing:.05em;padding:6px 12px;text-transform:uppercase}
+.sp-platform:hover .sp-platform-btn{background:var(--sp-ivory);color:var(--sp-green)}
+
+/* ---------- don't forget ---------- */
+.sp-collapse-head{display:flex;align-items:center;gap:12px;cursor:pointer;background:none;border:0;padding:0}
+.sp-df-list{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px;margin:24px 0 0}
+.sp-df-item{display:flex;gap:14px;align-items:flex-start}
+.sp-df-item .ph-light,.sp-df-item .ph{font-size:26px;color:var(--sp-rust);flex:none;margin-top:2px}
+.sp-df-name{font-weight:600;font-size:15px;color:var(--sp-ink)}
+.sp-df-why{font-size:13px;color:var(--sp-muted);margin-top:3px;line-height:1.5}
+.sp-df-badge{display:inline-block;background:var(--sp-rust);color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;margin-left:8px;vertical-align:middle}
+
+/* ---------- community tips corkboard ---------- */
+.sp-corkboard{margin:0 -24px;padding:44px 24px}
+.sp-corkboard-inner{max-width:1132px;margin:0 auto}
+.sp-tips{display:flex;flex-wrap:wrap;gap:26px;margin:0 0 36px}
+.sp-tip{position:relative;background:var(--sp-cream);width:280px;padding:26px 22px 22px;
+  box-shadow:0 6px 14px rgba(40,30,20,.12)}
+.sp-tip::before{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  width:14px;height:14px;border-radius:50%;background:var(--sp-amber);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.sp-tip-text{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:16px;line-height:1.6;color:var(--sp-ink);margin:0}
+.sp-tip-by{font-size:12px;letter-spacing:.06em;color:var(--sp-muted);margin:12px 0 0;text-transform:uppercase}
+.sp-tipform{max-width:560px}
+.sp-tipform textarea,.sp-tipform input{width:100%;background:var(--sp-ivory);border:2px solid #cdbfa3;
+  font-family:'Spline Sans',sans-serif;font-size:15px;padding:11px 13px;color:var(--sp-ink);box-sizing:border-box}
+.sp-tipform textarea{min-height:96px;resize:vertical;margin-bottom:6px}
+.sp-tip-counter{font-size:12px;color:var(--sp-muted);text-align:right;margin:0 0 12px}
+.sp-tipform input{margin-bottom:14px}
+.sp-tip-msg{font-size:13px;margin:10px 0 0;color:var(--sp-rust);min-height:1em}
+
+/* ---------- buttons (rectangular, rusty border) ---------- */
+.sp-btn{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--sp-rust);
+  background:var(--sp-ivory);color:var(--sp-rust);font-family:'Spline Sans',sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:.04em;padding:9px 16px;cursor:pointer;
+  text-decoration:none;border-radius:0;transition:background .15s,color .15s}
+.sp-btn:hover{background:var(--sp-rust);color:var(--sp-ivory)}
+.sp-share{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ---------- section spacing ---------- */
+.sp-section{margin:0}
+.sp-section + .sp-section{margin-top:0}
+
+/* ---------- responsive ---------- */
+@media (max-width:860px){
+  .sp-intro{grid-template-columns:1fr;gap:28px}
+  .sp-intro-aside{border-left:0;border-top:2px solid var(--sp-rust);padding-left:0;padding-top:22px}
+  .sp-two{grid-template-columns:1fr}
+  .sp-seasons{grid-template-columns:1fr;grid-auto-rows:auto}
+  .sp-season-summer,.sp-season-spring,.sp-season-fall,.sp-season-winter{grid-column:1;grid-row:auto}
+  .sp-explore{grid-template-columns:1fr}
+  .sp-map{height:340px;order:2}
+  .sp-listings{grid-template-columns:1fr}
+  .sp-nearby{grid-template-columns:1fr}
+  .sp-df-list{grid-template-columns:1fr}
+  .sp-hero-frame{height:48vh;min-height:300px}
+}

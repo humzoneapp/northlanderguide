@@ -2,5 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "site",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/stops/:stopid", "destination": "/stops/index.html" },
+    { "source": "/stops", "destination": "/stops/index.html" }
+  ]
 }

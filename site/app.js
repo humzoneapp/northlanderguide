@@ -1695,6 +1695,7 @@ function cardMarkup(it, idx, imgCls){
           <span class="card-cta">View details ${icon('arrow-right')}</span>
         </div>
       </button>
+      <a href="/stops/${activeStop.id}" class="stop-page-link"><i class="ph-light ph-map-pin icon-sm" aria-hidden="true"></i> Explore ${activeStop.name}</a>
     </div>`;
 }
 

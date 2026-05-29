@@ -1442,3 +1442,76 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   opacity:0;transition:all .3s;z-index:1100;pointer-events:none;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== Stop-page link on listing cards ===== */
+.stop-page-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Spline Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #7d3a1e;
+  text-decoration: none;
+  margin-top: 8px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.stop-page-link:hover { border-bottom-color: #7d3a1e; }
+
+/* ===== Lantern "Explore Stops" button (header) ===== */
+.stop-explorer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font-family: 'Spline Sans', sans-serif;
+  font-size: .92rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  padding: 0;
+}
+.stop-explorer-btn i {
+  color: #c4860f;
+  font-size: 1.25em;
+  animation: lanternGlow 3s ease-in-out infinite;
+}
+@keyframes lanternGlow {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(196,134,15,0.4)); opacity: 0.85; }
+  50% { filter: drop-shadow(0 0 10px rgba(196,134,15,0.9)); opacity: 1; }
+}
+
+/* ===== Stop explorer overlay ===== */
+.stop-explorer {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(10,45,33,0.97);
+  display: none; overflow-y: auto;
+}
+.stop-explorer.open { display: block; }
+.stop-explorer .se-panel { max-width: 1100px; margin: 0 auto; padding: 70px 24px 60px; position: relative; }
+.stop-explorer .se-close {
+  position: absolute; top: 22px; right: 22px;
+  background: none; border: 2px solid #f5f0e8; color: #f5f0e8;
+  width: 42px; height: 42px; font-size: 24px; line-height: 1; cursor: pointer;
+}
+.stop-explorer .se-close:hover { background: #f5f0e8; color: #0a2d21; }
+.stop-explorer .se-kicker { text-transform: uppercase; letter-spacing: .2em; font-size: 11px; font-weight: 600; color: #c4860f; }
+.stop-explorer .se-head h2 { font-family: 'Fraunces', serif; color: #f5f0e8; font-size: clamp(2rem,5vw,3.4rem); margin: 10px 0 4px; font-weight: 700; }
+.stop-explorer .se-head p { color: #b9c9bf; font-size: 14px; margin: 0 0 32px; }
+.stop-explorer .se-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.stop-explorer .se-card { text-decoration: none; background: #0f3a2b; border: 1px solid #1d4d3a; display: flex; flex-direction: column; }
+.stop-explorer .se-card:hover { border-color: #c4860f; }
+.stop-explorer .se-card-img { height: 120px; overflow: hidden; background: #0a2d21; }
+.stop-explorer .se-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stop-explorer .se-card-body { padding: 14px 16px 16px; position: relative; }
+.stop-explorer .se-num { position: absolute; top: -16px; left: 14px; width: 30px; height: 30px; border-radius: 50%;
+  background: #c4860f; color: #0a2d21; font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; }
+.stop-explorer .se-card h3 { font-family: 'Fraunces', serif; color: #f5f0e8; font-size: 20px; margin: 10px 0 4px; font-weight: 600; }
+.stop-explorer .se-time { display: block; color: #c4860f; font-size: 12px; letter-spacing: .03em; }
+.stop-explorer .se-explore { display: inline-block; margin-top: 10px; color: #b9c9bf; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 900px) { .stop-explorer .se-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .stop-explorer .se-grid { grid-template-columns: 1fr; } }

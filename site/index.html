@@ -58,6 +58,10 @@
     <a href="#stopnav">Route</a>
     <a href="#stopnav">Stops</a>
     <a href="#events">Events</a>
+    <button class="stop-explorer-btn" onclick="openStopExplorer()" aria-label="Explore all stops">
+      <i class="ph-light ph-lantern"></i>
+      <span>Explore Stops</span>
+    </button>
   </nav>
   <button class="hamburger" id="hamburger" type="button"
           aria-label="Open menu" aria-expanded="false" aria-controls="mobilemenu">
@@ -72,6 +76,7 @@
   <a href="#stopnav">Route</a>
   <a href="#stopnav">Stops</a>
   <a href="#events">Events</a>
+  <a href="#" onclick="openStopExplorer();return false;">Explore Stops</a>
 </nav>
 
 <!-- ===== HERO =====
@@ -177,6 +182,7 @@
      backend/build-static.js. Loaded before app.js so the directory
      renders real photos with no backend dependency. -->
 <script src="listings-data.js"></script>
+<script src="stop-explorer.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

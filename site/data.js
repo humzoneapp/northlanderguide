@@ -908,3 +908,4 @@ const STOPS = [
     ]
   }
 ];
+if (typeof window !== 'undefined') window.STOPS = STOPS;
