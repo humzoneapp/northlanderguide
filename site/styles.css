@@ -1433,6 +1433,26 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .totop.show{opacity:1;pointer-events:auto}
 .totop:active{transform:scale(.94)}
 
+/* Floating back-to-all-stops button, mirror of .totop top-left. Shows
+   after a short scroll so it does not crowd the hero on first view. */
+.toback{
+  position:fixed;
+  left:1.1rem;
+  top:calc(70px + env(safe-area-inset-top,0));
+  z-index:900;
+  width:46px;height:46px;border-radius:50%;
+  background:var(--rail-deep);color:#f3ece0;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.35rem;
+  border:1px solid #1d4d3a;
+  box-shadow:0 6px 16px rgba(10,45,33,.35);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease, transform .22s ease-out, color .15s;
+}
+.toback.show{opacity:1;pointer-events:auto}
+.toback:hover{color:var(--gold)}
+.toback:active{transform:scale(.94)}
+
 .empty{color:var(--muted);font-style:italic;padding:1.5rem;text-align:center}
 
 /* ---------- toast ---------- */
@@ -1481,13 +1501,21 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 }
 .stop-explorer-btn:hover { color: var(--gold); }
 .stop-explorer-btn i {
-  color: #c4860f;
-  font-size: 1.15em;
-  animation: lanternGlow 3s ease-in-out infinite;
+  color: #f0b541;
+  font-size: 1.3em;
+  animation: lanternGlow 2.4s ease-in-out infinite;
 }
 @keyframes lanternGlow {
-  0%, 100% { filter: drop-shadow(0 0 3px rgba(196,134,15,0.4)); opacity: 0.85; }
-  50% { filter: drop-shadow(0 0 10px rgba(196,134,15,0.9)); opacity: 1; }
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(240,181,65,0.7)) drop-shadow(0 0 10px rgba(240,181,65,0.35));
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(255,200,90,1)) drop-shadow(0 0 22px rgba(255,200,90,0.55));
+    transform: scale(1.08);
+    opacity: 1;
+  }
 }
 
 /* ===== Header "More" dropdown menu =====

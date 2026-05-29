@@ -298,6 +298,16 @@
     if (target) requestAnimationFrame(() => target.scrollIntoView());
   }
 
+  /* Floating back-to-all-stops and back-to-top buttons: fade in once
+     the visitor has scrolled past the hero. */
+  const toTop = document.querySelector('.totop');
+  const toBack = document.querySelector('.toback');
+  window.addEventListener('scroll', () => {
+    const past = window.scrollY > 360;
+    if (toTop) toTop.classList.toggle('show', past);
+    if (toBack) toBack.classList.toggle('show', past);
+  }, { passive: true });
+
   /* ---- tabs + listings ---- */
   function initTabs() {
     const tabsEl = document.getElementById('spTabs');
