@@ -146,6 +146,7 @@ a{color:inherit}
 .brand span{color:var(--poster-gold);font-style:normal}
 .brand-mark{display:flex;flex-shrink:0;line-height:0;margin-right:.5rem}
 .brand-mark svg{display:block}
+.topnav{display:flex;align-items:center}
 .topnav a{
   color:#f3ece0;text-decoration:none;font-size:.82rem;font-weight:600;
   margin-left:1.1rem;letter-spacing:.02em;
