@@ -99,24 +99,25 @@ const STOP_ORDER = [
 ];
 
 /* Station coordinates per stop, used as the Distance Matrix origin for
-   walking distance lookups. Hardcoded so the sync needs no other file. */
+   walking distance lookups. Geocoded from the official Northlander
+   station addresses. Hardcoded so the sync needs no other file. */
 const STATION_COORDS = {
-  union:        { lat: 43.6452, lng: -79.3806 },
-  langstaff:    { lat: 43.8465, lng: -79.4347 },
-  gormley:      { lat: 43.9428, lng: -79.3796 },
-  washago:      { lat: 44.7501, lng: -79.3338 },
-  gravenhurst:  { lat: 44.9177, lng: -79.3730 },
-  bracebridge:  { lat: 45.0378, lng: -79.3022 },
-  huntsville:   { lat: 45.3270, lng: -79.2186 },
-  southriver:   { lat: 45.8348, lng: -79.3793 },
-  temagami:     { lat: 46.9833, lng: -79.7833 },
-  northbay:     { lat: 46.3091, lng: -79.4608 },
-  temiskaming:  { lat: 47.5150, lng: -79.6831 },
-  englehart:    { lat: 47.8264, lng: -79.8694 },
-  kirklandlake: { lat: 48.1500, lng: -80.0333 },
-  matheson:     { lat: 48.5333, lng: -80.4667 },
-  timmins:      { lat: 48.4778, lng: -81.3300 },
-  cochrane:     { lat: 49.0594, lng: -81.0144 }
+  union:        { lat: 43.645999, lng: -79.378262 },
+  langstaff:    { lat: 43.838541, lng: -79.423118 },
+  gormley:      { lat: 43.943199, lng: -79.398994 },
+  washago:      { lat: 44.748877, lng: -79.334865 },
+  gravenhurst:  { lat: 44.922324, lng: -79.372259 },
+  bracebridge:  { lat: 45.043061, lng: -79.310298 },
+  huntsville:   { lat: 45.323562, lng: -79.226337 },
+  southriver:   { lat: 45.841012, lng: -79.3758 },
+  temagami:     { lat: 47.063732, lng: -79.78894 },
+  northbay:     { lat: 46.313907, lng: -79.438537 },
+  temiskaming:  { lat: 47.508713, lng: -79.684951 },
+  englehart:    { lat: 47.826705, lng: -79.873119 },
+  kirklandlake: { lat: 48.108031, lng: -80.104478 },
+  matheson:     { lat: 48.534352, lng: -80.465128 },
+  timmins:      { lat: 48.495116, lng: -81.16054 },
+  cochrane:     { lat: 49.060283, lng: -81.023652 }
 };
 
 /* Airtable Category to internal category key. */
