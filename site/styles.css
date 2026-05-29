@@ -151,7 +151,7 @@ a{color:inherit}
   margin-left:1.1rem;letter-spacing:.02em;
   transition:color .15s ease;
 }
-.topnav a:hover{color:var(--poster-crimson)}
+.topnav a:hover{color:var(--gold)}
 
 /* Hamburger button: hidden by default, shown only at the mobile
    breakpoint. Three stacked bars morph into an X when .open. */
@@ -199,7 +199,7 @@ a{color:inherit}
     border-bottom:1px solid rgba(243,236,224,.14);
   }
   .mobilemenu a:last-child{border-bottom:none}
-  .mobilemenu a:hover,.mobilemenu a:focus{color:var(--poster-crimson)}
+  .mobilemenu a:hover,.mobilemenu a:focus{color:var(--gold)}
 }
 
 /* ---------- route progress bar ---------- */
@@ -1400,7 +1400,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .fwrap{max-width:1080px;margin:0 auto;display:grid;gap:1.8rem}
 .fcol h4{font-family:'Fraunces',serif;color:#f3ece0;font-size:1.05rem;margin-bottom:.5rem}
 .fcol a{color:#cad7cf;text-decoration:none;display:block;padding:.2rem 0;font-size:.9rem}
-.fcol a:hover{color:var(--poster-crimson)}
+.fcol a:hover{color:var(--gold)}
 .fbrand .brand{font-size:1.15rem;margin-bottom:.5rem;display:inline-block}
 .fbrand p{font-size:.87rem;color:#9fb0a6;max-width:40ch}
 .disc{
@@ -1478,7 +1478,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   line-height: 1;
   transition: color .15s ease;
 }
-.stop-explorer-btn:hover { color: var(--poster-crimson); }
+.stop-explorer-btn:hover { color: var(--gold); }
 .stop-explorer-btn i {
   color: #c4860f;
   font-size: 1.3em;
@@ -1488,6 +1488,52 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   0%, 100% { filter: drop-shadow(0 0 3px rgba(196,134,15,0.4)); opacity: 0.85; }
   50% { filter: drop-shadow(0 0 10px rgba(196,134,15,0.9)); opacity: 1; }
 }
+
+/* ===== Header "More" dropdown menu =====
+   Categorised list of additional pages. Categories are placeholders -
+   add new <a> tags under each .nav-section to populate. */
+.nav-dropdown { position: relative; display: inline-block; margin-left: 1.1rem; }
+.nav-dropdown-toggle {
+  background: none; border: 0; cursor: pointer;
+  color: #f3ece0;
+  font-family: 'Spline Sans', sans-serif;
+  font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+  padding: 0; line-height: 1;
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: color .15s ease;
+}
+.nav-dropdown-toggle:hover, .nav-dropdown.open .nav-dropdown-toggle { color: var(--gold); }
+.nav-dropdown-toggle i { font-size: 1.1em; transition: transform .2s; }
+.nav-dropdown.open .nav-dropdown-toggle i { transform: rotate(180deg); }
+.nav-dropdown-panel {
+  position: absolute; top: 100%; right: 0;
+  background: var(--rail-deep);
+  border: 1px solid #1d4d3a;
+  min-width: 240px; padding: 18px 22px 20px;
+  margin-top: 14px; z-index: 1500;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .15s, transform .15s, visibility .15s;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.nav-dropdown.open .nav-dropdown-panel { opacity: 1; visibility: visible; transform: translateY(0); }
+.nav-section + .nav-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #1d4d3a; }
+.nav-section-label {
+  text-transform: uppercase; letter-spacing: .2em;
+  font-size: 10px; color: var(--gold);
+  font-family: 'Spline Sans', sans-serif;
+  font-weight: 700; margin: 0 0 10px;
+}
+.nav-section a {
+  display: block; color: #f3ece0;
+  font-size: 13px; font-weight: 500;
+  padding: 5px 0;
+  text-decoration: none;
+  letter-spacing: .01em;
+  transition: color .15s;
+}
+.nav-section a:hover { color: var(--gold); }
+@media (max-width: 900px) { .nav-dropdown { display: none; } }
 
 /* ===== Stop explorer overlay ===== */
 .stop-explorer {

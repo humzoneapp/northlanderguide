@@ -83,16 +83,22 @@
       ? '<span class="sp-lc-rating">New</span>'
       : '<span class="sp-lc-rating"><i class="ph-fill ph-star" aria-hidden="true"></i> ' + esc(Number(l.rating).toFixed(1)) + '</span>';
     const walk = (l.walkMins != null)
-      ? '<span class="sp-lc-walk"><span class="sp-walker" aria-hidden="true"></span>' + esc(l.walkMins) + ' min walk</span>'
+      ? '<span class="sp-lc-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ' + esc(l.walkMins) + ' min walk</span>'
       : '';
+    const photoUrl = (l.photos && l.photos.length) ? l.photos[0] : null;
+    const imgSrc = photoUrl || (l.image ? '/' + String(l.image).replace(/^\/+/, '') : null);
+    const imgBlock = imgSrc
+      ? '<div class="sp-lc-img"><img src="' + esc(imgSrc) + '" alt="' + esc(l.name) + '" loading="lazy"></div>'
+      : '<div class="sp-lc-img placeholder"><i class="ph-light ph-image" aria-hidden="true"></i></div>';
     const href = '/#stop=' + stopId + '&cat=' + l._cat.key + '&place=' + slug(l.name);
-    return '<div class="sp-lcard">'
+    return '<a class="sp-lcard" href="' + href + '">'
+      + imgBlock
+      + '<div class="sp-lc-body">'
       + '<div class="sp-lc-top"><span class="sp-lc-tag">' + esc(l.tag || l._cat.label) + '</span>' + ratingHtml + '</div>'
       + '<h4>' + esc(l.name) + '</h4>'
       + (l.address ? '<p class="sp-lc-addr">' + esc(l.address) + '</p>' : '')
       + walk
-      + '<a href="' + href + '" class="stop-page-link" style="margin-top:10px"><i class="ph-light ph-arrow-right icon-sm" aria-hidden="true"></i> View details</a>'
-      + '</div>';
+      + '</div></a>';
   }
 
   /* ---- fun facts ticker ---- */

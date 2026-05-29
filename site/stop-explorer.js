@@ -70,4 +70,27 @@
 
   /* Shareable deep link: opening a page at #explore reveals the overlay. */
   if (location.hash === '#explore') open();
+
+  /* ---- Header "More" dropdown menu ---- */
+  function initDropdown() {
+    const dd = document.getElementById('navDropdown');
+    if (!dd) return;
+    const btn = dd.querySelector('.nav-dropdown-toggle');
+    function setOpen(yes) {
+      dd.classList.toggle('open', yes);
+      btn.setAttribute('aria-expanded', yes ? 'true' : 'false');
+    }
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      setOpen(!dd.classList.contains('open'));
+    });
+    document.addEventListener('click', e => {
+      if (!dd.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initDropdown);
+  else initDropdown();
 })();

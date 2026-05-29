@@ -91,7 +91,7 @@
   color:var(--sp-muted);margin-top:8px;display:block}
 
 /* ---------- chapter divider ---------- */
-.sp-divider{position:relative;height:1px;background:var(--sp-green);margin:64px 0;border:0}
+.sp-divider{position:relative;height:1px;background:var(--sp-green);margin:48px 0;border:0}
 .sp-divider::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--sp-green)}
 .sp-divider-badge{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
@@ -101,7 +101,7 @@
 
 /* ---------- getting here / around ---------- */
 .sp-two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-.sp-card{background:var(--sp-ivory);border-top:4px solid var(--sp-rust);padding:24px 24px 28px}
+.sp-card{background:var(--sp-ivory);padding:6px 24px 28px}
 .sp-card p{font-family:'Fraunces',Georgia,serif;font-size:17px;line-height:1.75;margin:0;color:var(--sp-ink)}
 
 /* ---------- seasonal highlights (asymmetric) ---------- */
@@ -121,7 +121,7 @@
 /* ---------- fun facts ticker ---------- */
 .sp-ticker{background:var(--sp-green);color:var(--sp-ivory);overflow:hidden;
   margin:0 -24px;padding:18px 0;white-space:nowrap}
-.sp-ticker-track{display:inline-flex;align-items:center;gap:0;animation:sp-scroll 40s linear infinite}
+.sp-ticker-track{display:inline-flex;align-items:center;gap:0;animation:sp-scroll 100s linear infinite}
 .sp-ticker:hover .sp-ticker-track{animation-play-state:paused}
 .sp-ticker-item{display:inline-flex;align-items:center;gap:14px;padding:0 28px}
 .sp-ticker-cat{text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:600;color:var(--sp-amber)}
@@ -142,25 +142,26 @@
 .sp-listings{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .sp-empty{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--sp-muted);font-size:16px;padding:20px 0}
 
-/* listing card (mirrors main site card, lighter chrome) */
-.sp-lcard{background:var(--sp-ivory);border:1px solid #d9cfba;padding:16px;display:flex;flex-direction:column}
-.sp-lcard .sp-lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+/* listing card - whole card is a clickable link with a hero image */
+.sp-lcard{background:var(--sp-ivory);border:1px solid #d9cfba;display:flex;flex-direction:column;
+  text-decoration:none;color:inherit;transition:border-color .15s,transform .15s,box-shadow .15s}
+.sp-lcard:hover{border-color:var(--sp-rust);transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(40,30,20,.08)}
+.sp-lc-img{height:160px;overflow:hidden;background:var(--sp-offivory);position:relative}
+.sp-lc-img img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-lc-img.placeholder{display:flex;align-items:center;justify-content:center;color:#c2b5a0}
+.sp-lc-img.placeholder i{font-size:38px}
+.sp-lc-body{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1}
+.sp-lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .sp-lc-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#fff;
   background:var(--sp-rust);padding:3px 8px}
-.sp-lc-rating{color:var(--sp-amber);font-weight:700;font-size:14px;white-space:nowrap}
+.sp-lc-rating{color:var(--sp-amber);font-weight:700;font-size:14px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:3px}
 .sp-lcard h4{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;margin:10px 0 4px;color:var(--sp-ink)}
-.sp-lc-addr{font-size:13px;color:var(--sp-muted);margin:0 0 6px}
-.sp-lc-walk{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
-  color:var(--sp-rust);letter-spacing:.02em}
-
-/* walking figure: pure-CSS legs that "walk" in place */
-.sp-walker{display:inline-block;width:14px;height:14px;position:relative}
-.sp-walker::before,.sp-walker::after{content:"";position:absolute;bottom:0;left:6px;width:2px;height:8px;
-  background:var(--sp-rust);transform-origin:top center}
-.sp-walker::before{animation:sp-stepA .6s steps(2,end) infinite}
-.sp-walker::after{animation:sp-stepB .6s steps(2,end) infinite}
-@keyframes sp-stepA{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-18deg)}}
-@keyframes sp-stepB{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}
+.sp-lc-addr{font-size:13px;color:var(--sp-muted);margin:0 0 8px}
+.sp-lc-walk{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  color:var(--sp-rust);letter-spacing:.02em;margin-top:auto;padding-top:6px}
+.sp-lc-walk .ph-light{font-size:15px}
 
 /* ---------- events placeholder ---------- */
 .sp-events-empty{background:var(--sp-offivory);border:1px solid #d9cfba;padding:46px 28px;text-align:left}
