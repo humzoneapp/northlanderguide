@@ -1,0 +1,44 @@
+name: Sync listings from Airtable
+
+# Regenerates site/listings-data.js from the Airtable Listings table and
+# commits the result so Vercel redeploys. Runs on a daily schedule and on
+# demand. Set AIRTABLE_API_KEY, AIRTABLE_BASE_ID and GOOGLE_PLACES_KEY as
+# repository secrets (Settings > Secrets and variables > Actions).
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync listings and walking distances
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+        run: node backend/sync-from-airtable.js
+
+      - name: Commit and push regenerated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain site/listings-data.js)" ]; then
+            git add site/listings-data.js
+            git commit -m "Sync listings data from Airtable"
+            git push
+          else
+            echo "No changes to listings-data.js"
+          fi
