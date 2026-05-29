@@ -556,6 +556,41 @@ a{color:inherit}
   border-radius:4px;
   transition:background .15s ease;
 }
+/* Desktop: more breathing room between stops in the route rail. */
+@media (min-width:768px){
+  .rail-stops li{margin-bottom:.45rem}
+  .rail-stops li:last-child{margin-bottom:0}
+  .rail-stop{padding:.7rem .55rem}
+}
+/* Mobile first-time hint: pulse the first stop and label it so a new
+   visitor knows to tap. Both effects stop once .rail-stops gains the
+   .tapped class, which JS adds on first tap and persists via
+   localStorage. */
+@media (max-width:767px){
+  .rail-stops li:first-child .rail-circle{
+    animation:railPulse 1.8s ease-in-out infinite;
+  }
+  .rail-stops li:first-child .rail-stop::after{
+    content:"Tap to start";
+    position:absolute;right:14px;top:50%;
+    transform:translateY(-50%);
+    font-family:'Spline Sans',sans-serif;
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--poster-crimson);font-weight:700;
+    animation:railHintFade 1.8s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .rail-stops.tapped li:first-child .rail-circle{animation:none}
+  .rail-stops.tapped li:first-child .rail-stop::after{display:none}
+}
+@keyframes railPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(142,61,34,.45);transform:scale(1)}
+  50%{box-shadow:0 0 0 12px rgba(142,61,34,0);transform:scale(1.06)}
+}
+@keyframes railHintFade{
+  0%,100%{opacity:.55}
+  50%{opacity:1}
+}
 .rail-circle{
   flex:0 0 38px;height:38px;
   border-radius:50%;

@@ -1919,8 +1919,19 @@ function buildRail(){
         </li>`).join('')}
     </ul>
   `;
+  const list = rail.querySelector('.rail-stops');
+  /* Hide the mobile "Tap to start" hint immediately if the visitor
+     has tapped a stop on a previous visit. */
+  if (list) {
+    try { if (localStorage.getItem('railTapped') === '1') list.classList.add('tapped'); }
+    catch(e) {}
+  }
   rail.querySelectorAll('.rail-stop').forEach(btn=>{
-    btn.addEventListener('click', ()=>selectStop(btn.dataset.id));
+    btn.addEventListener('click', ()=>{
+      if (list) list.classList.add('tapped');
+      try { localStorage.setItem('railTapped','1'); } catch(e) {}
+      selectStop(btn.dataset.id);
+    });
   });
 }
 function updateRailActive(id){
