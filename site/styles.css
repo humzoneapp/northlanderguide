@@ -998,16 +998,21 @@ a{color:inherit}
    overflowing). Added padding-top:8px so the hover lift has room
    above the row without nudging the row down. */
 .catfilter{
-  display:flex;gap:.4rem;flex-wrap:wrap;
-  overflow:visible;
+  display:flex;gap:.4rem;flex-wrap:nowrap;
+  overflow-x:auto;overflow-y:visible;
   padding:8px 0 .7rem;
   margin-bottom:1.1rem;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
 }
+.catfilter::-webkit-scrollbar{height:4px}
+.catfilter::-webkit-scrollbar-thumb{background:rgba(142,61,34,.3);border-radius:4px}
 .catfilter button{
   flex:0 0 auto;font-family:'Spline Sans',sans-serif;font-size:.84rem;
   font-weight:600;padding:.55rem 1.05rem;border-radius:4px;cursor:pointer;
   border:2px solid var(--line);background:var(--card);color:var(--muted);
   display:flex;align-items:center;gap:.45rem;
+  white-space:nowrap;
   /* No browser-default focus outline: the default outline can
      visually detach from the button when transform is applied on
      hover. The element's own border (transformed with the button)
