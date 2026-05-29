@@ -1350,7 +1350,9 @@ function imageBlock(item, cat, seed, cls){
 function detailImageBlock(item, cat, seed){
   const fallback = cardArt(cat, seed);
   /* Prefer Airtable photos (full URLs); fall back to the static build
-     images array. Both are used directly as image src values. */
+     images array. Both are used directly as image src values. The array
+     order is preserved exactly with no resorting, so the first photo is
+     the cover and the gallery follows the Airtable attachment order. */
   const photos = (item && Array.isArray(item.photos)) ? item.photos.filter(Boolean) : [];
   const imgs = photos.length
     ? photos

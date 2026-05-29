@@ -166,6 +166,10 @@ function mapRecord(rec) {
   const f = rec.fields || {};
   const stopName = f[FIELD.stop] || '';
   const catLabel = f[FIELD.category] || '';
+  /* Preserve the Airtable attachment order exactly. The first photo is
+     the card hero/cover and the rest follow in gallery order, so a drag
+     reorder in Airtable flows straight to the site on the next sync.
+     Only nulls are dropped; the array is never sorted or reordered. */
   const photos = Array.isArray(f[FIELD.photos])
     ? f[FIELD.photos].map(a => a && a.url).filter(Boolean)
     : [];
