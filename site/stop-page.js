@@ -13,6 +13,7 @@
   const FACTS = window.FUN_FACTS_DATA || [];
   const FAQS = window.FAQS_DATA || [];
   const DF = window.DONT_FORGET_DATA || [];
+  const TIPS = window.STOP_TIPS_DATA || [];
 
   const CATS = [
     { key: 'restaurants', label: 'Eat & Drink', color: '#7d3a1e' },
@@ -238,12 +239,21 @@
 
   html += divider();
 
-  /* COMMUNITY TIPS */
+  /* COMMUNITY TIPS - approved tips for this stop, fall back to a
+     friendly placeholder when none have been pinned yet. */
+  const stopTips = TIPS.filter(t => t.stop === displayName);
+  const rotations = [-2, -1, 0, 1, 2];
+  const tipsHtml = stopTips.length
+    ? stopTips.map((t, i) =>
+      '<div class="sp-tip" style="transform:rotate(' + rotations[i % 5] + 'deg)">'
+      + '<p class="sp-tip-text">' + esc(t.tip) + '</p>'
+      + '<p class="sp-tip-by">' + esc(t.submittedBy || 'A traveller') + '</p></div>').join('')
+    : '<div class="sp-tip" style="transform:rotate(-1.5deg)"><p class="sp-tip-text">'
+      + 'Be the first to pin a tip about ' + esc(displayName) + '. Share a hidden gem, a timing trick, or a local favourite.</p>'
+      + '<p class="sp-tip-by">The Northlander community</p></div>';
   html += '<section class="sp-section"><div class="sp-corkboard sp-paper"><div class="sp-corkboard-inner">'
     + '<h2 class="sp-h2">Traveller Tips</h2>'
-    + '<div class="sp-tips"><div class="sp-tip" style="transform:rotate(-1.5deg)"><p class="sp-tip-text">'
-    + 'Be the first to pin a tip about ' + esc(displayName) + '. Share a hidden gem, a timing trick, or a local favourite.</p>'
-    + '<p class="sp-tip-by">The Northlander community</p></div></div>'
+    + '<div class="sp-tips">' + tipsHtml + '</div>'
     + '<form class="sp-tipform" id="spTipForm">'
     + '<div class="sp-label">Share a tip</div>'
     + '<textarea id="spTipText" maxlength="200" placeholder="What should travellers know about ' + esc(displayName) + '?"></textarea>'

@@ -896,3 +896,4 @@ window.FAQS_DATA = [
   }
 ];
 window.DONT_FORGET_DATA = [];
+window.STOP_TIPS_DATA = [];

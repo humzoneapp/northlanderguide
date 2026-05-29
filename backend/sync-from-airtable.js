@@ -55,6 +55,7 @@ const STOP_PAGES_TABLE = 'tblowujj3pQycqWlU';
 const FUN_FACTS_TABLE = 'tbl52c7zOiQciVQtl';
 const FAQS_TABLE = 'tbl3q2C4DZTjL7i6A';
 const DONT_FORGET_TABLE = 'tbldif0gcGvl6AvPy';
+const STOP_TIPS_TABLE = 'tbluHMNsRouU4RbE6';
 
 /* Airtable field IDs mapped to listing object properties. */
 const FIELD = {
@@ -476,6 +477,21 @@ function sortListings(arr) {
     sortOrder: num(r.fields['Sort Order'])
   })).sort((a, b) => (a.sortOrder ?? 1e9) - (b.sortOrder ?? 1e9));
 
+  /* Traveller tips: approved rows only. Email and Reviewer Notes are
+     intentionally excluded from the public payload (PII / internal). */
+  const tipRecs = await fetchTable(STOP_TIPS_TABLE, '{Approved}=TRUE()');
+  const stopTips = tipRecs.map(r => ({
+    tip: r.fields['Tip'] || '',
+    stop: r.fields['Stop'] || '',
+    submittedBy: r.fields['Submitted By'] || '',
+    submissionDate: r.fields['Submission Date'] || null,
+    featured: r.fields['Featured'] === true,
+    displayOrder: num(r.fields['Display Order'])
+  })).sort((a, b) => {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
+    return (a.displayOrder ?? 1e9) - (b.displayOrder ?? 1e9);
+  });
+
   /* SECURITY: do not embed the Airtable key here. This file is public.
      Traveller tips submit through the /api/submit-tip serverless function,
      which holds the key server-side. */
@@ -484,9 +500,10 @@ function sortListings(arr) {
   const spBody = 'window.STOP_PAGES_DATA = ' + JSON.stringify(stopPages, null, 2) + ';\n'
     + 'window.FUN_FACTS_DATA = ' + JSON.stringify(funFacts, null, 2) + ';\n'
     + 'window.FAQS_DATA = ' + JSON.stringify(faqs, null, 2) + ';\n'
-    + 'window.DONT_FORGET_DATA = ' + JSON.stringify(dontForget, null, 2) + ';\n';
+    + 'window.DONT_FORGET_DATA = ' + JSON.stringify(dontForget, null, 2) + ';\n'
+    + 'window.STOP_TIPS_DATA = ' + JSON.stringify(stopTips, null, 2) + ';\n';
   fs.writeFileSync(STOP_PAGES_FILE, spHeader + spBody);
 
-  console.log(`Stop pages: ${Object.keys(stopPages).length} | fun facts: ${funFacts.length} | faqs: ${faqs.length} | dont-forget: ${dontForget.length}`);
+  console.log(`Stop pages: ${Object.keys(stopPages).length} | fun facts: ${funFacts.length} | faqs: ${faqs.length} | dont-forget: ${dontForget.length} | tips: ${stopTips.length}`);
   console.log('Wrote ' + STOP_PAGES_FILE);
 })().catch(e => { console.error('SYNC FAILED:', e.message); process.exit(1); });
