@@ -85,14 +85,8 @@
     const walk = (l.walkMins != null)
       ? '<span class="sp-lc-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ' + esc(l.walkMins) + ' min walk</span>'
       : '';
-    const photoUrl = (l.photos && l.photos.length) ? l.photos[0] : null;
-    const imgSrc = photoUrl || (l.image ? '/' + String(l.image).replace(/^\/+/, '') : null);
-    const imgBlock = imgSrc
-      ? '<div class="sp-lc-img"><img src="' + esc(imgSrc) + '" alt="' + esc(l.name) + '" loading="lazy"></div>'
-      : '<div class="sp-lc-img placeholder"><i class="ph-light ph-image" aria-hidden="true"></i></div>';
     const href = '/#stop=' + stopId + '&cat=' + l._cat.key + '&place=' + slug(l.name);
     return '<a class="sp-lcard" href="' + href + '">'
-      + imgBlock
       + '<div class="sp-lc-body">'
       + '<div class="sp-lc-top"><span class="sp-lc-tag">' + esc(l.tag || l._cat.label) + '</span>' + ratingHtml + '</div>'
       + '<h4>' + esc(l.name) + '</h4>'
