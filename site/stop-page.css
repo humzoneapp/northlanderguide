@@ -226,9 +226,8 @@
 .sp-btn:hover{background:var(--sp-rust);color:var(--sp-ivory)}
 .sp-share{display:flex;gap:12px;flex-wrap:wrap}
 
-/* ---------- section spacing ---------- */
-.sp-section{margin:0}
-.sp-section + .sp-section{margin-top:0}
+/* (.sp-section is a structural hook; individual sections like .sp-intro
+   set their own margin-top so the page rhythm stays explicit.) */
 
 /* ---------- responsive ---------- */
 @media (max-width:860px){
