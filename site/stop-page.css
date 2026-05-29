@@ -81,7 +81,7 @@
 }
 
 /* ---------- editorial intro (two-column) ---------- */
-.sp-intro{display:grid;grid-template-columns:65% 35%;gap:48px;margin:80px 0 0;align-items:start}
+.sp-intro{display:grid;grid-template-columns:65% 35%;gap:48px;margin:120px 0 0;align-items:start}
 .sp-intro-body p{font-family:'Fraunces',Georgia,serif;font-size:18px;line-height:1.8;
   color:var(--sp-ink);margin:0 0 20px;text-align:left}
 .sp-intro-aside{padding-top:6px;border-left:2px solid var(--sp-rust);padding-left:24px}
