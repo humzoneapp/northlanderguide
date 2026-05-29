@@ -92,8 +92,10 @@ a{color:inherit}
 }
 .btn:active{transform:scale(.97)}
 .btn-primary{
-  background:var(--poster-crimson);color:var(--poster-cream);
-  border-color:var(--poster-crimson);
+  /* A darker rust than poster-crimson so the button reads at the same
+     depth as the stat numerals on the cream stat strip below the hero. */
+  background:#6e2e17;color:var(--poster-cream);
+  border-color:#6e2e17;
   box-shadow:0 4px 12px rgba(0,0,0,.35);
 }
 /* Hover swaps to deep forest green for clear contrast against the
@@ -298,12 +300,11 @@ a{color:inherit}
 .hero{
   position:relative;overflow:hidden;color:var(--poster-cream);
   isolation:isolate;
-  /* Content sits in the upper band (over the sky/treeline) so the
-     painted train reads as a clear scene below the headline rather
-     than being bisected by it. The lower stretch deliberately
-     shows the train, lake and heron. */
+  /* Content sits in the upper band over the sky/treeline so the
+     painted train reads as a clear scene below the headline. Top
+     padding kept tight so the train shows through cleanly. */
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  padding:clamp(2rem,5vh,3.4rem) 1.2rem 2.4rem;
+  padding:clamp(0.5rem,2vh,1.4rem) 1.2rem 2.4rem;
   min-height:clamp(460px,60vh,640px);
 }
 .hero-img{
