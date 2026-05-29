@@ -78,7 +78,8 @@ const FIELD = {
   featuredPriority: 'fldS4HJzHM7LVYvRh',
   discountOffered: 'fldLdEKiROfULP2yu',
   discountDetails: 'fldKbIzS3rmpee8Vu',
-  photos: 'fldmdVR0kuIzVxe9q'
+  photos: 'fldmdVR0kuIzVxe9q',
+  tag: 'fldhnP3Za9yDPeGPB'
 };
 
 /* Airtable Stop display name to internal stop id. */
@@ -303,6 +304,7 @@ function mapRecord(rec) {
       featuredPriority: numOrNull(f[FIELD.featuredPriority]),
       discountOffered: f[FIELD.discountOffered] === true,
       discountDetails: f[FIELD.discountDetails] || null,
+      tag: f[FIELD.tag] || null,
       photos
     }
   };
