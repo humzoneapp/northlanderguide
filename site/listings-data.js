@@ -9083,38 +9083,6 @@ const LISTINGS_DATA = {
         ]
       },
       {
-        "name": "Rae-Dius Construction Corporation",
-        "stop": "Bracebridge",
-        "category": "Stay",
-        "desc": null,
-        "address": "345 Ecclestone Drive Unit E4, Bracebridge",
-        "phone": "(705) 637-0281",
-        "website": "http://www.raediusconstruction.com/",
-        "rating": 4.1,
-        "hours": "Thursday: 9:00 AM – 5:00 PM",
-        "walkMins": 31,
-        "lat": 45.0260786,
-        "lng": -79.3119454,
-        "active": true,
-        "featured": false,
-        "packageTier": "Free",
-        "sortOrder": 7,
-        "featuredPriority": null,
-        "discountOffered": false,
-        "discountDetails": null,
-        "photos": [
-          "https://v5.airtableusercontent.com/v3/u/53/53/1780084800000/7dQk4xU6WMdksm506WlKbA/0rh6VG6fMZBF7SvMA_pCCMaIbACZPyewuY-vL3or5Zt-PBZyx7ejAeuiOv73jJxZ5eNmFTZ-Mg7oz3XhaAvmXGMFw9eSJ20r69ZbK_s_RZPrJwQQo54WwFeKGPDQOqQCX72UjaYcuUY4iCDm9zoWGgy_tx9wqhOZkTgXG38lmRv2bVRbmGo2QlFXfqY_GRrR/GjgsVstPv3ZLFIjCJ1F1dy-_khEAcZgHsfV1acDJHNE",
-          "https://v5.airtableusercontent.com/v3/u/53/53/1780084800000/WwFpiwpuEkf-rEdI--9Nyg/MXe5M04BaS7oPEdoQ-ATGYYK5gpqKq_A3OTBcE7vEjWqlgnISRp1yjtqdfgFfUt6vGxHAaG4umMArbwyo91nI3QWx7e6sgVGUoIaoRejSz8tjpTiaTeJ0yqTak5l-mj3Q3cLqqEQnrEvuGoGBvDHjERZnAFaf-Dpd6_hoNvUPkHOmrBDLuAiDqvhx1CQpsSR/pgj4C58JSGZmNg0_bAxfekQwFSlNsQmZ9ry3CsxNfPs",
-          "https://v5.airtableusercontent.com/v3/u/53/53/1780084800000/_Iv6qeK8BtC7gG_za3_99w/M-HSrGTizcI0TGH30F9lbpKZGGOOaJ1HeW7scrPN4ypH5FCMSOrHV-mlRPQMGaH6IwYDOAS_TFlFBtie8NFCAc09Udp9Cm1sXM3BMFwYYXnww-OYeDe1TNWlcw0gmUIzpNH-LftAbQSqklAKxcitAyLflOyPTF7mD3_BUOtMhtSd-H11AqPC5OYDPuZKxXQu/Cq2KxW83feI3rv9a7ScLVQb52hx4civmL9jEhD10dk0"
-        ],
-        "image": "images/listings/bracebridge-accommodations-6-0.jpg",
-        "images": [
-          "images/listings/bracebridge-accommodations-6-0.jpg",
-          "images/listings/bracebridge-accommodations-6-1.jpg",
-          "images/listings/bracebridge-accommodations-6-2.jpg"
-        ]
-      },
-      {
         "name": "Bay House Bed and Breakfast",
         "stop": "Bracebridge",
         "category": "Stay",
@@ -14272,34 +14240,6 @@ const LISTINGS_DATA = {
         "image": "images/listings/northbay-parks-14-0.jpg",
         "images": [
           "images/listings/northbay-parks-14-0.jpg"
-        ]
-      },
-      {
-        "name": "CF100 Memorial",
-        "stop": "North Bay",
-        "category": "Nature",
-        "desc": null,
-        "address": "North Bay",
-        "phone": null,
-        "website": null,
-        "rating": 5,
-        "hours": null,
-        "walkMins": 43,
-        "lat": 46.2977453,
-        "lng": -79.45695340000002,
-        "active": true,
-        "featured": false,
-        "packageTier": "Free",
-        "sortOrder": 16,
-        "featuredPriority": null,
-        "discountOffered": false,
-        "discountDetails": null,
-        "photos": [
-          "https://v5.airtableusercontent.com/v3/u/53/53/1780084800000/BJd_tVwRMwMkfBhgnMiyXA/WPf8LUvpPANcSRQYT-qFVpcKF8n2NNXHnoWXz-0UjHEpFkk0Navs-LLaFxsQuTfg_7BaudZY7fnsAgqJ6tLQ_AHAT-jO6GPOyfSlLxLTe95ARUqjcVjjlItV30rlp1zFvnn5oFHdjN6m6-t86-6zdUx1NZ8uSb8nHgzYGfOu7w_esDENT_BiOT87fmFlRVMl/OBR3XQ_ToJAlDCGG6WWEpWOE6koWx7tXRkON1zCwnk8"
-        ],
-        "image": "images/listings/northbay-parks-15-0.jpg",
-        "images": [
-          "images/listings/northbay-parks-15-0.jpg"
         ]
       },
       {
