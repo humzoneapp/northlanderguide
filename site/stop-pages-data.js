@@ -901,7 +901,7 @@ window.DONT_FORGET_DATA = [
     "why": "Blackflies in May-June and mosquitoes all summer are legendary in Northern Ontario",
     "triggerType": "Season: Summer",
     "stop": "All Stops",
-    "icon": "🦟",
+    "icon": "ph-bug",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -910,7 +910,7 @@ window.DONT_FORGET_DATA = [
     "why": "The train ride is part of the experience, enjoy it",
     "triggerType": "Always Include",
     "stop": "All Stops",
-    "icon": "📚",
+    "icon": "ph-book-open",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -919,7 +919,7 @@ window.DONT_FORGET_DATA = [
     "why": "Huntsville has a thriving arts scene with galleries showcasing Muskoka and Group of Seven inspired work",
     "triggerType": "Stop Specific",
     "stop": "Huntsville",
-    "icon": "🎨",
+    "icon": "ph-palette",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -928,7 +928,7 @@ window.DONT_FORGET_DATA = [
     "why": "The underground mine tour is one of the best experiences in Northern Ontario and fills up fast",
     "triggerType": "Stop Specific",
     "stop": "Timmins",
-    "icon": "🏭",
+    "icon": "ph-factory",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -937,7 +937,7 @@ window.DONT_FORGET_DATA = [
     "why": "Loons, herons, eagles, moose and more are common sights along the route",
     "triggerType": "Activity: Wildlife",
     "stop": "All Stops",
-    "icon": "🔭",
+    "icon": "ph-binoculars",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -946,7 +946,7 @@ window.DONT_FORGET_DATA = [
     "why": "Most trails don't have water sources, especially shorter day hikes",
     "triggerType": "Activity: Hiking",
     "stop": "All Stops",
-    "icon": "💦",
+    "icon": "ph-drop",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -955,7 +955,7 @@ window.DONT_FORGET_DATA = [
     "why": "Northlander tickets on your phone saves scrambling at the station",
     "triggerType": "Always Include",
     "stop": "All Stops",
-    "icon": "🎫",
+    "icon": "ph-ticket",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -964,7 +964,7 @@ window.DONT_FORGET_DATA = [
     "why": "The lake system is vast and beautiful and easy to get lost in without a map",
     "triggerType": "Stop Specific",
     "stop": "Temagami",
-    "icon": "🗺️",
+    "icon": "ph-map-trifold",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -973,7 +973,7 @@ window.DONT_FORGET_DATA = [
     "why": "The train arrives at specific times, make sure your place can accommodate",
     "triggerType": "Activity: Staying Over",
     "stop": "All Stops",
-    "icon": "🔑",
+    "icon": "ph-key",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -982,7 +982,7 @@ window.DONT_FORGET_DATA = [
     "why": "Cell service on trails north of Huntsville is unreliable",
     "triggerType": "Activity: Hiking",
     "stop": "All Stops",
-    "icon": "🗺️",
+    "icon": "ph-map-trifold",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -991,7 +991,7 @@ window.DONT_FORGET_DATA = [
     "why": "Fall colours in Muskoka and Temagami are world-class, your phone camera will not do it justice",
     "triggerType": "Season: Fall",
     "stop": "All Stops",
-    "icon": "📷",
+    "icon": "ph-camera",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1000,7 +1000,7 @@ window.DONT_FORGET_DATA = [
     "why": "If you want to see James Bay, plan an overnight in Cochrane",
     "triggerType": "Stop Specific",
     "stop": "Cochrane",
-    "icon": "🚂",
+    "icon": "ph-train",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1009,7 +1009,7 @@ window.DONT_FORGET_DATA = [
     "why": "One capsize ruins a trip if your phone is not protected",
     "triggerType": "Activity: Paddling",
     "stop": "All Stops",
-    "icon": "💧",
+    "icon": "ph-drop",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1018,7 +1018,7 @@ window.DONT_FORGET_DATA = [
     "why": "Launches are often rocky or muddy",
     "triggerType": "Activity: Paddling",
     "stop": "All Stops",
-    "icon": "👟",
+    "icon": "ph-sneaker",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1027,7 +1027,7 @@ window.DONT_FORGET_DATA = [
     "why": "The gold rush history here is genuinely fascinating and the museum tells it brilliantly",
     "triggerType": "Stop Specific",
     "stop": "Kirkland Lake",
-    "icon": "⛏️",
+    "icon": "ph-bank",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1036,7 +1036,7 @@ window.DONT_FORGET_DATA = [
     "why": "Popular restaurants in Muskoka especially fill up fast in summer",
     "triggerType": "Activity: Dining",
     "stop": "All Stops",
-    "icon": "📞",
+    "icon": "ph-phone",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1045,7 +1045,7 @@ window.DONT_FORGET_DATA = [
     "why": "One of the most underrated waterfalls in Ontario, less than 10 minutes from the station",
     "triggerType": "Stop Specific",
     "stop": "Englehart",
-    "icon": "🌊",
+    "icon": "ph-mountains",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1054,7 +1054,7 @@ window.DONT_FORGET_DATA = [
     "why": "The Kirkland Lake station is in Swastika, about 6km from downtown. Taxis available but call ahead",
     "triggerType": "Stop Specific",
     "stop": "Kirkland Lake",
-    "icon": "🚕",
+    "icon": "ph-taxi",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1063,7 +1063,7 @@ window.DONT_FORGET_DATA = [
     "why": "The oldest operating steamship in North America runs out of Gravenhurst and is not to be missed",
     "triggerType": "Stop Specific",
     "stop": "Gravenhurst",
-    "icon": "🚢",
+    "icon": "ph-boat",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1072,7 +1072,7 @@ window.DONT_FORGET_DATA = [
     "why": "North Bay has a rich railway and aviation history worth an hour of your time",
     "triggerType": "Stop Specific",
     "stop": "North Bay",
-    "icon": "🚂",
+    "icon": "ph-buildings",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1081,7 +1081,7 @@ window.DONT_FORGET_DATA = [
     "why": "The waterfall is about 10 minutes walk and spectacular in spring runoff",
     "triggerType": "Stop Specific",
     "stop": "Bracebridge",
-    "icon": "💧",
+    "icon": "ph-mountains",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1090,7 +1090,7 @@ window.DONT_FORGET_DATA = [
     "why": "You will want dry clothes for the train ride home",
     "triggerType": "Activity: Paddling",
     "stop": "All Stops",
-    "icon": "👕",
+    "icon": "ph-stack",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1099,7 +1099,7 @@ window.DONT_FORGET_DATA = [
     "why": "Trails in Northern Ontario can be rocky, rooted, and muddy",
     "triggerType": "Activity: Hiking",
     "stop": "All Stops",
-    "icon": "🥾",
+    "icon": "ph-sneaker",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1108,7 +1108,7 @@ window.DONT_FORGET_DATA = [
     "why": "Rentals fill up fast in summer and the outfitters are small operations",
     "triggerType": "Stop Specific",
     "stop": "Temagami",
-    "icon": "🛶",
+    "icon": "ph-boat",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1117,7 +1117,7 @@ window.DONT_FORGET_DATA = [
     "why": "Many small town restaurants and shops are cash only",
     "triggerType": "Always Include",
     "stop": "All Stops",
-    "icon": "💳",
+    "icon": "ph-money",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1126,7 +1126,7 @@ window.DONT_FORGET_DATA = [
     "why": "Birthplace of Dr Norman Bethune, a Canadian hero celebrated more in China than in Canada",
     "triggerType": "Stop Specific",
     "stop": "Gravenhurst",
-    "icon": "🏥",
+    "icon": "ph-buildings",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1135,7 +1135,7 @@ window.DONT_FORGET_DATA = [
     "why": "Spring in Northern Ontario means mud season, be prepared",
     "triggerType": "Season: Spring",
     "stop": "All Stops",
-    "icon": "🌧️",
+    "icon": "ph-cloud-rain",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1144,7 +1144,7 @@ window.DONT_FORGET_DATA = [
     "why": "Small town kitchens often stop taking orders an hour before close",
     "triggerType": "Activity: Dining",
     "stop": "All Stops",
-    "icon": "⏰",
+    "icon": "ph-clock",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1153,7 +1153,7 @@ window.DONT_FORGET_DATA = [
     "why": "Cell service can be spotty north of North Bay",
     "triggerType": "Always Include",
     "stop": "All Stops",
-    "icon": "📱",
+    "icon": "ph-device-mobile",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1162,7 +1162,7 @@ window.DONT_FORGET_DATA = [
     "why": "A 300 foot cliff dropping straight into Lake Timiskaming. One of Ontario's most dramatic viewpoints",
     "triggerType": "Stop Specific",
     "stop": "Temiskaming Shores",
-    "icon": "🏔️",
+    "icon": "ph-mountains",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1171,7 +1171,7 @@ window.DONT_FORGET_DATA = [
     "why": "Small town businesses sometimes keep their own hours, especially off-season",
     "triggerType": "Multiple Stops",
     "stop": "All Stops",
-    "icon": "📞",
+    "icon": "ph-phone",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1180,7 +1180,7 @@ window.DONT_FORGET_DATA = [
     "why": "It is the main attraction in Cochrane and spots can fill up",
     "triggerType": "Stop Specific",
     "stop": "Cochrane",
-    "icon": "🐻‍❄️",
+    "icon": "ph-paw-print",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1189,7 +1189,7 @@ window.DONT_FORGET_DATA = [
     "why": "Temperatures can drop fast, especially north of North Bay",
     "triggerType": "Season: Winter",
     "stop": "All Stops",
-    "icon": "🧤",
+    "icon": "ph-stack",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1198,7 +1198,7 @@ window.DONT_FORGET_DATA = [
     "why": "South River is the quiet back door to Algonquin and trail access is excellent",
     "triggerType": "Stop Specific",
     "stop": "South River",
-    "icon": "🌲",
+    "icon": "ph-tree",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1207,7 +1207,7 @@ window.DONT_FORGET_DATA = [
     "why": "Station platforms and sidewalks can be icy in winter",
     "triggerType": "Season: Winter",
     "stop": "All Stops",
-    "icon": "🥾",
+    "icon": "ph-snowflake",
     "priority": "Essential",
     "sortOrder": null
   },
@@ -1216,7 +1216,7 @@ window.DONT_FORGET_DATA = [
     "why": "A hot drink on the train through a snowy landscape is peak Northlander",
     "triggerType": "Season: Winter",
     "stop": "All Stops",
-    "icon": "☕",
+    "icon": "ph-coffee",
     "priority": "Recommended",
     "sortOrder": null
   },
@@ -1225,7 +1225,7 @@ window.DONT_FORGET_DATA = [
     "why": "Reflections off lakes can surprise you even on cloudy days",
     "triggerType": "Season: Summer",
     "stop": "All Stops",
-    "icon": "☀️",
+    "icon": "ph-sun",
     "priority": "Essential",
     "sortOrder": null
   }
