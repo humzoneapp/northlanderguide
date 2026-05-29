@@ -32,9 +32,12 @@
 .sp-h2{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--sp-green);
   font-size:clamp(2rem,4vw,3rem);line-height:1.05;margin:0 0 24px;letter-spacing:-.01em}
 
-/* ---------- HERO (magazine cover) ---------- */
-.sp-hero{position:relative;width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
-.sp-hero-frame{position:relative;height:70vh;min-height:420px;overflow:hidden}
+/* ---------- HERO ----------
+   .sp-hero has no padding so its left/right edges line up exactly with
+   the breadcrumb, best-for pills, and intro below (main supplies the
+   shared 24px gutter). */
+.sp-hero{position:relative}
+.sp-hero-frame{position:relative;height:78vh;min-height:540px;overflow:hidden}
 .sp-hero-frame img{width:100%;height:100%;object-fit:cover;display:block;
   opacity:0;transition:opacity .4s ease-out}
 .sp-hero-frame img.loaded{opacity:1}
@@ -45,8 +48,8 @@
   font-size:13px;font-weight:600;letter-spacing:.04em;
   padding:7px 14px;max-width:240px;line-height:1.3;
 }
-/* Stop name overlaps the bottom edge: half on the image, half on ivory. */
-.sp-hero-titlewrap{position:relative;max-width:1180px;margin:-0.55em auto 0;padding:0 24px;z-index:4}
+/* Title sits below the hero with comfortable breathing room. */
+.sp-hero-titlewrap{position:relative;margin-top:32px;z-index:4}
 .sp-hero-title{
   font-family:'Fraunces',Georgia,serif;font-weight:900;color:var(--sp-green);
   font-size:clamp(52px,9vw,108px);line-height:.92;letter-spacing:-.02em;margin:0;
