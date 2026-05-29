@@ -5,8 +5,14 @@
    a fresh site/listings-data.js. Static photo paths from the previous
    build are merged back in so existing card images are preserved.
 
+   Any active listing that has lat + lng but no walkMins gets a walking
+   distance from the Google Distance Matrix API: a valid result is saved
+   back to Airtable and the static file, while a listing with no walkable
+   route is marked inactive in Airtable and dropped from the output.
+
    USAGE
      1. Put AIRTABLE_API_KEY and AIRTABLE_BASE_ID in backend/.env
+        (GOOGLE_PLACES_KEY too, for the walking distance backfill)
      2. From the repo root or backend/ folder:
           node backend/sync-from-airtable.js
    ================================================================== */
@@ -33,6 +39,7 @@ const path = require('path');
 const API_KEY = process.env.AIRTABLE_API_KEY;
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_ID = 'tblfVQcLjEv0a4sCJ';
+const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
 
 if (!API_KEY || !BASE_ID) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID in backend/.env');
@@ -91,6 +98,27 @@ const STOP_ORDER = [
   'englehart', 'kirklandlake', 'matheson', 'timmins', 'cochrane'
 ];
 
+/* Station coordinates per stop, used as the Distance Matrix origin for
+   walking distance lookups. Hardcoded so the sync needs no other file. */
+const STATION_COORDS = {
+  union:        { lat: 43.6452, lng: -79.3806 },
+  langstaff:    { lat: 43.8465, lng: -79.4347 },
+  gormley:      { lat: 43.9428, lng: -79.3796 },
+  washago:      { lat: 44.7501, lng: -79.3338 },
+  gravenhurst:  { lat: 44.9177, lng: -79.3730 },
+  bracebridge:  { lat: 45.0378, lng: -79.3022 },
+  huntsville:   { lat: 45.3270, lng: -79.2186 },
+  southriver:   { lat: 45.8348, lng: -79.3793 },
+  temagami:     { lat: 46.9833, lng: -79.7833 },
+  northbay:     { lat: 46.3091, lng: -79.4608 },
+  temiskaming:  { lat: 47.5150, lng: -79.6831 },
+  englehart:    { lat: 47.8264, lng: -79.8694 },
+  kirklandlake: { lat: 48.1500, lng: -80.0333 },
+  matheson:     { lat: 48.5333, lng: -80.4667 },
+  timmins:      { lat: 48.4778, lng: -81.3300 },
+  cochrane:     { lat: 49.0594, lng: -81.0144 }
+};
+
 /* Airtable Category to internal category key. */
 const CAT_KEY = {
   'Eat & Drink': 'restaurants',
@@ -131,6 +159,51 @@ async function fetchAllActive() {
     if (offset) await sleep(220);
   } while (offset);
   return records;
+}
+
+/* ---- Walking time + distance from a station to a listing via the
+   Google Distance Matrix API (mode=walking). Returns null on
+   ZERO_RESULTS, no walkable route, or any error, so the caller can
+   deactivate the listing. ---- */
+async function getWalk(station, lat, lng) {
+  try {
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json`
+      + `?origins=${station.lat},${station.lng}`
+      + `&destinations=${lat},${lng}`
+      + `&mode=walking&key=${GOOGLE_KEY}`;
+    const res = await fetch(url);
+    const d = await res.json();
+    const el = d.rows && d.rows[0] && d.rows[0].elements && d.rows[0].elements[0];
+    if (d.status === 'OK' && el && el.status === 'OK' && el.duration) {
+      return {
+        walkMins: Math.round(el.duration.value / 60),
+        walkDistance: el.distance ? el.distance.text : null
+      };
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ---- PATCH one Airtable record, retrying briefly on rate limit ---- */
+async function updateRecord(id, fields) {
+  const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}/${id}`;
+  let tries = 0;
+  while (true) {
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+    if (res.status === 429 && tries < 5) { tries++; await sleep(1500); continue; }
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      console.error(`Record update failed (${id}): ${res.status} ${t}`);
+      return false;
+    }
+    return true;
+  }
 }
 
 /* ---- Build a photo lookup from the existing listings-data.js so the
@@ -174,6 +247,7 @@ function mapRecord(rec) {
     ? f[FIELD.photos].map(a => a && a.url).filter(Boolean)
     : [];
   return {
+    recordId: rec.id,
     stopId: STOP_ID[stopName] || null,
     catKey: CAT_KEY[catLabel] || null,
     placeId: f.googlePlaceId || null,
@@ -230,17 +304,58 @@ function sortListings(arr) {
   const photoIndex = buildPhotoIndex();
   const records = await fetchAllActive();
 
+  /* Map all active records first, keeping the record id for updates. */
+  const mapped = [];
+  let skipped = 0;
+  for (const rec of records) {
+    const m = mapRecord(rec);
+    if (m.listing.active !== true) continue;
+    if (!m.stopId || !m.catKey) { skipped++; continue; }
+    mapped.push(m);
+  }
+
+  /* Walking distance backfill: any active listing with lat + lng but no
+     walkMins gets a Distance Matrix lookup. A valid result is written
+     back to Airtable and the static file; no walkable route deactivates
+     the listing in Airtable and drops it from the output. */
+  const needWalk = mapped.filter(m =>
+    m.listing.walkMins == null && m.listing.lat != null && m.listing.lng != null);
+  let walkSucceeded = 0, walkDeactivated = 0;
+  const deactivated = new Set();
+
+  if (needWalk.length && !GOOGLE_KEY) {
+    console.warn(`GOOGLE_PLACES_KEY not set: skipping walking distance for ${needWalk.length} listings.`);
+  } else {
+    for (const m of needWalk) {
+      const station = STATION_COORDS[m.stopId];
+      if (!station) continue;
+      const result = await getWalk(station, m.listing.lat, m.listing.lng);
+      await sleep(100);
+      if (result && result.walkMins != null) {
+        m.listing.walkMins = result.walkMins;
+        m.listing.walkDistance = result.walkDistance;
+        await updateRecord(m.recordId, { [FIELD.walkMins]: result.walkMins });
+        walkSucceeded++;
+      } else {
+        await updateRecord(m.recordId, { [FIELD.active]: false });
+        deactivated.add(m.recordId);
+        walkDeactivated++;
+        console.log(`Deactivated (no walkable route): ${m.listing.name} - ${m.listing.stop}`);
+      }
+    }
+  }
+
+  /* Build the output, excluding any listing deactivated above. */
   const out = {};
   for (const sid of STOP_ORDER) {
     out[sid] = {};
     for (const ck of CAT_ORDER) out[sid][ck] = [];
   }
 
-  let fetched = 0, skipped = 0, withPhotos = 0;
-  for (const rec of records) {
-    const { stopId, catKey, placeId, listing } = mapRecord(rec);
-    if (listing.active !== true) continue;
-    if (!stopId || !catKey) { skipped++; continue; }
+  let fetched = 0, withPhotos = 0;
+  for (const m of mapped) {
+    if (deactivated.has(m.recordId)) continue;
+    const { stopId, catKey, placeId, listing } = m;
 
     const match = (placeId && photoIndex.byPlace[placeId])
       || photoIndex.byNameStop[stopId + '|' + norm(listing.name)]
@@ -274,6 +389,9 @@ function sortListings(arr) {
 
   console.log('Listings fetched (active): ' + fetched);
   if (skipped) console.log('Skipped (unknown stop or category): ' + skipped);
+  console.log('Listings needing walking distance: ' + needWalk.length);
+  console.log('Walking distance calculated: ' + walkSucceeded);
+  console.log('Deactivated (no walkable route): ' + walkDeactivated);
   console.log('Stops populated: ' + stopsPopulated + ' / ' + STOP_ORDER.length);
   console.log('Listings with photos merged: ' + withPhotos);
   console.log('Wrote ' + OUT_FILE);
