@@ -189,7 +189,9 @@ async function fetchAllActive() {
     const url = new URL(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`);
     url.searchParams.set('pageSize', '100');
     url.searchParams.set('returnFieldsByFieldId', 'true');
-    url.searchParams.set('filterByFormula', '{Active}=TRUE()');
+    /* Skip rows still flagged for human review so unreviewed
+       auto-enriched content never ships to the live site. */
+    url.searchParams.set('filterByFormula', 'AND({Active}=TRUE(), NOT({Needs Review}))');
     if (offset) url.searchParams.set('offset', offset);
     const res = await fetchWithRetry(() => fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } }));
     if (!res.ok) {

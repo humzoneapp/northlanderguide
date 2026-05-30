@@ -45,8 +45,12 @@ if (!KEY || !BASE || !GKEY || !CKEY) {
   process.exit(1);
 }
 
-const recordId = process.argv[2];
-if (!recordId || !/^rec[A-Za-z0-9]+$/.test(recordId)) {
+/* When loaded as a module (require'd by backfill-listings.js) we expose
+   enrichRecord() and do nothing else. The CLI entry below only runs
+   when this file is executed directly. */
+const IS_CLI = require.main === module;
+const recordId = IS_CLI ? process.argv[2] : null;
+if (IS_CLI && (!recordId || !/^rec[A-Za-z0-9]+$/.test(recordId))) {
   console.error('Usage: node backend/enrich-listing.js <recordId>');
   process.exit(1);
 }
@@ -317,9 +321,19 @@ async function callClaude(ctx) {
   return JSON.parse(m[0]);
 }
 
-/* ================================================================== */
-(async () => {
-  console.log('Enriching record', recordId);
+/* ==================================================================
+   Core entry point. Returns:
+     { status: 'enriched', updated: <count> }
+     { status: 'skipped', reason: '...' }   (in backfill mode)
+   The single-row webhook path calls this with no opts.
+   The backfill path calls this with { onlyFillEmpty: true } so it
+   never overwrites human-edited Description/Tag/Best For and never
+   touches Google Places facts that are already populated.
+   ================================================================== */
+async function enrichRecord(recordId, opts) {
+  opts = opts || {};
+  const onlyFillEmpty = opts.onlyFillEmpty === true;
+  console.log('Enriching record', recordId, onlyFillEmpty ? '[backfill]' : '');
 
   /* 1. fetch record */
   const rec = await airtableGet(`${TABLE}/${recordId}`);
@@ -327,43 +341,78 @@ async function callClaude(ctx) {
   const name = (f[FIELD.name] || f['Business Name'] || '').trim();
   const address = (f[FIELD.address] || f['Address'] || '').trim();
   if (!name || !address) {
+    if (onlyFillEmpty) return { status: 'skipped', reason: 'missing name or address' };
     console.error('Business Name and Address are required');
     process.exit(1);
   }
 
-  /* 2 + 3. Google Find Place + Place Details */
+  /* Backfill gate: skip rows where Description, Tag, and Best For are
+     all already populated. Those are either human-edited or already
+     reviewed, and we must not touch them. */
+  const hasDesc = typeof f[FIELD.description] === 'string' && f[FIELD.description].trim().length > 0;
+  const hasTag  = typeof f[FIELD.tag] === 'string' && f[FIELD.tag].length > 0;
+  const hasBF   = Array.isArray(f[FIELD.bestFor]) && f[FIELD.bestFor].length > 0;
+  if (onlyFillEmpty && hasDesc && hasTag && hasBF) {
+    return { status: 'skipped', reason: 'all three fields already filled' };
+  }
+
   const updates = {};
+
+  /* setIfEmpty: in backfill mode only write a field when it is currently
+     blank in Airtable, so human-edited content is never overwritten. In
+     the normal single-row webhook path this writes unconditionally. */
+  const isTextEmpty = v => v == null || (typeof v === 'string' && v.trim().length === 0);
+  const isNumEmpty  = v => v == null;
+  const setIfEmpty = (fieldId, value, isEmptyFn) => {
+    if (value == null) return;
+    if (onlyFillEmpty) {
+      const cur = f[fieldId];
+      const empty = isEmptyFn ? isEmptyFn(cur) : (cur == null || cur === '');
+      if (!empty) return;
+    }
+    updates[fieldId] = value;
+  };
+
+  /* 2 + 3. Google Find Place + Place Details */
   const placeId = await findPlace(name + ', ' + address);
   let details = null;
   if (placeId) {
-    updates[FIELD.placeId] = placeId;
+    setIfEmpty(FIELD.placeId, placeId, isTextEmpty);
     details = await placeDetails(placeId);
   }
   if (details) {
-    if (details.formatted_address) updates[FIELD.address] = details.formatted_address;
-    if (details.formatted_phone_number) updates[FIELD.phone] = details.formatted_phone_number;
-    if (details.website) updates[FIELD.website] = details.website;
-    if (typeof details.rating === 'number') updates[FIELD.rating] = details.rating;
+    if (details.formatted_address) setIfEmpty(FIELD.address, details.formatted_address, isTextEmpty);
+    if (details.formatted_phone_number) setIfEmpty(FIELD.phone, details.formatted_phone_number, isTextEmpty);
+    if (details.website) setIfEmpty(FIELD.website, details.website, isTextEmpty);
+    if (typeof details.rating === 'number') setIfEmpty(FIELD.rating, details.rating, isNumEmpty);
     if (details.opening_hours) {
       const h = formatHours(details.opening_hours);
-      if (h) updates[FIELD.hours] = h;
+      if (h) setIfEmpty(FIELD.hours, h, isTextEmpty);
     }
     if (details.geometry && details.geometry.location) {
-      updates[FIELD.lat] = details.geometry.location.lat;
-      updates[FIELD.lng] = details.geometry.location.lng;
+      setIfEmpty(FIELD.lat, details.geometry.location.lat, isNumEmpty);
+      setIfEmpty(FIELD.lng, details.geometry.location.lng, isNumEmpty);
     }
   }
 
-  /* 4. Walking distance + no-route deactivation */
+  /* 4. Walking distance + no-route deactivation.
+     We resolve the effective lat/lng from either the new Places data or
+     whatever is already on the row, so backfill rows whose lat/lng are
+     pre-filled still get a walk-time check when missing. */
   let deactivated = false;
   const stopName = f[FIELD.stop] || f['Stop'];
   const stopId = STOP_ID[stopName];
   const station = STATION_COORDS[stopId];
-  if (station && updates[FIELD.lat] != null && updates[FIELD.lng] != null) {
-    const walk = await getWalk(station, updates[FIELD.lat], updates[FIELD.lng]);
+  const effLat = updates[FIELD.lat] != null ? updates[FIELD.lat] : f[FIELD.lat];
+  const effLng = updates[FIELD.lng] != null ? updates[FIELD.lng] : f[FIELD.lng];
+  const needWalk = !onlyFillEmpty || isNumEmpty(f[FIELD.walkMins]);
+  if (station && effLat != null && effLng != null && needWalk) {
+    const walk = await getWalk(station, effLat, effLng);
     if (walk && walk.walkMins != null) {
-      updates[FIELD.walkMins] = walk.walkMins;
-    } else {
+      setIfEmpty(FIELD.walkMins, walk.walkMins, isNumEmpty);
+    } else if (!onlyFillEmpty) {
+      /* Only flip Active off during a fresh enrichment. Backfill must
+         never deactivate a row that is already live on the site. */
       updates[FIELD.active] = false;
       deactivated = true;
       console.log('no walkable route - deactivating');
@@ -372,49 +421,62 @@ async function callClaude(ctx) {
     console.warn(`Stop "${stopName}" not recognised, skipping walking distance`);
   }
 
-  /* 5. Claude: description + tag + Best For */
-  try {
-    const tagChoices = await choicesFor(FIELD.tag);
-    const bfChoices = await choicesFor(FIELD.bestFor);
-    const ai = await callClaude({
-      name,
-      address: updates[FIELD.address] || address,
-      rating: updates[FIELD.rating],
-      types: (details && details.types) || [],
-      editorialSummary: (details && details.editorial_summary && details.editorial_summary.overview) || '',
-      reviews: (details && details.reviews) || [],
-      tagChoices, bestForChoices: bfChoices
-    });
-    if (ai.description && typeof ai.description === 'string') {
-      /* Safety net: even with the system prompt forbidding em dashes,
-         scrub U+2014 (em) and U+2013 (en) characters from the output
-         and replace with a comma + space so house style stays intact. */
-      const clean = ai.description.trim()
-        .replace(/\s*[—–]\s*/g, ', ')
-        .replace(/, +/g, ', ');
-      updates[FIELD.description] = clean;
+  /* 5. Claude: description + tag + Best For.
+     Skip the API call entirely in backfill mode when nothing is missing,
+     to save credits. */
+  const needDesc = !hasDesc;
+  const needTag  = !hasTag;
+  const needBF   = !hasBF;
+  const callAI = !onlyFillEmpty || needDesc || needTag || needBF;
+  if (callAI) {
+    try {
+      const tagChoices = await choicesFor(FIELD.tag);
+      const bfChoices = await choicesFor(FIELD.bestFor);
+      const ai = await callClaude({
+        name,
+        address: updates[FIELD.address] || f[FIELD.address] || address,
+        rating: updates[FIELD.rating] != null ? updates[FIELD.rating] : f[FIELD.rating],
+        types: (details && details.types) || [],
+        editorialSummary: (details && details.editorial_summary && details.editorial_summary.overview) || '',
+        reviews: (details && details.reviews) || [],
+        tagChoices, bestForChoices: bfChoices
+      });
+      if (ai.description && typeof ai.description === 'string') {
+        /* Safety net: even with the system prompt forbidding em dashes,
+           scrub U+2014 (em) and U+2013 (en) characters from the output
+           and replace with a comma + space so house style stays intact. */
+        const clean = ai.description.trim()
+          .replace(/\s*[—–]\s*/g, ', ')
+          .replace(/, +/g, ', ');
+        if (!onlyFillEmpty || needDesc) updates[FIELD.description] = clean;
+      }
+      if (ai.tag && tagChoices.indexOf(ai.tag) >= 0) {
+        if (!onlyFillEmpty || needTag) updates[FIELD.tag] = ai.tag;
+      }
+      if (Array.isArray(ai.bestFor)) {
+        const filtered = ai.bestFor.filter(b => bfChoices.indexOf(b) >= 0).slice(0, 4);
+        if (filtered.length && (!onlyFillEmpty || needBF)) updates[FIELD.bestFor] = filtered;
+      }
+    } catch (err) {
+      console.warn('Claude enrichment skipped:', err.message);
     }
-    if (ai.tag && tagChoices.indexOf(ai.tag) >= 0) {
-      updates[FIELD.tag] = ai.tag;
-    }
-    if (Array.isArray(ai.bestFor)) {
-      const filtered = ai.bestFor.filter(b => bfChoices.indexOf(b) >= 0).slice(0, 4);
-      if (filtered.length) updates[FIELD.bestFor] = filtered;
-    }
-  } catch (err) {
-    console.warn('Claude enrichment skipped:', err.message);
   }
 
-  /* 6. Mark review state */
+  /* 6. Mark review state. Any row we touched needs human review before
+     it goes live, because the sync now filters Needs Review = true. */
   updates[FIELD.autoEnriched] = true;
   updates[FIELD.needsReview] = true;
 
   /* 7. PATCH record */
   await airtablePatch(recordId, updates);
-  console.log(`updated ${Object.keys(updates).length} fields | deactivated=${deactivated}`);
+  const updatedCount = Object.keys(updates).length;
+  console.log(`updated ${updatedCount} fields | deactivated=${deactivated}`);
 
-  /* 8. Photos: fetch up to 3 from Place Details, upload to Airtable */
-  if (details && Array.isArray(details.photos) && details.photos.length) {
+  /* 8. Photos: only upload when the row has no attachments yet, so
+     backfill never overwrites curated photos. */
+  const existingPhotos = Array.isArray(f[FIELD.photos]) ? f[FIELD.photos] : [];
+  const wantPhotos = !onlyFillEmpty || existingPhotos.length === 0;
+  if (wantPhotos && details && Array.isArray(details.photos) && details.photos.length) {
     const refs = details.photos.slice(0, 3);
     for (let i = 0; i < refs.length; i++) {
       try {
@@ -430,4 +492,14 @@ async function callClaude(ctx) {
   }
 
   console.log('ENRICHMENT COMPLETE for', recordId);
-})().catch(e => { console.error('ENRICHMENT FAILED:', e.message); process.exit(1); });
+  return { status: 'enriched', updated: updatedCount };
+}
+
+module.exports = { enrichRecord };
+
+if (IS_CLI) {
+  enrichRecord(recordId).catch(e => {
+    console.error('ENRICHMENT FAILED:', e.message);
+    process.exit(1);
+  });
+}
