@@ -386,14 +386,23 @@
     }
     currentCatKey = present[0].key;
 
+    /* Hide the Featured sort pill until some listing in the current
+       category is flagged Featured in Airtable. Keeps the sort row
+       honest when no business has bought into the Featured tier yet. */
+    function hasFeaturedHere() {
+      return (stopListings[currentCatKey] || []).some(l => l && l.featured === true);
+    }
     function tabsHtml() {
+      const featuredPill = hasFeaturedHere()
+        ? '<button class="sp-sort-pill' + (currentSort === 'featured' ? ' active' : '') + '" data-sort="featured" type="button">'
+          + '<i class="ph-light ph-star" aria-hidden="true"></i>Featured</button>'
+        : '';
       return '<div class="sp-tabs-row">' + present.map(c =>
         '<button class="sp-tab' + (c.key === currentCatKey ? ' active' : '') + '" data-cat="' + c.key + '">&mdash; ' + c.label + '</button>'
       ).join('') + '</div>'
       + '<div class="sp-sort-bar" role="toolbar" aria-label="Sort and filter">'
       + '<span class="sp-sort-label">Show</span>'
-      + '<button class="sp-sort-pill' + (currentSort === 'featured' ? ' active' : '') + '" data-sort="featured" type="button">'
-      + '<i class="ph-light ph-star" aria-hidden="true"></i>Featured</button>'
+      + featuredPill
       + '<button class="sp-sort-pill' + (currentSort === 'closest' ? ' active' : '') + '" data-sort="closest" type="button">'
       + '<i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>Closest</button>'
       + '<button class="sp-sort-pill' + (currentSort === 'rated' ? ' active' : '') + '" data-sort="rated" type="button">'

@@ -1655,8 +1655,8 @@ function renderStop(){
       </div>
       <div class="sort-bar" id="sortBar" role="toolbar" aria-label="Sort and filter listings">
         <span class="sort-label">Show</span>
-        <button class="sort-pill${activeSort==='featured'?' active':''}" data-sort="featured" type="button">
-          <i class="ph-light ph-star" aria-hidden="true"></i><span>Featured</span></button>
+        ${hasFeaturedListings(s, activeCat) ? `<button class="sort-pill${activeSort==='featured'?' active':''}" data-sort="featured" type="button">
+          <i class="ph-light ph-star" aria-hidden="true"></i><span>Featured</span></button>` : ''}
         <button class="sort-pill${activeSort==='closest'?' active':''}" data-sort="closest" type="button">
           <i class="ph-light ph-person-simple-walk" aria-hidden="true"></i><span>Closest</span></button>
         <button class="sort-pill${activeSort==='rated'?' active':''}" data-sort="rated" type="button">
@@ -1704,6 +1704,16 @@ function parseRatingNum(r){
   if (r == null || r === 'NR') return -Infinity;
   const n = parseFloat(r);
   return isNaN(n) ? -Infinity : n;
+}
+/* True if the stop+category has at least one Featured slot filled by a
+   paid listing (curated in data.js) or any organic listing flagged
+   featured in Airtable. Used to hide the Featured sort pill until the
+   first business actually buys into the Featured tier. */
+function hasFeaturedListings(stop, catKey){
+  const slot = (stop.featured && stop.featured[catKey] || []);
+  if (slot.some(it => it && it.name && it.name.trim())) return true;
+  const organic = stop[catKey] || [];
+  return organic.some(it => it && it.featured === true);
 }
 function applyFilterSort(arr){
   let out = arr;
