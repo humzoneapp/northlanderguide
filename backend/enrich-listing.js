@@ -283,6 +283,11 @@ async function callClaude(ctx) {
     " - Help a traveller picture what they will actually find when they walk in. The reader has just stepped off the train and wants to know if this place is for them.",
     " - Build the picture with CONCRETE NOUNS that name real, verifiable things: rooms, suites, parking, bagels, sandwiches, coffee, walking trails, picnic tables, vinyl records, lumber. Concrete nouns are factual and they create the image at the same time.",
     " - Do NOT build the picture with adjectives, vibes, decor, or invented amenities. Those are lies dressed as colour.",
+    "VARIETY:",
+    " - Every description must read differently from every other. Do not write the same sentence twice. Even when two places are the same type (two parks, two motels), pick a different selection of category-typical attributes, vary the order, and vary the opening structure.",
+    " - Mix openers across the route: 'Park with...', 'Local park offering...', 'Small park featuring...', 'Hotel with...', 'Motel offering...', 'Roadside inn with...'. Do not always lead with 'Park with' or 'Hotel with'.",
+    " - When the business name gives you a meaningful category cue, use it: 'Memorial', 'Conservation Area', 'Recreation Centre', 'Bed and Breakfast', 'Family Restaurant'. Add it to the category word.",
+    " - Pick THREE attributes from the typical pool, not four, and pick a different three for each place. Vary which slots you skip.",
     "VOICE:",
     " - Write like a real person giving a friend a quick tip. Plain everyday words. Friendly and informative.",
     " - No flowery, salesy, or AI-marketing copy. Avoid words like 'thoughtful', 'curated', 'elevated', 'experience', 'destination', 'craft', 'artisanal', 'program', 'offering'.",
@@ -314,7 +319,7 @@ async function callClaude(ctx) {
     " - DO NOT mention owners, staff, family history, training, motivations, or backstory. Reviews are not provided for that reason.",
     " - DO NOT use superlatives. No 'best', 'most authentic', 'famous', 'legendary', 'iconic', 'beloved', 'a must-visit'.",
     " - DO NOT begin with 'This place'. DO NOT mention distances, walk times, or opening hours. The card already shows those.",
-    " - DO NOT add any historical date, era, or origin year, even for landmarks. No '1932 British Empire Games', no 'built in 1908'. If the category says 'landmark' or 'historic', it is sufficient to say 'historic landmark' and describe what it physically is at the most general level.",
+    " - DO NOT add any historical date, year, era, century, decade, or time period. Banned phrases include but are not limited to: 'built in 1908', '1932 British Empire Games', 'opened in 1965', 'from the 19th century', '19th-century', '20th-century', 'Victorian-era', 'Edwardian', 'mid-century', 'centuries-old', 'dating back to', 'colonial-era'. If the category says 'landmark' or 'historic', it is enough to say 'historic landmark' or 'historic museum' and stop. Do NOT say WHEN it is historic. WHEN comes from training knowledge and we are blind to that.",
     " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks. The house style forbids them entirely.",
     "TARGET EXAMPLES (no town, no street, no geography, three or more category-typical attributes for substance):",
     " - 'Italian restaurant serving pasta, traditional dishes, wine, and beer.'",
@@ -346,7 +351,9 @@ async function callClaude(ctx) {
     + bfBullets + '\n\n'
     + 'Description rules:\n'
     + '- One sentence, 9 to 16 words. Two short ones absolute max.\n'
-    + '- INCLUDE THREE OR MORE category-typical attributes. One or two reads like a stub. Three gives the reader something to picture.\n'
+    + '- INCLUDE THREE category-typical attributes (occasionally two when the category is sparse). Pick a different mix for each row of the same category so no two descriptions read the same.\n'
+    + '- VARY the opener and structure. Do not always start with "Park with" or "Hotel with". Try "Local park offering...", "Roadside motel with...", "Small bookstore selling...", "Bagel bakery serving...", "Italian restaurant featuring...", "Family-run inn with..." (only use family-run if the name supports it).\n'
+    + '- When the business name carries a meaningful word (Memorial, Conservation Area, Recreation Centre, Family, Bed and Breakfast), fold it into the category. "Memorial park", "Conservation area", "Recreation centre".\n'
     + '- Plain, friendly, like a friend giving a quick tip. Appeal comes from concrete specifics (rooms, suites, parking, breakfast, walking trails, picnic spots, vinyl records, etc.), not from adjectives or marketing flourishes.\n'
     + '- DO NOT mention the town, city, neighbourhood, street, address, downtown, waterfront, lakefront, shore, riverside, or any geographic feature. The card shows location. Describe what the place IS and what it SERVES.\n'
     + '- DO NOT invent any fact: no decor, no specific amenities, no exact numbers, no audiences, no ambiance, no signature items, no owner stories, no superlatives, no historical dates.\n'
