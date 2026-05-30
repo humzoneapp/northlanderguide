@@ -1,15 +1,17 @@
 name: Sync listings from Airtable
 
 # Regenerates site/listings-data.js and site/stop-pages-data.js from
-# Airtable, then commits the result so Vercel redeploys. Runs at 6am and
-# 6pm UTC and on demand. Set AIRTABLE_API_KEY, AIRTABLE_BASE_ID and
-# GOOGLE_PLACES_KEY as repository secrets
+# Airtable, then commits the result so Vercel redeploys. Runs at 6:15am
+# and 6:15pm UTC and on demand. Scheduling 15 minutes past the hour
+# avoids GitHub's top-of-hour congestion, where scheduled runs are most
+# likely to be skipped or delayed. Set AIRTABLE_API_KEY,
+# AIRTABLE_BASE_ID and GOOGLE_PLACES_KEY as repository secrets
 # (Settings > Secrets and variables > Actions).
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 6,18 * * *'
+    - cron: '15 6,18 * * *'
 
 jobs:
   sync:
