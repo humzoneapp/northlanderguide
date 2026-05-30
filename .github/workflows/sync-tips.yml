@@ -1,0 +1,42 @@
+name: Sync Approved Tips
+
+# Triggered by the Airtable -> Vercel -> GitHub repository_dispatch
+# pipeline as soon as a tip's Approved checkbox is ticked, so a tip can
+# appear on the live corkboard within minutes instead of waiting for
+# the scheduled listings sync. Also runnable manually.
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [tip-approved]
+
+jobs:
+  sync-tips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tips sync
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+        run: node backend/sync-tips-only.js
+
+      - name: Commit updated tips
+        run: |
+          git config user.name "NorthlanderBot"
+          git config user.email "bot@northlanderguide.com"
+          git add site/stop-pages-data.js
+          if git diff --staged --quiet; then
+            echo "No tip changes."
+          else
+            git commit -m "Auto-publish approved traveller tip"
+            git push
+          fi

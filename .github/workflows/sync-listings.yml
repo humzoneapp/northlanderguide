@@ -1,18 +1,20 @@
 name: Sync listings from Airtable
 
-# Regenerates site/listings-data.js from the Airtable Listings table and
-# commits the result so Vercel redeploys. Runs on a daily schedule and on
-# demand. Set AIRTABLE_API_KEY, AIRTABLE_BASE_ID and GOOGLE_PLACES_KEY as
-# repository secrets (Settings > Secrets and variables > Actions).
+# Regenerates site/listings-data.js and site/stop-pages-data.js from
+# Airtable, then commits the result so Vercel redeploys. Runs at 6am and
+# 6pm UTC and on demand. Set AIRTABLE_API_KEY, AIRTABLE_BASE_ID and
+# GOOGLE_PLACES_KEY as repository secrets
+# (Settings > Secrets and variables > Actions).
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 6,18 * * *'
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
@@ -24,21 +26,53 @@ jobs:
         with:
           node-version: '20'
 
+      # Safety net: keep a copy of the live data before the script runs
+      # so a partial failure can be restored without losing listings.
+      - name: Backup current data files
+        run: |
+          cp site/listings-data.js site/listings-data.backup.js
+          cp site/stop-pages-data.js site/stop-pages-data.backup.js
+
       - name: Sync listings and walking distances
+        continue-on-error: false
         env:
           AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
           AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
           GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
         run: node backend/sync-from-airtable.js
 
+      # Second safety net: even if the script wrote a file that slipped
+      # through its own validation, refuse to deploy it.
+      - name: Verify output files
+        run: |
+          if [ ! -f site/listings-data.js ] || [ $(wc -c < site/listings-data.js) -lt 10000 ]; then
+            echo "ERROR: listings-data.js is missing or too small. Restoring backup."
+            cp site/listings-data.backup.js site/listings-data.js
+            exit 1
+          fi
+          if [ ! -f site/stop-pages-data.js ] || [ $(wc -c < site/stop-pages-data.js) -lt 1000 ]; then
+            echo "ERROR: stop-pages-data.js is missing or too small. Restoring backup."
+            cp site/stop-pages-data.backup.js site/stop-pages-data.js
+            exit 1
+          fi
+          echo "Output files validated successfully."
+          echo "  listings-data.js   $(wc -c < site/listings-data.js) bytes"
+          echo "  stop-pages-data.js $(wc -c < site/stop-pages-data.js) bytes"
+
+      # Always remove the backup files, success or failure, so they
+      # never get committed.
+      - name: Remove backup files
+        if: always()
+        run: rm -f site/listings-data.backup.js site/stop-pages-data.backup.js
+
       - name: Commit and push regenerated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain site/listings-data.js)" ]; then
-            git add site/listings-data.js
+          git add site/listings-data.js site/stop-pages-data.js
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
             git commit -m "Sync listings data from Airtable"
             git push
-          else
-            echo "No changes to listings-data.js"
           fi
