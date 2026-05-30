@@ -161,6 +161,36 @@ async function choicesFor(fieldId) {
   return ((f && f.options && f.options.choices) || []).map(c => c.name);
 }
 
+/* Hard category whitelist per Best For tag. The model kept picking
+   "Day Trip" / "Photographers" / "Solo Travellers" for bookstores and
+   shops even when the prompt forbade it. The reliable fix is to filter
+   the choice list itself: if a tag's allowed type substrings do not
+   appear in this row's Google types, the tag never reaches Claude and
+   cannot be picked. Tags not present in this map are left in the list
+   because we have no rule for them and prefer to err on the side of
+   the operator's existing taxonomy. */
+const BEST_FOR_ALLOWED_TYPES = {
+  'Foodies':         ['restaurant', 'cafe', 'bakery', 'bar', 'food', 'meal_', 'ice_cream', 'coffee_shop', 'pub', 'brewery', 'winery'],
+  'Families':        ['park', 'amusement_park', 'zoo', 'aquarium', 'museum', 'playground', 'tourist_attraction', 'beach', 'campground'],
+  'Couples':         ['spa', 'beauty_salon', 'wedding', 'fine_dining', 'wine_bar', 'romantic'],
+  'Solo Travellers': ['hostel', 'library', 'cafe', 'coffee_shop', 'co_working', 'bookstore_cafe'],
+  'Weekend Stay':    ['lodging', 'hotel', 'motel', 'resort', 'bed_and_breakfast', 'guest_house', 'inn'],
+  'Week Long':       ['lodging', 'hotel', 'resort', 'vacation_rental', 'apartment', 'extended_stay'],
+  'Nature Lovers':   ['park', 'natural_feature', 'campground', 'hiking', 'nature_reserve', 'forest', 'lake', 'beach', 'trail'],
+  'Day Trip':        ['park', 'museum', 'art_gallery', 'tourist_attraction', 'amusement_park', 'zoo', 'aquarium', 'natural_feature', 'hiking', 'scenic_lookout', 'historical', 'landmark'],
+  'Photographers':   ['scenic_lookout', 'natural_feature', 'art_gallery', 'museum', 'tourist_attraction', 'landmark', 'historical']
+};
+
+function filterBestForByTypes(allChoices, googleTypes) {
+  const types = (googleTypes || []).map(t => String(t).toLowerCase());
+  const matches = (allowed) => allowed.some(a => types.some(t => t.indexOf(a) >= 0));
+  return allChoices.filter(tag => {
+    const allowed = BEST_FOR_ALLOWED_TYPES[tag];
+    if (!allowed) return true; // unknown tag: leave it in
+    return matches(allowed);
+  });
+}
+
 async function findPlace(query) {
   const url = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
     + '?input=' + encodeURIComponent(query)
@@ -299,25 +329,7 @@ async function callClaude(ctx) {
     + '\n'
     + 'TAG - pick exactly ONE name from this list. Return null if none clearly fit. Do not invent.\n'
     + tagBullets + '\n\n'
-    + 'BEST FOR - this is a HARD WHITELIST. For each tag, only pick it when the Google category type list above contains one of the explicitly permitted types. If none of the permitted types appear, DO NOT pick the tag, even if it seems plausible. There is no creative latitude here.\n\n'
-    + 'PERMITTED MAPPINGS (tag => Google category types that allow it):\n'
-    + '  - "Foodies"          => restaurant, cafe, bakery, bar, food, meal_delivery, meal_takeaway, ice_cream_shop, coffee_shop\n'
-    + '  - "Families"         => park, amusement_park, zoo, aquarium, museum, playground, tourist_attraction, family_restaurant\n'
-    + '  - "Couples"          => spa, beauty_salon, wedding_venue, fine_dining_restaurant, wine_bar, jewelry_store\n'
-    + '  - "Solo Travellers"  => hostel, library, cafe, coffee_shop, co_working_space\n'
-    + '  - "Weekend Stay"     => lodging, hotel, motel, resort_hotel, bed_and_breakfast, guest_house\n'
-    + '  - "Week Long"        => lodging, hotel, resort_hotel, vacation_rental, apartment_complex\n'
-    + '  - "Nature Lovers"    => park, natural_feature, campground, hiking_area, nature_reserve, forest, lake\n'
-    + '  - "Day Trip"         => park, museum, art_gallery, tourist_attraction, amusement_park, zoo, aquarium, natural_feature, hiking_area, scenic_lookout\n'
-    + '  - "Photographers"    => scenic_lookout, natural_feature, art_gallery, museum, tourist_attraction\n'
-    + '  - any other tag in the choice list => only pick it when its name is obviously and literally what the category type sells\n\n'
-    + 'HARD BANS (these are real cases the model has gotten wrong; do not repeat them):\n'
-    + '  - book_store or store => NEVER pick Day Trip, Photographers, or Solo Travellers, no matter how interesting the shop sounds.\n'
-    + '  - lodging / hotel / motel without anything else => Weekend Stay is fine, but do NOT also add Solo Travellers, Day Trip, Families, Couples, or Photographers.\n'
-    + '  - park without scenic_lookout or natural_feature => Nature Lovers and Families and Day Trip are fine, but do NOT add Photographers.\n'
-    + '  - restaurant / cafe / bar without fine_dining_restaurant or wine_bar => Foodies is fine, do NOT add Couples or Photographers.\n\n'
-    + 'Pick AT MOST four tags. ONE tag, or even zero, is usually correct. When in doubt, pick fewer.\n'
-    + 'The full list of valid tag names (you must pick from these exact strings):\n'
+    + 'BEST FOR - pick from this list only. The list has already been pre-filtered to only show tags that are permitted for this business category, so any tag in the list is a fair candidate. Pick AT MOST four. ONE tag, or zero, is usually correct. When in doubt, pick fewer.\n'
     + bfBullets + '\n\n'
     + 'Description rules:\n'
     + '- ONE sentence ideally. Two short ones absolute max. Shorter is better.\n'
@@ -478,7 +490,10 @@ async function enrichRecord(recordId, opts) {
   if (callAI) {
     try {
       const tagChoices = await choicesFor(FIELD.tag);
-      const bfChoices = await choicesFor(FIELD.bestFor);
+      const bfChoicesAll = await choicesFor(FIELD.bestFor);
+      const googleTypes = (details && details.types) || [];
+      const bfChoices = filterBestForByTypes(bfChoicesAll, googleTypes);
+      console.log(`Best For pool: ${bfChoices.length}/${bfChoicesAll.length} tags allowed by category (${googleTypes.join(',')})`);
       const ai = await callClaude({
         name,
         address: updates[FIELD.address] || f[FIELD.address] || address,
