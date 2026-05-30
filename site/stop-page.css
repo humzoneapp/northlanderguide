@@ -199,7 +199,11 @@
 .sp-df-head .sp-h2{margin:0}
 .sp-df-print{flex:none}
 .sp-df-print-head{display:none}
-.sp-df-season{color:var(--sp-amber);font-size:18px;vertical-align:-2px;margin-left:4px}
+.sp-df-season{font-size:18px;vertical-align:-2px;margin-left:4px}
+.sp-df-spring{color:#b6557a}
+.sp-df-summer{color:#c4860f}
+.sp-df-fall{color:#7d3a1e}
+.sp-df-winter{color:#6b8e9a}
 .sp-df-blanks{margin:28px 0 0;padding:24px 0 0;border-top:1px dashed #c9bda3}
 .sp-df-blanks .sp-label{margin-bottom:14px}
 .sp-df-blanks ol{list-style:none;padding:0;margin:0;counter-reset:blank}
@@ -217,6 +221,14 @@
   font-weight:600;color:var(--sp-rust);
   font-family:'Spline Sans',sans-serif;font-size:13px;
 }
+.sp-df-blank-input{
+  width:100%;
+  background:transparent;border:0;outline:none;
+  font-family:'Fraunces',Georgia,serif;font-size:15px;
+  color:var(--sp-ink);padding:2px 0;
+}
+.sp-df-blank-input::placeholder{color:#c2b5a0;font-style:italic}
+.sp-df-blank-input:focus{color:var(--sp-ink)}
 
 /* ---------- print stylesheet: produce a clean packing checklist ---------- */
 @media print {
@@ -256,6 +268,14 @@
   .sp-df-blanks .sp-label { color: #0a2d21; }
   .sp-df-blanks li { color: #0a2d21; border-color: #0a2d21; }
   .sp-df-blanks li::before { color: #0a2d21; }
+  /* Inputs print their value as plain text; strip the field chrome. */
+  .sp-df-blank-input {
+    border: 0 !important; background: transparent !important;
+    color: #0a2d21 !important; padding: 2px 0 !important;
+    font-family: 'Fraunces', Georgia, serif !important;
+    font-size: 13px !important;
+  }
+  .sp-df-blank-input::placeholder { color: transparent !important; }
   @page { margin: 16mm; }
 }
 

@@ -242,16 +242,20 @@
           : ic
             ? '<span class="sp-df-emoji" aria-hidden="true">' + esc(ic) + '</span>'
             : '<i class="ph-light ph-circle" aria-hidden="true"></i>';
-        const winter = /winter/i.test(d.triggerType || '');
-        const winterMark = winter
-          ? ' <i class="ph-light ph-snowflake sp-df-season" title="For winter trips" aria-label="winter item"></i>'
-          : '';
+        const tt = (d.triggerType || '').toLowerCase();
+        let seasonMark = '';
+        if (/winter/.test(tt)) seasonMark = ' <i class="ph-light ph-snowflake sp-df-season sp-df-winter" title="For winter trips" aria-label="winter item"></i>';
+        else if (/summer/.test(tt)) seasonMark = ' <i class="ph-light ph-sun sp-df-season sp-df-summer" title="For summer trips" aria-label="summer item"></i>';
+        else if (/spring/.test(tt)) seasonMark = ' <i class="ph-light ph-flower sp-df-season sp-df-spring" title="For spring trips" aria-label="spring item"></i>';
+        else if (/fall|autumn/.test(tt)) seasonMark = ' <i class="ph-light ph-leaf sp-df-season sp-df-fall" title="For fall trips" aria-label="fall item"></i>';
         return '<div class="sp-df-item">' + icHtml
-          + '<div><span class="sp-df-name">' + esc(d.item) + winterMark + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
+          + '<div><span class="sp-df-name">' + esc(d.item) + seasonMark + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
           + (d.why ? '<div class="sp-df-why">' + esc(d.why) + '</div>' : '') + '</div></div>';
       }).join('') + '</div>'
       + '<div class="sp-df-blanks"><div class="sp-label">Add your own</div>'
-      + '<ol>' + Array.from({ length: 6 }, () => '<li></li>').join('') + '</ol></div>'
+      + '<ol>' + Array.from({ length: 6 }, () =>
+        '<li><input type="text" class="sp-df-blank-input" maxlength="80" placeholder="Type an item, then print"></li>'
+      ).join('') + '</ol></div>'
       : '<p class="sp-empty">Packing tips for this stop are coming soon.</p>')
     + '</section>';
 
