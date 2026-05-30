@@ -42,5 +42,8 @@ jobs:
           AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
           AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
           GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Anthropic key is stored under the GitHub secret name
+          # `NorthlanderGuide`. If both names are populated, the
+          # canonical ANTHROPIC_API_KEY wins.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' && secrets.ANTHROPIC_API_KEY || secrets.NorthlanderGuide }}
         run: node backend/enrich-listing.js "${{ steps.rec.outputs.id }}"
