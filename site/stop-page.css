@@ -137,11 +137,40 @@
 .sp-map{height:520px;border:3px solid var(--sp-green);background:var(--sp-offivory)}
 .sp-map .leaflet-container{height:100%;width:100%;background:var(--sp-offivory);font-family:'Spline Sans',sans-serif}
 .sp-marker{display:block;border-radius:50%;border:2px solid var(--sp-ivory);box-sizing:border-box}
-.sp-tabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 20px;border-bottom:1px solid #d9cfba}
+.sp-tabs{margin:0 0 20px}
+.sp-tabs-row{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid #d9cfba}
 .sp-tab{background:none;border:0;border-bottom:3px solid transparent;color:var(--sp-muted);
   font-family:'Spline Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;
   padding:8px 12px;cursor:pointer;text-transform:uppercase}
 .sp-tab.active{color:var(--sp-rust);border-bottom-color:var(--sp-rust)}
+
+/* Sort + filter row sits under the category tabs on stop pages.
+   Three mutually exclusive sort pills plus a stackable Local Deals
+   toggle that ALSO filters the map markers. */
+.sp-sort-bar{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:12px 0 0;
+}
+.sp-sort-label{
+  font-family:'Spline Sans',sans-serif;
+  font-size:10px;text-transform:uppercase;letter-spacing:.18em;font-weight:700;
+  color:var(--sp-muted);margin-right:2px;white-space:nowrap;
+}
+.sp-sort-pill,.sp-deals-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'Spline Sans',sans-serif;font-size:12px;font-weight:600;
+  color:var(--sp-muted);background:transparent;
+  border:1.5px solid #d9cfba;border-radius:999px;
+  padding:5px 11px;cursor:pointer;white-space:nowrap;
+  transition:color .15s,border-color .15s,background .15s,transform .15s;
+}
+.sp-sort-pill i,.sp-deals-pill i{font-size:14px;color:var(--sp-rust)}
+.sp-sort-pill:hover,.sp-deals-pill:hover{color:var(--sp-ink);border-color:var(--sp-rust);transform:translateY(-1px)}
+.sp-sort-pill.active{color:#fff;background:var(--sp-rust);border-color:var(--sp-rust)}
+.sp-sort-pill.active i{color:#fff}
+.sp-deals-pill.active{color:var(--sp-ink);background:var(--sp-amber);border-color:var(--sp-amber)}
+.sp-deals-pill.active i{color:var(--sp-ink)}
+.sp-sort-divider{width:1px;height:1em;background:#d9cfba;margin:0 4px}
 .sp-listings{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .sp-empty{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--sp-muted);font-size:16px;padding:20px 0}
 

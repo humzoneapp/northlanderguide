@@ -7,6 +7,11 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 
 let activeStop = STOPS[0];
 let activeCat  = 'restaurants';
+/* Sort + filter state for the listings panel. Sorts are mutually
+   exclusive (only one active at a time); the Local Deals toggle is a
+   filter that stacks on top of whichever sort is selected. */
+let activeSort = 'featured';
+let activeDealsOnly = false;
 let activeDetail = null;   // index of the listing being viewed, or null
 /* Saved scroll position when opening a detail view, so the back
    button can restore the visitor to exactly where they were in
@@ -1648,6 +1653,18 @@ function renderStop(){
             <span class="ic">${icon(c.ic)}</span>${c.label}<span class="cnt">${count}</span></button>`;
         }).join('')}
       </div>
+      <div class="sort-bar" id="sortBar" role="toolbar" aria-label="Sort and filter listings">
+        <span class="sort-label">Show</span>
+        <button class="sort-pill${activeSort==='featured'?' active':''}" data-sort="featured" type="button">
+          <i class="ph-light ph-star" aria-hidden="true"></i><span>Featured</span></button>
+        <button class="sort-pill${activeSort==='closest'?' active':''}" data-sort="closest" type="button">
+          <i class="ph-light ph-person-simple-walk" aria-hidden="true"></i><span>Closest</span></button>
+        <button class="sort-pill${activeSort==='rated'?' active':''}" data-sort="rated" type="button">
+          <i class="ph-light ph-trophy" aria-hidden="true"></i><span>Top Rated</span></button>
+        <span class="sort-divider" aria-hidden="true"></span>
+        <button class="deals-pill${activeDealsOnly?' active':''}" data-filter="deals" type="button" aria-pressed="${activeDealsOnly}">
+          <i class="ph-light ph-tag" aria-hidden="true"></i><span>Local Deals</span></button>
+      </div>
       <div class="cat-header">
         <img src="${CAT_HEADER_IMG[activeCat]||''}" alt="${catLabel(activeCat)}" decoding="async"
              onerror="this.closest('.cat-header').classList.add('img-failed')">
@@ -1659,6 +1676,19 @@ function renderStop(){
     b.addEventListener('click',()=>{activeCat=b.dataset.cat;activeDetail=null;renderStop();}));
   document.querySelectorAll('[data-share]').forEach(b=>
     b.addEventListener('click',()=>shareCurrent(b.dataset.share)));
+  document.querySelectorAll('#sortBar .sort-pill').forEach(b=>
+    b.addEventListener('click',()=>{
+      activeSort=b.dataset.sort;
+      document.querySelectorAll('#sortBar .sort-pill').forEach(x=>x.classList.toggle('active',x.dataset.sort===activeSort));
+      renderCards();
+    }));
+  const dealsBtn=document.querySelector('#sortBar .deals-pill');
+  if(dealsBtn) dealsBtn.addEventListener('click',()=>{
+    activeDealsOnly=!activeDealsOnly;
+    dealsBtn.classList.toggle('active',activeDealsOnly);
+    dealsBtn.setAttribute('aria-pressed',String(activeDealsOnly));
+    renderCards();
+  });
   renderCards();
   observeReveals();
 }
@@ -1668,12 +1698,32 @@ function renderStop(){
    first, followed by the organic Google Places listings. Empty
    Featured slots (name === '') are skipped, so the placeholder
    blocks in data.js stay invisible until a paid listing is
-   inserted. */
+   inserted. The Local Deals filter and the active sort are applied
+   on top before returning. */
+function parseRatingNum(r){
+  if (r == null || r === 'NR') return -Infinity;
+  const n = parseFloat(r);
+  return isNaN(n) ? -Infinity : n;
+}
+function applyFilterSort(arr){
+  let out = arr;
+  if (activeDealsOnly) out = out.filter(it => it && it.discountOffered === true);
+  if (activeSort === 'closest') {
+    out = out.slice().sort((a, b) => {
+      const aw = (typeof a.walkMins === 'number') ? a.walkMins : Infinity;
+      const bw = (typeof b.walkMins === 'number') ? b.walkMins : Infinity;
+      return aw - bw;
+    });
+  } else if (activeSort === 'rated') {
+    out = out.slice().sort((a, b) => parseRatingNum(b.rating) - parseRatingNum(a.rating));
+  }
+  return out;
+}
 function listingsForActive(){
   const featured = (activeStop.featured && activeStop.featured[activeCat] || [])
     .filter(it => it && it.name && it.name.trim());
   const organic = activeStop[activeCat] || [];
-  return featured.concat(organic);
+  return applyFilterSort(featured.concat(organic));
 }
 
 /* Shared markup for a single listing tile (used by the directory
@@ -1710,7 +1760,13 @@ function cardMarkup(it, idx, imgCls){
 function renderCards(){
   const items = listingsForActive();
   const wrap = document.getElementById('cards');
-  if(!items.length){ wrap.innerHTML = `<div class="empty">No listings here yet.</div>`; return; }
+  if(!items.length){
+    const msg = activeDealsOnly
+      ? 'No local deals in this category yet. Toggle Local Deals off to see all listings.'
+      : 'No listings here yet.';
+    wrap.innerHTML = `<div class="empty">${msg}</div>`;
+    return;
+  }
   wrap.innerHTML = items.map((it,idx)=>cardMarkup(it, idx, 'card-img')).join('');
   wrap.querySelectorAll('.card').forEach(c=>
     c.addEventListener('click',()=>openDetail(parseInt(c.dataset.idx,10))));

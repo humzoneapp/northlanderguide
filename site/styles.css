@@ -1049,6 +1049,48 @@ a{color:inherit}
 .catfilter button.active .cnt{background:rgba(255,255,255,.28);color:#fff}
 .catfilter button:active{transform:scale(.97)}
 
+/* ===== Sort + filter bar under the category tabs =====
+   Three mutually exclusive sort pills (Featured / Closest / Top Rated)
+   plus a stackable Local Deals filter. Smaller and lighter than the
+   category tabs so the hierarchy reads clearly. */
+.sort-bar{
+  display:flex;align-items:center;gap:.4rem;flex-wrap:nowrap;
+  overflow-x:auto;overflow-y:visible;
+  padding:6px 0 12px;margin:0 0 .8rem;
+  scrollbar-width:thin;-webkit-overflow-scrolling:touch;
+}
+.sort-bar::-webkit-scrollbar{height:4px}
+.sort-bar::-webkit-scrollbar-thumb{background:rgba(142,61,34,.3);border-radius:4px}
+.sort-bar .sort-label{
+  flex:0 0 auto;font-family:'Spline Sans',sans-serif;
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;
+  font-weight:700;color:var(--muted);padding-right:.3rem;white-space:nowrap;
+}
+.sort-bar .sort-pill,
+.sort-bar .deals-pill{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:.35rem;
+  font-family:'Spline Sans',sans-serif;font-size:.78rem;font-weight:600;
+  color:var(--muted);background:transparent;
+  border:1.5px solid var(--line);border-radius:999px;
+  padding:.32rem .75rem;cursor:pointer;white-space:nowrap;
+  transition:color .15s,border-color .15s,background .15s,transform .15s;
+}
+.sort-bar .sort-pill i,
+.sort-bar .deals-pill i{font-size:1.05em;color:var(--poster-crimson)}
+.sort-bar .sort-pill:hover,
+.sort-bar .deals-pill:hover{color:var(--ink);border-color:var(--poster-crimson);transform:translateY(-1px)}
+.sort-bar .sort-pill.active{
+  color:#fff;background:var(--poster-crimson);border-color:var(--poster-crimson);
+}
+.sort-bar .sort-pill.active i{color:#fff}
+.sort-bar .deals-pill.active{
+  color:#fff;background:var(--gold);border-color:var(--gold);
+}
+.sort-bar .deals-pill.active i{color:#fff}
+.sort-bar .sort-divider{
+  flex:0 0 auto;width:1px;height:1.1em;background:var(--line);margin:0 .25rem;
+}
+
 /* Category header image: a full-width illustrated banner above the
    listing cards, swapped per selected category. 180px on mobile,
    220px on wider screens. The category name sits bottom-left in

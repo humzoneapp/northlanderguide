@@ -78,6 +78,36 @@
     (stopListings[c.key] || []).forEach(l => allMapped.push(Object.assign({ _cat: c }, l)));
   });
 
+  /* Sort + filter state shared by the listings panel and the map. The
+     sorts (Featured / Closest / Top Rated) only affect the listings
+     panel; the Local Deals toggle hides every listing without a deal
+     from both the panel AND the map markers. */
+  let currentCatKey = null;
+  let currentSort = 'featured';
+  let currentDealsOnly = false;
+  let leafletMap = null;
+  let leafletMarkers = [];
+
+  function parseRatingNum(r) {
+    if (r == null || r === 'NR') return -Infinity;
+    const n = parseFloat(r);
+    return isNaN(n) ? -Infinity : n;
+  }
+  function applySortFilter(arr) {
+    let out = arr;
+    if (currentDealsOnly) out = out.filter(it => it && it.discountOffered === true);
+    if (currentSort === 'closest') {
+      out = out.slice().sort((a, b) => {
+        const aw = typeof a.walkMins === 'number' ? a.walkMins : Infinity;
+        const bw = typeof b.walkMins === 'number' ? b.walkMins : Infinity;
+        return aw - bw;
+      });
+    } else if (currentSort === 'rated') {
+      out = out.slice().sort((a, b) => parseRatingNum(b.rating) - parseRatingNum(a.rating));
+    }
+    return out;
+  }
+
   function listingCard(l) {
     const ratingHtml = (!l.rating || l.rating === 'NR')
       ? '<span class="sp-lc-rating">New</span>'
@@ -349,39 +379,80 @@
     const tabsEl = document.getElementById('spTabs');
     const listEl = document.getElementById('spListings');
     const present = CATS.filter(c => (stopListings[c.key] || []).length);
-    if (!present.length) { tabsEl.innerHTML = ''; listEl.innerHTML = '<p class="sp-empty">Listings for this stop are coming soon.</p>'; return; }
-    tabsEl.innerHTML = present.map((c, i) =>
-      '<button class="sp-tab' + (i === 0 ? ' active' : '') + '" data-cat="' + c.key + '">&mdash; ' + c.label + '</button>').join('');
-    function paint(key) {
-      const items = stopListings[key] || [];
-      const cat = CATS.find(c => c.key === key);
-      listEl.innerHTML = items.length
-        ? items.map(l => listingCard(Object.assign({ _cat: cat }, l))).join('')
-        : '<p class="sp-empty">Nothing here yet.</p>';
+    if (!present.length) {
+      tabsEl.innerHTML = '';
+      listEl.innerHTML = '<p class="sp-empty">Listings for this stop are coming soon.</p>';
+      return;
     }
-    tabsEl.querySelectorAll('.sp-tab').forEach(b => b.addEventListener('click', () => {
-      tabsEl.querySelectorAll('.sp-tab').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      paint(b.dataset.cat);
-    }));
-    paint(present[0].key);
+    currentCatKey = present[0].key;
+
+    function tabsHtml() {
+      return '<div class="sp-tabs-row">' + present.map(c =>
+        '<button class="sp-tab' + (c.key === currentCatKey ? ' active' : '') + '" data-cat="' + c.key + '">&mdash; ' + c.label + '</button>'
+      ).join('') + '</div>'
+      + '<div class="sp-sort-bar" role="toolbar" aria-label="Sort and filter">'
+      + '<span class="sp-sort-label">Show</span>'
+      + '<button class="sp-sort-pill' + (currentSort === 'featured' ? ' active' : '') + '" data-sort="featured" type="button">'
+      + '<i class="ph-light ph-star" aria-hidden="true"></i>Featured</button>'
+      + '<button class="sp-sort-pill' + (currentSort === 'closest' ? ' active' : '') + '" data-sort="closest" type="button">'
+      + '<i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>Closest</button>'
+      + '<button class="sp-sort-pill' + (currentSort === 'rated' ? ' active' : '') + '" data-sort="rated" type="button">'
+      + '<i class="ph-light ph-trophy" aria-hidden="true"></i>Top Rated</button>'
+      + '<span class="sp-sort-divider" aria-hidden="true"></span>'
+      + '<button class="sp-deals-pill' + (currentDealsOnly ? ' active' : '') + '" data-filter="deals" type="button" aria-pressed="' + currentDealsOnly + '">'
+      + '<i class="ph-light ph-tag" aria-hidden="true"></i>Local Deals</button>'
+      + '</div>';
+    }
+
+    function listingsForCurrent() {
+      if (!currentCatKey) return [];
+      const cat = CATS.find(c => c.key === currentCatKey);
+      const items = (stopListings[currentCatKey] || []).map(l => Object.assign({ _cat: cat }, l));
+      return applySortFilter(items);
+    }
+    function refreshListings() {
+      const items = listingsForCurrent();
+      if (!items.length) {
+        listEl.innerHTML = '<p class="sp-empty">'
+          + (currentDealsOnly
+            ? 'No local deals in this category yet. Toggle Local Deals off to see all listings.'
+            : 'Nothing here yet.')
+          + '</p>';
+        return;
+      }
+      listEl.innerHTML = items.map(l => listingCard(l)).join('');
+    }
+
+    function render() { tabsEl.innerHTML = tabsHtml(); wire(); refreshListings(); }
+    function wire() {
+      tabsEl.querySelectorAll('.sp-tab').forEach(b => b.addEventListener('click', () => {
+        currentCatKey = b.dataset.cat; render();
+      }));
+      tabsEl.querySelectorAll('.sp-sort-pill').forEach(b => b.addEventListener('click', () => {
+        currentSort = b.dataset.sort; render();
+      }));
+      const dealsBtn = tabsEl.querySelector('.sp-deals-pill');
+      if (dealsBtn) dealsBtn.addEventListener('click', () => {
+        currentDealsOnly = !currentDealsOnly;
+        render();
+        refreshMarkers();
+      });
+    }
+    render();
   }
 
-  /* ---- Leaflet map ---- */
-  function initMap() {
-    const el = document.getElementById('spMap');
-    if (!el || typeof L === 'undefined' || meta.lat == null) { if (el) el.innerHTML = ''; return; }
-    const map = L.map(el, { scrollWheelZoom: false }).setView([meta.lat, meta.lng], 14);
-    /* Desktop convenience: when the cursor is over the map, allow the
-       scroll wheel to zoom; otherwise leave it disabled so the page
-       can scroll normally past the map. */
-    el.addEventListener('mouseenter', () => map.scrollWheelZoom.enable());
-    el.addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+  /* Map markers for the currently-filtered set. Re-callable so the
+     Local Deals toggle can hide non-deal markers without rebuilding
+     the map itself. */
+  function refreshMarkers() {
+    if (!leafletMap) return;
+    leafletMarkers.forEach(m => leafletMap.removeLayer(m));
+    leafletMarkers = [];
+    const items = currentDealsOnly
+      ? allMapped.filter(l => l && l.discountOffered === true)
+      : allMapped;
     const pts = [];
-    allMapped.forEach(l => {
+    items.forEach(l => {
       if (l.lat == null || l.lng == null) return;
       const color = l._cat.color;
       const icon = L.divIcon({
@@ -393,12 +464,33 @@
         + '<strong style="font-family:Fraunces,serif;font-size:15px">' + esc(l.name) + '</strong><br>'
         + '<span style="color:' + color + ';font-size:12px;font-weight:600">' + esc(l._cat.label) + '</span>'
         + (l.walkMins != null ? '<br><span style="font-size:12px">' + esc(l.walkMins) + ' min walk</span>' : '')
+        + (l.discountOffered ? '<br><span style="font-size:12px;color:#c4860f;font-weight:600">Local deal available</span>' : '')
         + '<br><a href="' + href + '" style="color:#7d3a1e;font-size:12px;font-weight:600">View details</a></div>';
-      const m = L.marker([l.lat, l.lng], { icon }).addTo(map).bindPopup(popup);
+      const m = L.marker([l.lat, l.lng], { icon }).addTo(leafletMap).bindPopup(popup);
       m.bindTooltip(esc(l.name), { direction: 'top' });
+      leafletMarkers.push(m);
       pts.push([l.lat, l.lng]);
     });
-    if (pts.length > 1) { try { map.fitBounds(pts, { padding: [30, 30], maxZoom: 15 }); } catch (e) {} }
+    if (pts.length > 1) { try { leafletMap.fitBounds(pts, { padding: [30, 30], maxZoom: 15 }); } catch (e) {} }
+  }
+
+  /* ---- Leaflet map ----
+     Creates the base map and tile layer; markers are populated by
+     refreshMarkers() so the Local Deals toggle can re-render them
+     in place when the filter changes. */
+  function initMap() {
+    const el = document.getElementById('spMap');
+    if (!el || typeof L === 'undefined' || meta.lat == null) { if (el) el.innerHTML = ''; return; }
+    leafletMap = L.map(el, { scrollWheelZoom: false }).setView([meta.lat, meta.lng], 14);
+    /* Desktop convenience: when the cursor is over the map, allow the
+       scroll wheel to zoom; otherwise leave it disabled so the page
+       can scroll normally past the map. */
+    el.addEventListener('mouseenter', () => leafletMap.scrollWheelZoom.enable());
+    el.addEventListener('mouseleave', () => leafletMap.scrollWheelZoom.disable());
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(leafletMap);
+    refreshMarkers();
   }
 
   /* ---- FAQ accordion ---- */
