@@ -282,37 +282,40 @@ async function callClaude(ctx) {
     "VOICE:",
     " - Write like a real person giving a friend a quick tip. Plain everyday words. Friendly and informative.",
     " - No flowery, salesy, or AI-marketing copy. Avoid words like 'thoughtful', 'curated', 'elevated', 'experience', 'destination', 'craft', 'artisanal', 'program', 'offering'.",
-    " - No hooky openers, no editorialising. Just describe it the way a local would in one breath.",
+    " - No hooky openers, no editorialising. Describe it the way a local would in one breath.",
     "LENGTH:",
-    " - Aim for ONE sentence. Two short ones at most. Shorter is better. Fewer words is correct when you are unsure.",
-    "STRICT FACT RULES (this is the most important section):",
-    " - Use ONLY facts that come from the structured Places fields provided below: business name, address, the Google category type list, and rating. These are the only verified inputs.",
-    " - Do NOT use reviews, editorial summaries, photos, or general knowledge about the business. Reviews are unverified user content and are not provided here for that reason.",
-    " - NO GENERAL KNOWLEDGE OR GEOGRAPHIC INFERENCE. Treat yourself as if you have zero outside knowledge of Ontario, Canadian cities, lakes, parks, landmarks, neighbourhoods, or any business. The only place names, streets, and landmarks you may mention are the literal strings present in the Business name and Address fields above. If a fact about the location is not in those strings, you may not state it.",
-    "    * If the address says 'North Bay' you may say 'in North Bay'. You may NOT mention Lake Nipissing, the waterfront, downtown, or any other fact you know about North Bay.",
-    "    * If the address is just a street and town, do not invent a neighbourhood, district, or proximity to anything.",
-    "    * If all you can verify is that the place is a park in a town, write 'Park in [town]' and stop. Do not add what the park is near.",
-    " - SPECIFICALLY FORBIDDEN unless the detail is literally in the structured Places fields above:",
-    "    * Decor or interior details. No 'stone walls', 'plush banquettes', 'rustic decor', 'cozy fireplace', 'industrial-chic', 'warm lighting'.",
-    "    * Named or specific amenities. No 'Japanese spa', 'upscale martini bar', 'model train display', 'rooftop patio', 'wine cellar', 'kids' play area'.",
-    "    * Exact numbers. No acreage, no square footage, no count of rooms, trails, dog areas, taps, seats.",
-    "    * Who the place is 'popular with', 'great for', 'a favourite of', 'beloved by', 'frequented by'. Do not name an audience.",
-    "    * Ambiance, atmosphere, vibe, mood, or character claims. No 'laid-back', 'cozy', 'lively', 'romantic', 'upscale', 'casual', 'family-friendly', 'authentic'.",
-    "    * Invented dishes, signature items, specialties, or 'serving X' specifics unless the category type itself implies it (an 'italian_restaurant' category supports 'Italian restaurant', but not 'serving handmade pasta').",
-    "    * Owner stories, staff details, family history, training, motivations, backstory. Even if a review hints at it, ignore it.",
-    "    * Superlatives. No 'best', 'most authentic', 'famous', 'legendary', 'iconic', 'beloved', 'a must-visit'.",
-    "    * Nearby lakes, rivers, mountains, beaches, landmarks, or any geographic feature not literally in the address string.",
-    " - When unsure about any specific detail, leave it out. A shorter, plainer description is correct. 'Italian restaurant serving traditional dishes' is better than inventing the room.",
-    "STYLE RULES:",
-    " - Skip distances and walk times because the card already shows them.",
-    " - Skip opening hours because the card already shows them.",
-    " - Avoid 'perfect for' and 'a must-visit'. Do not begin with 'This place'.",
-    " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks instead. The house style forbids them entirely.",
-    "TARGET EXAMPLES (this is the voice, length and strictness we want):",
-    " - 'Italian restaurant serving traditional dishes.'",
-    " - 'Downtown hotel with suites and a spa.'",
-    " - 'Local park with walking trails and picnic spots.'",
-    " - 'Bagel bakery serving breakfast and sandwiches.'"
+    " - One sentence, ideally 8 to 18 words. Two short ones at most. Aim for substance over brevity. A one-clause stub like 'Hotel in town' is too thin. Two or three category-typical details give the reader something useful.",
+    "WHAT YOU CAN SAY (this is what makes the description useful):",
+    " - The kind of business, taken from the Google category type. A 'lodging' is a hotel or motel. A 'park' is a park. A 'bakery' is a bakery. An 'italian_restaurant' is an Italian restaurant.",
+    " - Category-typical attributes that almost any business of that type has. These are safe and expected:",
+    "    * Park: walking trails, picnic spots, green space, playground, open space, benches.",
+    "    * Hotel / motel / inn: rooms, suites, parking, WiFi, breakfast, pool (only if the category implies a full-service hotel).",
+    "    * Restaurant: the cuisine implied by the category (Italian, Thai, etc.), plus generic meal categories (breakfast, lunch, dinner, brunch) and generic dish categories (burgers, sandwiches, pizza).",
+    "    * Cafe / coffee shop: coffee, espresso drinks, pastries, light meals.",
+    "    * Bakery: typical items implied by the name or sub-category (bagels for a bagel bakery, donuts for a donut shop).",
+    "    * Shop / store: what they sell at a general level (books, records, lumber, gifts), taken from the business name or category.",
+    " - The town or city if it appears in the address. 'In Bracebridge', 'in North Bay', 'in Timmins'.",
+    "WHAT YOU CANNOT SAY (these are the hard rules and the most important part of the brief):",
+    " - DO NOT quote the street address. The card already shows it. Saying 'on Church St' or 'at 200 Victoria St' wastes the description. Use the town only.",
+    " - DO NOT invent geography beyond what the address contains. No Lake Nipissing for a North Bay business, no 'on the waterfront', no neighbourhood you know from training. 'Downtown Toronto' is fine ONLY when the address literally contains a downtown Toronto street; otherwise just say 'in Toronto'.",
+    " - DO NOT name specific amenities. No 'Japanese spa', 'rooftop martini bar', 'model train display', 'wine cellar', 'kids' play area'. Generic categories only (a 'pool', not 'an indoor saltwater pool').",
+    " - DO NOT describe decor or interior. No 'stone walls', 'plush banquettes', 'rustic decor', 'cozy fireplace', 'warm lighting'.",
+    " - DO NOT use exact numbers. No acreage, square footage, room counts, trail counts.",
+    " - DO NOT name an audience. No 'popular with families', 'great for couples', 'a favourite of birders', 'frequented by'.",
+    " - DO NOT use ambiance or character words. No 'laid-back', 'cozy', 'lively', 'romantic', 'upscale', 'casual', 'authentic', 'family-friendly', 'rustic', 'chic'.",
+    " - DO NOT invent a signature dish, specialty, or claim ('famous for', 'known for', 'their signature X').",
+    " - DO NOT mention owners, staff, family history, training, motivations, or backstory. Reviews are not provided for that reason.",
+    " - DO NOT use superlatives. No 'best', 'most authentic', 'famous', 'legendary', 'iconic', 'beloved', 'a must-visit'.",
+    " - DO NOT begin with 'This place'. DO NOT mention distances, walk times, or opening hours. The card already shows those.",
+    " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks. The house style forbids them entirely.",
+    "TARGET EXAMPLES (this is the voice and substance we want):",
+    " - 'Italian restaurant in Thornhill serving traditional dishes alongside wine and beer.'",
+    " - 'Hotel with suites and kitchens in downtown Toronto.'",
+    " - 'Local park in Richmond Hill with walking trails, picnic spots, and a playground.'",
+    " - 'Bagel bakery in Richmond Hill serving breakfast, sandwiches, and house-made bagels.'",
+    " - 'Christian bookstore in Bracebridge selling Bibles and Christian books.'",
+    " - 'Park in North Bay with walking paths and open green space.'",
+    " - 'Roadside motel in Huntsville with rooms, parking, and continental breakfast.'"
   ].join('\n');
 
   /* The only inputs Claude sees are the structured Places fields. We
@@ -332,14 +335,20 @@ async function callClaude(ctx) {
     + 'BEST FOR - pick from this list only. The list has already been pre-filtered to only show tags that are permitted for this business category, so any tag in the list is a fair candidate. Pick AT MOST four. ONE tag, or zero, is usually correct. When in doubt, pick fewer.\n'
     + bfBullets + '\n\n'
     + 'Description rules:\n'
-    + '- ONE sentence ideally. Two short ones absolute max. Shorter is better.\n'
+    + '- One sentence, 8 to 18 words. Two short ones absolute max.\n'
     + '- Plain, friendly, like a friend giving a quick tip. No marketing words, no flourishes.\n'
-    + '- Use ONLY the structured Places fields above. No decor, no named amenities, no exact numbers, no audience claims, no ambiance, no invented dishes or specialties, no superlatives.\n'
-    + '- ABSOLUTELY NO general knowledge or geographic inference. Only mention place names, streets, neighbourhoods, or landmarks that literally appear in the Business name or Address strings above. Do not add nearby lakes, parks, or districts you know from training.\n'
-    + '- If the category is generic (just "restaurant"), the description should be generic too. Do not invent cuisine, signature items, or atmosphere to fill space.\n'
+    + '- Use the business category to add category-typical attributes: a park can have trails and picnic spots, a hotel can have rooms or suites, a bakery can serve breakfast, a restaurant can serve the cuisine implied by its category.\n'
+    + '- DO NOT quote the street address (the card shows it). Use the town from the address (e.g. "in Bracebridge") only.\n'
+    + '- DO NOT invent geographic context beyond what the address contains: no Lake Nipissing, no waterfront, no neighbourhood. "Downtown" is fine only if the address contains a downtown street.\n'
+    + '- DO NOT name specific amenities, decor, exact numbers, audiences, ambiance, signature items, owner stories, or superlatives.\n'
     + '- No distances, no walk times, no opening hours.\n'
-    + "- When unsure, stay general or leave it out. Fewer words is correct.\n"
-    + "- Target examples: 'Italian restaurant serving traditional dishes.' | 'Downtown hotel with suites and a spa.' | 'Local park with walking trails and picnic spots.' | 'Bagel bakery serving breakfast and sandwiches.'\n\n"
+    + "- Target examples (this is the substance and voice we want):\n"
+    + "    'Italian restaurant in Thornhill serving traditional dishes alongside wine and beer.'\n"
+    + "    'Hotel with suites and kitchens in downtown Toronto.'\n"
+    + "    'Local park in Richmond Hill with walking trails, picnic spots, and a playground.'\n"
+    + "    'Bagel bakery in Richmond Hill serving breakfast, sandwiches, and house-made bagels.'\n"
+    + "    'Christian bookstore in Bracebridge selling Bibles and Christian books.'\n"
+    + "    'Roadside motel in Huntsville with rooms, parking, and continental breakfast.'\n\n"
     + 'Return ONLY a JSON object, no surrounding text, no code fences:\n'
     + '{"description": "...", "tag": "..." or null, "bestFor": [ "...", "..." ]}';
 
