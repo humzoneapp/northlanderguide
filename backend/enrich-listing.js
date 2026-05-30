@@ -240,7 +240,21 @@ async function callClaude(ctx) {
   const tagBullets = ctx.tagChoices.map(t => '  - ' + t).join('\n');
   const bfBullets = ctx.bestForChoices.map(b => '  - ' + b).join('\n');
 
-  const system = "You write short editorial descriptions for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario. Voice is warm, honest, and factual. You frame each place for a visitor who has arrived by train. You never invent details, brands, hours or experiences that are not in the source data. You skip distances or walk times because the card already shows them. You avoid generic phrases like 'perfect for' or 'a must-visit', and you do not begin with 'This place'. NEVER use em dashes (the character). Use commas, periods, or sentence breaks instead. The standing house style on this site forbids em dashes entirely.";
+  const system = [
+    "You write short editorial descriptions for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario.",
+    "Voice is warm, honest, and factual. You frame each place for a visitor who has arrived by train.",
+    "STRICT FACT RULES:",
+    " - Use only attributes that appear in the Places data or that are clearly generic to the business type (for example: 'a coffee shop with espresso drinks', 'a provincial park with hiking trails').",
+    " - No specific personal claims about owners, staff, family history, training, illnesses, motivations, or backgrounds. Even if a customer review mentions them, treat them as unverifiable hearsay and leave them out.",
+    " - No invented backstories or origin stories.",
+    " - No unverifiable superlatives such as 'best in town', 'most authentic', 'famous for', 'legendary', 'iconic', 'beloved'. If a claim cannot be supported from the Places data, leave it out.",
+    " - When unsure about any specific detail, stay general or omit it. It is always better to say less than to invent.",
+    "STYLE RULES:",
+    " - Skip distances and walk times because the card already shows them.",
+    " - Skip opening hours because the card already shows them.",
+    " - Avoid 'perfect for' and 'a must-visit'. Do not begin with 'This place'.",
+    " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks instead. The house style forbids them entirely."
+  ].join('\n');
 
   const user = "Write three things for this business: a description, one tag, and a list of Best For tags.\n\n"
     + 'Business: ' + ctx.name + '\n'
@@ -248,7 +262,7 @@ async function callClaude(ctx) {
     + 'Google type categories: ' + (ctx.types || []).join(', ') + '\n'
     + 'Rating: ' + (ctx.rating == null ? 'unknown' : ctx.rating) + '\n'
     + 'Google editorial summary: ' + (ctx.editorialSummary || '(none)') + '\n'
-    + 'Sample review excerpts (only as background, do not quote): '
+    + 'Review snippets (use ONLY to sense overall vibe like "casual diner" or "quiet park"; do not extract specific facts, owner stories, staff details, or claims about who the place is "for"): '
     + (ctx.reviews && ctx.reviews.length
       ? ctx.reviews.map(r => '"' + (r.text || '').slice(0, 160).replace(/\s+/g, ' ').trim() + '"').join(' / ')
       : '(none)')
@@ -259,10 +273,12 @@ async function callClaude(ctx) {
     + bfBullets + '\n\n'
     + 'Description rules:\n'
     + '- 30 to 45 words.\n'
-    + '- Hooky opening, then factual specifics from the source data.\n'
+    + '- Hooky opening, then factual specifics drawn ONLY from the Places data above OR generic attributes of the business type.\n'
     + "- Frame for a train traveller (someone arriving by Northlander) without naming the train.\n"
     + '- No distances, no walk times, no opening hours.\n'
-    + "- No invented details. If you do not know something, do not say it.\n\n"
+    + '- No specific personal claims about owners, staff, family, training, or backstory.\n'
+    + "- No unverifiable superlatives ('best', 'famous', 'beloved', 'iconic', 'legendary').\n"
+    + "- When unsure, stay general. Less is better than invented.\n\n"
     + 'Return ONLY a JSON object, no surrounding text, no code fences:\n'
     + '{"description": "...", "tag": "..." or null, "bestFor": [ "...", "..." ]}';
 
