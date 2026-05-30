@@ -258,6 +258,10 @@ async function callClaude(ctx) {
     "STRICT FACT RULES (this is the most important section):",
     " - Use ONLY facts that come from the structured Places fields provided below: business name, address, the Google category type list, and rating. These are the only verified inputs.",
     " - Do NOT use reviews, editorial summaries, photos, or general knowledge about the business. Reviews are unverified user content and are not provided here for that reason.",
+    " - NO GENERAL KNOWLEDGE OR GEOGRAPHIC INFERENCE. Treat yourself as if you have zero outside knowledge of Ontario, Canadian cities, lakes, parks, landmarks, neighbourhoods, or any business. The only place names, streets, and landmarks you may mention are the literal strings present in the Business name and Address fields above. If a fact about the location is not in those strings, you may not state it.",
+    "    * If the address says 'North Bay' you may say 'in North Bay'. You may NOT mention Lake Nipissing, the waterfront, downtown, or any other fact you know about North Bay.",
+    "    * If the address is just a street and town, do not invent a neighbourhood, district, or proximity to anything.",
+    "    * If all you can verify is that the place is a park in a town, write 'Park in [town]' and stop. Do not add what the park is near.",
     " - SPECIFICALLY FORBIDDEN unless the detail is literally in the structured Places fields above:",
     "    * Decor or interior details. No 'stone walls', 'plush banquettes', 'rustic decor', 'cozy fireplace', 'industrial-chic', 'warm lighting'.",
     "    * Named or specific amenities. No 'Japanese spa', 'upscale martini bar', 'model train display', 'rooftop patio', 'wine cellar', 'kids' play area'.",
@@ -267,6 +271,7 @@ async function callClaude(ctx) {
     "    * Invented dishes, signature items, specialties, or 'serving X' specifics unless the category type itself implies it (an 'italian_restaurant' category supports 'Italian restaurant', but not 'serving handmade pasta').",
     "    * Owner stories, staff details, family history, training, motivations, backstory. Even if a review hints at it, ignore it.",
     "    * Superlatives. No 'best', 'most authentic', 'famous', 'legendary', 'iconic', 'beloved', 'a must-visit'.",
+    "    * Nearby lakes, rivers, mountains, beaches, landmarks, or any geographic feature not literally in the address string.",
     " - When unsure about any specific detail, leave it out. A shorter, plainer description is correct. 'Italian restaurant serving traditional dishes' is better than inventing the room.",
     "STYLE RULES:",
     " - Skip distances and walk times because the card already shows them.",
@@ -294,12 +299,24 @@ async function callClaude(ctx) {
     + '\n'
     + 'TAG - pick exactly ONE name from this list. Return null if none clearly fit. Do not invent.\n'
     + tagBullets + '\n\n'
-    + 'BEST FOR - pick up to FOUR names from this list that genuinely apply. Be conservative: only pick a tag if the category type plainly supports it. Do not infer audience from address, name, or rating. Return an empty array if none clearly fit.\n'
+    + 'BEST FOR - pick names from this list ONLY when the Google category type plainly and obviously supports them. Be VERY conservative. When in doubt, pick fewer or none. An empty array is the correct answer when nothing clearly fits.\n'
+    + 'Good picks (category plainly supports the audience):\n'
+    + '  - "Families" for a category that includes playground, amusement_park, zoo, aquarium, family-style restaurant, kid-focused business.\n'
+    + '  - "Foodies" for restaurant, cafe, bakery, bar, food categories.\n'
+    + '  - "Weekend Stay" for hotel, motel, lodging categories.\n'
+    + '  - "Nature Lovers" for park, hiking_area, campground, nature_reserve.\n'
+    + 'Forbidden stretch picks (do NOT do these):\n'
+    + '  - "Photographers" for an ordinary park, restaurant, or hotel. Only pick this for explicit scenic_lookout, art_gallery, or museum categories.\n'
+    + '  - "Solo Travellers" for a generic hotel or restaurant. Only pick this when the category is explicitly hostel or a co-working / shared-space type.\n'
+    + '  - "Couples" for a generic restaurant. Only pick this for spa, romantic-styled category, or wedding venue.\n'
+    + '  - "Day Trip" unless the category is a destination type (park, museum, attraction, amusement_park, etc.). Do not pick it for hotels, shops, or restaurants.\n'
+    + 'Maximum FOUR tags. Default to fewer. The right answer is often one tag or none.\n'
     + bfBullets + '\n\n'
     + 'Description rules:\n'
     + '- ONE sentence ideally. Two short ones absolute max. Shorter is better.\n'
     + '- Plain, friendly, like a friend giving a quick tip. No marketing words, no flourishes.\n'
     + '- Use ONLY the structured Places fields above. No decor, no named amenities, no exact numbers, no audience claims, no ambiance, no invented dishes or specialties, no superlatives.\n'
+    + '- ABSOLUTELY NO general knowledge or geographic inference. Only mention place names, streets, neighbourhoods, or landmarks that literally appear in the Business name or Address strings above. Do not add nearby lakes, parks, or districts you know from training.\n'
     + '- If the category is generic (just "restaurant"), the description should be generic too. Do not invent cuisine, signature items, or atmosphere to fill space.\n'
     + '- No distances, no walk times, no opening hours.\n'
     + "- When unsure, stay general or leave it out. Fewer words is correct.\n"
