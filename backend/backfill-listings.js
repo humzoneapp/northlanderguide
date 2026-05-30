@@ -20,6 +20,13 @@
        Caps the run at N rows. Useful for spot-checking the pipeline
        before committing the full backfill.
 
+     node backend/backfill-listings.js --needs-review --force-claude
+       Re-runs Claude on every Active row that already has
+       Needs Review = true (i.e. the rows from a previous backfill
+       batch). Skips Google Places writes and photos. Useful when the
+       description prompt has been tightened and you want to refresh
+       the AI fields on already-flagged rows before reviewing them.
+
    ELIGIBILITY
      Active = true AND NOT (Description filled AND Tag filled AND
      Best For filled). Rows where all three are filled are treated
@@ -56,11 +63,14 @@ const FIELD = {
   stop: 'fldmyKFYFKHzOYYhf',
   description: 'fldTCRqsKiBc9rx1U',
   tag: 'fldhnP3Za9yDPeGPB',
-  bestFor: 'flduCnaFSk17ZAu3O'
+  bestFor: 'flduCnaFSk17ZAu3O',
+  needsReview: 'fldIqZXFMbMjdP40w'
 };
 
 const argv = process.argv.slice(2);
 const DRY_RUN = argv.includes('--dry-run');
+const NEEDS_REVIEW = argv.includes('--needs-review');
+const FORCE_CLAUDE = argv.includes('--force-claude');
 const LIMIT = (() => {
   const i = argv.indexOf('--limit');
   if (i >= 0 && argv[i + 1]) return Math.max(0, parseInt(argv[i + 1], 10) || 0);
@@ -85,14 +95,14 @@ async function fetchWithRetry(fn, retries = 3, delay = 1500) {
   }
 }
 
-async function fetchAllActive() {
+async function fetchRecords(formula) {
   const records = [];
   let offset = null;
   do {
     const url = new URL(`https://api.airtable.com/v0/${BASE}/${TABLE}`);
     url.searchParams.set('pageSize', '100');
     url.searchParams.set('returnFieldsByFieldId', 'true');
-    url.searchParams.set('filterByFormula', '{Active}=TRUE()');
+    url.searchParams.set('filterByFormula', formula);
     if (offset) url.searchParams.set('offset', offset);
     const res = await fetchWithRetry(() => fetch(url, { headers: { Authorization: 'Bearer ' + KEY } }));
     if (!res.ok) throw new Error(`Airtable fetch failed: ${res.status}`);
@@ -122,29 +132,44 @@ function whichMissing(rec) {
 }
 
 (async () => {
-  console.log('Fetching active Listings...');
-  const all = await fetchAllActive();
-  const eligible = all.filter(isEligible);
-  console.log(`Active rows: ${all.length}`);
-  console.log(`Eligible (missing one or more of Description, Tag, Best For): ${eligible.length}`);
-  console.log(`Already complete (skipped): ${all.length - eligible.length}`);
+  let all, eligible;
+  if (NEEDS_REVIEW) {
+    console.log('Fetching Active rows where Needs Review = true...');
+    all = await fetchRecords('AND({Active}=TRUE(), {Needs Review}=TRUE())');
+    /* In needs-review mode every fetched row is eligible because the
+       point is to re-run on rows that were already flagged for review. */
+    eligible = all.slice();
+    console.log(`Active + Needs Review rows: ${all.length}`);
+    console.log(`Eligible (all of them): ${eligible.length}`);
+  } else {
+    console.log('Fetching active Listings...');
+    all = await fetchRecords('{Active}=TRUE()');
+    eligible = all.filter(isEligible);
+    console.log(`Active rows: ${all.length}`);
+    console.log(`Eligible (missing one or more of Description, Tag, Best For): ${eligible.length}`);
+    console.log(`Already complete (skipped): ${all.length - eligible.length}`);
+  }
 
   /* Per-field breakdown so the operator can see whether most eligible
      rows are missing the description, the tag, the best-for, or some
-     combination. */
-  const missCount = { Description: 0, Tag: 0, 'Best For': 0 };
-  for (const r of eligible) {
-    for (const k of whichMissing(r)) missCount[k] += 1;
+     combination. Skipped in needs-review mode because those rows are
+     all already filled by definition. */
+  if (!NEEDS_REVIEW) {
+    const missCount = { Description: 0, Tag: 0, 'Best For': 0 };
+    for (const r of eligible) {
+      for (const k of whichMissing(r)) missCount[k] += 1;
+    }
+    console.log('Missing field breakdown:');
+    for (const k of Object.keys(missCount)) console.log(`  ${k}: ${missCount[k]}`);
   }
-  console.log('Missing field breakdown:');
-  for (const k of Object.keys(missCount)) console.log(`  ${k}: ${missCount[k]}`);
 
   console.log('\nFirst 10 eligible rows:');
   for (const r of eligible.slice(0, 10)) {
     const f = r.fields || {};
     const nm = f[FIELD.name] || '(no name)';
     const stop = f[FIELD.stop] || '(no stop)';
-    console.log(`  ${r.id}  ${stop.padEnd(18)} ${nm}  [missing: ${whichMissing(r).join(', ')}]`);
+    const tail = NEEDS_REVIEW ? '' : `  [missing: ${whichMissing(r).join(', ')}]`;
+    console.log(`  ${r.id}  ${stop.padEnd(18)} ${nm}${tail}`);
   }
 
   if (DRY_RUN) {
@@ -164,7 +189,7 @@ function whichMissing(rec) {
     const f = r.fields || {};
     const tag = `[${i + 1}/${todo.length}] ${r.id} ${f[FIELD.name] || ''}`;
     try {
-      const result = await enrichRecord(r.id, { onlyFillEmpty: true });
+      const result = await enrichRecord(r.id, { onlyFillEmpty: true, forceClaude: FORCE_CLAUDE });
       if (result.status === 'enriched') ok++;
       else { skipped++; console.log(`${tag} skipped: ${result.reason}`); }
     } catch (err) {

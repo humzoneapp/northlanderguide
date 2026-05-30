@@ -18,6 +18,16 @@ on:
         required: false
         type: boolean
         default: false
+      needsReview:
+        description: 'Re-run only rows already flagged Needs Review = true'
+        required: false
+        type: boolean
+        default: false
+      forceClaude:
+        description: 'Force-overwrite Description, Tag, Best For (use with needsReview)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   backfill:
@@ -42,5 +52,7 @@ jobs:
           ARGS=""
           if [ "${{ inputs.dryRun }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          if [ "${{ inputs.needsReview }}" = "true" ]; then ARGS="$ARGS --needs-review"; fi
+          if [ "${{ inputs.forceClaude }}" = "true" ]; then ARGS="$ARGS --force-claude"; fi
           echo "Running: node backend/backfill-listings.js $ARGS"
           node backend/backfill-listings.js $ARGS
