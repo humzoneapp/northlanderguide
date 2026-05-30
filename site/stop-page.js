@@ -229,10 +229,7 @@
 
   /* DON'T FORGET */
   html += '<section class="sp-section sp-df-section">'
-    + '<div class="sp-df-head"><h2 class="sp-h2">Before You Board</h2>'
-    + (dfItems.length ? '<button class="sp-btn sp-df-print" type="button" onclick="window.print()">'
-        + '<i class="ph-light ph-printer" aria-hidden="true"></i> Print Checklist</button>' : '')
-    + '</div>'
+    + '<h2 class="sp-h2">Before You Board</h2>'
     + '<div class="sp-df-print-head">' + esc(displayName) + ' Packing Checklist</div>'
     + (dfItems.length
       ? '<div class="sp-df-list">' + dfItems.map(d => {
@@ -256,6 +253,8 @@
       + '<ol>' + Array.from({ length: 6 }, () =>
         '<li><input type="text" class="sp-df-blank-input" maxlength="80" placeholder="Type an item, then print"></li>'
       ).join('') + '</ol></div>'
+      + '<div class="sp-df-printrow"><button class="sp-btn sp-df-print" type="button" onclick="window.print()">'
+      + '<i class="ph-light ph-printer" aria-hidden="true"></i> Print Checklist</button></div>'
       : '<p class="sp-empty">Packing tips for this stop are coming soon.</p>')
     + '</section>';
 

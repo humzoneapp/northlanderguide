@@ -195,10 +195,8 @@
    a single row. The snowflake mark sits inline next to the item name on
    winter rows. The blank-additions list gives the visitor space to
    write in their own items after printing. */
-.sp-df-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:0 0 22px}
-.sp-df-head .sp-h2{margin:0}
-.sp-df-print{flex:none}
 .sp-df-print-head{display:none}
+.sp-df-printrow{margin-top:28px;display:flex;justify-content:flex-start}
 .sp-df-season{font-size:18px;vertical-align:-2px;margin-left:4px}
 .sp-df-spring{color:#b6557a}
 .sp-df-summer{color:#c4860f}
@@ -236,7 +234,7 @@
   body * { visibility: hidden !important; }
   .sp-df-section, .sp-df-section * { visibility: visible !important; }
   .sp-df-section { position: absolute; left: 0; top: 0; width: 100%; padding: 28px 28px 40px; }
-  .sp-df-head .sp-h2, .sp-df-print, .sp-df-section .sp-h2 { display: none !important; }
+  .sp-df-printrow, .sp-df-print, .sp-df-section .sp-h2 { display: none !important; }
   .sp-df-print-head {
     display: block;
     font-family: 'Fraunces', Georgia, serif;
