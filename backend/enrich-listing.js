@@ -516,7 +516,15 @@ async function enrichRecord(recordId, opts) {
       }
       if (Array.isArray(ai.bestFor)) {
         const filtered = ai.bestFor.filter(b => bfChoices.indexOf(b) >= 0).slice(0, 4);
-        if (filtered.length && (forceClaude || !onlyFillEmpty || needBF)) updates[FIELD.bestFor] = filtered;
+        if (forceClaude) {
+          /* Always overwrite in forceClaude mode, even with an empty
+             array. Otherwise stale forbidden tags from a previous run
+             persist because the validator stripped Claude's hallucinated
+             picks down to nothing and we then skipped the update. */
+          updates[FIELD.bestFor] = filtered;
+        } else if (filtered.length && (!onlyFillEmpty || needBF)) {
+          updates[FIELD.bestFor] = filtered;
+        }
       }
     } catch (err) {
       console.warn('Claude enrichment skipped:', err.message);
