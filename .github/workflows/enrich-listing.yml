@@ -1,0 +1,46 @@
+name: Enrich New Listing
+
+# Fired by the Airtable -> Vercel -> GitHub repository_dispatch pipeline
+# whenever a new Listings row needs its Description, Tag, Best For,
+# Google Places facts, walking distance and photos populated.
+# Also runnable manually via the Actions tab for a specific recordId.
+
+on:
+  workflow_dispatch:
+    inputs:
+      recordId:
+        description: 'Airtable record id (rec...)'
+        required: true
+        type: string
+  repository_dispatch:
+    types: [listing-needs-enrichment]
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Resolve recordId
+        id: rec
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "id=${{ inputs.recordId }}" >> $GITHUB_OUTPUT
+          else
+            echo "id=${{ github.event.client_payload.recordId }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Enrich listing
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node backend/enrich-listing.js "${{ steps.rec.outputs.id }}"
