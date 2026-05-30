@@ -190,7 +190,75 @@
   font-size:12px;font-weight:600;letter-spacing:.05em;padding:6px 12px;text-transform:uppercase}
 .sp-platform:hover .sp-platform-btn{background:var(--sp-ivory);color:var(--sp-green)}
 
-/* ---------- don't forget ---------- */
+/* ---------- don't forget ----------
+   Section header lays out the title and the Print Checklist button on
+   a single row. The snowflake mark sits inline next to the item name on
+   winter rows. The blank-additions list gives the visitor space to
+   write in their own items after printing. */
+.sp-df-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:0 0 22px}
+.sp-df-head .sp-h2{margin:0}
+.sp-df-print{flex:none}
+.sp-df-print-head{display:none}
+.sp-df-season{color:var(--sp-amber);font-size:18px;vertical-align:-2px;margin-left:4px}
+.sp-df-blanks{margin:28px 0 0;padding:24px 0 0;border-top:1px dashed #c9bda3}
+.sp-df-blanks .sp-label{margin-bottom:14px}
+.sp-df-blanks ol{list-style:none;padding:0;margin:0;counter-reset:blank}
+.sp-df-blanks li{
+  counter-increment:blank;
+  position:relative;
+  padding:6px 0 8px 28px;
+  border-bottom:1px solid #c9bda3;
+  min-height:30px;
+  font-family:'Fraunces',Georgia,serif;font-size:15px;color:var(--sp-muted);
+}
+.sp-df-blanks li::before{
+  content:counter(blank) ".";
+  position:absolute;left:0;top:8px;
+  font-weight:600;color:var(--sp-rust);
+  font-family:'Spline Sans',sans-serif;font-size:13px;
+}
+
+/* ---------- print stylesheet: produce a clean packing checklist ---------- */
+@media print {
+  /* Strip everything except the Before You Board section. */
+  body * { visibility: hidden !important; }
+  .sp-df-section, .sp-df-section * { visibility: visible !important; }
+  .sp-df-section { position: absolute; left: 0; top: 0; width: 100%; padding: 28px 28px 40px; }
+  .sp-df-head .sp-h2, .sp-df-print, .sp-df-section .sp-h2 { display: none !important; }
+  .sp-df-print-head {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px; font-weight: 700;
+    color: #0a2d21;
+    border-bottom: 2px solid #0a2d21;
+    padding-bottom: 8px; margin-bottom: 16px;
+  }
+  .sp-df-list { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 0 !important; }
+  .sp-df-item {
+    display: grid; grid-template-columns: 22px 1fr; column-gap: 10px;
+    page-break-inside: avoid; padding: 4px 0; border: 0;
+  }
+  /* Replace the icon with a paper checkbox so the printout works
+     as a real checklist. */
+  .sp-df-item > i, .sp-df-item > span:first-child { display: none !important; }
+  .sp-df-item::before {
+    content: "";
+    grid-row: 1; grid-column: 1;
+    width: 14px; height: 14px; border: 1px solid #0a2d21; border-radius: 2px;
+    margin-top: 4px;
+  }
+  .sp-df-item > div { grid-row: 1; grid-column: 2; }
+  .sp-df-name { font-family: 'Spline Sans', sans-serif; font-weight: 600; color: #0a2d21; font-size: 13px; }
+  .sp-df-why { color: #5a4f3d; font-size: 11px; font-style: italic; margin-top: 1px; }
+  .sp-df-badge { display: none; }
+  .sp-df-season { color: #0a2d21; font-size: 13px; }
+  .sp-df-blanks { margin-top: 18px; padding-top: 12px; border-top: 1px dashed #0a2d21; }
+  .sp-df-blanks .sp-label { color: #0a2d21; }
+  .sp-df-blanks li { color: #0a2d21; border-color: #0a2d21; }
+  .sp-df-blanks li::before { color: #0a2d21; }
+  @page { margin: 16mm; }
+}
+
 .sp-collapse-head{display:flex;align-items:center;gap:12px;cursor:pointer;background:none;border:0;padding:0}
 .sp-df-list{display:grid;grid-template-columns:1fr 1fr;gap:18px 36px;margin:24px 0 0}
 .sp-df-item{display:flex;gap:14px;align-items:flex-start}

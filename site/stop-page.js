@@ -228,7 +228,12 @@
   html += divider();
 
   /* DON'T FORGET */
-  html += '<section class="sp-section"><h2 class="sp-h2">Before You Board</h2>'
+  html += '<section class="sp-section sp-df-section">'
+    + '<div class="sp-df-head"><h2 class="sp-h2">Before You Board</h2>'
+    + (dfItems.length ? '<button class="sp-btn sp-df-print" type="button" onclick="window.print()">'
+        + '<i class="ph-light ph-printer" aria-hidden="true"></i> Print Checklist</button>' : '')
+    + '</div>'
+    + '<div class="sp-df-print-head">' + esc(displayName) + ' Packing Checklist</div>'
     + (dfItems.length
       ? '<div class="sp-df-list">' + dfItems.map(d => {
         const ic = String(d.icon || '').trim();
@@ -237,10 +242,16 @@
           : ic
             ? '<span class="sp-df-emoji" aria-hidden="true">' + esc(ic) + '</span>'
             : '<i class="ph-light ph-circle" aria-hidden="true"></i>';
+        const winter = /winter/i.test(d.triggerType || '');
+        const winterMark = winter
+          ? ' <i class="ph-light ph-snowflake sp-df-season" title="For winter trips" aria-label="winter item"></i>'
+          : '';
         return '<div class="sp-df-item">' + icHtml
-          + '<div><span class="sp-df-name">' + esc(d.item) + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
+          + '<div><span class="sp-df-name">' + esc(d.item) + winterMark + (d.priority === 'Essential' ? '<span class="sp-df-badge">Essential</span>' : '') + '</span>'
           + (d.why ? '<div class="sp-df-why">' + esc(d.why) + '</div>' : '') + '</div></div>';
       }).join('') + '</div>'
+      + '<div class="sp-df-blanks"><div class="sp-label">Add your own</div>'
+      + '<ol>' + Array.from({ length: 6 }, () => '<li></li>').join('') + '</ol></div>'
       : '<p class="sp-empty">Packing tips for this stop are coming soon.</p>')
     + '</section>';
 
