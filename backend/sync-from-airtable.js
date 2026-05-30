@@ -482,14 +482,19 @@ function sortListings(arr) {
   /* Traveller tips: approved rows only. Email and Reviewer Notes are
      intentionally excluded from the public payload (PII / internal). */
   const tipRecs = await fetchTable(STOP_TIPS_TABLE, '{Approved}=TRUE()');
-  const stopTips = tipRecs.map(r => ({
-    tip: r.fields['Tip'] || '',
-    stop: r.fields['Stop'] || '',
-    submittedBy: r.fields['Submitted By'] || '',
-    submissionDate: r.fields['Submission Date'] || null,
-    featured: r.fields['Featured'] === true,
-    displayOrder: num(r.fields['Display Order'])
-  })).sort((a, b) => {
+  const stopTips = tipRecs.map(r => {
+    const imgs = Array.isArray(r.fields['Image']) ? r.fields['Image'] : [];
+    const first = imgs[0];
+    return {
+      tip: r.fields['Tip'] || '',
+      stop: r.fields['Stop'] || '',
+      submittedBy: r.fields['Submitted By'] || '',
+      submissionDate: r.fields['Submission Date'] || null,
+      featured: r.fields['Featured'] === true,
+      displayOrder: num(r.fields['Display Order']),
+      image: first ? (first.url || null) : null
+    };
+  }).sort((a, b) => {
     if (a.featured !== b.featured) return a.featured ? -1 : 1;
     return (a.displayOrder ?? 1e9) - (b.displayOrder ?? 1e9);
   });

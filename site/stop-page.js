@@ -267,6 +267,7 @@
   const tipsHtml = stopTips.length
     ? stopTips.map((t, i) =>
       '<div class="sp-tip" style="transform:rotate(' + rotations[i % 5] + 'deg)">'
+      + (t.image ? '<img class="sp-tip-img" src="' + esc(t.image) + '" alt="" loading="lazy">' : '')
       + '<p class="sp-tip-text">' + esc(t.tip) + '</p>'
       + '<p class="sp-tip-by">' + esc(t.submittedBy || 'A traveller') + '</p></div>').join('')
     : '<div class="sp-tip" style="transform:rotate(-1.5deg)"><p class="sp-tip-text">'
@@ -275,12 +276,26 @@
   html += '<section class="sp-section"><div class="sp-corkboard sp-paper"><div class="sp-corkboard-inner">'
     + '<h2 class="sp-h2">Traveller Tips</h2>'
     + '<div class="sp-tips">' + tipsHtml + '</div>'
-    + '<form class="sp-tipform" id="spTipForm">'
+    + '<form class="sp-tipform" id="spTipForm" novalidate>'
     + '<div class="sp-label">Share a tip</div>'
     + '<textarea id="spTipText" maxlength="200" placeholder="What should travellers know about ' + esc(displayName) + '?"></textarea>'
     + '<div class="sp-tip-counter"><span id="spTipCount">0</span>/200</div>'
     + '<input id="spTipName" type="text" maxlength="60" placeholder="Your name (optional)">'
-    + '<button class="sp-btn" type="submit"><i class="ph-light ph-paper-plane-tilt" aria-hidden="true"></i> Submit tip</button>'
+    + '<div class="sp-tip-imgrow">'
+      + '<label class="sp-tip-imgbtn" for="spTipImage">'
+        + '<i class="ph-light ph-image" aria-hidden="true"></i>'
+        + '<span id="spTipImageLabel">Add a photo (optional)</span>'
+      + '</label>'
+      + '<input id="spTipImage" type="file" accept="image/jpeg,image/png,image/webp">'
+      + '<button type="button" class="sp-tip-imgclear" id="spTipImageClear" hidden>Remove</button>'
+    + '</div>'
+    + '<img id="spTipImagePreview" class="sp-tip-imgpreview" hidden alt="">'
+    /* Honeypot field: hidden from sighted users but visible to most
+       crawlers/bots. Real submissions leave it blank; bots fill it. */
+    + '<div class="sp-tip-honey" aria-hidden="true"><label>Website<input id="spTipUrl" type="text" tabindex="-1" autocomplete="off"></label></div>'
+    + '<label class="sp-tip-check"><input type="checkbox" id="spTipHuman"><span>I am not a robot.</span></label>'
+    + '<label class="sp-tip-check"><input type="checkbox" id="spTipConsent"><span>I authorize this tip and image to be posted publicly after review.</span></label>'
+    + '<button class="sp-btn" type="submit" id="spTipSubmit" disabled><i class="ph-light ph-paper-plane-tilt" aria-hidden="true"></i> Submit tip</button>'
     + '<p class="sp-tip-msg" id="spTipMsg" role="status"></p>'
     + '</form></div></div></section>';
 
@@ -405,25 +420,123 @@
     const count = document.getElementById('spTipCount');
     const msg = document.getElementById('spTipMsg');
     if (!form) return;
+    const nameEl = document.getElementById('spTipName');
+    const fileEl = document.getElementById('spTipImage');
+    const fileLabel = document.getElementById('spTipImageLabel');
+    const clearBtn = document.getElementById('spTipImageClear');
+    const previewEl = document.getElementById('spTipImagePreview');
+    const humanEl = document.getElementById('spTipHuman');
+    const consentEl = document.getElementById('spTipConsent');
+    const submitEl = document.getElementById('spTipSubmit');
+    const honeyEl = document.getElementById('spTipUrl');
+    let imagePayload = null; /* { base64, contentType, filename } */
+
     text.addEventListener('input', () => { count.textContent = text.value.length; });
+
+    function syncSubmit() {
+      submitEl.disabled = !(humanEl.checked && consentEl.checked);
+    }
+    humanEl.addEventListener('change', syncSubmit);
+    consentEl.addEventListener('change', syncSubmit);
+
+    /* Resize a chosen image client-side: max 1200px on the long edge,
+       JPEG at 85% quality. Keeps the payload small and consistent. */
+    async function resize(file) {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.onload = () => resolve(i);
+          i.onerror = () => reject(new Error('Could not read image.'));
+          i.src = url;
+        });
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const max = 1200;
+        if (w > max || h > max) {
+          if (w >= h) { h = Math.round(h * max / w); w = max; }
+          else { w = Math.round(w * max / h); h = max; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+        if (!blob) throw new Error('Could not encode image.');
+        const base64 = await new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = () => resolve(String(fr.result).split(',')[1] || '');
+          fr.onerror = () => reject(new Error('Could not encode image.'));
+          fr.readAsDataURL(blob);
+        });
+        return { base64, contentType: 'image/jpeg', filename: file.name.replace(/\.[^.]+$/, '') + '.jpg' };
+      } finally { URL.revokeObjectURL(url); }
+    }
+
+    fileEl.addEventListener('change', async () => {
+      const f = fileEl.files && fileEl.files[0];
+      if (!f) return;
+      if (f.size > 20 * 1024 * 1024) {
+        msg.textContent = 'Please choose a photo under 20 MB.';
+        fileEl.value = '';
+        return;
+      }
+      msg.textContent = 'Preparing photo...';
+      try {
+        imagePayload = await resize(f);
+        previewEl.src = 'data:image/jpeg;base64,' + imagePayload.base64;
+        previewEl.hidden = false;
+        clearBtn.hidden = false;
+        fileLabel.textContent = 'Replace photo';
+        msg.textContent = '';
+      } catch (err) {
+        imagePayload = null;
+        msg.textContent = 'Could not read that image. Try another.';
+        fileEl.value = '';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      imagePayload = null;
+      fileEl.value = '';
+      previewEl.src = ''; previewEl.hidden = true;
+      clearBtn.hidden = true;
+      fileLabel.textContent = 'Add a photo (optional)';
+    });
+
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const tip = text.value.trim();
       if (!tip) { msg.textContent = 'Please write a tip first.'; return; }
+      if (!humanEl.checked || !consentEl.checked) {
+        msg.textContent = 'Please confirm both checkboxes.';
+        return;
+      }
+      submitEl.disabled = true;
       msg.textContent = 'Sending...';
       try {
+        const payload = {
+          stop: displayName, tip,
+          name: nameEl.value.trim(),
+          human: true, consent: true,
+          url: honeyEl.value
+        };
+        if (imagePayload) payload.image = imagePayload;
         const res = await fetch('/api/submit-tip', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stop: displayName, tip, name: document.getElementById('spTipName').value.trim() })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
           form.reset(); count.textContent = '0';
+          clearBtn.click();
           msg.textContent = 'Thank you. Your tip has been submitted for review.';
         } else {
-          msg.textContent = 'Tip submission is not available yet. Please try again later.';
+          let data = {};
+          try { data = await res.json(); } catch (e) {}
+          msg.textContent = data.error || 'Tip submission is not available yet. Please try again later.';
+          submitEl.disabled = false;
         }
       } catch (err) {
         msg.textContent = 'Tip submission is not available yet. Please try again later.';
+        submitEl.disabled = false;
       }
     });
   }
