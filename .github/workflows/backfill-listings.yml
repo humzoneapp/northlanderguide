@@ -1,0 +1,46 @@
+name: Backfill Listings
+
+# One-shot backfill that runs backend/backfill-listings.js across every
+# Active Listings row. Each row is enriched in "only fill empty fields"
+# mode and flagged Needs Review = true. The listings sync filters out
+# Needs Review rows, so backfilled content does not go live until the
+# admin unchecks the box in Airtable.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Max rows to process. Leave blank for all.'
+        required: false
+        type: string
+      dryRun:
+        description: 'Dry run only (count, no writes)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run backfill
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' && secrets.ANTHROPIC_API_KEY || secrets.NorthlanderGuide }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.dryRun }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          echo "Running: node backend/backfill-listings.js $ARGS"
+          node backend/backfill-listings.js $ARGS
