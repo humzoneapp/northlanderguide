@@ -285,18 +285,21 @@ async function callClaude(ctx) {
     " - No hooky openers, no editorialising. Describe it the way a local would in one breath.",
     "LENGTH:",
     " - One sentence, ideally 8 to 18 words. Two short ones at most. Aim for substance over brevity. A one-clause stub like 'Hotel in town' is too thin. Two or three category-typical details give the reader something useful.",
-    "WHAT YOU CAN SAY (this is what makes the description useful):",
+    "WHAT YOU CAN SAY (this is what makes the description useful and appealing):",
     " - The kind of business, taken from the Google category type. A 'lodging' is a hotel or motel. A 'park' is a park. A 'bakery' is a bakery. An 'italian_restaurant' is an Italian restaurant.",
     " - One factual descriptor when the data clearly supports it. 'Christian' bookstore when the name is Christian Books. 'Family' restaurant when Google says family_restaurant. 'Bagel' bakery when the name says Bagel. Skip the descriptor when in doubt.",
+    " - Aim to include THREE OR MORE category-typical attributes (not just one or two) so the description has substance. A blurb that names a category and one attribute reads like a label. Three plain factual attributes makes it sound like a real recommendation.",
     " - Category-typical attributes that almost any business of that type has. These are safe and expected:",
-    "    * Park: walking trails, picnic spots, green space, playground, open space, benches.",
-    "    * Hotel / motel / inn: rooms, suites, parking, WiFi, breakfast, pool (only if the category implies a full-service hotel).",
-    "    * Restaurant: the cuisine implied by the category (Italian, Thai, etc.), plus generic meal categories (breakfast, lunch, dinner, brunch) and generic dish categories (burgers, sandwiches, pizza).",
-    "    * Cafe / coffee shop: coffee, espresso drinks, pastries, light meals.",
-    "    * Bakery: typical items implied by the name or sub-category (bagels for a bagel bakery, donuts for a donut shop).",
-    "    * Shop / store: what they sell at a general level (books, records, lumber, gifts), taken from the business name or category.",
+    "    * Park: walking trails, picnic spots, green space, playground, open space, benches, paved paths.",
+    "    * Hotel: rooms, suites, parking, WiFi, breakfast, pool, fitness centre, business centre (use 3-4 of these).",
+    "    * Motel / inn: rooms, parking, WiFi, continental breakfast (use 2-3 of these).",
+    "    * Restaurant: the cuisine implied by the category (Italian, Thai, etc.), plus generic meal categories (breakfast, lunch, dinner, brunch) and generic dish categories (burgers, sandwiches, pizza). Pick 2-3.",
+    "    * Cafe / coffee shop: coffee, espresso drinks, pastries, light meals, sandwiches.",
+    "    * Bakery: typical items implied by the name or sub-category (bagels for a bagel bakery, donuts for a donut shop), plus breakfast and sandwiches.",
+    "    * Shop / store / bookstore: what they sell at a general level. Pull the specifics from the business name. 'Records and Books' name supports 'books and vinyl records'. 'Christian Books' supports 'Bibles, devotionals, and Christian books'. 'Planing Mills' supports 'lumber, wood products, and building materials'. Three product categories is the right amount.",
     "WHAT YOU CANNOT SAY (these are the hard rules and the most important part of the brief):",
     " - DO NOT mention the town, city, neighbourhood, street, or address. The card already shows the stop and the street. Saying 'in Bracebridge' or 'in downtown Toronto' or 'on Church St' is wasted space. Just describe what the place IS and what it SERVES.",
+    " - DO NOT use ANY geographic-feature word, even generic ones. Forbidden: 'waterfront', 'lakefront', 'lakeshore', 'shore', 'shoreline', 'riverside', 'riverfront', 'beachfront', 'bayfront', 'mountainside', 'hillside', 'downtown', 'uptown', 'midtown', 'roadside' as a location, 'on the lake', 'by the river', 'near the park', 'near the beach'. The model knows where these places are; the rule is to write as if you do not.",
     " - DO NOT invent or carry over geographic facts at all. No Lake Nipissing, no waterfront, no district, no proximity. Stop short of any place name.",
     " - DO NOT name specific amenities. No 'Japanese spa', 'rooftop martini bar', 'model train display', 'wine cellar', 'kids' play area'. Generic categories only (a 'pool', not 'an indoor saltwater pool').",
     " - DO NOT describe decor or interior. No 'stone walls', 'plush banquettes', 'rustic decor', 'cozy fireplace', 'warm lighting'.",
@@ -309,14 +312,16 @@ async function callClaude(ctx) {
     " - DO NOT begin with 'This place'. DO NOT mention distances, walk times, or opening hours. The card already shows those.",
     " - DO NOT add any historical date, era, or origin year, even for landmarks. No '1932 British Empire Games', no 'built in 1908'. If the category says 'landmark' or 'historic', it is sufficient to say 'historic landmark' and describe what it physically is at the most general level.",
     " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks. The house style forbids them entirely.",
-    "TARGET EXAMPLES (no town, no street, just what it is and what it serves):",
-    " - 'Italian restaurant serving traditional dishes with wine and beer.'",
-    " - 'Hotel with suites and kitchens.'",
-    " - 'Park with walking trails, picnic spots, and open green space.'",
-    " - 'Bagel bakery serving breakfast, sandwiches, and bagels.'",
-    " - 'Christian bookstore selling Bibles and Christian books.'",
-    " - 'Roadside motel with rooms, parking, and continental breakfast.'",
-    " - 'Pizza restaurant serving pizza, sandwiches, and other meals for takeaway and delivery.'"
+    "TARGET EXAMPLES (no town, no street, no geography, three or more category-typical attributes for substance):",
+    " - 'Italian restaurant serving pasta, traditional dishes, wine, and beer.'",
+    " - 'Hotel with rooms, suites, parking, and complimentary breakfast.'",
+    " - 'Park with walking trails, picnic spots, a playground, and open green space.'",
+    " - 'Bagel bakery serving bagels, breakfast, sandwiches, and coffee.'",
+    " - 'Christian bookstore selling Bibles, devotionals, and Christian books.'",
+    " - 'Motel with rooms, parking, WiFi, and continental breakfast.'",
+    " - 'Pizza restaurant serving pizza, sandwiches, and salads for takeaway and delivery.'",
+    " - 'Bookstore selling books, vinyl records, and gifts.'",
+    " - 'Family restaurant serving breakfast, lunch, and dinner at budget-friendly prices.'"
   ].join('\n');
 
   /* The only inputs Claude sees are the structured Places fields. We
@@ -336,20 +341,22 @@ async function callClaude(ctx) {
     + 'BEST FOR - pick from this list only. The list has already been pre-filtered to only show tags that are permitted for this business category, so any tag in the list is a fair candidate. Pick AT MOST four. ONE tag, or zero, is usually correct. When in doubt, pick fewer.\n'
     + bfBullets + '\n\n'
     + 'Description rules:\n'
-    + '- One sentence, 6 to 15 words. Two short ones absolute max.\n'
-    + '- Plain, friendly, like a friend giving a quick tip. No marketing words, no flourishes.\n'
-    + '- Use the business category to add category-typical attributes: a park can have trails and picnic spots, a hotel can have rooms or suites, a bakery can serve breakfast, a restaurant can serve the cuisine implied by its category.\n'
-    + '- DO NOT mention the town, city, neighbourhood, street, or address at all. The card shows them. Just describe what the place IS and what it SERVES.\n'
+    + '- One sentence, 9 to 16 words. Two short ones absolute max.\n'
+    + '- INCLUDE THREE OR MORE category-typical attributes. One or two reads like a stub. Three gives the reader something to picture.\n'
+    + '- Plain, friendly, like a friend giving a quick tip. Appeal comes from concrete specifics (rooms, suites, parking, breakfast, walking trails, picnic spots, vinyl records, etc.), not from adjectives or marketing flourishes.\n'
+    + '- DO NOT mention the town, city, neighbourhood, street, address, downtown, waterfront, lakefront, shore, riverside, or any geographic feature. The card shows location. Describe what the place IS and what it SERVES.\n'
     + '- DO NOT invent any fact: no decor, no specific amenities, no exact numbers, no audiences, no ambiance, no signature items, no owner stories, no superlatives, no historical dates.\n'
     + '- One factual descriptor is fine if the data supports it (e.g. "Christian bookstore" when the name says Christian Books, "family restaurant" when Google says family_restaurant). Otherwise skip.\n'
+    + '- Pull product specifics from the business name when the category is vague. "Records and Books" supports "books and vinyl records". "Planing Mills" supports "lumber and wood products".\n'
     + '- No distances, no walk times, no opening hours.\n'
-    + "- Target examples (no town, no street, just what it is and what it serves):\n"
-    + "    'Italian restaurant serving traditional dishes with wine and beer.'\n"
-    + "    'Hotel with suites and kitchens.'\n"
-    + "    'Park with walking trails, picnic spots, and open green space.'\n"
-    + "    'Bagel bakery serving breakfast, sandwiches, and bagels.'\n"
-    + "    'Christian bookstore selling Bibles and Christian books.'\n"
-    + "    'Roadside motel with rooms, parking, and continental breakfast.'\n\n"
+    + "- Target examples (no place names, three or more attributes for substance):\n"
+    + "    'Italian restaurant serving pasta, traditional dishes, wine, and beer.'\n"
+    + "    'Hotel with rooms, suites, parking, and complimentary breakfast.'\n"
+    + "    'Park with walking trails, picnic spots, a playground, and open green space.'\n"
+    + "    'Bagel bakery serving bagels, breakfast, sandwiches, and coffee.'\n"
+    + "    'Christian bookstore selling Bibles, devotionals, and Christian books.'\n"
+    + "    'Bookstore selling books, vinyl records, and gifts.'\n"
+    + "    'Motel with rooms, parking, WiFi, and continental breakfast.'\n\n"
     + 'Return ONLY a JSON object, no surrounding text, no code fences:\n'
     + '{"description": "...", "tag": "..." or null, "bestFor": [ "...", "..." ]}';
 
