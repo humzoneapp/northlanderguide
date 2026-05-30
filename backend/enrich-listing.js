@@ -240,7 +240,7 @@ async function callClaude(ctx) {
   const tagBullets = ctx.tagChoices.map(t => '  - ' + t).join('\n');
   const bfBullets = ctx.bestForChoices.map(b => '  - ' + b).join('\n');
 
-  const system = "You write short editorial descriptions for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario. Voice is warm, honest, and factual. You frame each place for a visitor who has arrived by train. You never invent details, brands, hours or experiences that are not in the source data. You skip distances or walk times because the card already shows them. You avoid generic phrases like 'perfect for' or 'a must-visit', and you do not begin with 'This place'.";
+  const system = "You write short editorial descriptions for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario. Voice is warm, honest, and factual. You frame each place for a visitor who has arrived by train. You never invent details, brands, hours or experiences that are not in the source data. You skip distances or walk times because the card already shows them. You avoid generic phrases like 'perfect for' or 'a must-visit', and you do not begin with 'This place'. NEVER use em dashes (the character). Use commas, periods, or sentence breaks instead. The standing house style on this site forbids em dashes entirely.";
 
   const user = "Write three things for this business: a description, one tag, and a list of Best For tags.\n\n"
     + 'Business: ' + ctx.name + '\n'
@@ -360,7 +360,13 @@ async function callClaude(ctx) {
       tagChoices, bestForChoices: bfChoices
     });
     if (ai.description && typeof ai.description === 'string') {
-      updates[FIELD.description] = ai.description.trim();
+      /* Safety net: even with the system prompt forbidding em dashes,
+         scrub U+2014 (em) and U+2013 (en) characters from the output
+         and replace with a comma + space so house style stays intact. */
+      const clean = ai.description.trim()
+        .replace(/\s*[—–]\s*/g, ', ')
+        .replace(/, +/g, ', ');
+      updates[FIELD.description] = clean;
     }
     if (ai.tag && tagChoices.indexOf(ai.tag) >= 0) {
       updates[FIELD.tag] = ai.tag;
