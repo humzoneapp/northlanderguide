@@ -241,10 +241,16 @@ async function callClaude(ctx) {
   const bfBullets = ctx.bestForChoices.map(b => '  - ' + b).join('\n');
 
   const system = [
-    "You write short editorial descriptions for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario.",
-    "Voice is warm, honest, and factual. You frame each place for a visitor who has arrived by train.",
+    "You write very short blurbs for a traveller's guide to places along the Ontario Northland Northlander train route in Northern Ontario.",
+    "VOICE:",
+    " - Write like a real person giving a friend a quick tip. Plain everyday words. Friendly and informative.",
+    " - No flowery, salesy, or AI-marketing copy. Avoid words like 'thoughtful', 'curated', 'elevated', 'experience', 'destination', 'craft', 'artisanal', 'program', 'offering'.",
+    " - No hooky openers, no editorialising. Just describe it the way a local would in one breath.",
+    "LENGTH:",
+    " - Aim for ONE sentence. Two short ones at most. Shorter is better.",
     "STRICT FACT RULES:",
     " - Use only attributes that appear in the Places data or that are clearly generic to the business type (for example: 'a coffee shop with espresso drinks', 'a provincial park with hiking trails').",
+    " - Do NOT upgrade a generic attribute into a specific claim. If the data just says serves beer, do NOT write 'craft brews' or invent a 'drinks program'. If it serves food, do NOT invent signature dishes, ambiance, or specialties. Name only what is actually supported.",
     " - No specific personal claims about owners, staff, family history, training, illnesses, motivations, or backgrounds. Even if a customer review mentions them, treat them as unverifiable hearsay and leave them out.",
     " - No invented backstories or origin stories.",
     " - No unverifiable superlatives such as 'best in town', 'most authentic', 'famous for', 'legendary', 'iconic', 'beloved'. If a claim cannot be supported from the Places data, leave it out.",
@@ -253,7 +259,9 @@ async function callClaude(ctx) {
     " - Skip distances and walk times because the card already shows them.",
     " - Skip opening hours because the card already shows them.",
     " - Avoid 'perfect for' and 'a must-visit'. Do not begin with 'This place'.",
-    " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks instead. The house style forbids them entirely."
+    " - NEVER use em dashes or en dashes. Use commas, periods, or sentence breaks instead. The house style forbids them entirely.",
+    "TARGET EXAMPLE (this is the voice and length we want):",
+    " - 'A laid-back Main Street spot for all-day breakfast, burgers, and comfort food, with lots of gluten-free options.'"
   ].join('\n');
 
   const user = "Write three things for this business: a description, one tag, and a list of Best For tags.\n\n"
@@ -272,13 +280,15 @@ async function callClaude(ctx) {
     + 'BEST FOR - pick up to FOUR names from this list that genuinely apply. Return an empty array if none fit. Do not invent.\n'
     + bfBullets + '\n\n'
     + 'Description rules:\n'
-    + '- 30 to 45 words.\n'
-    + '- Hooky opening, then factual specifics drawn ONLY from the Places data above OR generic attributes of the business type.\n'
-    + "- Frame for a train traveller (someone arriving by Northlander) without naming the train.\n"
+    + '- ONE sentence ideally. Two short ones absolute max. Shorter is better.\n'
+    + '- Plain, friendly, like a friend giving a quick tip. No marketing words, no flourishes.\n'
+    + '- Use ONLY attributes from the Places data above, or generic attributes of the business type.\n'
+    + '- Do NOT upgrade generic into specific (no "craft brews" from "serves beer", no invented signature dishes or ambiance).\n'
     + '- No distances, no walk times, no opening hours.\n'
     + '- No specific personal claims about owners, staff, family, training, or backstory.\n'
     + "- No unverifiable superlatives ('best', 'famous', 'beloved', 'iconic', 'legendary').\n"
-    + "- When unsure, stay general. Less is better than invented.\n\n"
+    + "- When unsure, stay general. Less is better than invented.\n"
+    + "- Target voice example: 'A laid-back Main Street spot for all-day breakfast, burgers, and comfort food, with lots of gluten-free options.'\n\n"
     + 'Return ONLY a JSON object, no surrounding text, no code fences:\n'
     + '{"description": "...", "tag": "..." or null, "bestFor": [ "...", "..." ]}';
 
