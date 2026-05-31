@@ -12,6 +12,7 @@ what's already wired. Keep this short; details belong in the code.
 - Sort/filter pills on home and stop pages: Featured / Closest / Top Rated (mutually exclusive) + Local Deals (toggle). Featured pill hidden when no listing in the current category is Featured.
 - Local Deals filter also hides non-deal markers on the stop-page Leaflet map.
 - Tip submission form with honeypot + dual-confirmation checkboxes.
+- Header dropdown and footer organised into three columns: Explore, Get Involved, Resources. Mobile menu carries the same links.
 
 ### Data pipeline
 - Listings synced from Airtable (`tblfVQcLjEv0a4sCJ`) to `site/listings-data.js` and stop-page content to `site/stop-pages-data.js`. Cron at `15 6,18 * * *` UTC.
@@ -25,8 +26,12 @@ what's already wired. Keep this short; details belong in the code.
 - `.github/workflows/sync-events.yml` runs at 7:15am and 7:15pm UTC (offset from listings sync by an hour), plus `workflow_dispatch` and `repository_dispatch: event-approved` for future instant publish on Approve.
 - Stop pages: "What's On in [stop]" renders a responsive grid of approved events with image, date range + optional time, venue, description (clamped 3 lines), price or Free badge, and a More info link out. Empty state for stops with no events.
 - Homepage: route-wide grid grouped by Month YYYY, Featured first within each month, with a separate "Ongoing & Recurring" section. Section heading is "Events Along the Route".
-- Community submission: `/#submit-event` form on the homepage posts to `/api/submit-event`. Honeypot + dual-confirm checkboxes, server-side validation, every Airtable field except admin-only ones (Approved, Featured, Recurring, Recurrence Pattern). Rows arrive with Approved=false and Source="Community Submission" - admin reviews in Airtable then ticks Approved.
-- Stop-page empty-state CTA deep-links to `/#submit-event`.
+- Community submission has TWO entry points sharing one backend:
+  - **Modal** triggered from header link, footer link, mobile menu, hero/stop-page CTA buttons, and the homepage CTA card. Uses native `<dialog>` with backdrop click + escape to close. The modal HTML lives in `site/index.html` so it is only available on the home page.
+  - **Dedicated indexable page** at `/submit-event/` (folder route). Static HTML with full form, JSON-LD `WebPage` + `BreadcrumbList` schema, canonical URL, OG tags. Crawlers and no-JS visitors land here.
+  - Every `.submit-event-trigger` anchor has `href="/submit-event/"` so the link works without JS. The home-page JS (`initSubmitEventModal`) intercepts the click and opens the modal instead when the dialog is present.
+  - Both forms POST the same payload to `/api/submit-event`. Honeypot + dual-confirm checkboxes, server-side validation, every Airtable field except admin-only ones (Approved, Featured, Recurring, Recurrence Pattern). Rows arrive with Approved=false and Source="Community Submission" - admin reviews in Airtable then ticks Approved.
+- Stop-page "What's On" section now includes a "Submit an event at [stop]" button that navigates to `/submit-event/`.
 - Eventbrite live fetch dropped. The local `backend/server.js` Eventbrite proxy still exists but is unused. Source field kept on Events so future imports can flag origin.
 
 ### Auto-enrichment
@@ -58,4 +63,5 @@ what's already wired. Keep this short; details belong in the code.
 - Backfill, sync-listings, sync-events, sync-tips, enrich-listing and backfill-listings workflows all use `actions/checkout@v4` and `actions/setup-node@v4`. Both run on Node 20 which is deprecated for Actions; needs Node 24 by 2026-09-16.
 - `api/enrich-listing.js` Vercel function is deployed but dormant. No Airtable automation points at it yet, so new listings are enriched only via manual GitHub workflow dispatch. Wire-up is documented in earlier session notes if/when ready.
 - `backend/server.js` Eventbrite proxy is dead code now; safe to delete if we never reintroduce live Eventbrite imports.
-- "Submit a Listing" and "Advertise" footer links on the homepage currently point at `#` placeholders.
+- "Submit a Listing" and "Advertise" links (header and footer) currently point at `#` placeholders. Same Airtable-backed pattern as Submit an Event would let us ship these quickly.
+- The dedicated `/submit-event/` page is not linked in the XML sitemap (no sitemap exists yet). Should be added when we build one.
