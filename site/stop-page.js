@@ -120,6 +120,7 @@
       + '<div class="sp-lc-body">'
       + '<div class="sp-lc-top"><span class="sp-lc-tag">' + esc(l.tag || l._cat.label) + '</span>' + ratingHtml + '</div>'
       + '<h4>' + esc(l.name) + '</h4>'
+      + (l.desc ? '<p class="sp-lc-desc">' + esc(l.desc) + '</p>' : '')
       + (l.address ? '<p class="sp-lc-addr">' + esc(l.address) + '</p>' : '')
       + walk
       + '</div></a>';
