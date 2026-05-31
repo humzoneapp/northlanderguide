@@ -5,5 +5,25 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/stops/:slug", "destination": "/stops" }
+  ],
+  "headers": [
+    {
+      "source": "/(listings-data|stop-pages-data|events-data).js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(app|stop-page|stop-explorer|app-submit-event).js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(styles|stop-page).css",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }
+      ]
+    }
   ]
 }
