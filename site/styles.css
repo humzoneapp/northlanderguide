@@ -1426,6 +1426,45 @@ a{color:inherit}
 
 /* ---------- events ---------- */
 .eventsection{padding:2.4rem 0 2.8rem;max-width:1080px;margin:0 auto}
+
+/* ---------- event submission form ---------- */
+.event-submit{margin:3rem 1.1rem 0;padding:2rem 1.5rem 2.2rem;
+  background:var(--card);border:1.5px solid var(--line);border-radius:6px}
+.event-submit-head{max-width:640px;margin:0 auto 1.6rem;text-align:center}
+.event-submit-head h3{font-family:'Fraunces',Georgia,serif;font-size:1.6rem;font-weight:600;margin:0 0 .5rem;color:var(--poster-ink)}
+.event-submit-head p{color:var(--poster-mute);font-size:.96rem;line-height:1.55;margin:0}
+.event-form{max-width:760px;margin:0 auto}
+.event-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1rem}
+@media (max-width:640px){.event-form-grid{grid-template-columns:1fr}}
+.ef-field{display:flex;flex-direction:column;gap:.35rem}
+.ef-field.ef-span-2{grid-column:span 2}
+@media (max-width:640px){.ef-field.ef-span-2{grid-column:span 1}}
+.ef-label{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--poster-mute)}
+.ef-req{color:var(--poster-crimson)}
+.event-form input[type="text"],
+.event-form input[type="email"],
+.event-form input[type="url"],
+.event-form input[type="date"],
+.event-form select,
+.event-form textarea{
+  width:100%;font-family:'Spline Sans',sans-serif;font-size:.95rem;
+  background:var(--poster-ivory,#f6efe2);border:1.5px solid var(--line);
+  border-radius:4px;padding:.6rem .7rem;color:var(--poster-ink);
+  transition:border-color .15s ease}
+.event-form input:focus,.event-form select:focus,.event-form textarea:focus{
+  outline:none;border-color:var(--poster-crimson)}
+.event-form textarea{resize:vertical;min-height:96px;font-family:inherit}
+.ef-checkbox-inline{flex-direction:row;align-items:center;gap:.5rem;padding-top:1.4rem}
+.ef-checkbox-inline input{width:18px;height:18px;accent-color:var(--poster-crimson)}
+.ef-checkbox-inline span{font-size:.92rem;color:var(--poster-ink)}
+.ef-honey{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.ef-confirms{margin:1.2rem 0 1rem;display:flex;flex-direction:column;gap:.6rem}
+.ef-check{display:flex;align-items:flex-start;gap:.55rem;font-size:.92rem;color:var(--poster-ink);cursor:pointer}
+.ef-check input{margin-top:3px;width:16px;height:16px;accent-color:var(--poster-crimson);flex:none}
+.event-form button[type="submit"]{margin-top:.4rem}
+.event-form button[type="submit"][disabled]{opacity:.5;cursor:not-allowed}
+.ef-msg{font-size:.92rem;margin:.8rem 0 0;color:var(--poster-crimson);min-height:1.2em}
+.ef-msg.ok{color:var(--poster-gold)}
 .evlist{padding:0 1.1rem;display:grid;gap:.9rem}
 .evcard{
   display:flex;gap:1.1rem;background:var(--card);

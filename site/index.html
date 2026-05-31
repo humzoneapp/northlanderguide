@@ -166,6 +166,143 @@
     <h2>Events at this stop</h2>
   </div>
   <div id="eventPanel"></div>
+
+  <div class="event-submit reveal" id="submit-event">
+    <div class="event-submit-head">
+      <h3>Know about an event we should list?</h3>
+      <p>Markets, festivals, live music, community gatherings - if it's happening along the route, submit it. We review every submission before publishing.</p>
+    </div>
+    <form class="event-form" id="evForm" novalidate>
+      <div class="event-form-grid">
+        <label class="ef-field ef-span-2">
+          <span class="ef-label">Event name <span class="ef-req">*</span></span>
+          <input id="evName" type="text" maxlength="200" required>
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Stop <span class="ef-req">*</span></span>
+          <select id="evStop" required>
+            <option value="">Choose a stop</option>
+            <option>Toronto Union</option>
+            <option>Langstaff</option>
+            <option>Gormley</option>
+            <option>Washago</option>
+            <option>Gravenhurst</option>
+            <option>Bracebridge</option>
+            <option>Huntsville</option>
+            <option>South River</option>
+            <option>Temagami</option>
+            <option>North Bay</option>
+            <option>Temiskaming Shores</option>
+            <option>Englehart</option>
+            <option>Kirkland Lake</option>
+            <option>Matheson</option>
+            <option>Timmins</option>
+            <option>Cochrane</option>
+          </select>
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Category</span>
+          <select id="evCategory">
+            <option value="">Choose a category (optional)</option>
+            <option>Music &amp; Live Performance</option>
+            <option>Food &amp; Drink</option>
+            <option>Outdoor &amp; Adventure</option>
+            <option>Arts &amp; Culture</option>
+            <option>Festivals &amp; Fairs</option>
+            <option>Markets &amp; Shopping</option>
+            <option>Sports &amp; Recreation</option>
+            <option>Community &amp; Family</option>
+            <option>History &amp; Heritage</option>
+          </select>
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Start date <span class="ef-req">*</span></span>
+          <input id="evStartDate" type="date" required>
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">End date</span>
+          <input id="evEndDate" type="date">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Start time</span>
+          <input id="evStartTime" type="text" maxlength="40" placeholder="e.g. 7:00 PM">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">End time</span>
+          <input id="evEndTime" type="text" maxlength="40" placeholder="e.g. 10:00 PM">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Venue name</span>
+          <input id="evVenue" type="text" maxlength="200">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Address</span>
+          <input id="evAddress" type="text" maxlength="300">
+        </label>
+
+        <label class="ef-field ef-span-2">
+          <span class="ef-label">Description <span class="ef-req">*</span></span>
+          <textarea id="evDescription" maxlength="2000" rows="4" required></textarea>
+        </label>
+
+        <label class="ef-field ef-span-2">
+          <span class="ef-label">Image URL</span>
+          <input id="evImageUrl" type="url" placeholder="https://...">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Event URL</span>
+          <input id="evEventUrl" type="url" placeholder="https://...">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Ticket URL</span>
+          <input id="evTicketUrl" type="url" placeholder="https://...">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Price</span>
+          <input id="evPrice" type="text" maxlength="80" placeholder="e.g. $25, $10-$30">
+        </label>
+
+        <label class="ef-field ef-checkbox-inline">
+          <input id="evFree" type="checkbox">
+          <span>This event is free.</span>
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Your name</span>
+          <input id="evSubmittedBy" type="text" maxlength="200">
+        </label>
+
+        <label class="ef-field">
+          <span class="ef-label">Your email <span class="ef-req">*</span></span>
+          <input id="evEmail" type="email" maxlength="200" required>
+        </label>
+      </div>
+
+      <!-- Honeypot: real visitors leave this blank. -->
+      <div class="ef-honey" aria-hidden="true">
+        <label>Website<input id="evUrl" type="text" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <div class="ef-confirms">
+        <label class="ef-check"><input type="checkbox" id="evHuman"><span>I am not a robot.</span></label>
+        <label class="ef-check"><input type="checkbox" id="evConsent"><span>I confirm this event information is accurate and may be posted publicly after review.</span></label>
+      </div>
+
+      <button class="btn btn-primary" type="submit" id="evSubmit" disabled>Submit event</button>
+      <p class="ef-msg" id="evMsg" role="status"></p>
+    </form>
+  </div>
 </section>
 
 <!-- ===== FOOTER ===== -->

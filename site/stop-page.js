@@ -277,7 +277,7 @@
         ? '<div class="sp-events">' + stopEvents.map(eventCard).join('') + '</div>'
         : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
           + '<p>Events coming soon. Know about something happening here? Submit it below.</p>'
-          + '<a href="/#events">Submit an event</a></div>')
+          + '<a href="/#submit-event">Submit an event</a></div>')
     + '</section>';
 
   html += divider();

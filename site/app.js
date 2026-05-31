@@ -2210,3 +2210,76 @@ function mergeStaticListings(){
     });
   });
 }
+
+/* ------------------------------------------------------------------
+   EVENT SUBMISSION FORM
+   POSTs to /api/submit-event which writes to Airtable with
+   Approved=false. Admin reviews in Airtable, ticks Approved, then the
+   sync-events workflow publishes the row to events-data.js.
+------------------------------------------------------------------- */
+(function initEventForm(){
+  const form = document.getElementById('evForm');
+  if (!form) return;
+  const $ = id => document.getElementById(id);
+  const human = $('evHuman'), consent = $('evConsent'), submit = $('evSubmit'), msg = $('evMsg');
+
+  function syncSubmit(){ submit.disabled = !(human.checked && consent.checked); }
+  human.addEventListener('change', syncSubmit);
+  consent.addEventListener('change', syncSubmit);
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    msg.classList.remove('ok');
+
+    const payload = {
+      name: $('evName').value.trim(),
+      stop: $('evStop').value,
+      category: $('evCategory').value,
+      startDate: $('evStartDate').value,
+      endDate: $('evEndDate').value,
+      startTime: $('evStartTime').value.trim(),
+      endTime: $('evEndTime').value.trim(),
+      venue: $('evVenue').value.trim(),
+      address: $('evAddress').value.trim(),
+      description: $('evDescription').value.trim(),
+      imageUrl: $('evImageUrl').value.trim(),
+      eventUrl: $('evEventUrl').value.trim(),
+      ticketUrl: $('evTicketUrl').value.trim(),
+      price: $('evPrice').value.trim(),
+      free: $('evFree').checked,
+      submittedBy: $('evSubmittedBy').value.trim(),
+      submitterEmail: $('evEmail').value.trim(),
+      human: true, consent: true,
+      url: $('evUrl').value
+    };
+
+    if (!payload.name)         { msg.textContent = 'Event name is required.'; return; }
+    if (!payload.stop)         { msg.textContent = 'Please pick a stop.'; return; }
+    if (!payload.startDate)    { msg.textContent = 'Start date is required.'; return; }
+    if (!payload.description)  { msg.textContent = 'Description is required.'; return; }
+    if (!payload.submitterEmail){msg.textContent = 'Your email is required.'; return; }
+
+    submit.disabled = true;
+    msg.textContent = 'Submitting...';
+    try {
+      const res = await fetch('/api/submit-event', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        form.reset();
+        msg.classList.add('ok');
+        msg.textContent = 'Thank you. Your event has been submitted for review.';
+        submit.disabled = true;
+      } else {
+        let data = {};
+        try { data = await res.json(); } catch(e){}
+        msg.textContent = data.error || 'Could not submit right now. Please try again later.';
+        submit.disabled = false;
+      }
+    } catch (err) {
+      msg.textContent = 'Could not submit right now. Please try again later.';
+      submit.disabled = false;
+    }
+  });
+})();
