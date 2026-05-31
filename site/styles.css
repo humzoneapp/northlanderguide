@@ -1449,6 +1449,9 @@ a{color:inherit}
 .hev-stop{font-size:.82rem;color:var(--poster-mute)}
 .hev-desc{font-size:.88rem;line-height:1.45;color:var(--poster-ink);opacity:.82;margin:.4rem 0 0;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hev-walk{display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;font-weight:700;
+  color:var(--poster-crimson);letter-spacing:.02em;margin-top:.5rem}
+.hev-walk .ph-light{font-size:.95rem}
 .hev-foot{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-top:auto;padding-top:.8rem}
 .hev-price{font-size:.78rem;font-weight:700;color:var(--poster-ink);letter-spacing:.02em}
 .hev-cta{font-size:.78rem;font-weight:700;color:var(--poster-crimson);display:inline-flex;align-items:center;gap:.2rem}

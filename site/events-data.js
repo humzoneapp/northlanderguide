@@ -4,6 +4,56 @@
 const EVENTS_DATA = {
   "union": [
     {
+      "id": "recyOLxpzTADrnWpk",
+      "name": "RBC Amphitheatre Summer Concert Series",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Concert",
+      "startDate": "2026-05-21",
+      "endDate": "2026-09-30",
+      "startTime": null,
+      "endTime": null,
+      "venue": "RBC Amphitheatre (formerly Budweiser Stage)",
+      "address": "909 Lake Shore Blvd W, Toronto, ON M6K 3L3",
+      "description": "Toronto's iconic outdoor waterfront concert venue — formerly Budweiser Stage — hosts a packed summer of big-name concerts from May through September. Confirmed 2026 acts include NE-YO & Akon, Train & Barenaked Ladies, 5 Seconds of Summer, Metric, Broken Social Scene, and more. Check the full schedule online.",
+      "imageUrl": "https://images.curiocity.com/uploads/2026/04/rbc-amphitheatre.jpg",
+      "eventUrl": "https://www.rbcamphitheatre.com",
+      "ticketUrl": null,
+      "price": "Tickets required, varies by show",
+      "free": false,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 58
+    },
+    {
+      "id": "recgQQNl3GaRKGlxH",
+      "name": "Centreville Amusement Park & Toronto Islands",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Family",
+      "startDate": "2026-06-01",
+      "endDate": "2026-09-27",
+      "startTime": null,
+      "endTime": null,
+      "venue": "Centre Island, Toronto Islands",
+      "address": "Centre Island, Toronto Islands (ferry from Jack Layton Terminal)",
+      "description": "A 15-minute walk from Union Station to the ferry terminal, a short ride across the harbour, and you're in another world. Centreville has 30+ rides for kids, beautiful beaches, bike rentals, and the most spectacular skyline view in the city. All-day ride passes from $35; free to explore the islands.",
+      "imageUrl": "https://images.curiocity.com/uploads/2026/04/toronto-island.jpg",
+      "eventUrl": "https://www.centreisland.ca",
+      "ticketUrl": null,
+      "price": "$35 all-day ride pass; ferry $9.57 adults",
+      "free": false,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 37
+    },
+    {
       "id": "recmi5cL7sJ3mGHXz",
       "name": "Luminato Festival",
       "stop": "Toronto Union",
@@ -25,7 +75,33 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 23
+    },
+    {
+      "id": "recX9t8ebjGytRmLn",
+      "name": "Evergreen Brick Works Saturday Farmers Market",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Market",
+      "startDate": "2026-06-06",
+      "endDate": "2026-09-26",
+      "startTime": null,
+      "endTime": null,
+      "venue": "Evergreen Brick Works",
+      "address": "550 Bayview Ave, Toronto, ON M4W 3X8",
+      "description": "Toronto's largest farmers market, set in a stunning heritage ravine setting. Every Saturday 8am–1pm, with local Ontario farmers and producers, artisan food vendors, and a local food court open until 2pm. The outdoor market runs May through October — a perfect Saturday morning stop.",
+      "imageUrl": "https://www.evergreen.ca/wp-content/uploads/2023/10/FarmersMarket_AlYoshikiV.jpg",
+      "eventUrl": "https://www.evergreen.ca/evergreen-brick-work/activities/saturday-farmers-market/",
+      "ticketUrl": null,
+      "price": "Free to browse",
+      "free": true,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 82
     },
     {
       "id": "recqKCsVommc3TgKj",
@@ -49,7 +125,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 6
     },
     {
       "id": "recGpz94QNPLMbjzO",
@@ -73,7 +150,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 37
     },
     {
       "id": "recAeUABWYLhEQuUk",
@@ -97,7 +175,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 48
     },
     {
       "id": "rec0FTD0yKz6fPyi5",
@@ -121,7 +200,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 37
     },
     {
       "id": "rect4WOvk7S2yXy43",
@@ -145,7 +225,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 31
     },
     {
       "id": "recaCvTVl1HAMm17l",
@@ -169,7 +250,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 17
     },
     {
       "id": "recbQKVZVHvF5kKlH",
@@ -193,7 +275,58 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 53
+    },
+    {
+      "id": "rec1xOxcQi0q31ESh",
+      "name": "Summerlicious",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Food & Drink",
+      "startDate": "2026-07-03",
+      "endDate": "2026-07-19",
+      "startTime": null,
+      "endTime": null,
+      "venue": "200+ restaurants across Toronto",
+      "address": "200+ restaurants citywide, Toronto, ON",
+      "description": "Toronto's beloved summer prix fixe restaurant festival returns with 200+ restaurants across the city offering three-course lunch and dinner menus at set prices. A perfect excuse to try a neighbourhood restaurant you've been eyeing. Lunch from $20, dinner from $25 — reserve well in advance.",
+      "imageUrl": "https://www.torontoondemand.ca/wp-content/uploads/2025/05/summerlicious.jpg",
+      "eventUrl": "https://www.toronto.ca/explore-enjoy/festivals-events/summerlicious/",
+      "ticketUrl": null,
+      "price": "Lunch from $20, dinner from $25",
+      "free": false,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 23
+    },
+    {
+      "id": "rec7mmoP25lAvEbKI",
+      "name": "Dream in High Park — Shakespeare's Twelfth Night",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Arts & Culture",
+      "startDate": "2026-07-12",
+      "endDate": "2026-09-06",
+      "startTime": null,
+      "endTime": null,
+      "venue": "High Park Amphitheatre",
+      "address": "1873 Bloor St W, Toronto, ON M6R 2Z3",
+      "description": "Canadian Stage's beloved outdoor Shakespeare returns for its 43rd year in High Park Amphitheatre. Bring a picnic blanket and watch Twelfth Night under the stars. Rush tickets available 30 minutes before showtime. Dog Night is July 29 — well-behaved dogs welcome!",
+      "imageUrl": "https://www.torontoondemand.ca/wp-content/uploads/2026/04/high-park-twelfth-night.jpg",
+      "eventUrl": "https://www.canadianstage.com/show/twelfth-night",
+      "ticketUrl": "https://www.canadianstage.com",
+      "price": "$35 adults, $20 rush tickets",
+      "free": false,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 112
     },
     {
       "id": "recxgxHgJHTc9SqwF",
@@ -217,7 +350,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 126
     },
     {
       "id": "recMYBg9LkLACEvLC",
@@ -241,7 +375,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 249
     },
     {
       "id": "recjYdMdvyMP4AxQO",
@@ -265,7 +400,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 307
     },
     {
       "id": "reclgMGywjCe5waQS",
@@ -289,7 +425,33 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 124
+    },
+    {
+      "id": "reczphnwR0Gi4wKds",
+      "name": "Afrofest",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Festival",
+      "startDate": "2026-08-14",
+      "endDate": "2026-08-16",
+      "startTime": null,
+      "endTime": null,
+      "venue": "Woodbine Park",
+      "address": "Woodbine Park, 1695 Queen St E, Toronto, ON",
+      "description": "North America's largest free African music and culture festival at Woodbine Park. Three days of Afrobeats, traditional drumming, and live performances on the Baobab Stage alongside a massive vendor village of African fashion, art, food, and cultural experiences. 38th annual edition.",
+      "imageUrl": null,
+      "eventUrl": "https://www.afrofest.ca",
+      "ticketUrl": null,
+      "price": "Free",
+      "free": true,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 85
     },
     {
       "id": "rec7qkDGttWwcIhw3",
@@ -313,7 +475,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 45
     },
     {
       "id": "recaDLv3aaEY66faa",
@@ -337,7 +500,33 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 10
+    },
+    {
+      "id": "recJE6Hr7gzeQu8pd",
+      "name": "Toronto International BuskerFest",
+      "stop": "Toronto Union",
+      "stopId": "union",
+      "category": "Festival",
+      "startDate": "2026-09-04",
+      "endDate": "2026-09-07",
+      "startTime": null,
+      "endTime": null,
+      "venue": "Woodbine Park",
+      "address": "Woodbine Park, 1695 Queen St E, Toronto, ON",
+      "description": "One of North America's largest street performer festivals over Labour Day weekend at Woodbine Park. Four days of circus acts, acrobatics, magic, comedy, sword swallowing, food vendors, and a beer garden. All proceeds support Epilepsy Toronto. Bark in the Park zone for dog lovers runs alongside the festival.",
+      "imageUrl": null,
+      "eventUrl": "https://www.buskerfest.ca",
+      "ticketUrl": null,
+      "price": "Admission by donation (~$10)",
+      "free": false,
+      "source": "Manual",
+      "featured": false,
+      "recurring": false,
+      "recurrencePattern": null,
+      "submittedBy": null,
+      "walkMins": 85
     },
     {
       "id": "recxdw2aHfE0q120y",
@@ -361,7 +550,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 17
     },
     {
       "id": "recBE88Fce0GkjHZd",
@@ -385,7 +575,8 @@ const EVENTS_DATA = {
       "featured": false,
       "recurring": false,
       "recurrencePattern": null,
-      "submittedBy": null
+      "submittedBy": null,
+      "walkMins": 51
     }
   ],
   "langstaff": [],

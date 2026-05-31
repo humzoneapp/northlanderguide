@@ -207,6 +207,9 @@ a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
 .sp-event-venue{font-size:13px;color:var(--sp-muted)}
 .sp-event-desc{font-size:13.5px;line-height:1.45;color:var(--sp-ink);opacity:.82;margin:4px 0 0;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sp-event-walk{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  color:var(--sp-rust);letter-spacing:.02em;margin-top:8px}
+.sp-event-walk .ph-light{font-size:15px}
 .sp-event-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:12px}
 .sp-event-price{font-size:12px;font-weight:700;color:var(--sp-ink);letter-spacing:.02em}
 .sp-event-cta{font-size:12px;font-weight:700;color:var(--sp-rust);display:inline-flex;align-items:center;gap:4px}

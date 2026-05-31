@@ -1923,6 +1923,9 @@ function eventCardHtml(ev){
   const href = link ? ` href="${escHtml(link)}" target="_blank" rel="noopener"` : '';
   const priceLabel = ev.free ? 'Free' : (ev.price || '');
   const stopName = ev.stop || '';
+  const walk = (typeof ev.walkMins === 'number')
+    ? `<span class="hev-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ${ev.walkMins} min walk</span>`
+    : '';
   return `<${tag} class="hev-card"${href}>
     ${ev.imageUrl
       ? `<div class="hev-img" style="background-image:url('${escHtml(ev.imageUrl)}')"></div>`
@@ -1932,6 +1935,7 @@ function eventCardHtml(ev){
       <h4 class="hev-name">${escHtml(ev.name)}</h4>
       <div class="hev-stop">${escHtml(stopName)}${ev.venue ? ` \u00B7 ${escHtml(ev.venue)}` : ''}</div>
       ${ev.description ? `<p class="hev-desc">${escHtml(ev.description)}</p>` : ''}
+      ${walk}
       <div class="hev-foot">
         ${priceLabel ? `<span class="hev-price">${escHtml(priceLabel)}</span>` : '<span></span>'}
         ${link ? `<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>` : ''}

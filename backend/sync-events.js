@@ -39,6 +39,7 @@ const path = require('path');
 
 const KEY = process.env.AIRTABLE_API_KEY;
 const BASE = process.env.AIRTABLE_BASE_ID;
+const GKEY = process.env.GOOGLE_PLACES_KEY;
 const TABLE = 'tblPPmCZ7gBlvNGk2';
 const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
 
@@ -46,6 +47,8 @@ if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');
   process.exit(1);
 }
+/* GOOGLE_PLACES_KEY is optional. If missing, walk-time computation
+   is silently skipped and existing cached values still publish. */
 
 const FIELD = {
   name: 'fldf49uTL7Ix798Lu',
@@ -70,7 +73,8 @@ const FIELD = {
   recurrencePattern: 'fldkCPHFWYA3JdCz0',
   approved: 'fldjm7sETc9PwNwRa',
   submittedBy: 'fldaKI2cPG9JPtFfW',
-  submitterEmail: 'fld6gLAblN51MMJJe'
+  submitterEmail: 'fld6gLAblN51MMJJe',
+  walkMins: 'fldRq2ec4LMvKnLE3'
 };
 
 /* Stop name to slug map kept in sync with sync-from-airtable.js. */
@@ -83,6 +87,28 @@ const STOP_ID = {
   'Cochrane': 'cochrane'
 };
 
+/* Station coordinates kept in sync with enrich-listing.js so the
+   walk-time computation lines up with the same anchor used for
+   listings. */
+const STATION_COORDS = {
+  union:        { lat: 43.645999, lng: -79.378262 },
+  langstaff:    { lat: 43.838541, lng: -79.423118 },
+  gormley:      { lat: 43.943199, lng: -79.398994 },
+  washago:      { lat: 44.748877, lng: -79.334865 },
+  gravenhurst:  { lat: 44.922324, lng: -79.372259 },
+  bracebridge:  { lat: 45.043061, lng: -79.310298 },
+  huntsville:   { lat: 45.323562, lng: -79.226337 },
+  southriver:   { lat: 45.841012, lng: -79.3758 },
+  temagami:     { lat: 47.063732, lng: -79.78894 },
+  northbay:     { lat: 46.313907, lng: -79.438537 },
+  temiskaming:  { lat: 47.508713, lng: -79.684951 },
+  englehart:    { lat: 47.826705, lng: -79.873119 },
+  kirklandlake: { lat: 48.108031, lng: -80.104478 },
+  matheson:     { lat: 48.534352, lng: -80.465128 },
+  timmins:      { lat: 48.495116, lng: -81.16054 },
+  cochrane:     { lat: 49.060283, lng: -81.023652 }
+};
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function fetchWithRetry(fn, retries = 3, delay = 1500) {
@@ -93,6 +119,40 @@ async function fetchWithRetry(fn, retries = 3, delay = 1500) {
       console.warn(`retry ${i + 1}: ${err.message}`);
       await sleep(delay);
     }
+  }
+}
+
+/* ---- Google Distance Matrix: walking minutes from a station to an
+       address string. Returns null on any failure so the caller can
+       silently fall through without breaking the publish. ---- */
+async function walkMinutesFromStation(station, address) {
+  if (!GKEY || !station || !address) return null;
+  try {
+    const url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
+      + '?origins=' + station.lat + ',' + station.lng
+      + '&destinations=' + encodeURIComponent(address)
+      + '&mode=walking&key=' + GKEY;
+    const r = await fetchWithRetry(() => fetch(url));
+    const d = await r.json();
+    const el = d.rows && d.rows[0] && d.rows[0].elements && d.rows[0].elements[0];
+    if (d.status === 'OK' && el && el.status === 'OK' && el.duration) {
+      return Math.round(el.duration.value / 60);
+    }
+  } catch (e) { /* swallow */ }
+  return null;
+}
+
+/* Cache the computed walk time back to the Airtable row so subsequent
+   syncs do not re-spend a Distance Matrix call on the same address. */
+async function cacheWalkMins(recordId, mins) {
+  const res = await fetchWithRetry(() => fetch(`https://api.airtable.com/v0/${BASE}/${TABLE}/${recordId}`, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { [FIELD.walkMins]: mins } })
+  }));
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    console.warn(`cacheWalkMins ${recordId} failed: ${res.status} ${t.slice(0, 160)}`);
   }
 }
 
@@ -159,7 +219,8 @@ function mapRecord(rec) {
     featured: f[FIELD.featured] === true,
     recurring: f[FIELD.recurring] === true,
     recurrencePattern: f[FIELD.recurrencePattern] || null,
-    submittedBy: f[FIELD.submittedBy] || null
+    submittedBy: f[FIELD.submittedBy] || null,
+    walkMins: typeof f[FIELD.walkMins] === 'number' ? f[FIELD.walkMins] : null
   };
 }
 
@@ -173,7 +234,8 @@ function mapRecord(rec) {
   const out = {};
   for (const sid of Object.values(STOP_ID)) out[sid] = [];
 
-  let kept = 0, droppedStale = 0, droppedNoStop = 0;
+  let kept = 0, droppedStale = 0, droppedNoStop = 0, walkComputed = 0, walkSkipped = 0;
+  const eventsToKeep = [];
   for (const rec of records) {
     const ev = mapRecord(rec);
     if (!ev) { droppedNoStop++; continue; }
@@ -183,8 +245,35 @@ function mapRecord(rec) {
       const cutoff = ev.endDate || ev.startDate;
       if (cutoff && cutoff < today) { droppedStale++; continue; }
     }
-    out[ev.stopId].push(ev);
+    eventsToKeep.push(ev);
     kept++;
+  }
+
+  /* Walk-time pass: for any kept event with no cached walkMins but
+     with a usable address, ask Google Distance Matrix once and cache
+     the answer back to Airtable. Use the venue or address as the
+     destination; prefer "Venue, Address" when both exist for better
+     geocoding. Recurring events benefit most from caching since they
+     keep their value across every future sync. */
+  for (const ev of eventsToKeep) {
+    if (ev.walkMins != null) continue;
+    const station = STATION_COORDS[ev.stopId];
+    if (!station) { walkSkipped++; continue; }
+    const dest = [ev.venue, ev.address].filter(Boolean).join(', ').trim();
+    if (!dest) { walkSkipped++; continue; }
+    const mins = await walkMinutesFromStation(station, dest);
+    if (mins != null) {
+      ev.walkMins = mins;
+      walkComputed++;
+      await cacheWalkMins(ev.id, mins);
+      await sleep(220);
+    } else {
+      walkSkipped++;
+    }
+  }
+
+  for (const ev of eventsToKeep) {
+    out[ev.stopId].push(ev);
   }
 
   /* Sort each stop's events: featured first, then by start date asc,
@@ -200,7 +289,7 @@ function mapRecord(rec) {
   }
 
   const stopsWithEvents = Object.values(out).filter(arr => arr.length > 0).length;
-  console.log(`Kept ${kept} events across ${stopsWithEvents} stops. Dropped stale=${droppedStale}, unmapped-stop=${droppedNoStop}.`);
+  console.log(`Kept ${kept} events across ${stopsWithEvents} stops. Dropped stale=${droppedStale}, unmapped-stop=${droppedNoStop}. Walk times: computed=${walkComputed}, skipped=${walkSkipped}.`);
 
   const header = '/* AUTO-GENERATED by backend/sync-events.js. Do not edit by hand.\n'
     + '   Event data sourced from the Airtable Events table (Approved rows only,\n'
