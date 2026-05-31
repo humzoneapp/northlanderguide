@@ -1958,8 +1958,43 @@ window.eventFilters = window.eventFilters || {
   month: 'all',     // 'all' | numeric key (YYYYMM) | 'recurring'
   category: 'all',  // 'all' | one of EVENT_CATEGORIES
   price: 'all',     // 'all' | 'free' | 'paid'
-  walk: 'all'       // 'all' | 15 | 30 | 60
+  walk: 'all',      // 'all' | 15 | 30 | 60
+  page: 1           // 1-indexed current page of dated events
 };
+
+const HEV_PAGE_SIZE = 9;
+
+/* Smart page list: show all when <= 7 total. Otherwise compress with
+   ellipsis around the current page so the bar stays one line. */
+function eventsPageList(current, total) {
+  if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const ordered = Array.from(pages).filter(n => n >= 1 && n <= total).sort((a,b) => a-b);
+  const out = [];
+  for (let i = 0; i < ordered.length; i++) {
+    if (i && ordered[i] - ordered[i-1] > 1) out.push('...');
+    out.push(ordered[i]);
+  }
+  return out;
+}
+
+function eventsPaginationHtml(current, total) {
+  if (total <= 1) return '';
+  const items = eventsPageList(current, total);
+  const btns = items.map(p => {
+    if (p === '...') return '<span class="hev-pageellipsis">...</span>';
+    return `<button type="button" class="hev-pagebtn${p === current ? ' is-active' : ''}" data-page="${p}">${p}</button>`;
+  }).join('');
+  return `<nav class="hev-pagination" aria-label="Event pagination">
+    <button type="button" class="hev-pagebtn hev-pagenav" data-page="${current - 1}" ${current === 1 ? 'disabled' : ''} aria-label="Previous page">
+      <i class="ph-light ph-caret-left" aria-hidden="true"></i> Prev
+    </button>
+    ${btns}
+    <button type="button" class="hev-pagebtn hev-pagenav" data-page="${current + 1}" ${current === total ? 'disabled' : ''} aria-label="Next page">
+      Next <i class="ph-light ph-caret-right" aria-hidden="true"></i>
+    </button>
+  </nav>`;
+}
 
 function eventMatchesFilters(ev, f) {
   if (f.month !== 'all') {
@@ -2044,26 +2079,45 @@ function eventsFilterBarHtml(allEvents, f) {
     </div>`;
 }
 
-function renderEventsGridInto(target, events) {
-  /* Group filtered events by month; recurring goes in its own block. */
-  const buckets = new Map();
-  const recurring = [];
-  for (const ev of events) {
-    if (ev.recurring || !ev.startDate) { recurring.push(ev); continue; }
-    const k = monthKeyForEvent(ev);
-    if (!buckets.has(k)) buckets.set(k, []);
-    buckets.get(k).push(ev);
-  }
-  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
-  const sortBucket = arr => arr.sort((a,b) => {
+/* Sort an array of events: featured first, then start date asc, then
+   name. Used for both the flat dated list and each month bucket. */
+function sortEventsList(arr) {
+  return arr.sort((a,b) => {
     if (a.featured !== b.featured) return a.featured ? -1 : 1;
     const ad = a.startDate || '9999-12-31';
     const bd = b.startDate || '9999-12-31';
     if (ad !== bd) return ad < bd ? -1 : 1;
     return (a.name || '').localeCompare(b.name || '');
   });
-  for (const k of monthKeys) sortBucket(buckets.get(k));
-  sortBucket(recurring);
+}
+
+/* Render a filtered + paginated event set into `target`. Recurring
+   events live outside the page window so they are always visible at
+   the bottom; only the dated events paginate. Returns the page count
+   needed for pagination controls. */
+function renderEventsGridInto(target, events, page) {
+  const dated = [];
+  const recurring = [];
+  for (const ev of events) {
+    if (ev.recurring || !ev.startDate) recurring.push(ev);
+    else dated.push(ev);
+  }
+  sortEventsList(dated);
+  sortEventsList(recurring);
+
+  const totalPages = Math.max(1, Math.ceil(dated.length / HEV_PAGE_SIZE));
+  const clamped = Math.min(Math.max(1, page), totalPages);
+  const slice = dated.slice((clamped - 1) * HEV_PAGE_SIZE, clamped * HEV_PAGE_SIZE);
+
+  /* Re-bucket the page slice by month so headings still surface
+     even when a single month spans multiple pages. */
+  const buckets = new Map();
+  for (const ev of slice) {
+    const k = monthKeyForEvent(ev);
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(ev);
+  }
+  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
 
   const monthsHtml = monthKeys.map(k => `
     <div class="hev-month">
@@ -2077,7 +2131,8 @@ function renderEventsGridInto(target, events) {
       <div class="hev-grid">${recurring.map(eventCardHtml).join('')}</div>
     </div>
   ` : '';
-  target.innerHTML = monthsHtml + recurringHtml;
+  target.innerHTML = monthsHtml + recurringHtml + eventsPaginationHtml(clamped, totalPages);
+  return { totalPages, page: clamped };
 }
 
 function renderEvents(){
@@ -2112,10 +2167,16 @@ function renderEvents(){
         : `<div class="hev-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>
             <p>No events match these filters. Try widening your selection.</p></div>`)
     + '</div>';
-  if (filtered.length) renderEventsGridInto(document.getElementById('eventGrid'), filtered);
+  if (filtered.length) {
+    const result = renderEventsGridInto(document.getElementById('eventGrid'), filtered, window.eventFilters.page || 1);
+    /* If the user landed on a stale page (filter narrowed the list),
+       snap eventFilters.page back to the clamped value so the active
+       pagination button reflects reality. */
+    window.eventFilters.page = result.page;
+  }
   observeReveals();
 
-  /* Delegated handlers for chips + dropdown + reset. */
+  /* Delegated handlers for chips + dropdown + reset + pagination. */
   const bar = document.getElementById('eventFilters');
   if (!bar) return;
   bar.addEventListener('click', e => {
@@ -2126,19 +2187,39 @@ function renderEvents(){
       if (group === 'month' && val !== 'all' && val !== 'recurring') val = parseInt(val, 10);
       if (group === 'walk' && val !== 'all') val = parseInt(val, 10);
       window.eventFilters[group] = val;
+      window.eventFilters.page = 1; /* filter change resets pagination */
       renderEvents();
       return;
     }
     if (e.target.id === 'eventFiltersReset') {
-      window.eventFilters = { month:'all', category:'all', price:'all', walk:'all' };
+      window.eventFilters = { month:'all', category:'all', price:'all', walk:'all', page:1 };
       renderEvents();
     }
   });
   const sel = document.getElementById('eventCategorySelect');
   if (sel) sel.addEventListener('change', () => {
     window.eventFilters.category = sel.value;
+    window.eventFilters.page = 1;
     renderEvents();
   });
+
+  /* Pagination handler: page buttons live inside #eventGrid, so the
+     delegated listener has to sit on the wrap (not the bar). Scroll
+     the events section to the top of the grid on page change so the
+     visitor sees the new first card without manual scrolling. */
+  const grid = document.getElementById('eventGrid');
+  if (grid) {
+    grid.addEventListener('click', e => {
+      const btn = e.target.closest('button.hev-pagebtn');
+      if (!btn || btn.disabled) return;
+      const p = parseInt(btn.getAttribute('data-page'), 10);
+      if (!Number.isFinite(p) || p < 1) return;
+      window.eventFilters.page = p;
+      renderEvents();
+      const head = document.querySelector('#events .section-head');
+      if (head) head.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
 }
 
 /* ------------------------------------------------------------------

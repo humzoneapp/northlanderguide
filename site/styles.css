@@ -1483,6 +1483,20 @@ a{color:inherit}
 .hev-price{font-size:.78rem;font-weight:700;color:var(--poster-ink);letter-spacing:.02em}
 .hev-cta{font-size:.78rem;font-weight:700;color:var(--poster-crimson);display:inline-flex;align-items:center;gap:.2rem}
 .hev-cta .ph-light{font-size:.95rem}
+/* Pagination below the homepage event grid. Centred row of buttons
+   with a clear active state. Prev / Next gain a subtle caret. */
+.hev-pagination{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
+  gap:.4rem;margin:1.6rem 0 .8rem}
+.hev-pagebtn{background:transparent;border:1.5px solid var(--line);border-radius:4px;
+  min-width:36px;height:36px;padding:0 .65rem;font-size:.9rem;font-weight:700;font-family:inherit;
+  color:var(--poster-ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.25rem;
+  transition:background .15s ease,color .15s ease,border-color .15s ease}
+.hev-pagebtn:hover:not([disabled]){border-color:var(--poster-crimson);color:var(--poster-crimson)}
+.hev-pagebtn.is-active{background:var(--poster-crimson);border-color:var(--poster-crimson);color:var(--poster-ivory,#f6efe2)}
+.hev-pagebtn[disabled]{opacity:.4;cursor:not-allowed}
+.hev-pagenav{padding:0 .9rem}
+.hev-pageellipsis{padding:0 .35rem;color:var(--poster-mute);font-weight:700}
+
 .hev-empty{padding:3rem 1.5rem;text-align:left;background:var(--card);border:1.5px dashed var(--line);border-radius:4px;max-width:640px;margin:0 auto}
 .hev-empty .ph-light,.hev-empty .ph{font-size:2.8rem;color:var(--poster-crimson);display:block;margin-bottom:.7rem}
 .hev-empty p{font-family:'Fraunces',Georgia,serif;font-size:1.1rem;color:var(--poster-ink);margin:0 0 .8rem;max-width:540px}

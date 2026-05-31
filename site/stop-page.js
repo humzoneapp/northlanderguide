@@ -131,7 +131,34 @@
     'Sports & Recreation', 'Community & Family', 'History & Heritage'
   ];
 
-  let spEventFilters = { month: 'all', category: 'all', price: 'all', walk: 'all' };
+  let spEventFilters = { month: 'all', category: 'all', price: 'all', walk: 'all', page: 1 };
+  const SP_EVENT_PAGE_SIZE = 9;
+
+  function spPageList(current, total) {
+    if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+    const pages = new Set([1, total, current - 1, current, current + 1]);
+    const ordered = Array.from(pages).filter(n => n >= 1 && n <= total).sort((a,b) => a-b);
+    const out = [];
+    for (let i = 0; i < ordered.length; i++) {
+      if (i && ordered[i] - ordered[i-1] > 1) out.push('...');
+      out.push(ordered[i]);
+    }
+    return out;
+  }
+
+  function spPaginationHtml(current, total) {
+    if (total <= 1) return '';
+    const items = spPageList(current, total);
+    const btns = items.map(p => {
+      if (p === '...') return '<span class="sp-evpageellipsis">...</span>';
+      return '<button type="button" class="sp-evpagebtn' + (p === current ? ' is-active' : '') + '" data-page="' + p + '">' + p + '</button>';
+    }).join('');
+    return '<nav class="sp-evpagination" aria-label="Event pagination">'
+      + '<button type="button" class="sp-evpagebtn sp-evpagenav" data-page="' + (current - 1) + '"' + (current === 1 ? ' disabled' : '') + ' aria-label="Previous page"><i class="ph-light ph-caret-left" aria-hidden="true"></i> Prev</button>'
+      + btns
+      + '<button type="button" class="sp-evpagebtn sp-evpagenav" data-page="' + (current + 1) + '"' + (current === total ? ' disabled' : '') + ' aria-label="Next page">Next <i class="ph-light ph-caret-right" aria-hidden="true"></i></button>'
+      + '</nav>';
+  }
 
   function spMonthKey(ev) {
     if (!ev.startDate) return 'recurring';
@@ -215,11 +242,37 @@
         list.innerHTML = '<div class="sp-events-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>'
           + '<p>No events match these filters. Try widening your selection.</p></div>';
       } else {
-        list.innerHTML = filtered.map(eventCard).join('');
+        /* Split dated vs recurring; only dated paginate. Recurring
+           always shows at the bottom outside the page window. */
+        const dated = [], recurring = [];
+        for (const ev of filtered) {
+          if (ev.recurring || !ev.startDate) recurring.push(ev);
+          else dated.push(ev);
+        }
+        const sortFn = (a,b) => {
+          if (a.featured !== b.featured) return a.featured ? -1 : 1;
+          const ad = a.startDate || '9999-12-31';
+          const bd = b.startDate || '9999-12-31';
+          if (ad !== bd) return ad < bd ? -1 : 1;
+          return (a.name || '').localeCompare(b.name || '');
+        };
+        dated.sort(sortFn);
+        recurring.sort(sortFn);
+
+        const totalPages = Math.max(1, Math.ceil(dated.length / SP_EVENT_PAGE_SIZE));
+        const clamped = Math.min(Math.max(1, spEventFilters.page || 1), totalPages);
+        spEventFilters.page = clamped;
+        const slice = dated.slice((clamped - 1) * SP_EVENT_PAGE_SIZE, clamped * SP_EVENT_PAGE_SIZE);
+
+        const cardsHtml = slice.map(eventCard).join('')
+          + (recurring.length ? recurring.map(eventCard).join('') : '');
+        list.innerHTML = '<div class="sp-events">' + cardsHtml + '</div>'
+          + spPaginationHtml(clamped, totalPages);
       }
       const sel = document.getElementById('spEventCategorySelect');
       if (sel) sel.addEventListener('change', () => {
         spEventFilters.category = sel.value;
+        spEventFilters.page = 1;
         rerender();
       });
     }
@@ -233,13 +286,23 @@
         if (group === 'month' && val !== 'all' && val !== 'recurring') val = parseInt(val, 10);
         if (group === 'walk' && val !== 'all') val = parseInt(val, 10);
         spEventFilters[group] = val;
+        spEventFilters.page = 1;
         rerender();
         return;
       }
       if (e.target.id === 'spEventFiltersReset') {
-        spEventFilters = { month:'all', category:'all', price:'all', walk:'all' };
+        spEventFilters = { month:'all', category:'all', price:'all', walk:'all', page:1 };
         rerender();
       }
+    });
+    list.addEventListener('click', e => {
+      const btn = e.target.closest('button.sp-evpagebtn');
+      if (!btn || btn.disabled) return;
+      const p = parseInt(btn.getAttribute('data-page'), 10);
+      if (!Number.isFinite(p) || p < 1) return;
+      spEventFilters.page = p;
+      rerender();
+      if (bar.scrollIntoView) bar.scrollIntoView({ behavior:'smooth', block:'start' });
     });
   }
 
