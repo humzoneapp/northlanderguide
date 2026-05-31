@@ -211,7 +211,11 @@
 .sp-evfilter-section-label{display:inline-flex;align-items:center;gap:6px;
   font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--sp-muted)}
 .sp-evfilter-section-label .ph-light{font-size:15px;color:var(--sp-rust)}
-.sp-evfilter-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:14px 22px;margin-top:6px}
+/* Match the homepage layout: flex row with equal gap between the
+   three sections, content-sized so Walk time stays on one line. */
+.sp-evfilter-grid{display:flex;justify-content:space-between;align-items:flex-start;
+  flex-wrap:wrap;gap:14px 22px;margin-top:6px}
+.sp-evfilter-section{flex:0 1 auto;min-width:0}
 .sp-evchip-row{display:flex;flex-wrap:wrap;gap:6px}
 .sp-evchip{background:transparent;border:1.5px solid #d9cfba;border-radius:999px;
   padding:5px 13px;font-size:13px;font-weight:600;color:var(--sp-ink);cursor:pointer;

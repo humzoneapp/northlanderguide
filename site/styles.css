@@ -1451,7 +1451,13 @@ a{color:inherit}
 .hev-filter-section-label{display:inline-flex;align-items:center;gap:.4rem;
   font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--poster-mute)}
 .hev-filter-section-label .ph-light{font-size:1rem;color:var(--poster-crimson)}
-.hev-filter-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem 1.5rem;margin-top:.4rem}
+/* Three filter sections sit on one row with equal gaps between them.
+   Each section is content-sized (no forced 1fr), so Price does not
+   pad out into empty space and Walk time keeps all four chips on a
+   single line on desktop. Stacks vertically below 720px. */
+.hev-filter-grid{display:flex;justify-content:space-between;align-items:flex-start;
+  flex-wrap:wrap;gap:1rem 1.5rem;margin-top:.4rem}
+.hev-filter-section{flex:0 1 auto;min-width:0}
 .hev-chip-row{display:flex;flex-wrap:wrap;gap:.4rem}
 .hev-chip{background:transparent;border:1.5px solid var(--line);border-radius:999px;
   padding:.38rem .9rem;font-size:.84rem;font-weight:600;color:var(--poster-ink);cursor:pointer;
