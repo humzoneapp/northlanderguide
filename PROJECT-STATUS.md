@@ -19,6 +19,16 @@ what's already wired. Keep this short; details belong in the code.
 - Sync hardening: `fetchWithRetry`, atomic temp-file writes with marker+size validation, hard-abort guard at <100 listings, backup/restore on failure, `timeout-minutes: 10`.
 - Instant tip publish path: Airtable approval > Vercel `/api/trigger-tip-sync` > GitHub `repository_dispatch` > `sync-tips.yml` > regex-replaces only the `STOP_TIPS_DATA` block.
 
+### Events
+- Airtable Events table at `tblPPmCZ7gBlvNGk2` is the single source of truth. Schema: Event Name, Stop, Category, Start/End Date, Start/End Time, Venue Name, Address, Description, Image URL (text), Event URL, Ticket URL, Price, Free, Source, Featured, Recurring, Recurrence Pattern, Approved, Submitted By, Submitter Email.
+- `backend/sync-events.js` reads Approved=true events, drops stale one-offs (cutoff = Toronto time), keeps recurring regardless, sorts Featured-first then by start date, writes `site/events-data.js` keyed by stop slug.
+- `.github/workflows/sync-events.yml` runs at 7:15am and 7:15pm UTC (offset from listings sync by an hour), plus `workflow_dispatch` and `repository_dispatch: event-approved` for future instant publish on Approve.
+- Stop pages: "What's On in [stop]" renders a responsive grid of approved events with image, date range + optional time, venue, description (clamped 3 lines), price or Free badge, and a More info link out. Empty state for stops with no events.
+- Homepage: route-wide grid grouped by Month YYYY, Featured first within each month, with a separate "Ongoing & Recurring" section. Section heading is "Events Along the Route".
+- Community submission: `/#submit-event` form on the homepage posts to `/api/submit-event`. Honeypot + dual-confirm checkboxes, server-side validation, every Airtable field except admin-only ones (Approved, Featured, Recurring, Recurrence Pattern). Rows arrive with Approved=false and Source="Community Submission" - admin reviews in Airtable then ticks Approved.
+- Stop-page empty-state CTA deep-links to `/#submit-event`.
+- Eventbrite live fetch dropped. The local `backend/server.js` Eventbrite proxy still exists but is unused. Source field kept on Events so future imports can flag origin.
+
 ### Auto-enrichment
 - `backend/enrich-listing.js` exports `enrichRecord(recordId, { onlyFillEmpty, forceClaude })`. Uses Google Places (Find Place + Place Details + Distance Matrix) + Claude Haiku 4.5 for Description/Tag/Best For.
 - Strict prompt: structured Places data only, no reviews / no editorial summary / no general knowledge / no town or street / no decor / no ambiance / no superlatives / no historical dates / no audience claims / 3+ category-typical attributes for substance / per-row variety.
@@ -43,13 +53,9 @@ what's already wired. Keep this short; details belong in the code.
 - No emojis unless explicitly requested.
 - Listing descriptions: honest, verifiable, no invention. Concrete factual nouns, no adjectives, no place names, no decor, no ambiance.
 
-## In progress (this session)
-
-- Events: Airtable Events table exists at `tblPPmCZ7gBlvNGk2` with Approved checkbox gate. Building `sync-events.js` and stop-page rendering. Homepage events grid and submit-event form to follow.
-- Eventbrite integration deprecated. Removing the live fetch path; keeping the source field on Events for future imports.
-
 ## Known follow-ups
 
-- Backfill workflow uses `actions/checkout@v4` and `actions/setup-node@v4` which are deprecated for Node 20. Will need Node 24 by 2026-09-16.
-- Event submission form not built yet (planned for next session).
-- Homepage events panel (`#eventPanel`) still uses the legacy `activeStop.events` shape with no live data source on prod.
+- Backfill, sync-listings, sync-events, sync-tips, enrich-listing and backfill-listings workflows all use `actions/checkout@v4` and `actions/setup-node@v4`. Both run on Node 20 which is deprecated for Actions; needs Node 24 by 2026-09-16.
+- `api/enrich-listing.js` Vercel function is deployed but dormant. No Airtable automation points at it yet, so new listings are enriched only via manual GitHub workflow dispatch. Wire-up is documented in earlier session notes if/when ready.
+- `backend/server.js` Eventbrite proxy is dead code now; safe to delete if we never reintroduce live Eventbrite imports.
+- "Submit a Listing" and "Advertise" footer links on the homepage currently point at `#` placeholders.
