@@ -276,8 +276,10 @@
     + (stopEvents.length
         ? '<div class="sp-events">' + stopEvents.map(eventCard).join('') + '</div>'
         : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
-          + '<p>Events coming soon. Know about something happening here? Submit it below.</p>'
-          + '<a href="/#submit-event">Submit an event</a></div>')
+          + '<p>Events coming soon. Know about something happening here?</p></div>')
+    + '<div class="sp-events-submit"><a class="sp-btn submit-event-trigger" href="/submit-event/">'
+    + '<i class="ph-light ph-plus" aria-hidden="true"></i> Submit an event at ' + esc(displayName)
+    + '</a></div>'
     + '</section>';
 
   html += divider();

@@ -66,19 +66,19 @@
       <div class="nav-dropdown-panel" role="menu">
         <div class="nav-section">
           <h5 class="nav-section-label">Explore</h5>
-          <a href="#stopnav">The Route</a>
-          <a href="#stopnav">All Stops</a>
-          <a href="#events">Events</a>
+          <a href="/#stopnav">The Route</a>
+          <a href="#" onclick="openStopExplorer();return false;">All Stops</a>
+          <a href="/#events">Events</a>
         </div>
         <div class="nav-section">
-          <h5 class="nav-section-label">Project</h5>
+          <h5 class="nav-section-label">Get Involved</h5>
+          <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
           <a href="#">Submit a Listing</a>
           <a href="#">Advertise</a>
-          <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info</a>
         </div>
         <div class="nav-section">
-          <h5 class="nav-section-label">Guides</h5>
-          <!-- Add Guide links here as you publish them -->
+          <h5 class="nav-section-label">Resources</h5>
+          <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info</a>
         </div>
       </div>
     </div>
@@ -93,13 +93,13 @@
      the top when hamburger is tapped. Display:block only kicks in
      at the mobile breakpoint via CSS. -->
 <nav class="mobilemenu" id="mobilemenu" aria-hidden="true">
-  <a href="#stopnav">The Route</a>
-  <a href="#stopnav">All Stops</a>
-  <a href="#events">Events</a>
+  <a href="/#stopnav">The Route</a>
+  <a href="#" onclick="openStopExplorer();return false;">All Stops</a>
+  <a href="/#events">Events</a>
+  <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
   <a href="#">Submit a Listing</a>
   <a href="#">Advertise</a>
   <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info</a>
-  <a href="#" onclick="openStopExplorer();return false;">Explore Stops</a>
 </nav>
 
 <!-- ===== HERO =====
@@ -167,141 +167,16 @@
   </div>
   <div id="eventPanel"></div>
 
-  <div class="event-submit reveal" id="submit-event">
-    <div class="event-submit-head">
+  <!-- CTA card opens the modal. Falls back to /submit-event/ as a real
+       link for crawlers and no-JS visitors. -->
+  <div class="event-cta reveal" id="submit-event">
+    <div class="event-cta-body">
       <h3>Know about an event we should list?</h3>
-      <p>Markets, festivals, live music, community gatherings - if it's happening along the route, submit it. We review every submission before publishing.</p>
+      <p>Markets, festivals, live music, community gatherings - if it is happening along the route, share it with us. We review every submission before publishing.</p>
+      <a class="btn btn-primary submit-event-trigger" href="/submit-event/">
+        Submit an event
+      </a>
     </div>
-    <form class="event-form" id="evForm" novalidate>
-      <div class="event-form-grid">
-        <label class="ef-field ef-span-2">
-          <span class="ef-label">Event name <span class="ef-req">*</span></span>
-          <input id="evName" type="text" maxlength="200" required>
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Stop <span class="ef-req">*</span></span>
-          <select id="evStop" required>
-            <option value="">Choose a stop</option>
-            <option>Toronto Union</option>
-            <option>Langstaff</option>
-            <option>Gormley</option>
-            <option>Washago</option>
-            <option>Gravenhurst</option>
-            <option>Bracebridge</option>
-            <option>Huntsville</option>
-            <option>South River</option>
-            <option>Temagami</option>
-            <option>North Bay</option>
-            <option>Temiskaming Shores</option>
-            <option>Englehart</option>
-            <option>Kirkland Lake</option>
-            <option>Matheson</option>
-            <option>Timmins</option>
-            <option>Cochrane</option>
-          </select>
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Category</span>
-          <select id="evCategory">
-            <option value="">Choose a category (optional)</option>
-            <option>Music &amp; Live Performance</option>
-            <option>Food &amp; Drink</option>
-            <option>Outdoor &amp; Adventure</option>
-            <option>Arts &amp; Culture</option>
-            <option>Festivals &amp; Fairs</option>
-            <option>Markets &amp; Shopping</option>
-            <option>Sports &amp; Recreation</option>
-            <option>Community &amp; Family</option>
-            <option>History &amp; Heritage</option>
-          </select>
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Start date <span class="ef-req">*</span></span>
-          <input id="evStartDate" type="date" required>
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">End date</span>
-          <input id="evEndDate" type="date">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Start time</span>
-          <input id="evStartTime" type="text" maxlength="40" placeholder="e.g. 7:00 PM">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">End time</span>
-          <input id="evEndTime" type="text" maxlength="40" placeholder="e.g. 10:00 PM">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Venue name</span>
-          <input id="evVenue" type="text" maxlength="200">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Address</span>
-          <input id="evAddress" type="text" maxlength="300">
-        </label>
-
-        <label class="ef-field ef-span-2">
-          <span class="ef-label">Description <span class="ef-req">*</span></span>
-          <textarea id="evDescription" maxlength="2000" rows="4" required></textarea>
-        </label>
-
-        <label class="ef-field ef-span-2">
-          <span class="ef-label">Image URL</span>
-          <input id="evImageUrl" type="url" placeholder="https://...">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Event URL</span>
-          <input id="evEventUrl" type="url" placeholder="https://...">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Ticket URL</span>
-          <input id="evTicketUrl" type="url" placeholder="https://...">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Price</span>
-          <input id="evPrice" type="text" maxlength="80" placeholder="e.g. $25, $10-$30">
-        </label>
-
-        <label class="ef-field ef-checkbox-inline">
-          <input id="evFree" type="checkbox">
-          <span>This event is free.</span>
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Your name</span>
-          <input id="evSubmittedBy" type="text" maxlength="200">
-        </label>
-
-        <label class="ef-field">
-          <span class="ef-label">Your email <span class="ef-req">*</span></span>
-          <input id="evEmail" type="email" maxlength="200" required>
-        </label>
-      </div>
-
-      <!-- Honeypot: real visitors leave this blank. -->
-      <div class="ef-honey" aria-hidden="true">
-        <label>Website<input id="evUrl" type="text" tabindex="-1" autocomplete="off"></label>
-      </div>
-
-      <div class="ef-confirms">
-        <label class="ef-check"><input type="checkbox" id="evHuman"><span>I am not a robot.</span></label>
-        <label class="ef-check"><input type="checkbox" id="evConsent"><span>I confirm this event information is accurate and may be posted publicly after review.</span></label>
-      </div>
-
-      <button class="btn btn-primary" type="submit" id="evSubmit" disabled>Submit event</button>
-      <p class="ef-msg" id="evMsg" role="status"></p>
-    </form>
   </div>
 </section>
 
@@ -315,14 +190,18 @@
     </div>
     <div class="fcol">
       <h4>Explore</h4>
-      <a href="#stopnav">The Route</a>
-      <a href="#stopnav">All Stops</a>
-      <a href="#events">Events</a>
+      <a href="/#stopnav">The Route</a>
+      <a href="#" onclick="openStopExplorer();return false;">All Stops</a>
+      <a href="/#events">Events</a>
     </div>
     <div class="fcol">
-      <h4>Project</h4>
+      <h4>Get Involved</h4>
+      <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
       <a href="#">Submit a Listing</a>
       <a href="#">Advertise</a>
+    </div>
+    <div class="fcol">
+      <h4>Resources</h4>
       <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener" class="external-link">Official Train Info <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
     </div>
   </div>
@@ -331,6 +210,66 @@
     Ontario Northland's proposed timetable and may change. Confirm before travelling.
   </div>
 </footer>
+
+<!-- Submit-event modal. Same form fields as /submit-event/ so the JS
+     handler in app.js can target whichever copy is on the page. -->
+<dialog class="ev-modal" id="evModal" aria-labelledby="evModalTitle">
+  <div class="ev-modal-card">
+    <button type="button" class="ev-modal-close" id="evModalClose" aria-label="Close">
+      <i class="ph-light ph-x" aria-hidden="true"></i>
+    </button>
+    <div class="ev-modal-head">
+      <h2 id="evModalTitle">Submit an event</h2>
+      <p>Tell us about something happening along the Northlander route. We review every submission before publishing.</p>
+    </div>
+    <form class="event-form" id="evForm" novalidate>
+      <div class="event-form-grid">
+        <label class="ef-field ef-span-2"><span class="ef-label">Event name <span class="ef-req">*</span></span><input id="evName" type="text" maxlength="200" required></label>
+        <label class="ef-field"><span class="ef-label">Stop <span class="ef-req">*</span></span>
+          <select id="evStop" required>
+            <option value="">Choose a stop</option>
+            <option>Toronto Union</option><option>Langstaff</option><option>Gormley</option>
+            <option>Washago</option><option>Gravenhurst</option><option>Bracebridge</option>
+            <option>Huntsville</option><option>South River</option><option>Temagami</option>
+            <option>North Bay</option><option>Temiskaming Shores</option><option>Englehart</option>
+            <option>Kirkland Lake</option><option>Matheson</option><option>Timmins</option><option>Cochrane</option>
+          </select>
+        </label>
+        <label class="ef-field"><span class="ef-label">Category</span>
+          <select id="evCategory">
+            <option value="">Choose a category (optional)</option>
+            <option>Music &amp; Live Performance</option><option>Food &amp; Drink</option>
+            <option>Outdoor &amp; Adventure</option><option>Arts &amp; Culture</option>
+            <option>Festivals &amp; Fairs</option><option>Markets &amp; Shopping</option>
+            <option>Sports &amp; Recreation</option><option>Community &amp; Family</option>
+            <option>History &amp; Heritage</option>
+          </select>
+        </label>
+        <label class="ef-field"><span class="ef-label">Start date <span class="ef-req">*</span></span><input id="evStartDate" type="date" required></label>
+        <label class="ef-field"><span class="ef-label">End date</span><input id="evEndDate" type="date"></label>
+        <label class="ef-field"><span class="ef-label">Start time</span><input id="evStartTime" type="text" maxlength="40" placeholder="e.g. 7:00 PM"></label>
+        <label class="ef-field"><span class="ef-label">End time</span><input id="evEndTime" type="text" maxlength="40" placeholder="e.g. 10:00 PM"></label>
+        <label class="ef-field"><span class="ef-label">Venue name</span><input id="evVenue" type="text" maxlength="200"></label>
+        <label class="ef-field"><span class="ef-label">Address</span><input id="evAddress" type="text" maxlength="300"></label>
+        <label class="ef-field ef-span-2"><span class="ef-label">Description <span class="ef-req">*</span></span><textarea id="evDescription" maxlength="2000" rows="4" required></textarea></label>
+        <label class="ef-field ef-span-2"><span class="ef-label">Image URL</span><input id="evImageUrl" type="url" placeholder="https://..."></label>
+        <label class="ef-field"><span class="ef-label">Event URL</span><input id="evEventUrl" type="url" placeholder="https://..."></label>
+        <label class="ef-field"><span class="ef-label">Ticket URL</span><input id="evTicketUrl" type="url" placeholder="https://..."></label>
+        <label class="ef-field"><span class="ef-label">Price</span><input id="evPrice" type="text" maxlength="80" placeholder="e.g. $25, $10-$30"></label>
+        <label class="ef-field ef-checkbox-inline"><input id="evFree" type="checkbox"><span>This event is free.</span></label>
+        <label class="ef-field"><span class="ef-label">Your name</span><input id="evSubmittedBy" type="text" maxlength="200"></label>
+        <label class="ef-field"><span class="ef-label">Your email <span class="ef-req">*</span></span><input id="evEmail" type="email" maxlength="200" required></label>
+      </div>
+      <div class="ef-honey" aria-hidden="true"><label>Website<input id="evUrl" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <div class="ef-confirms">
+        <label class="ef-check"><input type="checkbox" id="evHuman"><span>I am not a robot.</span></label>
+        <label class="ef-check"><input type="checkbox" id="evConsent"><span>I confirm this event information is accurate and may be posted publicly after review.</span></label>
+      </div>
+      <button class="btn btn-primary" type="submit" id="evSubmit" disabled>Submit event</button>
+      <p class="ef-msg" id="evMsg" role="status"></p>
+    </form>
+  </div>
+</dialog>
 
 <!-- back-to-top -->
 <a href="#top" class="totop" aria-label="Back to top">

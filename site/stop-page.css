@@ -216,6 +216,8 @@ a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
 .sp-events-empty .ph-light,.sp-events-empty .ph{font-size:46px;color:var(--sp-rust);display:block;margin-bottom:14px}
 .sp-events-empty p{font-family:'Fraunces',Georgia,serif;font-size:18px;color:var(--sp-ink);margin:0 0 14px;max-width:560px}
 .sp-events-empty a{color:var(--sp-rust);font-weight:600}
+.sp-events-submit{margin-top:22px;text-align:center}
+.sp-events-submit .sp-btn{display:inline-flex;align-items:center;gap:6px}
 
 /* ---------- FAQ accordion ---------- */
 .sp-faq{border-left:4px solid var(--sp-rust);padding:0 0 0 22px;margin:0 0 14px}

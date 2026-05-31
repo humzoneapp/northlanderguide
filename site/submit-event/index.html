@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Submit an Event - NorthlanderGuide.com</title>
+<meta name="description" content="Share an event happening along the Ontario Northland Northlander train route. Markets, festivals, live music, community gatherings - submissions are reviewed before publishing.">
+<link rel="canonical" href="https://northlanderguide.com/submit-event/">
+
+<meta property="og:title" content="Submit an Event - NorthlanderGuide.com">
+<meta property="og:description" content="Share an event happening along the Ontario Northland Northlander train route. We review every submission before publishing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://northlanderguide.com/submit-event/">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Submit an Event",
+  "description": "Submit an event for inclusion in the NorthlanderGuide.com directory of things to do along the Ontario Northland Northlander train route.",
+  "url": "https://northlanderguide.com/submit-event/",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "NorthlanderGuide.com",
+    "url": "https://northlanderguide.com/"
+  },
+  "potentialAction": {
+    "@type": "CommunicateAction",
+    "name": "Submit an event",
+    "target": "https://northlanderguide.com/api/submit-event"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://northlanderguide.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Submit an Event", "item": "https://northlanderguide.com/submit-event/" }
+    ]
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,0,900;9..144,1,500&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css"/>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="submit-event-page">
+
+<div class="topbar">
+  <a href="/" class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26">
+        <circle cx="16" cy="16" r="15" fill="#8e3d22"/>
+        <path d="M8 21 L8 12 Q8 9 11 9 L21 9 Q24 9 24 12 L24 21 Z" fill="#f3ece0"/>
+        <rect x="10" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <rect x="17" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <circle cx="11" cy="20" r="1.2" fill="#0e3b2c"/>
+        <circle cx="21" cy="20" r="1.2" fill="#0e3b2c"/>
+      </svg>
+    </span>
+    Northlander<span>Guide</span>
+  </a>
+  <a href="/" class="topbar-back"><i class="ph-light ph-arrow-left" aria-hidden="true"></i> Back to home</a>
+</div>
+
+<main class="submit-event-main">
+  <header class="submit-event-hero">
+    <div class="kicker">Get Involved</div>
+    <h1>Submit an Event</h1>
+    <p>Markets, festivals, live music, community gatherings, theatre openings, conservation walks - if it's happening along the Northlander route, share it with us. We review every submission before publishing.</p>
+  </header>
+
+  <form class="event-form event-form--page" id="evFormPage" novalidate>
+    <div class="event-form-grid">
+      <label class="ef-field ef-span-2"><span class="ef-label">Event name <span class="ef-req">*</span></span><input id="evNamePage" type="text" maxlength="200" required></label>
+      <label class="ef-field"><span class="ef-label">Stop <span class="ef-req">*</span></span>
+        <select id="evStopPage" required>
+          <option value="">Choose a stop</option>
+          <option>Toronto Union</option><option>Langstaff</option><option>Gormley</option>
+          <option>Washago</option><option>Gravenhurst</option><option>Bracebridge</option>
+          <option>Huntsville</option><option>South River</option><option>Temagami</option>
+          <option>North Bay</option><option>Temiskaming Shores</option><option>Englehart</option>
+          <option>Kirkland Lake</option><option>Matheson</option><option>Timmins</option><option>Cochrane</option>
+        </select>
+      </label>
+      <label class="ef-field"><span class="ef-label">Category</span>
+        <select id="evCategoryPage">
+          <option value="">Choose a category (optional)</option>
+          <option>Music &amp; Live Performance</option><option>Food &amp; Drink</option>
+          <option>Outdoor &amp; Adventure</option><option>Arts &amp; Culture</option>
+          <option>Festivals &amp; Fairs</option><option>Markets &amp; Shopping</option>
+          <option>Sports &amp; Recreation</option><option>Community &amp; Family</option>
+          <option>History &amp; Heritage</option>
+        </select>
+      </label>
+      <label class="ef-field"><span class="ef-label">Start date <span class="ef-req">*</span></span><input id="evStartDatePage" type="date" required></label>
+      <label class="ef-field"><span class="ef-label">End date</span><input id="evEndDatePage" type="date"></label>
+      <label class="ef-field"><span class="ef-label">Start time</span><input id="evStartTimePage" type="text" maxlength="40" placeholder="e.g. 7:00 PM"></label>
+      <label class="ef-field"><span class="ef-label">End time</span><input id="evEndTimePage" type="text" maxlength="40" placeholder="e.g. 10:00 PM"></label>
+      <label class="ef-field"><span class="ef-label">Venue name</span><input id="evVenuePage" type="text" maxlength="200"></label>
+      <label class="ef-field"><span class="ef-label">Address</span><input id="evAddressPage" type="text" maxlength="300"></label>
+      <label class="ef-field ef-span-2"><span class="ef-label">Description <span class="ef-req">*</span></span><textarea id="evDescriptionPage" maxlength="2000" rows="4" required></textarea></label>
+      <label class="ef-field ef-span-2"><span class="ef-label">Image URL</span><input id="evImageUrlPage" type="url" placeholder="https://..."></label>
+      <label class="ef-field"><span class="ef-label">Event URL</span><input id="evEventUrlPage" type="url" placeholder="https://..."></label>
+      <label class="ef-field"><span class="ef-label">Ticket URL</span><input id="evTicketUrlPage" type="url" placeholder="https://..."></label>
+      <label class="ef-field"><span class="ef-label">Price</span><input id="evPricePage" type="text" maxlength="80" placeholder="e.g. $25, $10-$30"></label>
+      <label class="ef-field ef-checkbox-inline"><input id="evFreePage" type="checkbox"><span>This event is free.</span></label>
+      <label class="ef-field"><span class="ef-label">Your name</span><input id="evSubmittedByPage" type="text" maxlength="200"></label>
+      <label class="ef-field"><span class="ef-label">Your email <span class="ef-req">*</span></span><input id="evEmailPage" type="email" maxlength="200" required></label>
+    </div>
+    <div class="ef-honey" aria-hidden="true"><label>Website<input id="evUrlPage" type="text" tabindex="-1" autocomplete="off"></label></div>
+    <div class="ef-confirms">
+      <label class="ef-check"><input type="checkbox" id="evHumanPage"><span>I am not a robot.</span></label>
+      <label class="ef-check"><input type="checkbox" id="evConsentPage"><span>I confirm this event information is accurate and may be posted publicly after review.</span></label>
+    </div>
+    <button class="btn btn-primary" type="submit" id="evSubmitPage" disabled>Submit event</button>
+    <p class="ef-msg" id="evMsgPage" role="status"></p>
+  </form>
+</main>
+
+<footer class="submit-event-footer">
+  <p>&copy; <span id="yr"></span> NorthlanderGuide.com. An independent traveller's directory.</p>
+  <p><a href="/">Return to NorthlanderGuide.com</a></p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+<script src="/app-submit-event.js"></script>
+</body>
+</html>

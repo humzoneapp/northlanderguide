@@ -2308,6 +2308,41 @@ function mergeStaticListings(){
 }
 
 /* ------------------------------------------------------------------
+   EVENT SUBMISSION MODAL
+   Wires every .submit-event-trigger link to open the <dialog id="evModal">.
+   No-JS visitors and crawlers follow the link to /submit-event/ instead,
+   which is a real indexable page with the same form.
+------------------------------------------------------------------- */
+(function initSubmitEventModal(){
+  const modal = document.getElementById('evModal');
+  const closeBtn = document.getElementById('evModalClose');
+  if (!modal || typeof modal.showModal !== 'function') return; // no <dialog> support: links fall through to /submit-event/
+
+  function open(){
+    modal.showModal();
+    /* Focus the first input for keyboard users. */
+    const first = modal.querySelector('input, select, textarea');
+    if (first) try { first.focus(); } catch(e){}
+  }
+  function close(){ try { modal.close(); } catch(e){} }
+
+  /* Intercept any .submit-event-trigger anchor click, open the modal,
+     prevent the navigation. */
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('.submit-event-trigger');
+    if (!a) return;
+    e.preventDefault();
+    open();
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  /* Click on the dialog backdrop (the <dialog> itself, not its inner card) closes it. */
+  modal.addEventListener('click', e => {
+    if (e.target === modal) close();
+  });
+})();
+
+/* ------------------------------------------------------------------
    EVENT SUBMISSION FORM
    POSTs to /api/submit-event which writes to Airtable with
    Approved=false. Admin reviews in Airtable, ticks Approved, then the
