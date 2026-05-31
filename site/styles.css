@@ -361,6 +361,11 @@ a{color:inherit}
 @media(min-width:768px){
   /* Desktop: keep it on a single line. */
   .hero h1{white-space:nowrap}
+  /* Desktop: drop the tagline and CTA group lower on the banner so
+     the composition feels balanced against the painted train. Pushes
+     the gap between the headline and the subtitle wider without
+     touching mobile, where space is tight. */
+  .hero h1{margin-bottom:clamp(4.5rem,16vh,10rem)}
 }
 .hero h1 em{
   font-style:italic;color:var(--poster-gold);
