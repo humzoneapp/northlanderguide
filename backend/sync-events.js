@@ -74,7 +74,8 @@ const FIELD = {
   approved: 'fldjm7sETc9PwNwRa',
   submittedBy: 'fldaKI2cPG9JPtFfW',
   submitterEmail: 'fld6gLAblN51MMJJe',
-  walkMins: 'fldRq2ec4LMvKnLE3'
+  walkMins: 'fldRq2ec4LMvKnLE3',
+  familyFriendly: 'fldZyf84pYPDFUxs3'
 };
 
 /* Stop name to slug map kept in sync with sync-from-airtable.js. */
@@ -276,7 +277,8 @@ function mapRecord(rec) {
     recurring: f[FIELD.recurring] === true,
     recurrencePattern: f[FIELD.recurrencePattern] || null,
     submittedBy: f[FIELD.submittedBy] || null,
-    walkMins: typeof f[FIELD.walkMins] === 'number' ? f[FIELD.walkMins] : null
+    walkMins: typeof f[FIELD.walkMins] === 'number' ? f[FIELD.walkMins] : null,
+    familyFriendly: f[FIELD.familyFriendly] === true
   };
 }
 

@@ -26,7 +26,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 58
+      "walkMins": 58,
+      "familyFriendly": false
     },
     {
       "id": "recgQQNl3GaRKGlxH",
@@ -51,7 +52,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 37
+      "walkMins": 37,
+      "familyFriendly": true
     },
     {
       "id": "recmi5cL7sJ3mGHXz",
@@ -76,7 +78,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 23
+      "walkMins": 23,
+      "familyFriendly": true
     },
     {
       "id": "recX9t8ebjGytRmLn",
@@ -101,7 +104,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 82
+      "walkMins": 82,
+      "familyFriendly": true
     },
     {
       "id": "recqKCsVommc3TgKj",
@@ -126,7 +130,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 6
+      "walkMins": 6,
+      "familyFriendly": true
     },
     {
       "id": "recGpz94QNPLMbjzO",
@@ -151,7 +156,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 37
+      "walkMins": 37,
+      "familyFriendly": true
     },
     {
       "id": "recAeUABWYLhEQuUk",
@@ -176,7 +182,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 48
+      "walkMins": 48,
+      "familyFriendly": true
     },
     {
       "id": "rec0FTD0yKz6fPyi5",
@@ -201,7 +208,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 37
+      "walkMins": 37,
+      "familyFriendly": true
     },
     {
       "id": "rect4WOvk7S2yXy43",
@@ -226,7 +234,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 31
+      "walkMins": 31,
+      "familyFriendly": true
     },
     {
       "id": "recaCvTVl1HAMm17l",
@@ -251,7 +260,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 17
+      "walkMins": 17,
+      "familyFriendly": true
     },
     {
       "id": "recbQKVZVHvF5kKlH",
@@ -276,7 +286,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 53
+      "walkMins": 53,
+      "familyFriendly": true
     },
     {
       "id": "rec1xOxcQi0q31ESh",
@@ -301,7 +312,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 23
+      "walkMins": 23,
+      "familyFriendly": true
     },
     {
       "id": "rec7mmoP25lAvEbKI",
@@ -326,7 +338,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 112
+      "walkMins": 112,
+      "familyFriendly": true
     },
     {
       "id": "recxgxHgJHTc9SqwF",
@@ -351,7 +364,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 126
+      "walkMins": 126,
+      "familyFriendly": true
     },
     {
       "id": "recMYBg9LkLACEvLC",
@@ -376,7 +390,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 249
+      "walkMins": 249,
+      "familyFriendly": false
     },
     {
       "id": "recjYdMdvyMP4AxQO",
@@ -401,7 +416,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 307
+      "walkMins": 307,
+      "familyFriendly": false
     },
     {
       "id": "reclgMGywjCe5waQS",
@@ -426,7 +442,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 124
+      "walkMins": 124,
+      "familyFriendly": true
     },
     {
       "id": "reczphnwR0Gi4wKds",
@@ -451,7 +468,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 85
+      "walkMins": 85,
+      "familyFriendly": true
     },
     {
       "id": "rec7qkDGttWwcIhw3",
@@ -476,7 +494,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 45
+      "walkMins": 45,
+      "familyFriendly": true
     },
     {
       "id": "recaDLv3aaEY66faa",
@@ -501,7 +520,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 10
+      "walkMins": 10,
+      "familyFriendly": true
     },
     {
       "id": "recJE6Hr7gzeQu8pd",
@@ -526,7 +546,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 85
+      "walkMins": 85,
+      "familyFriendly": true
     },
     {
       "id": "recxdw2aHfE0q120y",
@@ -551,7 +572,8 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": 17
+      "walkMins": 17,
+      "familyFriendly": false
     },
     {
       "id": "recBE88Fce0GkjHZd",

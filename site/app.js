@@ -1949,6 +1949,14 @@ function eventCardHtml(ev){
   const walk = (typeof ev.walkMins === 'number')
     ? `<span class="hev-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ${ev.walkMins} min walk</span>`
     : '';
+  const family = ev.familyFriendly
+    ? `<span class="hev-family" aria-label="Family friendly"><i class="ph-light ph-users-three" aria-hidden="true"></i> Family friendly</span>`
+    : '';
+  /* Walk + family sit on a single meta row beneath the description.
+     The row only renders when at least one badge is present. */
+  const metaRow = (walk || family)
+    ? `<div class="hev-meta">${walk}${family}</div>`
+    : '';
   return `<${tag} class="hev-card"${href}>
     ${ev.imageUrl
       ? `<div class="hev-img" style="background-image:url('${escHtml(ev.imageUrl)}')"></div>`
@@ -1958,7 +1966,7 @@ function eventCardHtml(ev){
       <h4 class="hev-name">${escHtml(ev.name)}</h4>
       <div class="hev-stop">${escHtml(stopName)}${ev.venue ? ` \u00B7 ${escHtml(ev.venue)}` : ''}</div>
       ${ev.description ? `<p class="hev-desc">${escHtml(ev.description)}</p>` : ''}
-      ${walk}
+      ${metaRow}
       <div class="hev-foot">
         ${priceLabel ? `<span class="hev-price">${escHtml(priceLabel)}</span>` : '<span></span>'}
         ${link ? `<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>` : ''}

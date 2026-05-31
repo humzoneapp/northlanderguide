@@ -351,6 +351,14 @@
     const walk = (typeof ev.walkMins === 'number')
       ? '<span class="sp-event-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ' + ev.walkMins + ' min walk</span>'
       : '';
+    const family = ev.familyFriendly
+      ? '<span class="sp-event-family" aria-label="Family friendly"><i class="ph-light ph-users-three" aria-hidden="true"></i> Family friendly</span>'
+      : '';
+    /* Walk + family share a meta row under the description. The row
+       only renders when at least one badge is present. */
+    const metaRow = (walk || family)
+      ? '<div class="sp-event-meta">' + walk + family + '</div>'
+      : '';
     return '<' + tag + ' class="sp-event"' + href + '>'
       + (ev.imageUrl
           ? '<div class="sp-event-img" style="background-image:url(\'' + esc(ev.imageUrl) + '\')"></div>'
@@ -360,7 +368,7 @@
       + '<h4 class="sp-event-name">' + esc(ev.name) + '</h4>'
       + (ev.venue ? '<div class="sp-event-venue">' + esc(ev.venue) + '</div>' : '')
       + (ev.description ? '<p class="sp-event-desc">' + esc(ev.description) + '</p>' : '')
-      + walk
+      + metaRow
       + '<div class="sp-event-foot">'
       + (priceLabel ? '<span class="sp-event-price">' + esc(priceLabel) + '</span>' : '<span></span>')
       + (link ? '<span class="sp-event-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
