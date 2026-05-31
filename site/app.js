@@ -1944,6 +1944,142 @@ function eventCardHtml(ev){
   </${tag}>`;
 }
 
+/* The nine Airtable categories. Order matches the picker so the
+   chip / dropdown reads the same as the submission form. */
+const EVENT_CATEGORIES = [
+  'Music & Live Performance', 'Food & Drink', 'Outdoor & Adventure',
+  'Arts & Culture', 'Festivals & Fairs', 'Markets & Shopping',
+  'Sports & Recreation', 'Community & Family', 'History & Heritage'
+];
+
+/* Filter state for the homepage event grid. Reset when "All" is
+   clicked on every dimension. */
+window.eventFilters = window.eventFilters || {
+  month: 'all',     // 'all' | numeric key (YYYYMM) | 'recurring'
+  category: 'all',  // 'all' | one of EVENT_CATEGORIES
+  price: 'all',     // 'all' | 'free' | 'paid'
+  walk: 'all'       // 'all' | 15 | 30 | 60
+};
+
+function eventMatchesFilters(ev, f) {
+  if (f.month !== 'all') {
+    if (f.month === 'recurring') {
+      if (!(ev.recurring || !ev.startDate)) return false;
+    } else {
+      if (ev.recurring || !ev.startDate) return false;
+      if (monthKeyForEvent(ev) !== f.month) return false;
+    }
+  }
+  if (f.category !== 'all' && ev.category !== f.category) return false;
+  if (f.price === 'free' && !ev.free) return false;
+  if (f.price === 'paid' && ev.free) return false;
+  if (f.walk !== 'all') {
+    if (typeof ev.walkMins !== 'number') return false;
+    if (ev.walkMins > f.walk) return false;
+  }
+  return true;
+}
+
+function eventsFilterBarHtml(allEvents, f) {
+  /* Build the set of month keys that actually have events, sorted asc.
+     Recurring is its own pseudo-month chip when present. */
+  const monthSet = new Set();
+  let hasRecurring = false;
+  for (const ev of allEvents) {
+    if (ev.recurring || !ev.startDate) { hasRecurring = true; continue; }
+    monthSet.add(monthKeyForEvent(ev));
+  }
+  const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
+
+  const monthShort = key => {
+    const y = Math.floor(key/100), m = key%100;
+    return new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
+  };
+  const chip = (group, value, label, active) =>
+    `<button type="button" class="hev-chip${active ? ' is-active' : ''}" data-filter-group="${group}" data-filter-value="${escHtml(String(value))}">${escHtml(label)}</button>`;
+
+  const monthChips = [chip('month', 'all', 'All months', f.month === 'all')]
+    .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
+    .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
+    .join('');
+
+  const categoryOpts = ['<option value="all">All categories</option>']
+    .concat(EVENT_CATEGORIES.map(c => `<option value="${escHtml(c)}"${f.category === c ? ' selected' : ''}>${escHtml(c)}</option>`))
+    .join('');
+
+  const priceChips = [
+    chip('price', 'all', 'Any price', f.price === 'all'),
+    chip('price', 'free', 'Free', f.price === 'free'),
+    chip('price', 'paid', 'Paid', f.price === 'paid')
+  ].join('');
+
+  const walkChips = [
+    chip('walk', 'all', 'Any walk', f.walk === 'all'),
+    chip('walk', 15, '15 min or less', f.walk === 15),
+    chip('walk', 30, '30 min or less', f.walk === 30),
+    chip('walk', 60, '1 hr or less', f.walk === 60)
+  ].join('');
+
+  const anyActive = f.month !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
+
+  return `
+    <div class="hev-filters" id="eventFilters">
+      <div class="hev-filter-row">
+        <span class="hev-filter-label">Month</span>
+        <div class="hev-chip-row">${monthChips}</div>
+      </div>
+      <div class="hev-filter-row">
+        <span class="hev-filter-label">Category</span>
+        <select class="hev-select" id="eventCategorySelect">${categoryOpts}</select>
+      </div>
+      <div class="hev-filter-row">
+        <span class="hev-filter-label">Price</span>
+        <div class="hev-chip-row">${priceChips}</div>
+      </div>
+      <div class="hev-filter-row">
+        <span class="hev-filter-label">Walking distance</span>
+        <div class="hev-chip-row">${walkChips}</div>
+      </div>
+      ${anyActive ? `<button type="button" class="hev-reset" id="eventFiltersReset">Reset filters</button>` : ''}
+    </div>`;
+}
+
+function renderEventsGridInto(target, events) {
+  /* Group filtered events by month; recurring goes in its own block. */
+  const buckets = new Map();
+  const recurring = [];
+  for (const ev of events) {
+    if (ev.recurring || !ev.startDate) { recurring.push(ev); continue; }
+    const k = monthKeyForEvent(ev);
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(ev);
+  }
+  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
+  const sortBucket = arr => arr.sort((a,b) => {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
+    const ad = a.startDate || '9999-12-31';
+    const bd = b.startDate || '9999-12-31';
+    if (ad !== bd) return ad < bd ? -1 : 1;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+  for (const k of monthKeys) sortBucket(buckets.get(k));
+  sortBucket(recurring);
+
+  const monthsHtml = monthKeys.map(k => `
+    <div class="hev-month">
+      <h3 class="hev-month-label">${escHtml(monthLabel(k))}</h3>
+      <div class="hev-grid">${buckets.get(k).map(eventCardHtml).join('')}</div>
+    </div>
+  `).join('');
+  const recurringHtml = recurring.length ? `
+    <div class="hev-month">
+      <h3 class="hev-month-label">Ongoing &amp; Recurring</h3>
+      <div class="hev-grid">${recurring.map(eventCardHtml).join('')}</div>
+    </div>
+  ` : '';
+  target.innerHTML = monthsHtml + recurringHtml;
+}
+
 function renderEvents(){
   const wrap = document.getElementById('eventPanel');
   if(!wrap) return;
@@ -1965,46 +2101,44 @@ function renderEvents(){
     return;
   }
 
-  /* Group by month, with recurring events bucketed separately so they
-     do not clutter the date-anchored timeline. */
-  const buckets = new Map();
-  const recurring = [];
-  for (const ev of all) {
-    if (ev.recurring || !ev.startDate) { recurring.push(ev); continue; }
-    const k = monthKeyForEvent(ev);
-    if (!buckets.has(k)) buckets.set(k, []);
-    buckets.get(k).push(ev);
-  }
-  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
-
-  /* Sort each bucket by start date asc, then name. Featured first
-     within a month. */
-  const sortBucket = arr => arr.sort((a,b) => {
-    if (a.featured !== b.featured) return a.featured ? -1 : 1;
-    const ad = a.startDate || '9999-12-31';
-    const bd = b.startDate || '9999-12-31';
-    if (ad !== bd) return ad < bd ? -1 : 1;
-    return (a.name || '').localeCompare(b.name || '');
-  });
-  for (const k of monthKeys) sortBucket(buckets.get(k));
-  sortBucket(recurring);
-
-  const monthsHtml = monthKeys.map(k => `
-    <div class="hev-month reveal">
-      <h3 class="hev-month-label">${escHtml(monthLabel(k))}</h3>
-      <div class="hev-grid">${buckets.get(k).map(eventCardHtml).join('')}</div>
-    </div>
-  `).join('');
-
-  const recurringHtml = recurring.length ? `
-    <div class="hev-month reveal">
-      <h3 class="hev-month-label">Ongoing &amp; Recurring</h3>
-      <div class="hev-grid">${recurring.map(eventCardHtml).join('')}</div>
-    </div>
-  ` : '';
-
-  wrap.innerHTML = monthsHtml + recurringHtml;
+  /* First render: filter bar + grid container. Subsequent filter
+     changes only touch #eventGrid so the bar's interaction state is
+     preserved. */
+  const filtered = all.filter(ev => eventMatchesFilters(ev, window.eventFilters));
+  wrap.innerHTML = eventsFilterBarHtml(all, window.eventFilters)
+    + '<div id="eventGrid">'
+    + (filtered.length
+        ? ''
+        : `<div class="hev-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>
+            <p>No events match these filters. Try widening your selection.</p></div>`)
+    + '</div>';
+  if (filtered.length) renderEventsGridInto(document.getElementById('eventGrid'), filtered);
   observeReveals();
+
+  /* Delegated handlers for chips + dropdown + reset. */
+  const bar = document.getElementById('eventFilters');
+  if (!bar) return;
+  bar.addEventListener('click', e => {
+    const chip = e.target.closest('button[data-filter-group]');
+    if (chip) {
+      const group = chip.getAttribute('data-filter-group');
+      let val = chip.getAttribute('data-filter-value');
+      if (group === 'month' && val !== 'all' && val !== 'recurring') val = parseInt(val, 10);
+      if (group === 'walk' && val !== 'all') val = parseInt(val, 10);
+      window.eventFilters[group] = val;
+      renderEvents();
+      return;
+    }
+    if (e.target.id === 'eventFiltersReset') {
+      window.eventFilters = { month:'all', category:'all', price:'all', walk:'all' };
+      renderEvents();
+    }
+  });
+  const sel = document.getElementById('eventCategorySelect');
+  if (sel) sel.addEventListener('change', () => {
+    window.eventFilters.category = sel.value;
+    renderEvents();
+  });
 }
 
 /* ------------------------------------------------------------------

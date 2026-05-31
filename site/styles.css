@@ -1429,6 +1429,33 @@ a{color:inherit}
 
 /* ---------- homepage events grid (route-wide, grouped by month) ---------- */
 #eventPanel{padding:0 1.1rem}
+
+/* Filter bar above the grid. Four rows on desktop (Month / Category /
+   Price / Walking distance), each with a label on the left and chips
+   or a select on the right. Stacks vertically on narrow screens. */
+.hev-filters{background:var(--card);border:1.5px solid var(--line);border-radius:4px;
+  padding:1rem 1.1rem;margin:0 0 1.6rem;display:flex;flex-direction:column;gap:.7rem;position:relative}
+.hev-filter-row{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.hev-filter-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--poster-mute);min-width:6.5rem}
+.hev-chip-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.hev-chip{background:transparent;border:1.5px solid var(--line);border-radius:999px;
+  padding:.32rem .85rem;font-size:.82rem;font-weight:600;color:var(--poster-ink);cursor:pointer;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;font-family:inherit}
+.hev-chip:hover{border-color:var(--poster-crimson);color:var(--poster-crimson)}
+.hev-chip.is-active{background:var(--poster-crimson);border-color:var(--poster-crimson);color:var(--poster-ivory,#f6efe2)}
+.hev-select{background:var(--poster-ivory,#f6efe2);border:1.5px solid var(--line);border-radius:4px;
+  padding:.4rem .7rem;font-size:.88rem;font-family:'Spline Sans',sans-serif;color:var(--poster-ink);
+  min-width:200px;cursor:pointer}
+.hev-select:focus{outline:none;border-color:var(--poster-crimson)}
+.hev-reset{background:transparent;border:0;color:var(--poster-crimson);font-size:.85rem;font-weight:700;
+  cursor:pointer;align-self:flex-start;padding:.2rem 0;text-decoration:underline;font-family:inherit}
+.hev-reset:hover{color:var(--poster-ink)}
+@media (max-width:560px){
+  .hev-filter-row{flex-direction:column;align-items:flex-start;gap:.4rem}
+  .hev-filter-label{min-width:0}
+  .hev-select{width:100%}
+}
+
 .hev-month{margin:0 0 2.4rem}
 .hev-month-label{font-family:'Fraunces',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--poster-ink);
   margin:0 0 1rem;padding:0 0 .5rem;border-bottom:1.5px solid var(--line);letter-spacing:.01em}

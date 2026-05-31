@@ -124,6 +124,125 @@
     return startLabel + endLabel + timeLabel;
   }
 
+  /* The nine Airtable categories. */
+  const SP_EVENT_CATEGORIES = [
+    'Music & Live Performance', 'Food & Drink', 'Outdoor & Adventure',
+    'Arts & Culture', 'Festivals & Fairs', 'Markets & Shopping',
+    'Sports & Recreation', 'Community & Family', 'History & Heritage'
+  ];
+
+  let spEventFilters = { month: 'all', category: 'all', price: 'all', walk: 'all' };
+
+  function spMonthKey(ev) {
+    if (!ev.startDate) return 'recurring';
+    const [y, m] = ev.startDate.split('-').map(Number);
+    return y * 100 + m;
+  }
+
+  function spMatchesFilters(ev, f) {
+    if (f.month !== 'all') {
+      if (f.month === 'recurring') {
+        if (!(ev.recurring || !ev.startDate)) return false;
+      } else {
+        if (ev.recurring || !ev.startDate) return false;
+        if (spMonthKey(ev) !== f.month) return false;
+      }
+    }
+    if (f.category !== 'all' && ev.category !== f.category) return false;
+    if (f.price === 'free' && !ev.free) return false;
+    if (f.price === 'paid' && ev.free) return false;
+    if (f.walk !== 'all') {
+      if (typeof ev.walkMins !== 'number') return false;
+      if (ev.walkMins > f.walk) return false;
+    }
+    return true;
+  }
+
+  function spEventFilterBarHtml(allEvents, f) {
+    const monthSet = new Set();
+    let hasRecurring = false;
+    for (const ev of allEvents) {
+      if (ev.recurring || !ev.startDate) { hasRecurring = true; continue; }
+      monthSet.add(spMonthKey(ev));
+    }
+    const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
+    const monthShort = key => {
+      const y = Math.floor(key/100), m = key%100;
+      return new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
+    };
+    const chip = (group, value, label, active) =>
+      '<button type="button" class="sp-evchip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + esc(String(value)) + '">' + esc(label) + '</button>';
+
+    const monthChips = [chip('month', 'all', 'All months', f.month === 'all')]
+      .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
+      .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
+      .join('');
+    const categoryOpts = ['<option value="all">All categories</option>']
+      .concat(SP_EVENT_CATEGORIES.map(c => '<option value="' + esc(c) + '"' + (f.category === c ? ' selected' : '') + '>' + esc(c) + '</option>'))
+      .join('');
+    const priceChips = [
+      chip('price', 'all', 'Any price', f.price === 'all'),
+      chip('price', 'free', 'Free', f.price === 'free'),
+      chip('price', 'paid', 'Paid', f.price === 'paid')
+    ].join('');
+    const walkChips = [
+      chip('walk', 'all', 'Any walk', f.walk === 'all'),
+      chip('walk', 15, '15 min or less', f.walk === 15),
+      chip('walk', 30, '30 min or less', f.walk === 30),
+      chip('walk', 60, '1 hr or less', f.walk === 60)
+    ].join('');
+    const anyActive = f.month !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
+
+    return '<div class="sp-evfilters">'
+      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Month</span><div class="sp-evchip-row">' + monthChips + '</div></div>'
+      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Category</span><select class="sp-evselect" id="spEventCategorySelect">' + categoryOpts + '</select></div>'
+      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Price</span><div class="sp-evchip-row">' + priceChips + '</div></div>'
+      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Walking distance</span><div class="sp-evchip-row">' + walkChips + '</div></div>'
+      + (anyActive ? '<button type="button" class="sp-evreset" id="spEventFiltersReset">Reset filters</button>' : '')
+      + '</div>';
+  }
+
+  function initEventFilters() {
+    const bar = document.getElementById('spEventsBar');
+    const list = document.getElementById('spEventsList');
+    if (!bar || !list) return;
+    const all = (window.EVENTS_DATA && window.EVENTS_DATA[stopId]) || [];
+
+    function rerender() {
+      bar.innerHTML = spEventFilterBarHtml(all, spEventFilters);
+      const filtered = all.filter(ev => spMatchesFilters(ev, spEventFilters));
+      if (!filtered.length) {
+        list.innerHTML = '<div class="sp-events-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>'
+          + '<p>No events match these filters. Try widening your selection.</p></div>';
+      } else {
+        list.innerHTML = filtered.map(eventCard).join('');
+      }
+      const sel = document.getElementById('spEventCategorySelect');
+      if (sel) sel.addEventListener('change', () => {
+        spEventFilters.category = sel.value;
+        rerender();
+      });
+    }
+
+    rerender();
+    bar.addEventListener('click', e => {
+      const chip = e.target.closest('button[data-filter-group]');
+      if (chip) {
+        const group = chip.getAttribute('data-filter-group');
+        let val = chip.getAttribute('data-filter-value');
+        if (group === 'month' && val !== 'all' && val !== 'recurring') val = parseInt(val, 10);
+        if (group === 'walk' && val !== 'all') val = parseInt(val, 10);
+        spEventFilters[group] = val;
+        rerender();
+        return;
+      }
+      if (e.target.id === 'spEventFiltersReset') {
+        spEventFilters = { month:'all', category:'all', price:'all', walk:'all' };
+        rerender();
+      }
+    });
+  }
+
   function eventCard(ev) {
     const when = formatEventWhen(ev);
     const link = ev.eventUrl || ev.ticketUrl || '';
@@ -278,7 +397,7 @@
   const stopEvents = (window.EVENTS_DATA && window.EVENTS_DATA[stopId]) || [];
   html += '<section class="sp-section"><h2 class="sp-h2">What\'s On in ' + esc(displayName) + '</h2>'
     + (stopEvents.length
-        ? '<div class="sp-events">' + stopEvents.map(eventCard).join('') + '</div>'
+        ? '<div id="spEventsBar"></div><div id="spEventsList" class="sp-events"></div>'
         : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
           + '<p>Events coming soon. Know about something happening here?</p></div>')
     + '<div class="sp-events-submit"><a class="sp-btn submit-event-trigger" href="/submit-event/">'
@@ -395,6 +514,7 @@
   initFaq();
   initTips();
   initShare();
+  initEventFilters();
 
   /* load animation */
   const titleEl = document.getElementById('spTitle');
