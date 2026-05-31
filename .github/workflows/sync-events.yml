@@ -1,0 +1,63 @@
+name: Sync Events from Airtable
+
+# Mirrors sync-listings.yml: pulls Approved events, drops stale one-offs,
+# writes site/events-data.js, commits and pushes so Vercel redeploys.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 7:15am and 7:15pm UTC, offset from the listings sync by an hour
+    # so the two jobs do not race on the same checkout/commit cycle.
+    - cron: '15 7,19 * * *'
+  repository_dispatch:
+    types: [event-approved]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Backup existing events-data.js
+        run: |
+          if [ -f site/events-data.js ]; then
+            cp site/events-data.js site/events-data.js.bak
+          fi
+
+      - name: Run events sync
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+        run: node backend/sync-events.js
+
+      - name: Restore backup on sync failure
+        if: failure()
+        run: |
+          if [ -f site/events-data.js.bak ]; then
+            mv site/events-data.js.bak site/events-data.js
+            echo "Restored previous events-data.js after sync failure"
+          fi
+
+      - name: Clean up backup
+        if: always()
+        run: rm -f site/events-data.js.bak
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet site/events-data.js; then
+            git add site/events-data.js
+            git commit -m "chore: refresh events from Airtable"
+            git pull --rebase
+            git push
+          else
+            echo "No event changes to commit."
+          fi

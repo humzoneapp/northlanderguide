@@ -108,6 +108,44 @@
     return out;
   }
 
+  /* Format an Airtable date string (YYYY-MM-DD) into a human label.
+     Supports a single date, a range (Start + End), and the optional
+     Start Time string from Airtable. */
+  function formatEventWhen(ev) {
+    if (!ev.startDate) return ev.recurring ? (ev.recurrencePattern || 'Recurring') : '';
+    const fmt = iso => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    };
+    const startLabel = fmt(ev.startDate);
+    const endLabel = ev.endDate && ev.endDate !== ev.startDate ? ' - ' + fmt(ev.endDate) : '';
+    const timeLabel = ev.startTime ? ', ' + ev.startTime : '';
+    return startLabel + endLabel + timeLabel;
+  }
+
+  function eventCard(ev) {
+    const when = formatEventWhen(ev);
+    const link = ev.eventUrl || ev.ticketUrl || '';
+    const tag = link ? 'a' : 'div';
+    const href = link ? ' href="' + esc(link) + '" target="_blank" rel="noopener"' : '';
+    const priceLabel = ev.free ? 'Free' : (ev.price || '');
+    return '<' + tag + ' class="sp-event"' + href + '>'
+      + (ev.imageUrl
+          ? '<div class="sp-event-img" style="background-image:url(\'' + esc(ev.imageUrl) + '\')"></div>'
+          : '<div class="sp-event-img sp-event-img--blank"><i class="ph-light ph-calendar" aria-hidden="true"></i></div>')
+      + '<div class="sp-event-body">'
+      + (when ? '<div class="sp-event-when">' + esc(when) + '</div>' : '')
+      + '<h4 class="sp-event-name">' + esc(ev.name) + '</h4>'
+      + (ev.venue ? '<div class="sp-event-venue">' + esc(ev.venue) + '</div>' : '')
+      + (ev.description ? '<p class="sp-event-desc">' + esc(ev.description) + '</p>' : '')
+      + '<div class="sp-event-foot">'
+      + (priceLabel ? '<span class="sp-event-price">' + esc(priceLabel) + '</span>' : '<span></span>')
+      + (link ? '<span class="sp-event-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
+      + '</div>'
+      + '</div></' + tag + '>';
+  }
+
   function listingCard(l) {
     const ratingHtml = (!l.rating || l.rating === 'NR')
       ? '<span class="sp-lc-rating">New</span>'
@@ -233,10 +271,14 @@
   html += divider();
 
   /* EVENTS */
+  const stopEvents = (window.EVENTS_DATA && window.EVENTS_DATA[stopId]) || [];
   html += '<section class="sp-section"><h2 class="sp-h2">What\'s On in ' + esc(displayName) + '</h2>'
-    + '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
-    + '<p>Events coming soon. Know about something happening here? Submit it below.</p>'
-    + '<a href="/#events">Submit an event</a></div></section>';
+    + (stopEvents.length
+        ? '<div class="sp-events">' + stopEvents.map(eventCard).join('') + '</div>'
+        : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
+          + '<p>Events coming soon. Know about something happening here? Submit it below.</p>'
+          + '<a href="/#events">Submit an event</a></div>')
+    + '</section>';
 
   html += divider();
 
