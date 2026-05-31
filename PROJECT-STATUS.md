@@ -32,6 +32,7 @@ what's already wired. Keep this short; details belong in the code.
   - Every `.submit-event-trigger` anchor has `href="/submit-event/"` so the link works without JS. The home-page JS (`initSubmitEventModal`) intercepts the click and opens the modal instead when the dialog is present.
   - Both forms POST the same payload to `/api/submit-event`. Honeypot + dual-confirm checkboxes, server-side validation, every Airtable field except admin-only ones (Approved, Featured, Recurring, Recurrence Pattern). Rows arrive with Approved=false and Source="Community Submission" - admin reviews in Airtable then ticks Approved.
 - Stop-page "What's On" section now includes a "Submit an event at [stop]" button that navigates to `/submit-event/`.
+- **Image upload** alongside the URL field on both modal and dedicated page. Client-side resize to 1200px JPEG 85%, 8 MB raw file cap, ~4 MB base64 server cap. New `Image Upload` multipleAttachments field at `fldE7jR2Q7jDmFVAH` on the Events table. Sync prefers the uploaded attachment's CDN URL and falls back to `Image URL` when empty, so existing rows with only a URL still work.
 - Eventbrite live fetch dropped. The local `backend/server.js` Eventbrite proxy still exists but is unused. Source field kept on Events so future imports can flag origin.
 
 ### Auto-enrichment
