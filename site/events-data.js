@@ -16,7 +16,7 @@ const EVENTS_DATA = {
       "venue": "Fort York National Historic Site & The Bentway",
       "address": "250 Fort York Blvd, Toronto, ON M5V 3K9",
       "description": "The official fan destination for the FIFA World Cup 2026. Live match screenings, music performances, food vendors, and cultural programming at Fort York and The Bentway over 22 event days. Free to attend with advance ticket reservation required.",
-      "imageUrl": "https://www.toronto.ca/wp-content/uploads/2026/04/96f8-FIFA-Fan-Festival-Toronto-Rendering-Fort-York.jpg",
+      "imageUrl": "https://afrotoronto.com/images/FIFIA-Fan-Fest-main.jpg",
       "eventUrl": "https://www.toronto.ca/explore-enjoy/festivals-events/fifa-world-cup-26/",
       "ticketUrl": "https://www.torontofwc26.ca/FIFAFanFestival",
       "price": "Free",
