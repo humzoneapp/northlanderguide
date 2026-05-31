@@ -2399,10 +2399,19 @@ if(slabBack){
   });
 }
 
+/* Back-to-top button: visible from page load, JS smooth-scroll on
+   click. The smooth scroll matters on mobile where href="#top" can
+   stutter behind a sticky URL bar. */
 const toTop = document.querySelector('.totop');
+if (toTop) {
+  toTop.classList.add('show');
+  toTop.addEventListener('click', e => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
 window.addEventListener('scroll',()=>{
-  toTop.classList.toggle('show', window.scrollY>600);
   updateRouteBar();
 },{passive:true});
 

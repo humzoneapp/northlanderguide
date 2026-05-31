@@ -192,6 +192,33 @@
   color:var(--sp-rust);letter-spacing:.02em;margin-top:auto;padding-top:6px}
 .sp-lc-walk .ph-light{font-size:15px}
 
+/* ---------- table of contents -----------
+   Sticky horizontal nav that appears between the breadcrumb and the
+   first content section. On desktop the chips fit on one row;
+   on phones the row scrolls horizontally with momentum. */
+.sp-toc{position:sticky;top:58px;z-index:40;
+  background:rgba(247,239,222,.96);backdrop-filter:saturate(140%) blur(6px);
+  -webkit-backdrop-filter:saturate(140%) blur(6px);
+  border-top:1px solid #d9cfba;border-bottom:1px solid #d9cfba;
+  margin:14px 0 28px;padding:8px 0}
+.sp-toc-row{display:flex;gap:8px;overflow-x:auto;padding:0 16px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sp-toc-row::-webkit-scrollbar{display:none}
+.sp-toc-link{display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;
+  color:var(--sp-muted);background:transparent;
+  text-decoration:none;white-space:nowrap;flex:none;line-height:1;
+  transition:background .15s ease,color .15s ease,box-shadow .15s ease}
+.sp-toc-link .ph-light{font-size:16px;color:var(--sp-rust)}
+.sp-toc-link:hover{background:rgba(141,61,34,.08);color:var(--sp-ink)}
+.sp-toc-link.is-active{background:var(--sp-rust);color:var(--sp-ivory);
+  box-shadow:0 2px 8px rgba(141,61,34,.28)}
+.sp-toc-link.is-active .ph-light{color:var(--sp-ivory)}
+@media (max-width:560px){
+  .sp-toc{top:54px;margin:8px 0 18px}
+  .sp-toc-link{padding:7px 12px;font-size:12.5px}
+}
+
 /* ---------- event filter card ----------
    Two-tier layout: When chips span the full width, then a three-column
    grid for What / Price / Walk time. Icons sit beside friendly section

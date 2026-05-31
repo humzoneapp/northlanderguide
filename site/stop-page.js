@@ -450,8 +450,32 @@
     html += '<div class="sp-bestfor">' + bf.map(x => '<span class="sp-pill">&mdash; ' + esc(x) + '</span>').join('') + '</div>';
   }
 
+  /* TABLE OF CONTENTS - sticky horizontal nav. Mirrors the section
+     ids added below. Click smoothly scrolls to the section; an
+     IntersectionObserver in initToc() highlights the active link as
+     the visitor scrolls. */
+  const SP_TOC = [
+    { id: 'sp-overview', label: 'Overview', icon: 'ph-book-open' },
+    { id: 'sp-travel',   label: 'Getting There', icon: 'ph-train' },
+    { id: 'sp-seasons',  label: 'Seasons', icon: 'ph-leaf' },
+    { id: 'sp-listings', label: 'Where to Go', icon: 'ph-map-pin' },
+    { id: 'sp-events',   label: 'What\'s On', icon: 'ph-calendar' },
+    { id: 'sp-faq',      label: 'Good to Know', icon: 'ph-question' },
+    { id: 'sp-nearby',   label: 'Continue', icon: 'ph-arrow-right' },
+    { id: 'sp-pack',     label: 'Pack List', icon: 'ph-backpack' },
+    { id: 'sp-tips',     label: 'Tips', icon: 'ph-push-pin' }
+  ];
+  html += '<nav class="sp-toc" id="spToc" aria-label="Page sections">'
+    + '<div class="sp-toc-row">'
+    + SP_TOC.map(t =>
+        '<a class="sp-toc-link" href="#' + t.id + '" data-sp-toc="' + t.id + '">'
+        + '<i class="ph-light ' + t.icon + '" aria-hidden="true"></i>'
+        + '<span>' + t.label + '</span></a>'
+      ).join('')
+    + '</div></nav>';
+
   /* EDITORIAL INTRO */
-  html += '<section class="sp-intro sp-section">'
+  html += '<section class="sp-intro sp-section" id="sp-overview">'
     + '<div class="sp-intro-body">' + introParas.map(p => '<p>' + esc(p) + '</p>').join('') + '</div>'
     + '<aside class="sp-intro-aside">'
     + (introParas.length ? '<p class="sp-pullquote">' + esc(pullQuote(page.editorialIntro)) + '</p>' : '')
@@ -462,7 +486,7 @@
   html += divider();
 
   /* GETTING HERE / AROUND */
-  html += '<section class="sp-two sp-section">'
+  html += '<section class="sp-two sp-section" id="sp-travel">'
     + '<div class="sp-card"><div class="sp-label">Getting Here</div><p>' + esc(page.gettingHere) + '</p></div>'
     + '<div class="sp-card"><div class="sp-label">Getting Around</div><p>' + esc(page.gettingAround) + '</p></div>'
     + '</section>';
@@ -470,7 +494,7 @@
   html += divider();
 
   /* SEASONAL */
-  html += '<section class="sp-section"><div class="sp-label">Through the Seasons</div>'
+  html += '<section class="sp-section" id="sp-seasons"><div class="sp-label">Through the Seasons</div>'
     + '<div class="sp-seasons-wrap sp-paper"><div class="sp-seasons-inner"><div class="sp-seasons">'
     + seasons.map(s => '<div class="sp-season sp-season-' + s.cls + '">'
       + '<i class="ph-light ' + s.icon + '" aria-hidden="true"></i>'
@@ -484,7 +508,7 @@
   html += divider();
 
   /* LISTINGS + MAP */
-  html += '<section class="sp-section"><div class="sp-label">On the Ground</div>'
+  html += '<section class="sp-section" id="sp-listings"><div class="sp-label">On the Ground</div>'
     + '<h2 class="sp-h2">Where to go in ' + esc(displayName) + '</h2>'
     + '<div class="sp-explore"><div class="sp-map" id="spMap"></div>'
     + '<div><div class="sp-tabs" id="spTabs"></div><div class="sp-listings" id="spListings"></div></div>'
@@ -494,7 +518,7 @@
 
   /* EVENTS */
   const stopEvents = (window.EVENTS_DATA && window.EVENTS_DATA[stopId]) || [];
-  html += '<section class="sp-section"><h2 class="sp-h2">What\'s On in ' + esc(displayName) + '</h2>'
+  html += '<section class="sp-section" id="sp-events"><h2 class="sp-h2">What\'s On in ' + esc(displayName) + '</h2>'
     + (stopEvents.length
         ? '<div id="spEventsBar"></div><div id="spEventsList"></div>'
         : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
@@ -507,7 +531,7 @@
   html += divider();
 
   /* FAQ */
-  html += '<section class="sp-section"><h2 class="sp-h2">Good to Know</h2><div id="spFaq">'
+  html += '<section class="sp-section" id="sp-faq"><h2 class="sp-h2">Good to Know</h2><div id="spFaq">'
     + (faqs.length ? faqs.map((f, i) =>
       '<div class="sp-faq" data-faq="' + i + '"><button class="sp-faq-q" type="button">'
       + '<span>' + esc(f.question) + '</span><i class="ph-light ph-plus" aria-hidden="true"></i></button>'
@@ -518,14 +542,14 @@
   html += divider();
 
   /* NEARBY */
-  html += '<section class="sp-section"><h2 class="sp-h2">Continue Your Journey</h2>'
+  html += '<section class="sp-section" id="sp-nearby"><h2 class="sp-h2">Continue Your Journey</h2>'
     + '<div class="sp-nearby">' + platform(prev, stopNumber - 1) + platform(next, stopNumber + 1)
     + (!prev && !next ? '<p class="sp-empty">End of the line.</p>' : '') + '</div></section>';
 
   html += divider();
 
   /* DON'T FORGET */
-  html += '<section class="sp-section sp-df-section">'
+  html += '<section class="sp-section sp-df-section" id="sp-pack">'
     + '<h2 class="sp-h2">Before You Board</h2>'
     + '<div class="sp-df-print-head">' + esc(displayName) + ' Packing Checklist</div>'
     + (dfItems.length
@@ -570,7 +594,7 @@
     : '<div class="sp-tip" style="transform:rotate(-1.5deg)"><p class="sp-tip-text">'
       + 'Be the first to pin a tip about ' + esc(displayName) + '. Share a hidden gem, a timing trick, or a local favourite.</p>'
       + '<p class="sp-tip-by">The Northlander community</p></div>';
-  html += '<section class="sp-section"><div class="sp-corkboard sp-paper"><div class="sp-corkboard-inner">'
+  html += '<section class="sp-section" id="sp-tips"><div class="sp-corkboard sp-paper"><div class="sp-corkboard-inner">'
     + '<h2 class="sp-h2">Traveller Tips</h2>'
     + '<div class="sp-tips">' + tipsHtml + '</div>'
     + '<form class="sp-tipform" id="spTipForm" novalidate>'
@@ -632,15 +656,74 @@
     if (target) requestAnimationFrame(() => target.scrollIntoView());
   }
 
-  /* Floating back-to-all-stops and back-to-top buttons: fade in once
-     the visitor has scrolled past the hero. */
+  /* Back-to-top button: visible from page load on stop pages (the
+     page is long and visitors deep-link in). Click handler does a
+     JS smooth-scroll which works reliably on mobile, where href="#top"
+     hash-jumps can stutter with sticky URL bars. The .toback button
+     keeps its scroll-gated fade so it does not crowd the hero on
+     first view. */
   const toTop = document.querySelector('.totop');
   const toBack = document.querySelector('.toback');
+  if (toTop) {
+    toTop.classList.add('show');
+    toTop.addEventListener('click', e => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
   window.addEventListener('scroll', () => {
     const past = window.scrollY > 360;
-    if (toTop) toTop.classList.toggle('show', past);
     if (toBack) toBack.classList.toggle('show', past);
   }, { passive: true });
+
+  /* Table of contents: smooth scroll on click and active link
+     tracking via IntersectionObserver. The link for whatever section
+     is currently in the visitor's view gets the .is-active class. */
+  function initToc() {
+    const toc = document.getElementById('spToc');
+    if (!toc) return;
+    const links = Array.from(toc.querySelectorAll('.sp-toc-link'));
+
+    /* The sticky topbar (~58px) plus the TOC bar itself (~52px) sit at
+       the top of the viewport, so we subtract roughly that combined
+       height when computing scroll targets and observer offsets. */
+    const STICKY_OFFSET = 110;
+
+    links.forEach(a => {
+      a.addEventListener('click', e => {
+        const id = a.getAttribute('href').slice(1);
+        const target = document.getElementById(id);
+        if (!target) return;
+        e.preventDefault();
+        const y = target.getBoundingClientRect().top + window.scrollY - STICKY_OFFSET;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        /* Centre the clicked chip in the scroll bar on mobile. */
+        if (a.scrollIntoView) a.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
+    });
+
+    const sections = links
+      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    if (!('IntersectionObserver' in window) || !sections.length) return;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const id = entry.target.id;
+        links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + id));
+      });
+    }, {
+      /* Activate a section once its top is within ~30% of the
+         viewport and well above the bottom. Tuned so the active chip
+         updates as a section comes into focus rather than as it
+         leaves the screen. */
+      rootMargin: '-' + (STICKY_OFFSET + 20) + 'px 0px -55% 0px',
+      threshold: 0
+    });
+    sections.forEach(s => obs.observe(s));
+  }
+  initToc();
 
   /* ---- tabs + listings ---- */
   function initTabs() {
