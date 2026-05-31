@@ -192,28 +192,46 @@
   color:var(--sp-rust);letter-spacing:.02em;margin-top:auto;padding-top:6px}
 .sp-lc-walk .ph-light{font-size:15px}
 
-/* ---------- event filter bar ---------- */
-.sp-evfilters{background:var(--sp-ivory);border:1px solid #d9cfba;border-radius:4px;
-  padding:14px 16px;margin:0 0 22px;display:flex;flex-direction:column;gap:10px;position:relative}
-.sp-evfilter-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.sp-evfilter-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--sp-muted);min-width:110px}
+/* ---------- event filter card ----------
+   Two-tier layout: When chips span the full width, then a three-column
+   grid for What / Price / Walk time. Icons sit beside friendly section
+   labels so the bar reads as a question, not a form. */
+.sp-evfilters{background:var(--sp-ivory);border:1px solid #d9cfba;border-radius:10px;
+  padding:14px 18px 16px;margin:0 0 22px;box-shadow:0 4px 14px rgba(74,52,30,.06)}
+.sp-evfilters-head{display:flex;justify-content:space-between;align-items:center;
+  margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid #e3d8c0}
+.sp-evfilters-title{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:600;color:var(--sp-ink);margin:0;line-height:1}
+.sp-evreset{background:transparent;border:0;color:var(--sp-rust);font-size:12.5px;font-weight:700;
+  cursor:pointer;padding:3px 7px;display:inline-flex;align-items:center;gap:4px;
+  border-radius:4px;font-family:inherit;transition:background .15s ease}
+.sp-evreset .ph-light{font-size:14px}
+.sp-evreset:hover{background:rgba(141,61,34,.08)}
+.sp-evfilter-section{display:flex;flex-direction:column;gap:6px;margin:10px 0 0}
+.sp-evfilter-section--full{margin-top:0}
+.sp-evfilter-section-label{display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--sp-muted)}
+.sp-evfilter-section-label .ph-light{font-size:15px;color:var(--sp-rust)}
+.sp-evfilter-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:14px 22px;margin-top:6px}
 .sp-evchip-row{display:flex;flex-wrap:wrap;gap:6px}
 .sp-evchip{background:transparent;border:1.5px solid #d9cfba;border-radius:999px;
-  padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--sp-ink);cursor:pointer;
-  font-family:inherit;transition:background .15s ease,color .15s ease,border-color .15s ease}
+  padding:5px 13px;font-size:13px;font-weight:600;color:var(--sp-ink);cursor:pointer;
+  font-family:inherit;line-height:1.2;
+  transition:background .15s ease,color .15s ease,border-color .15s ease}
 .sp-evchip:hover{border-color:var(--sp-rust);color:var(--sp-rust)}
-.sp-evchip.is-active{background:var(--sp-rust);border-color:var(--sp-rust);color:var(--sp-ivory)}
-.sp-evselect{background:var(--sp-offivory);border:1.5px solid #d9cfba;border-radius:4px;
-  padding:6px 10px;font-size:13px;font-family:'Spline Sans',sans-serif;color:var(--sp-ink);
-  min-width:200px;cursor:pointer}
+.sp-evchip.is-active{background:var(--sp-rust);border-color:var(--sp-rust);color:var(--sp-ivory);
+  box-shadow:0 2px 7px rgba(141,61,34,.22)}
+.sp-evselect{background:var(--sp-offivory);border:1.5px solid #d9cfba;border-radius:6px;
+  padding:7px 10px;font-size:13px;font-family:'Spline Sans',sans-serif;color:var(--sp-ink);
+  width:100%;max-width:280px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23736749'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:28px}
 .sp-evselect:focus{outline:none;border-color:var(--sp-rust)}
-.sp-evreset{background:transparent;border:0;color:var(--sp-rust);font-size:12.5px;font-weight:700;
-  cursor:pointer;align-self:flex-start;padding:2px 0;text-decoration:underline;font-family:inherit}
-.sp-evreset:hover{color:var(--sp-ink)}
-@media (max-width:560px){
-  .sp-evfilter-row{flex-direction:column;align-items:flex-start;gap:6px}
-  .sp-evfilter-label{min-width:0}
-  .sp-evselect{width:100%}
+@media (max-width:720px){
+  .sp-evfilter-grid{grid-template-columns:1fr;gap:12px}
+}
+@media (max-width:480px){
+  .sp-evfilters{padding:12px 14px}
 }
 
 /* ---------- events ---------- */

@@ -1430,30 +1430,49 @@ a{color:inherit}
 /* ---------- homepage events grid (route-wide, grouped by month) ---------- */
 #eventPanel{padding:0 1.1rem}
 
-/* Filter bar above the grid. Four rows on desktop (Month / Category /
-   Price / Walking distance), each with a label on the left and chips
-   or a select on the right. Stacks vertically on narrow screens. */
-.hev-filters{background:var(--card);border:1.5px solid var(--line);border-radius:4px;
-  padding:1rem 1.1rem;margin:0 0 1.6rem;display:flex;flex-direction:column;gap:.7rem;position:relative}
-.hev-filter-row{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
-.hev-filter-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--poster-mute);min-width:6.5rem}
+/* Filter card above the grid. Two-tier layout: a top "When" section
+   spans the full width with month chips (the dimension visitors use
+   most), then a three-column grid for What / Price / Walk time. Each
+   section has an icon next to a friendly question word ("When",
+   "What", "Price", "Walk time") so the bar feels conversational
+   instead of form-like. Collapses to a single column on phones. */
+.hev-filters{background:var(--card);border:1.5px solid var(--line);border-radius:10px;
+  padding:1.1rem 1.2rem 1.2rem;margin:0 0 1.8rem;box-shadow:0 4px 14px rgba(36,31,26,.06)}
+.hev-filters-head{display:flex;justify-content:space-between;align-items:center;
+  margin:0 0 .9rem;padding-bottom:.7rem;border-bottom:1px solid var(--line)}
+.hev-filters-title{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;color:var(--poster-ink);margin:0;line-height:1}
+.hev-reset{background:transparent;border:0;color:var(--poster-crimson);font-size:.82rem;font-weight:700;
+  cursor:pointer;padding:.25rem .5rem;display:inline-flex;align-items:center;gap:.25rem;
+  border-radius:4px;font-family:inherit;transition:background .15s ease}
+.hev-reset .ph-light{font-size:.95rem}
+.hev-reset:hover{background:rgba(142,61,34,.08)}
+.hev-filter-section{display:flex;flex-direction:column;gap:.45rem;margin:.7rem 0 0}
+.hev-filter-section--full{margin-top:0}
+.hev-filter-section-label{display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--poster-mute)}
+.hev-filter-section-label .ph-light{font-size:1rem;color:var(--poster-crimson)}
+.hev-filter-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem 1.5rem;margin-top:.4rem}
 .hev-chip-row{display:flex;flex-wrap:wrap;gap:.4rem}
 .hev-chip{background:transparent;border:1.5px solid var(--line);border-radius:999px;
-  padding:.32rem .85rem;font-size:.82rem;font-weight:600;color:var(--poster-ink);cursor:pointer;
-  transition:background .15s ease,color .15s ease,border-color .15s ease;font-family:inherit}
+  padding:.38rem .9rem;font-size:.84rem;font-weight:600;color:var(--poster-ink);cursor:pointer;
+  font-family:inherit;line-height:1.2;
+  transition:background .15s ease,color .15s ease,border-color .15s ease,transform .15s ease}
 .hev-chip:hover{border-color:var(--poster-crimson);color:var(--poster-crimson)}
-.hev-chip.is-active{background:var(--poster-crimson);border-color:var(--poster-crimson);color:var(--poster-ivory,#f6efe2)}
-.hev-select{background:var(--poster-ivory,#f6efe2);border:1.5px solid var(--line);border-radius:4px;
-  padding:.4rem .7rem;font-size:.88rem;font-family:'Spline Sans',sans-serif;color:var(--poster-ink);
-  min-width:200px;cursor:pointer}
+.hev-chip.is-active{background:var(--poster-crimson);border-color:var(--poster-crimson);color:var(--poster-ivory,#f6efe2);
+  box-shadow:0 2px 8px rgba(142,61,34,.25)}
+.hev-select{background:var(--poster-ivory,#f6efe2);border:1.5px solid var(--line);border-radius:6px;
+  padding:.5rem .75rem;font-size:.9rem;font-family:'Spline Sans',sans-serif;color:var(--poster-ink);
+  width:100%;max-width:280px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23766f5d'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
+  background-repeat:no-repeat;background-position:right .65rem center;background-size:14px;padding-right:2rem}
 .hev-select:focus{outline:none;border-color:var(--poster-crimson)}
-.hev-reset{background:transparent;border:0;color:var(--poster-crimson);font-size:.85rem;font-weight:700;
-  cursor:pointer;align-self:flex-start;padding:.2rem 0;text-decoration:underline;font-family:inherit}
-.hev-reset:hover{color:var(--poster-ink)}
-@media (max-width:560px){
-  .hev-filter-row{flex-direction:column;align-items:flex-start;gap:.4rem}
-  .hev-filter-label{min-width:0}
-  .hev-select{width:100%}
+@media (max-width:720px){
+  .hev-filter-grid{grid-template-columns:1fr;gap:.7rem}
+}
+@media (max-width:480px){
+  .hev-filters{padding:1rem 1rem 1.1rem}
+  .hev-filters-title{font-size:1.05rem}
 }
 
 .hev-month{margin:0 0 2.4rem}

@@ -166,13 +166,32 @@
     return y * 100 + m;
   }
 
+  /* Every month the event spans, from Start Date through End Date.
+     Used so a multi-month event (May through September) appears under
+     every relevant month chip, not just its start month. */
+  function spMonthKeys(ev) {
+    if (!ev.startDate) return [];
+    const [sy, sm] = ev.startDate.split('-').map(Number);
+    const endIso = ev.endDate || ev.startDate;
+    const [ey, em] = endIso.split('-').map(Number);
+    const keys = [];
+    let y = sy, m = sm;
+    for (let i = 0; i < 60; i++) {
+      keys.push(y * 100 + m);
+      if (y > ey || (y === ey && m >= em)) break;
+      m++;
+      if (m > 12) { y++; m = 1; }
+    }
+    return keys;
+  }
+
   function spMatchesFilters(ev, f) {
     if (f.month !== 'all') {
       if (f.month === 'recurring') {
         if (!(ev.recurring || !ev.startDate)) return false;
       } else {
         if (ev.recurring || !ev.startDate) return false;
-        if (spMonthKey(ev) !== f.month) return false;
+        if (!spMonthKeys(ev).includes(f.month)) return false;
       }
     }
     if (f.category !== 'all' && ev.category !== f.category) return false;
@@ -190,7 +209,7 @@
     let hasRecurring = false;
     for (const ev of allEvents) {
       if (ev.recurring || !ev.startDate) { hasRecurring = true; continue; }
-      monthSet.add(spMonthKey(ev));
+      for (const k of spMonthKeys(ev)) monthSet.add(k);
     }
     const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
     const monthShort = key => {
@@ -200,32 +219,49 @@
     const chip = (group, value, label, active) =>
       '<button type="button" class="sp-evchip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + esc(String(value)) + '">' + esc(label) + '</button>';
 
-    const monthChips = [chip('month', 'all', 'All months', f.month === 'all')]
+    const monthChips = [chip('month', 'all', 'Any time', f.month === 'all')]
       .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
       .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
       .join('');
-    const categoryOpts = ['<option value="all">All categories</option>']
+    const categoryOpts = ['<option value="all">Any category</option>']
       .concat(SP_EVENT_CATEGORIES.map(c => '<option value="' + esc(c) + '"' + (f.category === c ? ' selected' : '') + '>' + esc(c) + '</option>'))
       .join('');
     const priceChips = [
-      chip('price', 'all', 'Any price', f.price === 'all'),
+      chip('price', 'all', 'Any', f.price === 'all'),
       chip('price', 'free', 'Free', f.price === 'free'),
       chip('price', 'paid', 'Paid', f.price === 'paid')
     ].join('');
     const walkChips = [
-      chip('walk', 'all', 'Any walk', f.walk === 'all'),
-      chip('walk', 15, '15 min or less', f.walk === 15),
-      chip('walk', 30, '30 min or less', f.walk === 30),
-      chip('walk', 60, '1 hr or less', f.walk === 60)
+      chip('walk', 'all', 'Any', f.walk === 'all'),
+      chip('walk', 15, 'Under 15 min', f.walk === 15),
+      chip('walk', 30, 'Under 30 min', f.walk === 30),
+      chip('walk', 60, 'Under 1 hr', f.walk === 60)
     ].join('');
     const anyActive = f.month !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
 
     return '<div class="sp-evfilters">'
-      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Month</span><div class="sp-evchip-row">' + monthChips + '</div></div>'
-      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Category</span><select class="sp-evselect" id="spEventCategorySelect">' + categoryOpts + '</select></div>'
-      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Price</span><div class="sp-evchip-row">' + priceChips + '</div></div>'
-      + '<div class="sp-evfilter-row"><span class="sp-evfilter-label">Walking distance</span><div class="sp-evchip-row">' + walkChips + '</div></div>'
-      + (anyActive ? '<button type="button" class="sp-evreset" id="spEventFiltersReset">Reset filters</button>' : '')
+      + '<div class="sp-evfilters-head">'
+        + '<h3 class="sp-evfilters-title">Find events</h3>'
+        + (anyActive ? '<button type="button" class="sp-evreset" id="spEventFiltersReset"><i class="ph-light ph-x" aria-hidden="true"></i> Clear filters</button>' : '')
+      + '</div>'
+      + '<section class="sp-evfilter-section sp-evfilter-section--full">'
+        + '<div class="sp-evfilter-section-label"><i class="ph-light ph-calendar-blank" aria-hidden="true"></i><span>When</span></div>'
+        + '<div class="sp-evchip-row">' + monthChips + '</div>'
+      + '</section>'
+      + '<div class="sp-evfilter-grid">'
+        + '<section class="sp-evfilter-section">'
+          + '<div class="sp-evfilter-section-label"><i class="ph-light ph-tag" aria-hidden="true"></i><span>What</span></div>'
+          + '<select class="sp-evselect" id="spEventCategorySelect">' + categoryOpts + '</select>'
+        + '</section>'
+        + '<section class="sp-evfilter-section">'
+          + '<div class="sp-evfilter-section-label"><i class="ph-light ph-currency-circle-dollar" aria-hidden="true"></i><span>Price</span></div>'
+          + '<div class="sp-evchip-row">' + priceChips + '</div>'
+        + '</section>'
+        + '<section class="sp-evfilter-section">'
+          + '<div class="sp-evfilter-section-label"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i><span>Walk time</span></div>'
+          + '<div class="sp-evchip-row">' + walkChips + '</div>'
+        + '</section>'
+      + '</div>'
       + '</div>';
   }
 

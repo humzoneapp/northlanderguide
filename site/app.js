@@ -1909,6 +1909,29 @@ function monthKeyForEvent(ev){
   return y * 100 + m;
 }
 
+/* Every month an event spans, from Start Date through End Date. A
+   May-Sept run returns [202605, 202606, 202607, 202608, 202609]. Used
+   for both filter matching ("show me everything happening in July",
+   even if it started in May) and for month-chip discovery so a chip
+   appears for every relevant month. */
+function monthKeysForEvent(ev){
+  if(!ev.startDate) return [];
+  const [sy, sm] = ev.startDate.split('-').map(Number);
+  const endIso = ev.endDate || ev.startDate;
+  const [ey, em] = endIso.split('-').map(Number);
+  const keys = [];
+  let y = sy, m = sm;
+  /* Hard guard on a runaway loop in case bad data lands a > 5-year
+     span: cap at 60 iterations and stop. */
+  for (let i = 0; i < 60; i++) {
+    keys.push(y * 100 + m);
+    if (y > ey || (y === ey && m >= em)) break;
+    m++;
+    if (m > 12) { y++; m = 1; }
+  }
+  return keys;
+}
+
 function monthLabel(key){
   const y = Math.floor(key / 100);
   const m = key % 100;
@@ -2002,7 +2025,10 @@ function eventMatchesFilters(ev, f) {
       if (!(ev.recurring || !ev.startDate)) return false;
     } else {
       if (ev.recurring || !ev.startDate) return false;
-      if (monthKeyForEvent(ev) !== f.month) return false;
+      /* Multi-month events appear in every month they span, not just
+         their start month. An event running May through September
+         shows up under June / July / August chips too. */
+      if (!monthKeysForEvent(ev).includes(f.month)) return false;
     }
   }
   if (f.category !== 'all' && ev.category !== f.category) return false;
@@ -2017,12 +2043,14 @@ function eventMatchesFilters(ev, f) {
 
 function eventsFilterBarHtml(allEvents, f) {
   /* Build the set of month keys that actually have events, sorted asc.
+     Includes every month an event spans (not just start month) so a
+     chip appears for every relevant month of long-running events.
      Recurring is its own pseudo-month chip when present. */
   const monthSet = new Set();
   let hasRecurring = false;
   for (const ev of allEvents) {
     if (ev.recurring || !ev.startDate) { hasRecurring = true; continue; }
-    monthSet.add(monthKeyForEvent(ev));
+    for (const k of monthKeysForEvent(ev)) monthSet.add(k);
   }
   const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
 
@@ -2033,49 +2061,70 @@ function eventsFilterBarHtml(allEvents, f) {
   const chip = (group, value, label, active) =>
     `<button type="button" class="hev-chip${active ? ' is-active' : ''}" data-filter-group="${group}" data-filter-value="${escHtml(String(value))}">${escHtml(label)}</button>`;
 
-  const monthChips = [chip('month', 'all', 'All months', f.month === 'all')]
+  const monthChips = [chip('month', 'all', 'Any time', f.month === 'all')]
     .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
     .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
     .join('');
 
-  const categoryOpts = ['<option value="all">All categories</option>']
+  const categoryOpts = ['<option value="all">Any category</option>']
     .concat(EVENT_CATEGORIES.map(c => `<option value="${escHtml(c)}"${f.category === c ? ' selected' : ''}>${escHtml(c)}</option>`))
     .join('');
 
   const priceChips = [
-    chip('price', 'all', 'Any price', f.price === 'all'),
+    chip('price', 'all', 'Any', f.price === 'all'),
     chip('price', 'free', 'Free', f.price === 'free'),
     chip('price', 'paid', 'Paid', f.price === 'paid')
   ].join('');
 
   const walkChips = [
-    chip('walk', 'all', 'Any walk', f.walk === 'all'),
-    chip('walk', 15, '15 min or less', f.walk === 15),
-    chip('walk', 30, '30 min or less', f.walk === 30),
-    chip('walk', 60, '1 hr or less', f.walk === 60)
+    chip('walk', 'all', 'Any', f.walk === 'all'),
+    chip('walk', 15, 'Under 15 min', f.walk === 15),
+    chip('walk', 30, 'Under 30 min', f.walk === 30),
+    chip('walk', 60, 'Under 1 hr', f.walk === 60)
   ].join('');
 
   const anyActive = f.month !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
 
   return `
     <div class="hev-filters" id="eventFilters">
-      <div class="hev-filter-row">
-        <span class="hev-filter-label">Month</span>
+      <div class="hev-filters-head">
+        <h3 class="hev-filters-title">Find events</h3>
+        ${anyActive ? `<button type="button" class="hev-reset" id="eventFiltersReset"><i class="ph-light ph-x" aria-hidden="true"></i> Clear filters</button>` : ''}
+      </div>
+
+      <section class="hev-filter-section hev-filter-section--full">
+        <div class="hev-filter-section-label">
+          <i class="ph-light ph-calendar-blank" aria-hidden="true"></i>
+          <span>When</span>
+        </div>
         <div class="hev-chip-row">${monthChips}</div>
+      </section>
+
+      <div class="hev-filter-grid">
+        <section class="hev-filter-section">
+          <div class="hev-filter-section-label">
+            <i class="ph-light ph-tag" aria-hidden="true"></i>
+            <span>What</span>
+          </div>
+          <select class="hev-select" id="eventCategorySelect">${categoryOpts}</select>
+        </section>
+
+        <section class="hev-filter-section">
+          <div class="hev-filter-section-label">
+            <i class="ph-light ph-currency-circle-dollar" aria-hidden="true"></i>
+            <span>Price</span>
+          </div>
+          <div class="hev-chip-row">${priceChips}</div>
+        </section>
+
+        <section class="hev-filter-section">
+          <div class="hev-filter-section-label">
+            <i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>
+            <span>Walk time</span>
+          </div>
+          <div class="hev-chip-row">${walkChips}</div>
+        </section>
       </div>
-      <div class="hev-filter-row">
-        <span class="hev-filter-label">Category</span>
-        <select class="hev-select" id="eventCategorySelect">${categoryOpts}</select>
-      </div>
-      <div class="hev-filter-row">
-        <span class="hev-filter-label">Price</span>
-        <div class="hev-chip-row">${priceChips}</div>
-      </div>
-      <div class="hev-filter-row">
-        <span class="hev-filter-label">Walking distance</span>
-        <div class="hev-chip-row">${walkChips}</div>
-      </div>
-      ${anyActive ? `<button type="button" class="hev-reset" id="eventFiltersReset">Reset filters</button>` : ''}
     </div>`;
 }
 
@@ -2095,7 +2144,7 @@ function sortEventsList(arr) {
    events live outside the page window so they are always visible at
    the bottom; only the dated events paginate. Returns the page count
    needed for pagination controls. */
-function renderEventsGridInto(target, events, page) {
+function renderEventsGridInto(target, events, page, activeMonthFilter) {
   const dated = [];
   const recurring = [];
   for (const ev of events) {
@@ -2109,11 +2158,13 @@ function renderEventsGridInto(target, events, page) {
   const clamped = Math.min(Math.max(1, page), totalPages);
   const slice = dated.slice((clamped - 1) * HEV_PAGE_SIZE, clamped * HEV_PAGE_SIZE);
 
-  /* Re-bucket the page slice by month so headings still surface
-     even when a single month spans multiple pages. */
+  /* Bucket key: if the user picked a specific month, use that month
+     as the header for every event in the slice (multi-month events
+     get listed under the chosen month). With no month filter, use the
+     event's start month so the timeline reads naturally. */
   const buckets = new Map();
   for (const ev of slice) {
-    const k = monthKeyForEvent(ev);
+    const k = (typeof activeMonthFilter === 'number') ? activeMonthFilter : monthKeyForEvent(ev);
     if (!buckets.has(k)) buckets.set(k, []);
     buckets.get(k).push(ev);
   }
@@ -2168,7 +2219,8 @@ function renderEvents(){
             <p>No events match these filters. Try widening your selection.</p></div>`)
     + '</div>';
   if (filtered.length) {
-    const result = renderEventsGridInto(document.getElementById('eventGrid'), filtered, window.eventFilters.page || 1);
+    const activeMonth = (typeof window.eventFilters.month === 'number') ? window.eventFilters.month : null;
+    const result = renderEventsGridInto(document.getElementById('eventGrid'), filtered, window.eventFilters.page || 1, activeMonth);
     /* If the user landed on a stale page (filter narrowed the list),
        snap eventFilters.page back to the clamped value so the active
        pagination button reflects reality. */
