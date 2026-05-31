@@ -142,6 +142,62 @@ async function walkMinutesFromStation(station, address) {
   return null;
 }
 
+/* Hard-delete every Events row whose End Date is before today (Toronto
+   time). Excludes recurring events because they keep recurring past
+   their listed End Date and should never be auto-purged. Runs after
+   the publish step so that any failure here cannot break a successful
+   sync. Deletes in batches of 10 - Airtable's per-request cap on the
+   DELETE endpoint. */
+async function cleanupStaleEvents(today) {
+  const formula = `AND({End Date} != BLANK(), IS_BEFORE({End Date}, DATETIME_PARSE('${today}')), NOT({Recurring}))`;
+  const ids = [];
+  let offset = null;
+  do {
+    const url = new URL(`https://api.airtable.com/v0/${BASE}/${TABLE}`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('filterByFormula', formula);
+    url.searchParams.set('fields[]', 'Event Name');
+    if (offset) url.searchParams.set('offset', offset);
+    const res = await fetchWithRetry(() => fetch(url, { headers: { Authorization: 'Bearer ' + KEY } }));
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error(`stale-event fetch ${res.status} ${t.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    for (const r of (data.records || [])) ids.push(r.id);
+    offset = data.offset;
+    if (offset) await sleep(220);
+  } while (offset);
+
+  if (!ids.length) {
+    console.log('Cleanup: 0 stale events to delete.');
+    return 0;
+  }
+
+  let deleted = 0, failedBatches = 0;
+  for (let i = 0; i < ids.length; i += 10) {
+    const batch = ids.slice(i, i + 10);
+    /* The DELETE endpoint takes records[] as URL params (no body). */
+    const url = new URL(`https://api.airtable.com/v0/${BASE}/${TABLE}`);
+    for (const id of batch) url.searchParams.append('records[]', id);
+    const res = await fetchWithRetry(() => fetch(url.toString(), {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + KEY }
+    }));
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      console.warn(`Cleanup batch ${Math.floor(i / 10) + 1} failed: ${res.status} ${t.slice(0, 200)}`);
+      failedBatches++;
+      await sleep(220);
+      continue;
+    }
+    deleted += batch.length;
+    await sleep(220);
+  }
+  console.log(`Cleanup: deleted ${deleted}/${ids.length} stale events (End Date before ${today}, non-recurring). ${failedBatches ? 'Failed batches: ' + failedBatches : ''}`);
+  return deleted;
+}
+
 /* Cache the computed walk time back to the Airtable row so subsequent
    syncs do not re-spend a Distance Matrix call on the same address. */
 async function cacheWalkMins(recordId, mins) {
@@ -308,4 +364,12 @@ function mapRecord(rec) {
   }
   fs.renameSync(tmp, OUT_FILE);
   console.log(`SYNC COMPLETE: ${kept} events written to ${OUT_FILE} (${Math.round(fs.statSync(OUT_FILE).size / 1024)}kb)`);
+
+  /* Cleanup pass: remove stale rows from Airtable. Wrapped in try/catch
+     so a failure here does not mask the already-successful publish. */
+  try {
+    await cleanupStaleEvents(today);
+  } catch (e) {
+    console.warn('Cleanup step failed (publish already succeeded):', e.message);
+  }
 })().catch(e => { console.error('EVENTS SYNC FAILED:', e.message); process.exit(1); });
