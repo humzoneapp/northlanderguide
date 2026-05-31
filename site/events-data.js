@@ -516,7 +516,7 @@ const EVENTS_DATA = {
       "venue": "Woodbine Park",
       "address": "Woodbine Park, 1695 Queen St E, Toronto, ON",
       "description": "One of North America's largest street performer festivals over Labour Day weekend at Woodbine Park. Four days of circus acts, acrobatics, magic, comedy, sword swallowing, food vendors, and a beer garden. All proceeds support Epilepsy Toronto. Bark in the Park zone for dog lovers runs alongside the festival.",
-      "imageUrl": "https://display.curiocity.com/uploads/2025/08/buskerfest-toronto.jpeg",
+      "imageUrl": "https://epilepsytoronto.org/wp-content/uploads/2025/07/2025-BuskerFest-ET-Website-Banner-1.jpg",
       "eventUrl": "https://www.buskerfest.ca",
       "ticketUrl": null,
       "price": "Admission by donation (~$10)",
