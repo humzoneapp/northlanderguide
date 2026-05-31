@@ -496,7 +496,7 @@
   const stopEvents = (window.EVENTS_DATA && window.EVENTS_DATA[stopId]) || [];
   html += '<section class="sp-section"><h2 class="sp-h2">What\'s On in ' + esc(displayName) + '</h2>'
     + (stopEvents.length
-        ? '<div id="spEventsBar"></div><div id="spEventsList" class="sp-events"></div>'
+        ? '<div id="spEventsBar"></div><div id="spEventsList"></div>'
         : '<div class="sp-events-empty"><i class="ph-light ph-calendar" aria-hidden="true"></i>'
           + '<p>Events coming soon. Know about something happening here?</p></div>')
     + '<div class="sp-events-submit"><a class="sp-btn submit-event-trigger" href="/submit-event/">'
