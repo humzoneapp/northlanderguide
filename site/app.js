@@ -1882,28 +1882,124 @@ function openDetail(idx){
 }
 
 /* ------------------------------------------------------------------
-   EVENTS
+   EVENTS - route-wide grid, grouped by month
+   Pulls all approved events from window.EVENTS_DATA across every
+   stop, sorts by start date, groups by "Month YYYY", with recurring
+   events surfaced as their own section at the bottom. Idempotent:
+   safe to call multiple times.
 ------------------------------------------------------------------- */
+function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+function formatEventDate(ev){
+  if(!ev.startDate) return ev.recurring ? (ev.recurrencePattern || 'Recurring') : '';
+  const fmt = iso => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m-1, d));
+    return dt.toLocaleDateString('en-CA', { month:'short', day:'numeric', timeZone:'UTC' });
+  };
+  const start = fmt(ev.startDate);
+  const end = ev.endDate && ev.endDate !== ev.startDate ? ' - ' + fmt(ev.endDate) : '';
+  const time = ev.startTime ? ', ' + ev.startTime : '';
+  return start + end + time;
+}
+
+function monthKeyForEvent(ev){
+  if(!ev.startDate) return 'recurring';
+  const [y, m] = ev.startDate.split('-').map(Number);
+  return y * 100 + m;
+}
+
+function monthLabel(key){
+  const y = Math.floor(key / 100);
+  const m = key % 100;
+  const dt = new Date(Date.UTC(y, m-1, 1));
+  return dt.toLocaleDateString('en-CA', { month:'long', year:'numeric', timeZone:'UTC' });
+}
+
+function eventCardHtml(ev){
+  const when = formatEventDate(ev);
+  const link = ev.eventUrl || ev.ticketUrl || '';
+  const tag  = link ? 'a' : 'div';
+  const href = link ? ` href="${escHtml(link)}" target="_blank" rel="noopener"` : '';
+  const priceLabel = ev.free ? 'Free' : (ev.price || '');
+  const stopName = ev.stop || '';
+  return `<${tag} class="hev-card"${href}>
+    ${ev.imageUrl
+      ? `<div class="hev-img" style="background-image:url('${escHtml(ev.imageUrl)}')"></div>`
+      : `<div class="hev-img hev-img--blank"><i class="ph-light ph-calendar" aria-hidden="true"></i></div>`}
+    <div class="hev-body">
+      ${when ? `<div class="hev-when">${escHtml(when)}</div>` : ''}
+      <h4 class="hev-name">${escHtml(ev.name)}</h4>
+      <div class="hev-stop">${escHtml(stopName)}${ev.venue ? ` \u00B7 ${escHtml(ev.venue)}` : ''}</div>
+      ${ev.description ? `<p class="hev-desc">${escHtml(ev.description)}</p>` : ''}
+      <div class="hev-foot">
+        ${priceLabel ? `<span class="hev-price">${escHtml(priceLabel)}</span>` : '<span></span>'}
+        ${link ? `<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>` : ''}
+      </div>
+    </div>
+  </${tag}>`;
+}
+
 function renderEvents(){
-  const evts = activeStop.events || [];
   const wrap = document.getElementById('eventPanel');
-  if(!evts.length){
-    wrap.innerHTML = `<div class="evlist"><div class="empty">No events listed yet for ${activeStop.name}.</div></div>`;
+  if(!wrap) return;
+
+  /* Flatten every stop's events into a single array. window.EVENTS_DATA
+     is keyed by stop slug, each value is an array of event objects. */
+  const data = window.EVENTS_DATA || {};
+  const all = [];
+  for (const sid of Object.keys(data)) {
+    for (const ev of (data[sid] || [])) all.push(ev);
+  }
+
+  if(!all.length){
+    wrap.innerHTML = `<div class="hev-empty">
+      <i class="ph-light ph-calendar" aria-hidden="true"></i>
+      <p>No events listed yet. Know about something happening along the route?</p>
+      <a href="#submit-event">Submit an event</a>
+    </div>`;
     return;
   }
-  wrap.innerHTML = `<div class="evlist">
-    ${evts.map(e=>`
-      <div class="reveal">
-        <div class="evcard">
-          <div class="date"><div class="d">${e.d}</div><div class="m">${e.m}</div></div>
-          <div>
-            <h4>${e.name}</h4>
-            <div class="where">${icon('pin')} ${e.where} \u00B7 ${activeStop.name}</div>
-            <div class="edesc">${e.desc}</div>
-          </div>
-        </div>
-      </div>`).join('')}
-  </div>`;
+
+  /* Group by month, with recurring events bucketed separately so they
+     do not clutter the date-anchored timeline. */
+  const buckets = new Map();
+  const recurring = [];
+  for (const ev of all) {
+    if (ev.recurring || !ev.startDate) { recurring.push(ev); continue; }
+    const k = monthKeyForEvent(ev);
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(ev);
+  }
+  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
+
+  /* Sort each bucket by start date asc, then name. Featured first
+     within a month. */
+  const sortBucket = arr => arr.sort((a,b) => {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
+    const ad = a.startDate || '9999-12-31';
+    const bd = b.startDate || '9999-12-31';
+    if (ad !== bd) return ad < bd ? -1 : 1;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+  for (const k of monthKeys) sortBucket(buckets.get(k));
+  sortBucket(recurring);
+
+  const monthsHtml = monthKeys.map(k => `
+    <div class="hev-month reveal">
+      <h3 class="hev-month-label">${escHtml(monthLabel(k))}</h3>
+      <div class="hev-grid">${buckets.get(k).map(eventCardHtml).join('')}</div>
+    </div>
+  `).join('');
+
+  const recurringHtml = recurring.length ? `
+    <div class="hev-month reveal">
+      <h3 class="hev-month-label">Ongoing &amp; Recurring</h3>
+      <div class="hev-grid">${recurring.map(eventCardHtml).join('')}</div>
+    </div>
+  ` : '';
+
+  wrap.innerHTML = monthsHtml + recurringHtml;
   observeReveals();
 }
 

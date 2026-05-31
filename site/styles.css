@@ -1427,6 +1427,37 @@ a{color:inherit}
 /* ---------- events ---------- */
 .eventsection{padding:2.4rem 0 2.8rem;max-width:1080px;margin:0 auto}
 
+/* ---------- homepage events grid (route-wide, grouped by month) ---------- */
+#eventPanel{padding:0 1.1rem}
+.hev-month{margin:0 0 2.4rem}
+.hev-month-label{font-family:'Fraunces',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--poster-ink);
+  margin:0 0 1rem;padding:0 0 .5rem;border-bottom:1.5px solid var(--line);letter-spacing:.01em}
+.hev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.1rem}
+.hev-card{background:var(--card);border:1.5px solid var(--line);border-radius:4px;
+  display:flex;flex-direction:column;text-decoration:none;color:inherit;overflow:hidden;
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .22s ease,border-color .15s ease}
+@media (hover:hover){
+  a.hev-card:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(36,31,26,.16);
+    border-color:var(--poster-crimson)}
+}
+.hev-img{width:100%;aspect-ratio:16/9;background:#e8e0cd center/cover no-repeat}
+.hev-img--blank{display:flex;align-items:center;justify-content:center;color:var(--poster-crimson)}
+.hev-img--blank .ph-light,.hev-img--blank .ph{font-size:48px}
+.hev-body{padding:1rem 1.1rem 1.1rem;display:flex;flex-direction:column;flex:1;gap:.35rem}
+.hev-when{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--poster-crimson)}
+.hev-name{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin:.1rem 0 0;color:var(--poster-ink);line-height:1.25}
+.hev-stop{font-size:.82rem;color:var(--poster-mute)}
+.hev-desc{font-size:.88rem;line-height:1.45;color:var(--poster-ink);opacity:.82;margin:.4rem 0 0;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hev-foot{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-top:auto;padding-top:.8rem}
+.hev-price{font-size:.78rem;font-weight:700;color:var(--poster-ink);letter-spacing:.02em}
+.hev-cta{font-size:.78rem;font-weight:700;color:var(--poster-crimson);display:inline-flex;align-items:center;gap:.2rem}
+.hev-cta .ph-light{font-size:.95rem}
+.hev-empty{padding:3rem 1.5rem;text-align:left;background:var(--card);border:1.5px dashed var(--line);border-radius:4px;max-width:640px;margin:0 auto}
+.hev-empty .ph-light,.hev-empty .ph{font-size:2.8rem;color:var(--poster-crimson);display:block;margin-bottom:.7rem}
+.hev-empty p{font-family:'Fraunces',Georgia,serif;font-size:1.1rem;color:var(--poster-ink);margin:0 0 .8rem;max-width:540px}
+.hev-empty a{color:var(--poster-crimson);font-weight:600}
+
 /* ---------- event submission form ---------- */
 .event-submit{margin:3rem 1.1rem 0;padding:2rem 1.5rem 2.2rem;
   background:var(--card);border:1.5px solid var(--line);border-radius:6px}
