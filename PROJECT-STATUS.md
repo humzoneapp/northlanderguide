@@ -19,6 +19,11 @@ what's already wired. Keep this short; details belong in the code.
 - Sync filter: `AND({Active}=TRUE(), NOT({Needs Review}))` - unreviewed auto-enriched rows never ship.
 - Sync hardening: `fetchWithRetry`, atomic temp-file writes with marker+size validation, hard-abort guard at <100 listings, backup/restore on failure, `timeout-minutes: 10`.
 - Instant tip publish path: Airtable approval > Vercel `/api/trigger-tip-sync` > GitHub `repository_dispatch` > `sync-tips.yml` > regex-replaces only the `STOP_TIPS_DATA` block.
+- **Cache-Control headers** (in `vercel.json`):
+  - `listings-data.js`, `stop-pages-data.js`, `events-data.js`: `max-age=0, must-revalidate` so browsers check for a fresh copy on every visit (Vercel still returns 304 when nothing changed).
+  - `app.js`, `stop-page.js`, `stop-explorer.js`, `app-submit-event.js`, `styles.css`, `stop-page.css`: `max-age=300, must-revalidate` so code changes reach visitors within 5 minutes rather than up to a year (Vercel's default).
+  - HTML stays on Vercel's default no-cache.
+- **Pagination on events grid** (homepage + stop pages): 9 dated cards per page (~3 rows on desktop). Numbered Prev/1 2 3/Next bar collapses to `1 ... 4 5 6 ... 12` when total pages exceeds 7. Recurring events stay pinned outside the page window so they are always visible. Filter changes reset to page 1; page clicks alone do not touch other filters. Clamped recovery snaps a stale page back into range when filters narrow the result set.
 
 ### Events
 - Airtable Events table at `tblPPmCZ7gBlvNGk2` is the single source of truth. Schema: Event Name, Stop, Category, Start/End Date, Start/End Time, Venue Name, Address, Description, Image URL (text), Event URL, Ticket URL, Price, Free, Source, Featured, Recurring, Recurrence Pattern, Approved, Submitted By, Submitter Email.
