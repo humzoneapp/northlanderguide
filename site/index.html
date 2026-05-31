@@ -252,7 +252,20 @@
         <label class="ef-field"><span class="ef-label">Venue name</span><input id="evVenue" type="text" maxlength="200"></label>
         <label class="ef-field"><span class="ef-label">Address</span><input id="evAddress" type="text" maxlength="300"></label>
         <label class="ef-field ef-span-2"><span class="ef-label">Description <span class="ef-req">*</span></span><textarea id="evDescription" maxlength="2000" rows="4" required></textarea></label>
-        <label class="ef-field ef-span-2"><span class="ef-label">Image URL</span><input id="evImageUrl" type="url" placeholder="https://..."></label>
+        <div class="ef-field ef-span-2 ef-image-block">
+          <span class="ef-label">Event image</span>
+          <p class="ef-image-hint">Add a photo (up to 8 MB, JPEG / PNG / WebP) <em>or</em> paste an image URL. The upload takes priority if both are filled.</p>
+          <div class="ef-image-pickers">
+            <label class="ef-image-upload" for="evImageFile">
+              <i class="ph-light ph-image" aria-hidden="true"></i>
+              <span id="evImageFileLabel">Upload an image</span>
+            </label>
+            <input id="evImageFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <button type="button" class="ef-image-clear" id="evImageFileClear" hidden>Remove</button>
+            <input id="evImageUrl" type="url" placeholder="https://..." class="ef-image-url">
+          </div>
+          <img id="evImageFilePreview" class="ef-image-preview" alt="" hidden>
+        </div>
         <label class="ef-field"><span class="ef-label">Event URL</span><input id="evEventUrl" type="url" placeholder="https://..."></label>
         <label class="ef-field"><span class="ef-label">Ticket URL</span><input id="evTicketUrl" type="url" placeholder="https://..."></label>
         <label class="ef-field"><span class="ef-label">Price</span><input id="evPrice" type="text" maxlength="80" placeholder="e.g. $25, $10-$30"></label>

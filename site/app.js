@@ -2348,15 +2348,86 @@ function mergeStaticListings(){
    Approved=false. Admin reviews in Airtable, ticks Approved, then the
    sync-events workflow publishes the row to events-data.js.
 ------------------------------------------------------------------- */
+/* Shared client-side image resize: max 1200px long edge, JPEG 85%.
+   Keeps the payload around 0.5-2 MB for typical phone photos and
+   stays well under the 4 MB server cap. Used by both the modal
+   handler below and the dedicated /submit-event/ page handler. */
+window.resizeEventImage = async function resizeEventImage(file){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error('Could not read image.'));
+      i.src = url;
+    });
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const max = 1200;
+    if (w > max || h > max) {
+      if (w >= h) { h = Math.round(h * max / w); w = max; }
+      else { w = Math.round(w * max / h); h = max; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+    if (!blob) throw new Error('Could not encode image.');
+    const base64 = await new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result).split(',')[1] || '');
+      fr.onerror = () => reject(new Error('Could not encode image.'));
+      fr.readAsDataURL(blob);
+    });
+    const filename = (file.name || 'event').replace(/\.[^.]+$/, '') + '.jpg';
+    return { base64, contentType: 'image/jpeg', filename };
+  } finally { URL.revokeObjectURL(url); }
+};
+
 (function initEventForm(){
   const form = document.getElementById('evForm');
   if (!form) return;
   const $ = id => document.getElementById(id);
   const human = $('evHuman'), consent = $('evConsent'), submit = $('evSubmit'), msg = $('evMsg');
+  const fileEl = $('evImageFile');
+  const fileLabel = $('evImageFileLabel');
+  const fileClear = $('evImageFileClear');
+  const filePreview = $('evImageFilePreview');
+  let imagePayload = null;
 
   function syncSubmit(){ submit.disabled = !(human.checked && consent.checked); }
   human.addEventListener('change', syncSubmit);
   consent.addEventListener('change', syncSubmit);
+
+  fileEl.addEventListener('change', async () => {
+    const f = fileEl.files && fileEl.files[0];
+    if (!f) return;
+    if (f.size > 8 * 1024 * 1024) {
+      msg.textContent = 'Please choose an image under 8 MB.';
+      fileEl.value = '';
+      return;
+    }
+    msg.textContent = 'Preparing image...';
+    try {
+      imagePayload = await window.resizeEventImage(f);
+      filePreview.src = 'data:image/jpeg;base64,' + imagePayload.base64;
+      filePreview.hidden = false;
+      fileClear.hidden = false;
+      fileLabel.textContent = 'Replace image';
+      msg.textContent = '';
+    } catch (err) {
+      imagePayload = null;
+      msg.textContent = 'Could not read that image. Try another.';
+      fileEl.value = '';
+    }
+  });
+
+  fileClear.addEventListener('click', () => {
+    imagePayload = null;
+    fileEl.value = '';
+    filePreview.src = ''; filePreview.hidden = true;
+    fileClear.hidden = true;
+    fileLabel.textContent = 'Upload an image';
+  });
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -2383,6 +2454,7 @@ function mergeStaticListings(){
       human: true, consent: true,
       url: $('evUrl').value
     };
+    if (imagePayload) payload.image = imagePayload;
 
     if (!payload.name)         { msg.textContent = 'Event name is required.'; return; }
     if (!payload.stop)         { msg.textContent = 'Please pick a stop.'; return; }
@@ -2399,6 +2471,7 @@ function mergeStaticListings(){
       });
       if (res.ok) {
         form.reset();
+        fileClear.click();
         msg.classList.add('ok');
         msg.textContent = 'Thank you. Your event has been submitted for review.';
         submit.disabled = true;

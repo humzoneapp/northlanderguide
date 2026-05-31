@@ -11,6 +11,7 @@
    ================================================================== */
 
 const EVENTS_TABLE = 'tblPPmCZ7gBlvNGk2';
+const IMAGE_UPLOAD_FIELD = 'Image Upload';
 
 const VALID_STOPS = new Set([
   'Toronto Union', 'Langstaff', 'Gormley', 'Washago', 'Gravenhurst',
@@ -111,6 +112,27 @@ module.exports = async (req, res) => {
   const submittedBy = String(body.submittedBy || '').trim().slice(0, 200);
   if (submittedBy) fields['Submitted By'] = submittedBy;
 
+  /* Optional uploaded image: client sends { base64, contentType, filename }
+     after client-side resize (max 1200px long edge, JPEG ~85%). We
+     accept it here and attach in a second step via Airtable's content
+     upload endpoint, mirroring submit-tip.js. */
+  let image = body.image && typeof body.image === 'object' ? body.image : null;
+  if (image) {
+    const contentType = String(image.contentType || '').toLowerCase();
+    if (!/^image\/(jpe?g|png|webp)$/.test(contentType)) {
+      res.status(400).json({ error: 'Image must be JPEG, PNG, or WebP.' });
+      return;
+    }
+    const b64 = String(image.base64 || '');
+    /* ~4 MB after resize. base64 inflates by 4/3, so 5.5MB raw maps
+       to ~4 MB image data after decoding. */
+    if (!b64 || b64.length > 5_500_000) {
+      res.status(400).json({ error: 'Image is too large (max about 4 MB after resize).' });
+      return;
+    }
+    image = { base64: b64, contentType, filename: String(image.filename || 'event.jpg').slice(0, 80) };
+  }
+
   try {
     const r = await fetch(`https://api.airtable.com/v0/${base}/${EVENTS_TABLE}`, {
       method: 'POST',
@@ -122,6 +144,33 @@ module.exports = async (req, res) => {
       res.status(502).json({ error: 'Could not save event', detail: t.slice(0, 300) });
       return;
     }
+    const created = await r.json();
+    const recordId = (created.records && created.records[0] && created.records[0].id) || null;
+
+    /* Step 2: upload the image to the new record via the content
+       endpoint. If this fails we still keep the event (text fields
+       already saved), and surface a partial-success message so the
+       submitter knows their text went through. */
+    if (image && recordId) {
+      const upRes = await fetch(
+        `https://content.airtable.com/v0/${base}/${recordId}/${encodeURIComponent(IMAGE_UPLOAD_FIELD)}/uploadAttachment`,
+        {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contentType: image.contentType,
+            filename: image.filename,
+            file: image.base64
+          })
+        }
+      );
+      if (!upRes.ok) {
+        const t = await upRes.text().catch(() => '');
+        res.status(200).json({ ok: true, imageError: t.slice(0, 200) });
+        return;
+      }
+    }
+
     res.status(200).json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: String(e && e.message || e) });

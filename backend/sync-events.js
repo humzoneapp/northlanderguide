@@ -59,6 +59,7 @@ const FIELD = {
   address: 'fld3FdQh9igIepst7',
   description: 'fldxOqeckhT9M54JW',
   imageUrl: 'fldclee4sdCR83O9M',
+  imageUpload: 'fldE7jR2Q7jDmFVAH',
   eventUrl: 'fldy4mdaUad0reqoJ',
   ticketUrl: 'fldwKW2vYL5juwBbp',
   price: 'fldWs83Oqcwo4LRv0',
@@ -145,7 +146,11 @@ function mapRecord(rec) {
     venue: f[FIELD.venue] || null,
     address: f[FIELD.address] || null,
     description: f[FIELD.description] || null,
-    imageUrl: f[FIELD.imageUrl] || null,
+    /* Prefer an uploaded image attachment when present, fall back to
+       the manually-entered Image URL. Airtable attachment URLs are
+       served from a CDN and embed safely as <img src=...>. */
+    imageUrl: (Array.isArray(f[FIELD.imageUpload]) && f[FIELD.imageUpload][0] && f[FIELD.imageUpload][0].url)
+      || f[FIELD.imageUrl] || null,
     eventUrl: f[FIELD.eventUrl] || null,
     ticketUrl: f[FIELD.ticketUrl] || null,
     price: f[FIELD.price] || null,
