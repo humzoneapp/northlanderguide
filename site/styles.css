@@ -1914,7 +1914,9 @@ a.topnav-plan{
   transition:background .15s, color .15s, border-color .15s;
 }
 a.topnav-plan:hover{
-  background:var(--poster-crimson);color:#f3ece0;border-color:var(--poster-crimson);
+  /* Matches the .btn-primary rust (#6e2e17) so the pill reads as
+     part of the site's CTA palette, not a lighter shade of crimson. */
+  background:#6e2e17;color:#f3ece0;border-color:#6e2e17;
 }
 
 /* ===== Stop-page "Plan Your Trip" CTA =====
