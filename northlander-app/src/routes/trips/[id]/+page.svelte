@@ -8,6 +8,7 @@
   import StopPickerModal from '$lib/components/StopPickerModal.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
+  import ShareModal from '$lib/components/ShareModal.svelte';
   import {
     getTrip,
     renameTrip,
@@ -24,6 +25,7 @@
   let nameDraft = '';
   let confirmingDelete = false;
   let showStopPicker = false;
+  let showShareModal = false;
 
   /** @type {HTMLInputElement | undefined} */
   let nameInput;
@@ -149,21 +151,38 @@
           </button>
         {/if}
 
-        <div class="mt-5">
-          <span class="kicker block mb-2">Leather</span>
-          <div class="flex flex-wrap gap-3">
-            {#each LEATHER_COLORS as c}
-              <button
-                type="button"
-                class="pl-swatch group relative w-10 h-10 rounded-full border-2 transition"
-                class:is-selected={trip.colorId === c.id}
-                style="background:{c.body};border-color:{trip.colorId === c.id ? c.strap : 'transparent'}"
-                on:click={() => pickColor(c.id)}
-                aria-label={c.name}
-                aria-pressed={trip.colorId === c.id}
-              ></button>
-            {/each}
+        <div class="mt-5 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <span class="kicker block mb-2">Leather</span>
+            <div class="flex flex-wrap gap-3">
+              {#each LEATHER_COLORS as c}
+                <button
+                  type="button"
+                  class="pl-swatch group relative w-10 h-10 rounded-full border-2 transition"
+                  class:is-selected={trip.colorId === c.id}
+                  style="background:{c.body};border-color:{trip.colorId === c.id ? c.strap : 'transparent'}"
+                  on:click={() => pickColor(c.id)}
+                  aria-label={c.name}
+                  aria-pressed={trip.colorId === c.id}
+                ></button>
+              {/each}
+            </div>
           </div>
+          <button
+            type="button"
+            class="btn-primary flex items-center gap-2"
+            on:click={() => (showShareModal = true)}
+            aria-label="Share your trip as a poster"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span>Share trip</span>
+          </button>
         </div>
       </div>
     </div>
@@ -215,6 +234,10 @@
       on:save={saveStops}
       on:close={() => (showStopPicker = false)}
     />
+  {/if}
+
+  {#if showShareModal}
+    <ShareModal {trip} on:close={() => (showShareModal = false)} />
   {/if}
 
   <!-- ===== Danger zone ===== -->
