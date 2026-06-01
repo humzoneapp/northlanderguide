@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Plan Your Northlander Trip - NorthlanderGuide.com</title>
+<meta name="description" content="Plan your Northlander train trip in one place. Pack your route, stops, packing list, bookings, budget and itinerary into a single suitcase with Northlander.app.">
+<link rel="canonical" href="https://northlanderguide.com/plan">
+
+<meta property="og:title" content="Pack Your Perfect Northlander Trip">
+<meta property="og:description" content="Discover on NorthlanderGuide.com. Plan in Northlander.app.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://northlanderguide.com/plan">
+<meta property="og:image" content="https://northlanderguide.com/images/northlander-plan-my-trip.jpeg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,0,900;9..144,1,500&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css"/>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/plan-page.css">
+</head>
+<body class="plan-page-body">
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar scrolled" id="top">
+  <a href="/" class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26">
+        <circle cx="16" cy="16" r="15" fill="#8e3d22"/>
+        <path d="M8 21 L8 12 Q8 9 11 9 L21 9 Q24 9 24 12 L24 21 Z" fill="#f3ece0"/>
+        <rect x="10" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <rect x="17" y="12" width="5" height="5" rx="1" fill="#0e3b2c"/>
+        <rect x="9" y="22" width="14" height="2" rx="1" fill="#f3ece0"/>
+      </svg>
+    </span>
+    Northlander<span>Guide</span>
+  </a>
+  <nav class="topnav">
+    <a href="/plan" class="topnav-plan">Plan a Trip</a>
+    <button class="stop-explorer-btn" onclick="openStopExplorer()" aria-label="Explore all stops">
+      <i class="ph-light ph-flame"></i>
+      <span>Explore Stops</span>
+    </button>
+    <div class="nav-dropdown" id="navDropdown">
+      <button class="nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+        More <i class="ph-light ph-caret-down" aria-hidden="true"></i>
+      </button>
+      <div class="nav-dropdown-panel" role="menu">
+        <div class="nav-section">
+          <h5 class="nav-section-label">Explore</h5>
+          <a href="/#stopnav">The Route</a>
+          <a href="/#stopnav">All Stops</a>
+          <a href="/#events">Events</a>
+        </div>
+        <div class="nav-section">
+          <h5 class="nav-section-label">Plan</h5>
+          <a href="/plan">Plan a Trip</a>
+        </div>
+        <div class="nav-section">
+          <h5 class="nav-section-label">Get Involved</h5>
+          <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
+          <a href="#">Submit a Listing</a>
+          <a href="#">Advertise</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <button class="hamburger" id="hamburger" type="button"
+          aria-label="Open menu" aria-expanded="false" aria-controls="mobilemenu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<nav class="mobilemenu" id="mobilemenu" aria-hidden="true">
+  <a href="/plan">Plan a Trip</a>
+  <a href="/#stopnav">The Route</a>
+  <a href="/#stopnav">All Stops</a>
+  <a href="/#events">Events</a>
+  <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
+  <a href="#">Submit a Listing</a>
+  <a href="#">Advertise</a>
+  <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info</a>
+</nav>
+
+<main class="plan-main">
+
+  <!-- ===== 1. HERO =====
+       Full-bleed cinematic hero using northlander-plan-my-trip.jpeg.
+       Suitcase, train, journal, phone, ticket and station all need
+       to remain visible, so the image is positioned center and the
+       overlay vignette only darkens the bottom strip behind text. -->
+  <section class="pl-hero" aria-label="Pack your Northlander trip">
+    <img class="pl-hero-img" src="/images/northlander-plan-my-trip.jpeg"
+         alt="A vintage suitcase with route stickers beside a train, a journal, a phone and a ticket at a Northern Ontario station">
+    <div class="pl-hero-vignette" aria-hidden="true"></div>
+    <div class="pl-hero-inner">
+      <div class="pl-kicker">NorthlanderGuide.com &middot; Northlander.app</div>
+      <h1 class="pl-hero-title">Pack Your Perfect <em>Northlander</em> Trip</h1>
+      <p class="pl-hero-sub">Discover on Northlander Guide. Plan in Northlander.app.</p>
+      <div class="pl-hero-cta">
+        <a href="https://northlander.app" class="btn btn-primary" target="_blank" rel="noopener">Start Packing - Free</a>
+        <a href="#pl-pricing" class="btn btn-ghost">Compare Plans</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2. PROBLEM ===== -->
+  <section class="pl-section pl-problem">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Planning a Train Trip Shouldn't Feel Scattered</h2>
+      </div>
+      <p class="pl-section-lede">You find a station guide here, a restaurant there, an event somewhere else, and suddenly your trip is spread across browser tabs, screenshots, notes, and texts. Northlander.app keeps the whole journey together: your route, stops, packing list, booking checklist, budget, memories, and final itinerary.</p>
+    </div>
+    <div class="pl-pain-grid">
+      <article class="pl-pain-card">
+        <i class="ph-light ph-browsers pl-pain-icon" aria-hidden="true"></i>
+        <h3>Too many tabs</h3>
+        <p>Save stops from the guide into one trip.</p>
+      </article>
+      <article class="pl-pain-card">
+        <i class="ph-light ph-list-checks pl-pain-icon" aria-hidden="true"></i>
+        <h3>Too many little details</h3>
+        <p>Track packing, bookings, accommodations, and notes.</p>
+      </article>
+      <article class="pl-pain-card">
+        <i class="ph-light ph-share-network pl-pain-icon" aria-hidden="true"></i>
+        <h3>Hard to share</h3>
+        <p>Create a clean trip link or printable itinerary.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 3. PRODUCT SNAPSHOT ===== -->
+  <section class="pl-section pl-snapshot">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Your Trip, Packed Like a Suitcase</h2>
+      </div>
+      <p class="pl-section-lede">Create a suitcase for each trip, then fill it with the places, plans, and memories you want to bring along.</p>
+    </div>
+
+    <div class="pl-suitcase-row" aria-hidden="true">
+      <img class="pl-suitcase pl-suitcase-1" src="/images/northlander-luggage-brown.png" alt="">
+      <img class="pl-suitcase pl-suitcase-2" src="/images/northlander-luggage-gold.png" alt="">
+      <img class="pl-suitcase pl-suitcase-3" src="/images/northlander-luggage-green.png" alt="">
+    </div>
+
+    <div class="pl-feature-grid">
+      <article class="pl-feature">
+        <i class="ph-light ph-map-trifold pl-feature-icon" aria-hidden="true"></i>
+        <h3>Route Map</h3>
+        <p>See your planned stops along the Northlander route.</p>
+      </article>
+      <article class="pl-feature">
+        <i class="ph-light ph-suitcase-rolling pl-feature-icon" aria-hidden="true"></i>
+        <h3>Packing List</h3>
+        <p>Keep seasonal and personal items organized.</p>
+      </article>
+      <article class="pl-feature">
+        <i class="ph-light ph-notebook pl-feature-icon" aria-hidden="true"></i>
+        <h3>Travel Diary</h3>
+        <p>Capture notes before, during, and after.</p>
+      </article>
+      <article class="pl-feature">
+        <i class="ph-light ph-bookmark-simple pl-feature-icon" aria-hidden="true"></i>
+        <h3>Bucket List</h3>
+        <p>Save places you want to visit later.</p>
+      </article>
+      <article class="pl-feature">
+        <i class="ph-light ph-calendar-star pl-feature-icon" aria-hidden="true"></i>
+        <h3>Events Along Your Route</h3>
+        <p>Find things happening near your stops.</p>
+      </article>
+      <article class="pl-feature">
+        <i class="ph-light ph-clipboard-text pl-feature-icon" aria-hidden="true"></i>
+        <h3>Booking Checklist</h3>
+        <p>Track what's booked and what's pending.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 4. PRICING ===== -->
+  <section class="pl-section pl-pricing" id="pl-pricing">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Choose Your Suitcase</h2>
+      </div>
+      <p class="pl-section-lede">Start free with Carry-On. Upgrade to First Class when you want unlimited planning, PDF export, sharing, and more.</p>
+    </div>
+
+    <div class="pl-tickets">
+      <!-- CARRY-ON TAG -->
+      <article class="pl-ticket pl-ticket--carry">
+        <div class="pl-ticket-punch" aria-hidden="true"></div>
+        <div class="pl-ticket-head">
+          <div class="pl-ticket-class">Carry-On</div>
+          <div class="pl-ticket-price">Free</div>
+        </div>
+        <img class="pl-ticket-suitcase" src="/images/northlander-luggage-brown.png" alt="" aria-hidden="true">
+        <p class="pl-ticket-pitch">For your first Northlander trip.</p>
+        <ul class="pl-ticket-features">
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> 1 trip suitcase</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Up to 5 stops</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Packing list</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Travel diary</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Bucket list</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Route map</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Events along your route</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Booking checklist</li>
+        </ul>
+        <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Start Packing - Free</a>
+        <p class="pl-ticket-trust">No credit card needed.</p>
+      </article>
+
+      <!-- FIRST CLASS TICKET -->
+      <article class="pl-ticket pl-ticket--first">
+        <div class="pl-stamp" aria-hidden="true">
+          <span>Best<br>Value</span>
+        </div>
+        <div class="pl-ticket-punch" aria-hidden="true"></div>
+        <div class="pl-route-line" aria-hidden="true">
+          <span class="pl-route-dot"></span>
+          <span class="pl-route-dash"></span>
+          <span class="pl-route-dot"></span>
+          <span class="pl-route-dash"></span>
+          <span class="pl-route-dot"></span>
+        </div>
+        <div class="pl-ticket-head">
+          <div class="pl-ticket-class">First Class</div>
+          <div class="pl-ticket-price">$9.99 <span>one-time</span></div>
+        </div>
+        <img class="pl-ticket-suitcase" src="/images/northlander-luggage-green.png" alt="" aria-hidden="true">
+        <p class="pl-ticket-pitch">Pay once. Plan unlimited trips.</p>
+        <ul class="pl-ticket-features">
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Unlimited trip suitcases</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Unlimited stops</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Everything in Carry-On</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Budget tracker</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Accommodation notes</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Photo album</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> PDF export of full itinerary</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Shareable trip link</li>
+          <li><i class="ph-fill ph-check" aria-hidden="true"></i> Post-trip recap</li>
+        </ul>
+        <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Upgrade to First Class</a>
+        <p class="pl-ticket-trust">One payment. No subscription.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 5. WHY UPGRADE ===== -->
+  <section class="pl-section pl-whyupgrade">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>When First Class Makes Sense</h2>
+      </div>
+    </div>
+    <div class="pl-scenario-grid">
+      <article class="pl-scenario">
+        <i class="ph-light ph-suitcase pl-scenario-icon" aria-hidden="true"></i>
+        <h3>You're planning more than one trip</h3>
+        <p>Great for families, rail fans, seasonal travellers, and Northern Ontario explorers.</p>
+      </article>
+      <article class="pl-scenario">
+        <i class="ph-light ph-printer pl-scenario-icon" aria-hidden="true"></i>
+        <h3>You want something printable</h3>
+        <p>Export a clean itinerary with stops, notes, checklists, and plans.</p>
+      </article>
+      <article class="pl-scenario">
+        <i class="ph-light ph-cards-three pl-scenario-icon" aria-hidden="true"></i>
+        <h3>You're organising the details</h3>
+        <p>Track budget, accommodations, photos, and post-trip memories in one place.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 6. HOW IT WORKS ===== -->
+  <section class="pl-section pl-howitworks">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>How It Works</h2>
+      </div>
+    </div>
+    <ol class="pl-steps">
+      <li class="pl-step">
+        <div class="pl-step-num">1</div>
+        <i class="ph-light ph-compass pl-step-icon" aria-hidden="true"></i>
+        <h3>Browse the Guide</h3>
+        <p>Explore station pages, events, attractions, food, lodging, and route inspiration on NorthlanderGuide.com.</p>
+      </li>
+      <li class="pl-step">
+        <div class="pl-step-num">2</div>
+        <i class="ph-light ph-suitcase pl-step-icon" aria-hidden="true"></i>
+        <h3>Pack Your Bag</h3>
+        <p>Send your favourite stops into Northlander.app and build your suitcase-style trip plan.</p>
+      </li>
+      <li class="pl-step">
+        <div class="pl-step-num">3</div>
+        <i class="ph-light ph-ticket pl-step-icon" aria-hidden="true"></i>
+        <h3>Journey With Confidence</h3>
+        <p>Use your checklist, map, notes, budget, and itinerary before, during, and after your trip.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ===== 7. USE CASES ===== -->
+  <section class="pl-section pl-usecases">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Built for Every Kind of Northlander Trip</h2>
+      </div>
+    </div>
+    <div class="pl-usecase-grid">
+      <article class="pl-usecase">
+        <i class="ph-light ph-sun-horizon" aria-hidden="true"></i>
+        <h3>Weekend Getaways</h3>
+      </article>
+      <article class="pl-usecase">
+        <i class="ph-light ph-users-three" aria-hidden="true"></i>
+        <h3>Family Trips</h3>
+      </article>
+      <article class="pl-usecase">
+        <i class="ph-light ph-mountains" aria-hidden="true"></i>
+        <h3>Outdoor Adventures</h3>
+      </article>
+      <article class="pl-usecase">
+        <i class="ph-light ph-train" aria-hidden="true"></i>
+        <h3>Rail Fans</h3>
+      </article>
+      <article class="pl-usecase">
+        <i class="ph-light ph-tree-evergreen" aria-hidden="true"></i>
+        <h3>Northern Ontario Explorers</h3>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 8. APP PREVIEW ===== -->
+  <section class="pl-section pl-preview">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>See What You're Packing</h2>
+      </div>
+    </div>
+    <article class="pl-preview-card">
+      <img class="pl-preview-suitcase" src="/images/northlander-luggage-gold.png" alt="" aria-hidden="true">
+      <div class="pl-preview-body">
+        <div class="pl-preview-trip-label">Trip Suitcase</div>
+        <h3 class="pl-preview-trip-name">Fall Trip to North Bay</h3>
+        <div class="pl-preview-stops">
+          <span class="pl-preview-stop">Toronto Union</span>
+          <span class="pl-preview-stop">Washago</span>
+          <span class="pl-preview-stop">Huntsville</span>
+          <span class="pl-preview-stop">North Bay</span>
+        </div>
+        <div class="pl-preview-stats">
+          <div><b>18</b><span>Packing items</span></div>
+          <div><b>3</b><span>Bookings pending</span></div>
+          <div><b>$420</b><span>Budget planned</span></div>
+          <div><b>2</b><span>Diary notes</span></div>
+        </div>
+      </div>
+    </article>
+    <div class="pl-preview-tiles">
+      <div class="pl-preview-tile"><i class="ph-light ph-map-trifold" aria-hidden="true"></i><span>Route map</span></div>
+      <div class="pl-preview-tile"><i class="ph-light ph-list-checks" aria-hidden="true"></i><span>Packing checklist</span></div>
+      <div class="pl-preview-tile"><i class="ph-light ph-currency-circle-dollar" aria-hidden="true"></i><span>Budget tracker</span></div>
+      <div class="pl-preview-tile"><i class="ph-light ph-file-pdf" aria-hidden="true"></i><span>PDF itinerary</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 9. TESTIMONIAL ===== -->
+  <section class="pl-section pl-testimonial">
+    <figure class="pl-luggage-tag">
+      <div class="pl-tag-hole" aria-hidden="true"></div>
+      <div class="pl-tag-string" aria-hidden="true"></div>
+      <blockquote>
+        <p>&ldquo;Finally planned our whole Muskoka weekend in one place, everything from the train stops to the restaurant list to what to pack. Couldn't believe it was free.&rdquo;</p>
+      </blockquote>
+      <figcaption>Sarah M., Toronto</figcaption>
+    </figure>
+  </section>
+
+  <!-- ===== 10. TRUST ===== -->
+  <section class="pl-section pl-trust">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Simple, Practical, Built for the Route</h2>
+      </div>
+    </div>
+    <div class="pl-trust-grid">
+      <article class="pl-trust-card">
+        <i class="ph-light ph-train pl-trust-icon" aria-hidden="true"></i>
+        <h3>Made for Northlander travellers</h3>
+        <p>Not a generic travel planner. Designed around the route and stops of Northern Ontario train trips.</p>
+      </article>
+      <article class="pl-trust-card">
+        <i class="ph-light ph-gift pl-trust-icon" aria-hidden="true"></i>
+        <h3>Free to start</h3>
+        <p>Create a trip without paying anything.</p>
+      </article>
+      <article class="pl-trust-card">
+        <i class="ph-light ph-shield-check pl-trust-icon" aria-hidden="true"></i>
+        <h3>No subscription required</h3>
+        <p>First Class is a one-time upgrade.</p>
+      </article>
+      <article class="pl-trust-card">
+        <i class="ph-light ph-link-simple pl-trust-icon" aria-hidden="true"></i>
+        <h3>Works with the guide</h3>
+        <p>Use NorthlanderGuide.com for discovery and Northlander.app for planning.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 11. FAQ ===== -->
+  <section class="pl-section pl-faq">
+    <div class="pl-section-head">
+      <div class="pl-station-sign">
+        <h2>Common Questions</h2>
+      </div>
+    </div>
+    <div class="pl-faq-list" id="plFaqList">
+      <details class="pl-faq-item">
+        <summary><span>Is Carry-On really free?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>Yes. Create one trip suitcase with up to 5 stops and use all core planning tools for free. No credit card needed.</p>
+      </details>
+      <details class="pl-faq-item">
+        <summary><span>What does $9.99 one-time mean?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>You pay once for First Class access. No monthly fees, no subscription, no renewal.</p>
+      </details>
+      <details class="pl-faq-item">
+        <summary><span>Can I plan more than one trip?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>Yes. First Class includes unlimited trip suitcases.</p>
+      </details>
+      <details class="pl-faq-item">
+        <summary><span>Can I print my itinerary?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>Yes. First Class includes PDF export of your full itinerary.</p>
+      </details>
+      <details class="pl-faq-item">
+        <summary><span>Is Northlander.app separate from NorthlanderGuide.com?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>Yes. NorthlanderGuide.com helps you discover the route. Northlander.app helps you save and organise your trip.</p>
+      </details>
+      <details class="pl-faq-item">
+        <summary><span>Do I need a train ticket to use it?</span><i class="ph-light ph-plus" aria-hidden="true"></i></summary>
+        <p>No. You can plan your trip before booking your ticket.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===== 12. FINAL CTA ===== -->
+  <section class="pl-section pl-finalcta">
+    <div class="pl-finalcta-inner">
+      <h2>Ready to Pack Your Trip?</h2>
+      <p>Start with a free Carry-On suitcase and build your first Northlander journey today.</p>
+      <div class="pl-finalcta-row">
+        <a class="btn btn-primary" href="https://northlander.app" target="_blank" rel="noopener">Start Packing - Free</a>
+        <a class="pl-finalcta-link" href="https://northlander.app" target="_blank" rel="noopener">Visit Northlander.app <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="fwrap">
+    <div class="fcol fbrand">
+      <div class="brand">Northlander<span>Guide</span></div>
+      <p>An independent traveller's directory for the Ontario Northland
+         Northlander route. Not affiliated with Ontario Northland.</p>
+    </div>
+    <div class="fcol">
+      <h4>Explore</h4>
+      <a href="/#stopnav">The Route</a>
+      <a href="/#stopnav">All Stops</a>
+      <a href="/#events">Events</a>
+      <a href="/plan">Plan a Trip</a>
+    </div>
+    <div class="fcol">
+      <h4>Get Involved</h4>
+      <a href="/submit-event/" class="submit-event-trigger">Submit an Event</a>
+      <a href="#">Submit a Listing</a>
+      <a href="#">Advertise</a>
+    </div>
+    <div class="fcol">
+      <h4>Resources</h4>
+      <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">Official Train Info</a>
+      <a href="https://northlander.app" target="_blank" rel="noopener">Northlander.app</a>
+    </div>
+  </div>
+  <div class="disc">
+    &copy; <span id="yr"></span> NorthlanderGuide.com. An independent traveller's directory.
+  </div>
+</footer>
+
+<a href="#top" class="totop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="22" height="22"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</a>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+/* Mobile hamburger */
+(function(){
+  var btn = document.getElementById('hamburger');
+  var menu = document.getElementById('mobilemenu');
+  if(!btn || !menu) return;
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = !btn.classList.contains('open');
+    btn.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function(e){
+    if(!menu.classList.contains('open')) return;
+    if(menu.contains(e.target) || btn.contains(e.target)) return;
+    btn.classList.remove('open');
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden','true');
+    btn.setAttribute('aria-expanded','false');
+  });
+})();
+
+/* Nav dropdown (More) */
+(function(){
+  var dd = document.getElementById('navDropdown');
+  if(!dd) return;
+  var toggle = dd.querySelector('.nav-dropdown-toggle');
+  if(!toggle) return;
+  toggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = !dd.classList.contains('open');
+    dd.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', function(e){
+    if(!dd.contains(e.target)){
+      dd.classList.remove('open');
+      toggle.setAttribute('aria-expanded','false');
+    }
+  });
+})();
+
+/* Back-to-top visibility */
+(function(){
+  var btn = document.querySelector('.totop');
+  if(!btn) return;
+  window.addEventListener('scroll', function(){
+    btn.classList.toggle('show', window.scrollY > 600);
+  }, {passive:true});
+})();
+
+/* FAQ accordion - close other open items when one opens
+   so the page reads like a stack of single tickets, not a fully
+   unfolded brochure. */
+(function(){
+  var list = document.getElementById('plFaqList');
+  if(!list) return;
+  list.addEventListener('toggle', function(e){
+    var item = e.target;
+    if(!(item instanceof HTMLDetailsElement)) return;
+    if(!item.open) return;
+    var siblings = list.querySelectorAll('details.pl-faq-item[open]');
+    siblings.forEach(function(s){ if(s !== item) s.open = false; });
+  }, true);
+})();
+</script>
+</body>
+</html>

@@ -554,6 +554,20 @@
     + '<div class="sp-nearby">' + platform(prev, stopNumber - 1) + platform(next, stopNumber + 1)
     + (!prev && !next ? '<p class="sp-empty">End of the line.</p>' : '') + '</div></section>';
 
+  /* PLAN-YOUR-TRIP CTA - links from any stop into the /plan landing
+     page so visitors who like this stop can immediately start a
+     suitcase for their trip. Styled in styles.css as
+     .sp-plan-trip-cta. */
+  html += '<section class="sp-section">'
+    + '<div class="sp-plan-trip-cta">'
+    + '<div class="sp-plan-trip-cta-icon"><i class="ph-light ph-suitcase" aria-hidden="true"></i></div>'
+    + '<div class="sp-plan-trip-cta-body">'
+    + '<h3>Add ' + esc(displayName) + ' to your trip</h3>'
+    + '<p>Pack ' + esc(displayName) + ' into a Northlander suitcase along with your route, packing list, bookings and itinerary.</p>'
+    + '</div>'
+    + '<a href="/plan">Plan Your Trip <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>'
+    + '</div></section>';
+
   html += divider();
 
   /* DON'T FORGET */

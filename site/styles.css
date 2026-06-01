@@ -1898,3 +1898,66 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 .stop-explorer .se-explore { display: inline-block; margin-top: 10px; color: #7d3a1e; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
 @media (max-width: 900px) { .stop-explorer .se-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .stop-explorer .se-grid { grid-template-columns: 1fr; } }
+
+/* ===== "Plan a Trip" nav pill (shared across all pages) =====
+   Sits inline with other .topnav items; gold hover ties it to the
+   /plan page's vintage ticket palette. */
+.topnav-plan{
+  font-family:'Spline Sans',sans-serif;
+  font-size:.82rem;font-weight:600;letter-spacing:.02em;
+  color:#f3ece0;text-decoration:none;
+  padding:.35rem .8rem;border-radius:3px;
+  border:1px dashed rgba(243,236,224,.55);
+  transition:background .15s, color .15s, border-color .15s;
+}
+.topnav-plan:hover{
+  background:#c9a84c;color:#0a2d21;border-color:#c9a84c;
+}
+
+/* ===== Stop-page "Plan Your Trip" CTA card =====
+   Rendered by stop-page.js between the "Continue Your Journey" and
+   "Before You Board" sections. Mirrors the Carry-On ticket aesthetic
+   from /plan so visitors recognize the link to Northlander.app. */
+.sp-plan-trip-cta{
+  margin:1.8rem auto;
+  background:linear-gradient(180deg, #fbf3df 0%, #f4e9cd 100%);
+  border:2px dashed #8b3a1a;
+  border-radius:6px;
+  padding:1.4rem 1.3rem;
+  display:flex;align-items:center;gap:1.2rem;
+  max-width:760px;
+  box-shadow:0 6px 18px rgba(80,50,20,.1);
+}
+.sp-plan-trip-cta-icon{
+  flex:0 0 auto;
+  width:54px;height:54px;border-radius:50%;
+  background:#2d5016;color:#f5f0e8;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+}
+.sp-plan-trip-cta-body{flex:1;min-width:0}
+.sp-plan-trip-cta-body h3{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:1.15rem;color:#2d5016;font-weight:700;margin-bottom:.25rem;
+}
+.sp-plan-trip-cta-body p{
+  color:#4a3f2f;font-size:.94rem;line-height:1.5;margin:0;
+}
+.sp-plan-trip-cta a{
+  flex:0 0 auto;
+  background:#8b3a1a;color:#f5f0e8;
+  font-family:'Spline Sans',sans-serif;
+  font-weight:600;font-size:.92rem;
+  padding:.7rem 1.1rem;border-radius:4px;
+  text-decoration:none;
+  border:1px solid #8b3a1a;
+  white-space:nowrap;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.sp-plan-trip-cta a:hover{
+  background:#2d5016;border-color:#2d5016;color:#f5f0e8;
+}
+@media(max-width:560px){
+  .sp-plan-trip-cta{flex-direction:column;text-align:center;align-items:center}
+  .sp-plan-trip-cta a{width:100%;text-align:center}
+}
