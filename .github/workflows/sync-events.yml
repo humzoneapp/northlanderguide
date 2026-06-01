@@ -5,10 +5,14 @@ name: Sync Events from Airtable
 
 on:
   workflow_dispatch:
-  schedule:
-    # 7:15am and 7:15pm UTC, offset from the listings sync by an hour
-    # so the two jobs do not race on the same checkout/commit cycle.
-    - cron: '15 7,19 * * *'
+  # CRON TRIGGER DISABLED 2026-06-01: Google APIs were disabled in the
+  # Cloud console after runaway Distance Matrix charges. The script
+  # already guards against a missing GOOGLE_PLACES_KEY (it just skips
+  # walk-time computation), but pausing the cron keeps the workflow
+  # from auto-firing twice a day and wasting CI minutes until the key
+  # is regenerated. Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   - cron: '15 7,19 * * *'
   repository_dispatch:
     types: [event-approved]
 

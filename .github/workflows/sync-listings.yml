@@ -10,8 +10,15 @@ name: Sync listings from Airtable
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '15 6,18 * * *'
+  # CRON TRIGGER DISABLED 2026-06-01: Google APIs were disabled in the
+  # Cloud console after runaway Distance Matrix charges. The script
+  # already guards against a missing GOOGLE_PLACES_KEY (it skips
+  # walk-time fetches; existing cached values still publish), but
+  # pausing the cron keeps the workflow from auto-firing twice a day
+  # and wasting CI minutes until the key is regenerated. Re-enable by
+  # uncommenting the schedule block.
+  # schedule:
+  #   - cron: '15 6,18 * * *'
 
 jobs:
   sync:
