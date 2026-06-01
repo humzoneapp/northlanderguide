@@ -1,16 +1,29 @@
 /* ==================================================================
    Northlander schedule helpers.
-   The MVP only models the northbound service (Toronto Union to
-   Cochrane). Southbound + multi-day variants come in Phase 2.
-
-   We don't model individual trips/dates yet either; we just take a
-   `departureLocal` clock (default 09:00 - the proposed Ontario
-   Northland northbound timing) and project arrival times at each
-   stop using offsetMinutes from the stop catalog.
+   MVP models both directions:
+     - Northbound (Toronto Union to Cochrane, departure 09:00)
+     - Southbound (Cochrane to Toronto Union, departure 09:00)
+   Real Ontario Northland service runs on specific days; we don't
+   enforce that yet so the user can plan around any date. The day of
+   the week shows up in the UI for sanity, but we don't refuse to
+   compute a time.
    ================================================================== */
 
-/** Default northbound departure from Toronto Union (24-hour, local). */
+/** Toronto Union to Cochrane in minutes (Cochrane's offset). */
+export const ROUTE_TOTAL_MINUTES = 680;
+
 export const NORTHBOUND_DEPARTURE = '09:00';
+export const SOUTHBOUND_DEPARTURE = '09:00';
+
+export const DIRECTIONS = [
+  { id: 'northbound', label: 'Northbound', from: 'Toronto Union', to: 'Cochrane' },
+  { id: 'southbound', label: 'Southbound', from: 'Cochrane',      to: 'Toronto Union' }
+];
+
+/** Default departure clock for a given direction. */
+export function departureFor(direction) {
+  return direction === 'southbound' ? SOUTHBOUND_DEPARTURE : NORTHBOUND_DEPARTURE;
+}
 
 /** Parse "HH:MM" 24-hour into minutes since midnight. */
 function parseClock(hhmm) {
@@ -22,10 +35,7 @@ function parseClock(hhmm) {
   return h * 60 + min;
 }
 
-/** Format a minutes-since-midnight value as a 12-hour clock string
-    in the conductor's voice: "9:00 AM", "11:35 AM", "12:05 PM", etc.
-    Wraps around midnight gracefully so a late-night arrival reads
-    correctly. */
+/** Minutes since midnight to "9:00 AM" / "11:35 PM". Wraps midnight. */
 export function formatClock(minutes) {
   if (minutes == null || Number.isNaN(minutes)) return '';
   const m = ((minutes % (24 * 60)) + 24 * 60) % (24 * 60);
@@ -37,32 +47,79 @@ export function formatClock(minutes) {
 }
 
 /**
- * Project an arrival time at a stop given its offsetMinutes from
- * Toronto Union and a northbound departure clock.
- *
- * @param {number} offsetMinutes - stop offset from origin
- * @param {string} [departure]   - "HH:MM" 24-hour local clock (default 09:00)
- * @returns {string} e.g. "11:35 AM" or '' if inputs are bad
+ * Travel minutes from the train's origin (where it departs) to the
+ * stop with the given offsetMinutes. Northbound uses offsets as-is;
+ * southbound reverses them against the total route length so Cochrane
+ * becomes 0 and Toronto Union becomes ROUTE_TOTAL_MINUTES.
  */
-export function arrivalClock(offsetMinutes, departure = NORTHBOUND_DEPARTURE) {
-  const base = parseClock(departure);
-  if (base == null || offsetMinutes == null) return '';
-  return formatClock(base + Number(offsetMinutes));
+export function travelMinutes(offsetMinutes, direction = 'northbound') {
+  if (offsetMinutes == null) return null;
+  if (direction === 'southbound') {
+    return Math.max(0, ROUTE_TOTAL_MINUTES - Number(offsetMinutes));
+  }
+  return Number(offsetMinutes);
 }
 
 /**
- * Travel time from origin formatted as "Hh Mm" for compact display.
- * 0 returns "Departure" (it IS the origin).
+ * Project an arrival clock at a stop.
  *
- * @param {number} offsetMinutes
- * @returns {string}
+ * @param {number} offsetMinutes  - stop offset from Toronto Union
+ * @param {string} [departure]    - "HH:MM" 24h local (default 09:00)
+ * @param {'northbound'|'southbound'} [direction]
+ * @returns {string} formatted clock, or '' on bad inputs
  */
-export function travelDuration(offsetMinutes) {
-  if (offsetMinutes == null) return '';
-  if (offsetMinutes === 0) return 'Departure';
-  const h = Math.floor(offsetMinutes / 60);
-  const m = offsetMinutes % 60;
+export function arrivalClock(offsetMinutes, departure, direction = 'northbound') {
+  const base = parseClock(departure || departureFor(direction));
+  if (base == null) return '';
+  const tm = travelMinutes(offsetMinutes, direction);
+  if (tm == null) return '';
+  return formatClock(base + tm);
+}
+
+/**
+ * "Hh Mm" travel duration for compact display. The 0 case returns
+ * "Departure" since the train is leaving from that very stop.
+ */
+export function travelDuration(offsetMinutes, direction = 'northbound') {
+  const tm = travelMinutes(offsetMinutes, direction);
+  if (tm == null) return '';
+  if (tm === 0) return 'Departure';
+  const h = Math.floor(tm / 60);
+  const m = tm % 60;
   if (h === 0) return `${m}m`;
   if (m === 0) return `${h}h`;
   return `${h}h ${m}m`;
+}
+
+/**
+ * Format an ISO date string (YYYY-MM-DD) for human display. We
+ * deliberately interpret the date in UTC so the displayed weekday
+ * doesn't drift when the user is in a different timezone than the
+ * train.
+ */
+export function formatTripDate(yyyymmdd) {
+  if (!yyyymmdd) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(yyyymmdd);
+  if (!m) return '';
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const dt = new Date(Date.UTC(y, mo - 1, d));
+  if (Number.isNaN(dt.getTime())) return '';
+  return dt.toLocaleDateString('en-CA', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+}
+
+/** Today as YYYY-MM-DD in the user's local timezone, for picker defaults. */
+export function todayLocalISO() {
+  const dt = new Date();
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }

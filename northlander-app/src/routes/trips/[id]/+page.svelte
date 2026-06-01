@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import Suitcase from '$lib/components/Suitcase.svelte';
   import RouteList from '$lib/components/RouteList.svelte';
+  import ScheduleStrip from '$lib/components/ScheduleStrip.svelte';
   import StopPickerModal from '$lib/components/StopPickerModal.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
@@ -186,7 +187,12 @@
             {trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Add stops'}
           </button>
         </div>
-        <RouteList stopIds={trip.stopIds || []} />
+        <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
+        <RouteList
+          stopIds={trip.stopIds || []}
+          departureDate={trip.departureDate || null}
+          direction={trip.direction || 'northbound'}
+        />
       </article>
 
       <!-- Right column: Packing + Bookings stacked -->
@@ -205,6 +211,7 @@
   {#if showStopPicker}
     <StopPickerModal
       selected={trip.stopIds || []}
+      direction={trip.direction || 'northbound'}
       on:save={saveStops}
       on:close={() => (showStopPicker = false)}
     />

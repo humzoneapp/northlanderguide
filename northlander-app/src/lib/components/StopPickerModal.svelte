@@ -1,10 +1,12 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
   import { STOPS, routeIndex } from '$lib/data/stops.js';
-  import { arrivalClock, travelDuration } from '$lib/data/schedule.js';
+  import { arrivalClock, travelDuration, DIRECTIONS } from '$lib/data/schedule.js';
 
   /** @type {string[]} - currently selected stop ids on the trip */
   export let selected = [];
+  /** @type {'northbound' | 'southbound'} */
+  export let direction = 'northbound';
 
   const dispatch = createEventDispatcher();
 
@@ -73,7 +75,8 @@
         <span id="stop-picker-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
           Choose Your Stops
         </span>
-        <span class="text-gold font-serif italic text-[12px]">Toronto Union to Cochrane, northbound</span>
+        {@const dirMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0]}
+        <span class="text-gold font-serif italic text-[12px]">{dirMeta.from} to {dirMeta.to}, {dirMeta.label.toLowerCase()}</span>
       </div>
       <button
         type="button"
@@ -115,10 +118,10 @@
                 <div class="flex items-baseline justify-between gap-3">
                   <div class="font-serif font-bold text-forest text-lg leading-tight truncate">{stop.name}</div>
                   <div class="font-serif italic text-rust text-sm flex-none">
-                    {stop.offsetMinutes === 0 ? '9:00 AM' : arrivalClock(stop.offsetMinutes)}
+                    {arrivalClock(stop.offsetMinutes, undefined, direction)}
                   </div>
                 </div>
-                <div class="kicker text-muted mt-0.5">{stop.region}<span class="mx-2 text-rust/60">·</span>{travelDuration(stop.offsetMinutes)}</div>
+                <div class="kicker text-muted mt-0.5">{stop.region}<span class="mx-2 text-rust/60">·</span>{travelDuration(stop.offsetMinutes, direction)}</div>
                 <p class="font-serif text-sm text-ink/80 italic leading-snug mt-1">{stop.hook}</p>
               </div>
             </label>

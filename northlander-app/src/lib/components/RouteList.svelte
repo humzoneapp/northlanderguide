@@ -1,13 +1,31 @@
 <script>
   import { getStopsByIds, stopGuideUrl } from '$lib/data/stops.js';
-  import { arrivalClock, travelDuration, NORTHBOUND_DEPARTURE } from '$lib/data/schedule.js';
+  import {
+    arrivalClock,
+    travelDuration,
+    departureFor,
+    formatTripDate,
+    DIRECTIONS
+  } from '$lib/data/schedule.js';
 
-  /** @type {string[]} - stop ids on the trip, already in route order */
+  /** @type {string[]} - stop ids on the trip, in storage order */
   export let stopIds = [];
+  /** @type {string | null} - YYYY-MM-DD */
+  export let departureDate = null;
+  /** @type {'northbound' | 'southbound'} */
+  export let direction = 'northbound';
 
-  $: stops = getStopsByIds(stopIds);
+  /* Stops are always stored in canonical south-to-north route order
+     by the picker. For southbound trips we display the same set in
+     reverse so the list reads the way the train actually rolls
+     (Cochrane down to Toronto Union). */
+  $: stopsForward = getStopsByIds(stopIds);
+  $: stops = direction === 'southbound' ? stopsForward.slice().reverse() : stopsForward;
   $: first = stops[0] || null;
   $: last = stops[stops.length - 1] || null;
+  $: departureClock = departureFor(direction);
+  $: directionMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0];
+  $: dateLine = departureDate ? formatTripDate(departureDate) : null;
 </script>
 
 {#if stops.length === 0}
@@ -17,17 +35,22 @@
     </p>
   </div>
 {:else}
-  <div class="mb-4 flex items-baseline justify-between">
-    <span class="kicker">Northbound {NORTHBOUND_DEPARTURE.replace(':', '·')}</span>
-    {#if first && last && first !== last}
-      <span class="font-serif italic text-rust text-sm">
-        {first.name} <span class="opacity-70">to</span> {last.name}
-      </span>
+  <div class="mb-4">
+    <div class="flex items-baseline justify-between gap-3">
+      <span class="kicker">{directionMeta.label} {departureClock.replace(':', '·')}</span>
+      {#if first && last && first !== last}
+        <span class="font-serif italic text-rust text-sm">
+          {first.name} <span class="opacity-70">to</span> {last.name}
+        </span>
+      {/if}
+    </div>
+    {#if dateLine}
+      <div class="font-serif italic text-forest mt-1">{dateLine}</div>
     {/if}
   </div>
 
   <ol class="rail">
-    {#each stops as stop, i}
+    {#each stops as stop}
       <li class="rail-stop">
         <span class="rail-dot" aria-hidden="true"></span>
 
@@ -35,11 +58,11 @@
           <div class="flex items-baseline justify-between gap-3">
             <div class="font-serif font-bold text-forest text-lg leading-tight truncate">{stop.name}</div>
             <div class="font-serif font-bold text-rust flex-none">
-              {stop.offsetMinutes === 0 ? '9:00 AM' : arrivalClock(stop.offsetMinutes)}
+              {arrivalClock(stop.offsetMinutes, departureClock, direction)}
             </div>
           </div>
           <div class="kicker text-muted mt-0.5">
-            {stop.region}<span class="mx-2 text-rust/60">·</span>{travelDuration(stop.offsetMinutes)}
+            {stop.region}<span class="mx-2 text-rust/60">·</span>{travelDuration(stop.offsetMinutes, direction)}
           </div>
           <a
             href={stopGuideUrl(stop)}
@@ -54,8 +77,6 @@
 {/if}
 
 <style>
-  /* Vertical railway line with gold-haloed station dots, echoing the
-     /plan boarding pass and the Guide's route-line decoration. */
   .rail {
     position: relative;
     list-style: none;
