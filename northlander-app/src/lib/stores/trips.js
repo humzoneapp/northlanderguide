@@ -20,6 +20,17 @@ import { writable } from 'svelte/store';
  * @property {number} updatedAt    - epoch ms
  */
 
+/* Five vintage leather palettes the user can tint a suitcase with.
+   Each pair = (body, strap). These read on cream paper without
+   feeling cartoonish. */
+export const LEATHER_COLORS = [
+  { id: 'rust',    name: 'Rust',    body: '#7d3a1e', strap: '#5e2a14' },
+  { id: 'amber',   name: 'Amber',   body: '#c4860f', strap: '#7d4e0a' },
+  { id: 'forest',  name: 'Forest',  body: '#1f3d2d', strap: '#0a2d21' },
+  { id: 'teal',    name: 'Teal',    body: '#2c5258', strap: '#1a3338' },
+  { id: 'burgundy',name: 'Burgundy',body: '#6b1d2e', strap: '#4a131e' }
+];
+
 /* The database. Bumping the version triggers Dexie's upgrade path;
    keep migrations small and well-commented as the schema grows. */
 export const db = new Dexie('northlander');
@@ -32,8 +43,36 @@ db.version(1).stores({
   diaryEntries: '++id, tripId, stopId, createdAt'
 });
 
-/* Tiny convenience helpers - the page-level code shouldn't have to
-   talk to Dexie directly. */
+/* ---------- slugging ----------
+   We use a stable slug from the trip name as the primary key so URLs
+   read as /trips/muskoka-weekend rather than /trips/uuid-of-doom. The
+   uniqueTripSlug helper handles collisions when two trips share a
+   name by tacking on -2, -3, etc. */
+
+export function slugify(name) {
+  const base = String(name || 'trip')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 50);
+  return base || 'trip';
+}
+
+export async function uniqueTripSlug(name) {
+  const base = slugify(name);
+  let slug = base;
+  let n = 2;
+  while (await db.trips.get(slug)) {
+    slug = `${base}-${n}`;
+    n++;
+  }
+  return slug;
+}
+
+/* ---------- CRUD helpers ----------
+   Page-level code shouldn't have to talk to Dexie directly. */
 
 export async function listTrips() {
   return db.trips.orderBy('updatedAt').reverse().toArray();
@@ -43,18 +82,56 @@ export async function getTrip(id) {
   return db.trips.get(id);
 }
 
-export async function saveTrip(trip) {
+/* Create a new trip from a name + a leather color id. Generates a
+   unique slug, persists it, refreshes the live store, returns the
+   created row (with its slug as `id`). */
+export async function createTrip({ name, colorId = 'rust' }) {
+  const palette = LEATHER_COLORS.find((c) => c.id === colorId) || LEATHER_COLORS[0];
+  const id = await uniqueTripSlug(name);
   const now = Date.now();
-  const next = Object.assign(
-    { createdAt: now, color: '#7d3a1e', strap: '#5e2a14', stopIds: [] },
-    trip,
-    { updatedAt: now }
-  );
+  const trip = {
+    id,
+    name: String(name || 'Untitled trip').trim() || 'Untitled trip',
+    stopIds: [],
+    color: palette.body,
+    strap: palette.strap,
+    colorId: palette.id,
+    createdAt: now,
+    updatedAt: now
+  };
+  await db.trips.put(trip);
+  trips.set(await listTrips());
+  return trip;
+}
+
+/* Generic update. Pass the fields you want to change. updatedAt is
+   bumped automatically. Returns the patched row, or null when the
+   trip is gone. */
+export async function updateTrip(id, patch) {
+  const existing = await db.trips.get(id);
+  if (!existing) return null;
+  const next = Object.assign({}, existing, patch, { updatedAt: Date.now() });
   await db.trips.put(next);
   trips.set(await listTrips());
   return next;
 }
 
+/* Rename a trip without changing its slug. Slugs are the source of
+   truth for URLs and storage joins - renaming the slug would orphan
+   packing items, bookings and diary entries. We keep the slug
+   stable and only update the human-facing name. */
+export async function renameTrip(id, name) {
+  return updateTrip(id, { name: String(name || '').trim() || 'Untitled trip' });
+}
+
+export async function changeTripColor(id, colorId) {
+  const palette = LEATHER_COLORS.find((c) => c.id === colorId);
+  if (!palette) return null;
+  return updateTrip(id, { color: palette.body, strap: palette.strap, colorId: palette.id });
+}
+
+/* Delete a trip plus every row that references it. Wrap in a single
+   transaction so a partial failure can't strand orphans. */
 export async function deleteTrip(id) {
   await db.transaction('rw', db.trips, db.packingItems, db.bookings, db.diaryEntries, async () => {
     await db.trips.delete(id);
@@ -65,9 +142,9 @@ export async function deleteTrip(id) {
   trips.set(await listTrips());
 }
 
-/* Live store. Subscribers re-render whenever saveTrip/deleteTrip
-   fires. Server-side rendering returns an empty list because
-   IndexedDB doesn't exist in Node. */
+/* Live store. Subscribers re-render whenever a CRUD helper fires.
+   Server-side rendering returns an empty list because IndexedDB
+   doesn't exist in Node. */
 export const trips = writable(/** @type {Trip[]} */ ([]));
 
 if (typeof window !== 'undefined') {
