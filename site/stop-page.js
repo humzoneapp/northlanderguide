@@ -379,6 +379,35 @@
       + '</div></' + tag + '>';
   }
 
+  /* Map a Guide listing category to a Northlander.app booking kind.
+     The app currently uses five buckets: train, room, meal, activity,
+     other. Most listings fall cleanly into one. */
+  function appKindForCat(catKey) {
+    switch (catKey) {
+      case 'restaurants':    return 'meal';
+      case 'accommodations': return 'room';
+      case 'parks':
+      case 'attractions':    return 'activity';
+      case 'transportation': return 'train';
+      case 'shops':
+      default:               return 'other';
+    }
+  }
+
+  /* Build the cross-site hand-off URL that opens Northlander.app's
+     /add page pre-filled with this listing. */
+  function planAddUrl(l) {
+    const params = new URLSearchParams({
+      source: 'guide',
+      kind: appKindForCat(l._cat && l._cat.key),
+      name: String(l.name || '').slice(0, 120),
+      stop: stopId
+    });
+    if (l.address) params.set('address', String(l.address).slice(0, 240));
+    if (l.website) params.set('url', String(l.website).slice(0, 240));
+    return 'https://northlander.app/add?' + params.toString();
+  }
+
   function listingCard(l) {
     const ratingHtml = (!l.rating || l.rating === 'NR')
       ? '<span class="sp-lc-rating">New</span>'
@@ -387,14 +416,26 @@
       ? '<span class="sp-lc-walk"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> ' + esc(l.walkMins) + ' min walk</span>'
       : '';
     const href = '/#stop=' + stopId + '&cat=' + l._cat.key + '&place=' + slug(l.name);
-    return '<a class="sp-lcard" href="' + href + '">'
+    /* The card is wrapped in <article> with an inner <a> for the link
+       and a separate <button> for the plus pill so we never nest a
+       button inside an anchor. The button's onclick prevents the
+       outer card link from firing. */
+    return '<article class="sp-lcard">'
+      + '<a class="sp-lcard-link" href="' + href + '" aria-label="' + esc(l.name) + '">'
       + '<div class="sp-lc-body">'
       + '<div class="sp-lc-top"><span class="sp-lc-tag">' + esc(l.tag || l._cat.label) + '</span>' + ratingHtml + '</div>'
       + '<h4>' + esc(l.name) + '</h4>'
       + (l.desc ? '<p class="sp-lc-desc">' + esc(l.desc) + '</p>' : '')
       + (l.address ? '<p class="sp-lc-addr">' + esc(l.address) + '</p>' : '')
       + walk
-      + '</div></a>';
+      + '</div></a>'
+      + '<button class="sp-lc-add" type="button"'
+        + ' aria-label="Add ' + esc(l.name) + ' to a Northlander.app trip"'
+        + ' data-app-url="' + esc(planAddUrl(l)) + '">'
+        + '<i class="ph-light ph-plus" aria-hidden="true"></i>'
+        + '<span>Add to trip</span>'
+      + '</button>'
+      + '</article>';
   }
 
   /* ---- fun facts ticker ---- */
@@ -1224,4 +1265,18 @@
       + '<p class="sp-hero-tagline">We could not find that stop. Explore all 16 stops on the Northlander route.</p>'
       + '<div style="margin-top:24px"><a class="sp-btn" href="/#stopnav">Browse the route</a></div></div></section>';
   }
+
+  /* Delegated click handler for the cross-site "Add to trip" pill
+     on every listing card. Opens the prepared hand-off URL in a new
+     tab and prevents the outer card link from also firing. The
+     handler is delegated so it works for listings re-rendered when
+     the user changes the category tab or applies a filter. */
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target && ev.target.closest && ev.target.closest('.sp-lc-add');
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const url = btn.getAttribute('data-app-url');
+    if (url) window.open(url, '_blank', 'noopener');
+  }, true); /* capture so we beat the card-link's bubble handler */
 })();

@@ -174,12 +174,45 @@
 .sp-listings{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .sp-empty{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--sp-muted);font-size:16px;padding:20px 0}
 
-/* listing card - whole card is a clickable link with a hero image */
+/* listing card - whole card is a clickable link with a hero image.
+   The card is an <article> wrapping an inner <a class="sp-lcard-link">
+   and a separate <button class="sp-lc-add"> pill so we never nest a
+   button inside an anchor. The outer .sp-lcard keeps the frame +
+   hover behaviour; .sp-lcard-link makes the body region clickable. */
 .sp-lcard{background:var(--sp-ivory);border:1px solid #d9cfba;display:flex;flex-direction:column;
-  text-decoration:none;color:inherit;transition:border-color .15s,transform .15s,box-shadow .15s}
+  position:relative;
+  transition:border-color .15s,transform .15s,box-shadow .15s}
 .sp-lcard:hover{border-color:var(--sp-rust);transform:translateY(-2px);
   box-shadow:0 6px 14px rgba(40,30,20,.08)}
+.sp-lcard-link{display:flex;flex-direction:column;flex:1;text-decoration:none;color:inherit}
 .sp-lc-body{padding:16px;display:flex;flex-direction:column;flex:1}
+
+/* "+ Add to trip" pill in the top-right corner that hands the listing
+   off to Northlander.app. Stays small so it doesn't compete with the
+   card's primary tap target. Hover lifts and goes solid rust. */
+.sp-lc-add{
+  position:absolute;top:8px;right:8px;z-index:2;
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(245,240,232,.94);
+  color:var(--sp-rust);
+  border:1.5px solid var(--sp-rust);
+  border-radius:999px;
+  padding:4px 10px 4px 8px;
+  font-family:'Spline Sans',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;
+  transition:background .15s,color .15s,transform .15s,box-shadow .15s;
+}
+.sp-lc-add:hover{
+  background:var(--sp-rust);color:var(--sp-ivory);
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(125,58,30,.3);
+}
+.sp-lc-add .ph-light{font-size:14px;line-height:1}
+@media(max-width:480px){
+  .sp-lc-add span{display:none}  /* shrink to just the plus on small phones */
+  .sp-lc-add{padding:4px 7px}
+}
 .sp-lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .sp-lc-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#fff;
   background:var(--sp-rust);padding:3px 8px}
