@@ -58,7 +58,7 @@
   async function saveToTrip(ev) {
     if (savedIds[ev.id]) return;
     const title = ev.venue ? `${ev.name} - ${ev.venue}` : ev.name;
-    await addBooking(tripId, { title, kind: 'activity' });
+    await addBooking(tripId, { title, kind: 'activity', stopId: ev.stopId || null });
     savedIds = { ...savedIds, [ev.id]: true };
   }
 </script>

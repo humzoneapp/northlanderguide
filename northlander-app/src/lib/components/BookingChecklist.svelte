@@ -9,16 +9,23 @@
     deleteBooking,
     BOOKING_KINDS
   } from '$lib/stores/bookings.js';
+  import { getStopsByIds, getStop } from '$lib/data/stops.js';
 
   /** @type {string} */
   export let tripId;
+  /** @type {string[]} - stops on this trip, so the picker only
+      offers stops the user has actually added */
+  export let stopIds = [];
 
   /** @type {import('$lib/stores/bookings.js').Booking[]} */
   let items = [];
   let loaded = false;
   let newTitle = '';
   let newKind = 'other';
+  let newStop = '';
   let busy = false;
+
+  $: tripStops = getStopsByIds(stopIds || []);
 
   let editingId = null;
   let editingDraft = '';
@@ -54,13 +61,23 @@
     if (!clean) return;
     busy = true;
     try {
-      await addBooking(tripId, { title: clean, kind: newKind });
+      await addBooking(tripId, {
+        title: clean,
+        kind: newKind,
+        stopId: newStop || null
+      });
       newTitle = '';
       newKind = 'other';
+      newStop = '';
       await refresh();
     } finally {
       busy = false;
     }
+  }
+
+  function stopNameFor(id) {
+    const s = id ? getStop(id) : null;
+    return s ? s.name : '';
   }
 
   async function toggle(id) {
@@ -191,11 +208,16 @@
                 autofocus
               />
             {:else}
-              <button
-                type="button"
-                class="book-title"
-                on:click={() => startRename(item)}
-              >{item.title}</button>
+              <div class="book-title-stack">
+                <button
+                  type="button"
+                  class="book-title"
+                  on:click={() => startRename(item)}
+                >{item.title}</button>
+                {#if item.stopId && stopNameFor(item.stopId)}
+                  <span class="book-stop-line">At {stopNameFor(item.stopId)}</span>
+                {/if}
+              </div>
             {/if}
 
             <button
@@ -232,6 +254,20 @@
             {#if item.kind === 'room' && expanded[item.id]}
               <div class="book-extras">
                 <div class="extras-grid">
+                  {#if tripStops.length > 0}
+                    <label class="extras-full">
+                      <span class="extras-kicker">Pinned to</span>
+                      <select
+                        value={item.stopId || ''}
+                        on:change={(e) => saveRoomField(item.id, 'stopId', e.currentTarget.value)}
+                      >
+                        <option value="">Not pinned to a stop</option>
+                        {#each tripStops as s}
+                          <option value={s.id}>At {s.name}</option>
+                        {/each}
+                      </select>
+                    </label>
+                  {/if}
                   <label>
                     <span class="extras-kicker">Check-in</span>
                     <input
@@ -298,8 +334,14 @@
       </ul>
     {/if}
 
-    <!-- Quick add row -->
-    <form on:submit|preventDefault={handleAdd} class="book-add">
+    <!-- Quick add row. When the trip has stops, an At-stop dropdown
+         appears between Kind and Title so new bookings can be pinned
+         to a stop at creation time. -->
+    <form
+      on:submit|preventDefault={handleAdd}
+      class="book-add"
+      class:has-stops={tripStops.length > 0}
+    >
       <select
         bind:value={newKind}
         class="book-kind"
@@ -309,6 +351,14 @@
           <option value={k.id}>{k.label}</option>
         {/each}
       </select>
+      {#if tripStops.length > 0}
+        <select bind:value={newStop} class="book-stop" aria-label="Pin to stop">
+          <option value="">Anywhere</option>
+          {#each tripStops as s}
+            <option value={s.id}>At {s.name}</option>
+          {/each}
+        </select>
+      {/if}
       <input
         type="text"
         bind:value={newTitle}
@@ -427,6 +477,24 @@
     color: #7d3a1e;
   }
 
+  .book-title-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+  }
+  .book-stop-line {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 11.5px;
+    color: #7d3a1e;
+    line-height: 1.2;
+    margin-top: 1px;
+  }
+  .book-row.is-booked .book-stop-line {
+    color: #5a4f3d;
+  }
+
   .book-add {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -435,6 +503,31 @@
     margin-top: 12px;
     padding-top: 12px;
     border-top: 2px dashed rgba(139, 106, 58, 0.45);
+  }
+  .book-add.has-stops {
+    grid-template-columns: auto auto 1fr auto;
+  }
+  .book-stop {
+    background: #fbf6ea;
+    border: 1px solid #8b6a3a;
+    border-radius: 3px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0a2d21;
+    padding: 6px 8px;
+    cursor: pointer;
+    outline: none;
+  }
+  .book-stop:focus {
+    border-color: #7d3a1e;
+  }
+  @media (max-width: 540px) {
+    .book-add,
+    .book-add.has-stops {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
   }
   .book-kind {
     background: #fbf6ea;

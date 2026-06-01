@@ -79,7 +79,11 @@
       const title = payload.address
         ? `${payload.name} - ${payload.address}`
         : payload.name;
-      await addBooking(tripId, { title, kind: payload.kind });
+      await addBooking(tripId, {
+        title,
+        kind: payload.kind,
+        stopId: payload.stop || null
+      });
       /* If this came from the bucket list, remove the wishlist row
          so the same place doesn't show up in both places. */
       if (payload.bucketId != null) {

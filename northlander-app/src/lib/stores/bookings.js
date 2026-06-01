@@ -17,6 +17,7 @@ import { db } from './trips.js';
  * @property {BookingKind} kind
  * @property {BookingStatus} status
  * @property {string|null} dueDate         - YYYY-MM-DD or null
+ * @property {string|null} [stopId]        - which stop this is pinned to
  * @property {string|null} [checkIn]       - YYYY-MM-DD, room only
  * @property {string|null} [checkOut]      - YYYY-MM-DD, room only
  * @property {string|null} [address]       - free text, mostly room
@@ -60,8 +61,9 @@ export async function listBookings(tripId) {
 }
 
 /** Add a booking with sensible defaults. Title is required;
-    everything else falls back. */
-export async function addBooking(tripId, { title, kind = 'other', dueDate = null } = {}) {
+    everything else falls back. Optional stopId pins the booking to
+    a stop on the trip's route so the itinerary view can group it. */
+export async function addBooking(tripId, { title, kind = 'other', dueDate = null, stopId = null } = {}) {
   const clean = String(title || '').trim();
   if (!clean) return null;
   const now = Date.now();
@@ -71,6 +73,7 @@ export async function addBooking(tripId, { title, kind = 'other', dueDate = null
     kind: isKind(kind) ? kind : 'other',
     status: 'pending',
     dueDate: dueDate || null,
+    stopId: stopId || null,
     createdAt: now,
     updatedAt: now
   });
@@ -120,6 +123,9 @@ export async function updateBooking(id, patch = {}) {
   }
   if (patch.dueDate !== undefined) {
     next.dueDate = patch.dueDate ? String(patch.dueDate) : null;
+  }
+  if (patch.stopId !== undefined) {
+    next.stopId = patch.stopId ? String(patch.stopId) : null;
   }
   if (Object.keys(next).length === 0) return row;
   next.updatedAt = Date.now();
