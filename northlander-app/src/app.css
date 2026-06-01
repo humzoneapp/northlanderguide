@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==================================================================
+   Vintage railway base layer for Northlander.app.
+   Picks up the same paper textures, fonts, and palette tokens used
+   on the Guide's /plan page so the app reads as a sibling, not a
+   stranger. Tailwind utility classes layer on top of these defaults.
+   ================================================================== */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.68;
+    color: theme('colors.ink');
+    background-color: theme('colors.ivory');
+    /* Tiny paper-grain dot pattern - same trick as styles.css on
+       the Guide. Reads as texture not noise. */
+    background-image: radial-gradient(rgba(120, 100, 70, 0.05) 1px, transparent 1px);
+    background-size: 4px 4px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  /* Reusable kicker - small uppercase line that introduces a section,
+     same voice as the Guide. */
+  .kicker {
+    font-family: 'Spline Sans', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    font-size: 11px;
+    font-weight: 700;
+    color: theme('colors.rust');
+  }
+
+  /* Primary button - rust on cream with the same rust used by the
+     Guide's .btn-primary. Press-down feedback on tap. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    background: #6e2e17;
+    color: theme('colors.ivory');
+    border: 2px solid #6e2e17;
+    padding: 0.85rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: transform 0.15s, background 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: theme('colors.forest');
+    border-color: theme('colors.forest');
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  /* Top bar - solid forest green like the Guide. */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: theme('colors.forest');
+    color: theme('colors.ivory');
+    padding: 0.7rem 1.1rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+  .topbar-brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 1.18rem;
+    letter-spacing: -0.01em;
+  }
+  .topbar-brand span {
+    color: theme('colors.gold');
+  }
+}

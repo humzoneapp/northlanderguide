@@ -1,0 +1,20 @@
+{
+  "name": "Northlander",
+  "short_name": "Northlander",
+  "description": "Pack your Northern Ontario train trip into a single suitcase. Route, stops, packing, bookings and itinerary, available offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#0a2d21",
+  "orientation": "portrait",
+  "lang": "en-CA",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
