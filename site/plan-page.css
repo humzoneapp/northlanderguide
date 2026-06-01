@@ -951,52 +951,205 @@
 }
 
 /* ==================================================================
-   12. FINAL CTA - full bleed forest band with stamp
+   12. FINAL CTA - vintage boarding pass laid on a forest band
+   The forest band still anchors the page footer; the cream
+   boarding pass sits on top with a railway header, a From-To
+   journey row with a route line, the CTAs, a perforated stub
+   footer, and a circular Now Boarding postmark stamped over
+   the corner.
    ================================================================== */
 .pl-finalcta{
   background:var(--pl-forest);color:var(--pl-ivory);
   margin:80px -24px 0;padding:72px 24px;
   position:relative;overflow:hidden;
 }
-.pl-finalcta-inner{
-  max-width:1180px;margin:0 auto;
-  display:grid;grid-template-columns:1fr;gap:32px;align-items:center;
+/* Subtle warp-thread paper texture behind the boarding pass so
+   the forest band itself isn't a flat plane. */
+.pl-finalcta::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    repeating-linear-gradient(45deg,
+      rgba(245,240,232,.025) 0, rgba(245,240,232,.025) 1px,
+      transparent 1px, transparent 9px);
 }
-@media(min-width:780px){
-  .pl-finalcta-inner{grid-template-columns:auto 1fr;gap:64px}
+
+.pl-pass{
+  position:relative;z-index:1;
+  max-width:980px;margin:0 auto;
+  background:#fbf3df;
+  color:var(--pl-ink);
+  box-shadow:
+    0 22px 50px rgba(0,0,0,.32),
+    0 4px 10px rgba(0,0,0,.18);
+  /* Scalloped perforations on the left and right edges = ticket */
+  -webkit-mask-image:
+    radial-gradient(circle 8px at 0% 50%, transparent 7px, black 8px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, black 8px);
+  mask-image:
+    radial-gradient(circle 8px at 0% 50%, transparent 7px, black 8px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, black 8px);
 }
-.pl-finalcta-stamp{
-  background:var(--pl-amber);color:var(--pl-forest);
-  border:3px solid var(--pl-forest);
-  padding:18px 28px;text-align:center;
-  transform:rotate(-6deg);
-  transform-origin:50% 10%;
-  box-shadow:0 8px 22px rgba(0,0,0,.35);
-  justify-self:start;
-  animation:pl-cta-stamp-sway 5.5s ease-in-out infinite;
+
+/* Header band: thin forest stripe with brand wordmark on the
+   left and "Boarding Pass" label on the right. */
+.pl-pass-head{
+  background:var(--pl-forest);
+  color:var(--pl-ivory);
+  padding:14px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:18px;flex-wrap:wrap;
+  border-bottom:3px double var(--pl-gold);
 }
-@keyframes pl-cta-stamp-sway{
-  0%,100%{transform:rotate(-7deg)}
-  50%    {transform:rotate(-3deg)}
+.pl-pass-head-left{
+  display:flex;flex-direction:column;gap:2px;line-height:1.15;
 }
-.pl-finalcta-stamp span{
-  display:block;font-size:12px;letter-spacing:.22em;
-  text-transform:uppercase;font-weight:700;
+.pl-pass-brand{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:900;font-size:18px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--pl-ivory);
 }
-.pl-finalcta-stamp strong{
-  display:block;font-family:'Fraunces',Georgia,serif;
-  font-weight:900;font-size:38px;letter-spacing:.04em;line-height:1;
-  margin-top:6px;
+.pl-pass-route{
+  font-family:'Spline Sans',sans-serif;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:600;color:var(--pl-gold);
 }
-.pl-finalcta-body h2{
+.pl-pass-head-right{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:16px;color:var(--pl-gold);
+  border:1px dashed var(--pl-gold);
+  padding:5px 14px;
+  text-transform:uppercase;letter-spacing:.16em;font-weight:700;
+}
+
+/* Body: paper with a faint line-ruled background. */
+.pl-pass-body{
+  position:relative;padding:40px 36px 32px;
+  background-image:repeating-linear-gradient(0deg,
+    transparent 0, transparent 31px,
+    rgba(110,70,40,.06) 31px, rgba(110,70,40,.06) 32px);
+  background-position:0 28px;
+}
+
+/* Circular Now Boarding postmark. Rotated, with a double border
+   and three text lines arranged top/middle/bottom. Floats over
+   the top-right corner of the body. */
+.pl-pass-stamp{
+  position:absolute;top:24px;right:32px;z-index:3;
+  width:118px;height:118px;border-radius:50%;
+  background:radial-gradient(circle, rgba(196,134,15,.05) 0%, transparent 65%),
+             var(--pl-amber);
+  color:var(--pl-forest);
+  border:3px double var(--pl-forest);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;line-height:1;
+  font-family:'Fraunces',Georgia,serif;
+  transform:rotate(-12deg);
+  transform-origin:50% 50%;
+  box-shadow:0 8px 20px rgba(0,0,0,.32),
+             inset 0 0 0 2px rgba(31,61,45,.1);
+  animation:pl-pass-stamp-sway 5s ease-in-out infinite;
+}
+.pl-pass-stamp::before{
+  content:"";position:absolute;inset:6px;border-radius:50%;
+  border:1px dotted rgba(31,61,45,.4);pointer-events:none;
+}
+.pl-pass-stamp-top,
+.pl-pass-stamp-bot{
+  font-size:9px;font-weight:900;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--pl-forest);
+}
+.pl-pass-stamp-mid{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:18px;letter-spacing:.04em;line-height:1;
+  margin:4px 0;color:var(--pl-forest);
+}
+@keyframes pl-pass-stamp-sway{
+  0%,100%{transform:rotate(-14deg)}
+  50%    {transform:rotate(-8deg)}
+}
+
+/* From -> Train -> To journey row */
+.pl-pass-journey{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:20px;
+  padding-right:140px;
+  margin-bottom:32px;
+}
+.pl-pass-leg{display:flex;flex-direction:column;gap:2px}
+.pl-pass-leg--to{text-align:right}
+.pl-pass-label{
+  font-family:'Spline Sans',sans-serif;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  font-weight:700;color:var(--pl-rust);
+}
+.pl-pass-place{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:900;font-size:clamp(22px,3vw,30px);
+  color:var(--pl-forest);line-height:1.05;letter-spacing:-.01em;
+}
+.pl-pass-sub{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:14px;color:var(--pl-muted);margin-top:2px;
+}
+.pl-pass-line{
+  display:flex;align-items:center;gap:6px;min-width:140px;
+  position:relative;
+}
+.pl-pass-stop{
+  width:11px;height:11px;border-radius:50%;
+  background:var(--pl-forest);box-shadow:0 0 0 3px var(--pl-gold);
+  flex:none;
+}
+.pl-pass-track{
+  flex:1;height:0;border-top:2px dashed var(--pl-rust);
+}
+.pl-pass-train{
+  font-size:26px;color:var(--pl-rust);
+  background:#fbf3df;padding:0 6px;
+}
+
+/* CTA block sits centered under the journey */
+.pl-pass-cta{text-align:left;max-width:640px}
+.pl-pass-kicker{
+  font-family:'Spline Sans',sans-serif;
+  text-transform:uppercase;letter-spacing:.22em;
+  font-size:11px;font-weight:700;color:var(--pl-rust);
+  margin:0 0 12px;
+}
+.pl-pass-cta h2{
   font-family:'Fraunces',Georgia,serif;font-weight:900;
   font-size:clamp(2rem,4.5vw,3rem);
-  color:var(--pl-ivory);margin:0 0 12px;line-height:1.05;
+  color:var(--pl-forest);margin:0 0 12px;line-height:1.05;
 }
-.pl-finalcta-body p{
+.pl-pass-cta p{
   font-family:'Fraunces',Georgia,serif;font-style:italic;
-  font-size:18px;color:#e7decc;margin:0 0 22px;
+  font-size:18px;color:var(--pl-ink);opacity:.85;margin:0 0 22px;
+  max-width:50ch;
 }
+
+/* Footer stub: forest band with three small data fields, like
+   the date/seat/pass-number strip on a real ticket. */
+.pl-pass-foot{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  padding:14px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;flex-wrap:wrap;
+  border-top:3px double var(--pl-gold);
+  font-family:'Spline Sans',sans-serif;
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:600;color:var(--pl-gold);
+}
+.pl-pass-foot strong{
+  color:var(--pl-ivory);font-weight:700;
+  margin-right:6px;
+}
+.pl-pass-foot > span:nth-child(2){
+  font-style:italic;text-transform:none;letter-spacing:.06em;
+  font-family:'Fraunces',Georgia,serif;color:#e7decc;
+  font-size:13px;font-weight:500;
+}
+
+/* Existing button + link styling carries over */
 .pl-finalcta-row{
   display:flex;gap:18px;flex-wrap:wrap;align-items:center;
 }
@@ -1005,15 +1158,15 @@
   color:var(--pl-ivory);
 }
 .pl-finalcta-row .btn-primary:hover{
-  background:var(--pl-amber);border-color:var(--pl-amber);color:var(--pl-forest);
+  background:var(--pl-forest);border-color:var(--pl-forest);color:var(--pl-ivory);
 }
 .pl-finalcta-link{
-  color:var(--pl-amber);text-decoration:none;
+  color:var(--pl-rust);text-decoration:none;
   font-weight:600;font-size:.95rem;letter-spacing:.04em;
   display:inline-flex;align-items:center;gap:.3rem;
   border-bottom:1px dashed transparent;padding:.4rem 0;
 }
-.pl-finalcta-link:hover{border-bottom-color:var(--pl-amber)}
+.pl-finalcta-link:hover{border-bottom-color:var(--pl-rust)}
 
 /* ==================================================================
    RESPONSIVE
@@ -1046,7 +1199,25 @@
   .pl-journal-page{padding:24px}
   .pl-testimonial{margin:60px -18px 0;padding:56px 24px}
   .pl-testimonial-mark{font-size:120px;top:-24px;left:0}
-  .pl-finalcta{margin:60px -18px 0;padding:56px 24px}
+  .pl-finalcta{margin:60px -18px 0;padding:48px 18px}
+  .pl-pass-head,
+  .pl-pass-foot{padding:12px 18px;font-size:10px}
+  .pl-pass-brand{font-size:15px}
+  .pl-pass-body{padding:32px 22px 24px}
+  .pl-pass-stamp{
+    position:relative;top:auto;right:auto;
+    width:100px;height:100px;margin:0 auto 18px;
+  }
+  .pl-pass-journey{
+    grid-template-columns:1fr;gap:14px;
+    padding-right:0;margin-bottom:24px;text-align:center;
+  }
+  .pl-pass-leg{align-items:center}
+  .pl-pass-leg--to{text-align:center}
+  .pl-pass-line{
+    transform:rotate(90deg);width:80px;min-width:0;
+    margin:6px auto;
+  }
 }
 
 /* ==================================================================
@@ -1140,7 +1311,7 @@
 @media (prefers-reduced-motion: reduce){
   .pl-ribbon,
   .pl-hero-stamp,
-  .pl-finalcta-stamp,
+  .pl-pass-stamp,
   .pl-divider-badge,
   .pl-marquee-track,
   .pl-ticker-track{
