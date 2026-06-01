@@ -247,29 +247,57 @@
   border-bottom:3px solid var(--pl-forest);
   padding:18px 0;overflow:hidden;white-space:nowrap;
   position:relative;
+  /* font-size:0 + line-height:0 + display:flex on the parent stops
+     baseline alignment from adding a few pixels of descender space
+     below the tiles, which was making the top and bottom gaps
+     visually uneven. */
+  font-size:0;line-height:0;
+  display:flex;align-items:center;
 }
 .pl-marquee-track{
-  display:inline-flex;align-items:stretch;gap:14px;
+  display:inline-flex;align-items:center;gap:14px;
   animation:pl-marquee-scroll 90s linear infinite;
+  font-size:initial;line-height:initial;
 }
 .pl-marquee:hover .pl-marquee-track{animation-play-state:paused}
 .pl-marquee-item{
-  display:inline-block;position:relative;
+  display:block;position:relative;
   width:200px;height:140px;flex:none;
   overflow:hidden;border:2px solid var(--pl-forest);
   background:var(--pl-ivory);
+  text-decoration:none;color:inherit;
+  /* Linkified tiles - subtle lift + amber outline on hover. */
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.pl-marquee-item:hover{
+  transform:translateY(-3px);
+  border-color:var(--pl-amber);
+  box-shadow:0 10px 20px rgba(10,45,33,.22);
+}
+.pl-marquee-item:focus-visible{
+  outline:3px solid var(--pl-amber);outline-offset:2px;
 }
 .pl-marquee-item img{
   width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .4s ease;
 }
-.pl-marquee-item:hover img{transform:scale(1.05)}
-.pl-marquee-item figcaption{
+.pl-marquee-item:hover img{transform:scale(1.06)}
+.pl-marquee-name{
   position:absolute;left:0;right:0;bottom:0;
   background:rgba(10,45,33,.86);color:var(--pl-ivory);
   font-family:'Fraunces',Georgia,serif;
   font-size:13px;font-weight:600;letter-spacing:.04em;
   padding:5px 10px;text-align:left;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.pl-marquee-name::after{
+  content:"\2192";  /* right arrow as a 'go explore' affordance */
+  color:var(--pl-gold);font-weight:700;font-size:14px;
+  opacity:0;transform:translateX(-4px);
+  transition:opacity .2s, transform .2s;
+}
+.pl-marquee-item:hover .pl-marquee-name::after{
+  opacity:1;transform:translateX(0);
 }
 @keyframes pl-marquee-scroll{
   from{transform:translateX(0)}
@@ -402,10 +430,11 @@
 }
 .pl-ticket{
   position:relative;
-  /* Same warm cream paper for both cards. Differentiation lives in
-     accents (stub band color, ribbon, border weight), not in
-     background hue. */
-  background:linear-gradient(180deg, #fbf3df 0%, #f4e9cd 100%);
+  /* Same warm cream paper for both cards. Tones down the previous
+     yellow gradient to a softer linen cream so the cards read as
+     paper, not mustard. Differentiation lives in accents (stub
+     band color, ribbon, border weight), not in background hue. */
+  background:linear-gradient(180deg, #fbf6ea 0%, #f3ecd6 100%);
   border:2.5px solid var(--pl-rust);
   display:grid;grid-template-columns:48px 1fr;
   box-shadow:0 10px 28px rgba(80,50,20,.16);
@@ -666,6 +695,50 @@
   font-family:'Fraunces',Georgia,serif;
   font-size:16px;line-height:1.55;color:var(--pl-ink);
   opacity:.88;margin:0;max-width:30ch;margin-left:auto;margin-right:auto;
+}
+
+/* ==================================================================
+   6.5 CONNECTED TO THE GUIDE - four editorial cards explaining how
+   the App pairs with the Guide. Each card sits on cream paper with
+   a left rust rule, big icon and italic body. Read as catalogue
+   entries, not SaaS feature tiles.
+   ================================================================== */
+.pl-bridge-grid{
+  display:grid;gap:24px;grid-template-columns:1fr;
+  margin-top:24px;
+}
+@media(min-width:760px){
+  .pl-bridge-grid{grid-template-columns:repeat(2,1fr);gap:28px}
+}
+.pl-bridge-card{
+  background:#fbf6ea;
+  border-left:4px solid var(--pl-rust);
+  padding:26px 28px;
+  display:flex;flex-direction:column;gap:10px;
+  box-shadow:0 4px 14px rgba(80,50,20,.06);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.pl-bridge-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 24px rgba(80,50,20,.12);
+}
+.pl-bridge-icon{
+  font-size:38px;color:var(--pl-rust);
+  display:block;line-height:1;margin-bottom:6px;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1);
+}
+.pl-bridge-card:hover .pl-bridge-icon{
+  transform:scale(1.08) rotate(-4deg);
+}
+.pl-bridge-card h3{
+  font-family:'Fraunces',Georgia,serif;font-weight:700;
+  font-size:22px;color:var(--pl-forest);
+  margin:0;line-height:1.15;
+}
+.pl-bridge-card p{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:16px;line-height:1.6;color:var(--pl-ink);
+  opacity:.86;margin:0;
 }
 
 /* ==================================================================

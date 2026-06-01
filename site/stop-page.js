@@ -554,19 +554,26 @@
     + '<div class="sp-nearby">' + platform(prev, stopNumber - 1) + platform(next, stopNumber + 1)
     + (!prev && !next ? '<p class="sp-empty">End of the line.</p>' : '') + '</div></section>';
 
-  /* PLAN-YOUR-TRIP CTA - links from any stop into the /plan landing
-     page so visitors who like this stop can immediately start a
-     suitcase for their trip. Styled in styles.css as
+  /* PLAN-YOUR-TRIP CTA - styled as a vintage ticket stub mirroring
+     the /plan boarding-pass aesthetic. The left band is the forest
+     stub with a vertical "Northlander Pass" wordmark and a suitcase
+     icon at the top; the right body has the kicker, headline,
+     pitch and the rust CTA. Styles live in styles.css under
      .sp-plan-trip-cta. */
   html += '<section class="sp-section">'
-    + '<div class="sp-plan-trip-cta">'
-    + '<div class="sp-plan-trip-cta-icon"><i class="ph-light ph-suitcase" aria-hidden="true"></i></div>'
+    + '<article class="sp-plan-trip-cta">'
+    + '<aside class="sp-plan-trip-cta-stub" aria-hidden="true">'
+    +   '<i class="ph-light ph-suitcase"></i>'
+    +   '<span class="sp-plan-trip-cta-stub-line">Northlander Pass</span>'
+    + '</aside>'
     + '<div class="sp-plan-trip-cta-body">'
-    + '<h3>Add ' + esc(displayName) + ' to your trip</h3>'
-    + '<p>Pack ' + esc(displayName) + ' into a Northlander suitcase along with your route, packing list, bookings and itinerary.</p>'
+    +   '<div class="sp-plan-trip-cta-kicker">Northlander.app</div>'
+    +   '<h3>Add ' + esc(displayName) + ' to your trip</h3>'
+    +   '<p>Pack your route, train times, accommodations and packing list around ' + esc(displayName) + ' in one place. Free to start.</p>'
+    +   '<a class="sp-plan-trip-cta-btn" href="/plan">Plan Your Trip <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>'
     + '</div>'
-    + '<a href="/plan">Plan Your Trip <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>'
-    + '</div></section>';
+    + '</article>'
+    + '</section>';
 
   html += divider();
 
