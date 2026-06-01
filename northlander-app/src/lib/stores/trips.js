@@ -35,8 +35,10 @@ export const LEATHER_COLORS = [
    keep migrations small and well-commented as the schema grows. */
 /* v1 - original four trip-scoped tables.
    v2 - adds bucketItems for the cross-trip wishlist.
-   v3 - adds budgetEntries for the per-trip budget tracker. All
-        additive; no data migration on existing installs. */
+   v3 - adds budgetEntries for the per-trip budget tracker.
+   v4 - adds photos for the per-trip image album (full-res +
+        thumbnail Blobs live in the row). All additive; no data
+        migration on existing installs. */
 export const db = new Dexie('northlander');
 db.version(1).stores({
   trips: '&id, name, updatedAt',
@@ -49,6 +51,9 @@ db.version(2).stores({
 });
 db.version(3).stores({
   budgetEntries: '++id, tripId, category, createdAt'
+});
+db.version(4).stores({
+  photos: '++id, tripId, stopId, takenAt, createdAt'
 });
 
 /* ---------- slugging ----------
@@ -148,12 +153,14 @@ export async function deleteTrip(id) {
     db.bookings,
     db.diaryEntries,
     db.budgetEntries,
+    db.photos,
     async () => {
       await db.trips.delete(id);
       await db.packingItems.where({ tripId: id }).delete();
       await db.bookings.where({ tripId: id }).delete();
       await db.diaryEntries.where({ tripId: id }).delete();
       await db.budgetEntries.where({ tripId: id }).delete();
+      await db.photos.where({ tripId: id }).delete();
     }
   );
   trips.set(await listTrips());

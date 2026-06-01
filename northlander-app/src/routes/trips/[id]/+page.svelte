@@ -11,6 +11,7 @@
   import TravelDiary from '$lib/components/TravelDiary.svelte';
   import EventsAlongRoute from '$lib/components/EventsAlongRoute.svelte';
   import BudgetTracker from '$lib/components/BudgetTracker.svelte';
+  import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import {
     getTrip,
@@ -252,6 +253,13 @@
   <section class="max-w-[1080px] mx-auto px-6 mt-8">
     <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
       <BudgetTracker tripId={trip.id} />
+    </article>
+  </section>
+
+  <!-- ===== Album: trip photos ===== -->
+  <section class="max-w-[1080px] mx-auto px-6 mt-8">
+    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+      <PhotoAlbum tripId={trip.id} stopIds={trip.stopIds || []} />
     </article>
   </section>
 
