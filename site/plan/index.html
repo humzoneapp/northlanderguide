@@ -215,21 +215,33 @@
     <h2 class="pl-section-h2">Your Trip, Packed Like a Suitcase</h2>
     <p class="pl-section-deck">Create a suitcase for each trip. Fill it with the places, plans and memories you want to bring along. Pull it out next time you board.</p>
 
-    <div class="pl-platform">
-      <div class="pl-platform-floorboards" aria-hidden="true"></div>
-      <div class="pl-platform-row">
-        <figure class="pl-trunk pl-trunk-1">
-          <img src="/images/northlander-luggage-brown.png" alt="A brown leather suitcase tagged 'Muskoka Weekend'">
-          <figcaption><span class="pl-trunk-tag-line">Trip</span><strong>Muskoka Weekend</strong></figcaption>
-        </figure>
-        <figure class="pl-trunk pl-trunk-2">
-          <img src="/images/northlander-luggage-gold.png" alt="A gold suitcase tagged 'Fall to North Bay'">
-          <figcaption><span class="pl-trunk-tag-line">Trip</span><strong>Fall to North Bay</strong></figcaption>
-        </figure>
-        <figure class="pl-trunk pl-trunk-3">
-          <img src="/images/northlander-luggage-green.png" alt="A green suitcase tagged 'Cochrane Summer'">
-          <figcaption><span class="pl-trunk-tag-line">Trip</span><strong>Cochrane Summer</strong></figcaption>
-        </figure>
+    <div class="pl-scrapbook">
+      <div class="pl-polaroid pl-polaroid-1">
+        <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
+        <img src="/images/northlander-bracebridge.jpeg" alt="Muskoka in autumn, a view from one stop on the route">
+        <figcaption>
+          <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 2 days</span>
+          <strong>Muskoka Weekend</strong>
+          <span class="pl-polaroid-stops">Toronto Union, Gravenhurst, Bracebridge</span>
+        </figcaption>
+      </div>
+      <div class="pl-polaroid pl-polaroid-2">
+        <span class="pl-tape pl-tape-tr" aria-hidden="true"></span>
+        <img src="/images/northlander-north-bay.jpeg" alt="North Bay shoreline">
+        <figcaption>
+          <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 4 days</span>
+          <strong>Fall to North Bay</strong>
+          <span class="pl-polaroid-stops">Toronto Union, Washago, Huntsville, North Bay</span>
+        </figcaption>
+      </div>
+      <div class="pl-polaroid pl-polaroid-3">
+        <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
+        <img src="/images/northlander-cochrane.jpeg" alt="Cochrane, end of the Northlander line">
+        <figcaption>
+          <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 6 days</span>
+          <strong>Cochrane Summer</strong>
+          <span class="pl-polaroid-stops">Toronto Union, North Bay, Temiskaming, Cochrane</span>
+        </figcaption>
       </div>
     </div>
 
@@ -281,15 +293,21 @@
     <div class="pl-tickets">
       <!-- CARRY-ON -->
       <article class="pl-ticket pl-ticket--carry">
-        <div class="pl-ticket-header">
-          <div>
-            <div class="pl-ticket-class">Carry-On</div>
-            <div class="pl-ticket-pitch">For your first Northlander trip.</div>
+        <aside class="pl-ticket-stub" aria-hidden="true">
+          <span class="pl-ticket-stub-line">Northlander Pass</span>
+          <span class="pl-ticket-stub-no">No. 001</span>
+        </aside>
+        <div class="pl-ticket-main">
+          <div class="pl-ticket-meta">
+            <span>Class</span>
+            <span>Fare</span>
           </div>
-          <div class="pl-ticket-price">Free</div>
-        </div>
-        <div class="pl-ticket-body">
-          <img class="pl-ticket-suitcase" src="/images/northlander-luggage-brown.png" alt="" aria-hidden="true">
+          <div class="pl-ticket-header">
+            <div class="pl-ticket-class">Carry-On</div>
+            <div class="pl-ticket-price">Free</div>
+          </div>
+          <div class="pl-ticket-pitch">For your first Northlander trip.</div>
+          <div class="pl-ticket-rule" aria-hidden="true"></div>
           <ul class="pl-ticket-features">
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> 1 trip suitcase</li>
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Up to 5 stops</li>
@@ -300,37 +318,44 @@
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Events along your route</li>
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Booking checklist</li>
           </ul>
-        </div>
-        <div class="pl-ticket-foot">
-          <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Start Packing, Free</a>
-          <p class="pl-ticket-trust">No credit card needed.</p>
+          <div class="pl-ticket-foot">
+            <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Start Packing, Free</a>
+            <p class="pl-ticket-trust">No credit card needed.</p>
+          </div>
         </div>
       </article>
 
       <!-- FIRST CLASS -->
       <article class="pl-ticket pl-ticket--first">
         <div class="pl-stamp" aria-hidden="true"><span>Best<br>Value</span></div>
-        <div class="pl-ticket-header">
-          <div>
-            <div class="pl-ticket-class">First Class</div>
-            <div class="pl-ticket-pitch">Pay once. Plan unlimited trips.</div>
+        <aside class="pl-ticket-stub" aria-hidden="true">
+          <span class="pl-ticket-stub-line">Northlander Pass</span>
+          <span class="pl-ticket-stub-no">No. 002</span>
+          <span class="pl-ticket-stub-class">First Class</span>
+        </aside>
+        <div class="pl-ticket-main">
+          <div class="pl-ticket-meta">
+            <span>Class</span>
+            <span>Fare</span>
           </div>
-          <div class="pl-ticket-price">$9.99<small>one-time</small></div>
-        </div>
-        <!-- Mini route line printed on the ticket -->
-        <div class="pl-route-line" aria-hidden="true">
-          <span class="pl-route-stop"></span>
-          <span class="pl-route-link"></span>
-          <span class="pl-route-stop"></span>
-          <span class="pl-route-link"></span>
-          <span class="pl-route-stop"></span>
-          <span class="pl-route-link"></span>
-          <span class="pl-route-stop"></span>
-          <span class="pl-route-link"></span>
-          <span class="pl-route-stop"></span>
-        </div>
-        <div class="pl-ticket-body">
-          <img class="pl-ticket-suitcase" src="/images/northlander-luggage-green.png" alt="" aria-hidden="true">
+          <div class="pl-ticket-header">
+            <div class="pl-ticket-class">First Class</div>
+            <div class="pl-ticket-price">$9.99<small>one-time</small></div>
+          </div>
+          <div class="pl-ticket-pitch">Pay once. Plan unlimited trips.</div>
+          <!-- Mini route line printed on the ticket -->
+          <div class="pl-route-line" aria-hidden="true">
+            <span class="pl-route-stop"></span>
+            <span class="pl-route-link"></span>
+            <span class="pl-route-stop"></span>
+            <span class="pl-route-link"></span>
+            <span class="pl-route-stop"></span>
+            <span class="pl-route-link"></span>
+            <span class="pl-route-stop"></span>
+            <span class="pl-route-link"></span>
+            <span class="pl-route-stop"></span>
+          </div>
+          <div class="pl-ticket-rule" aria-hidden="true"></div>
           <ul class="pl-ticket-features">
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Unlimited trip suitcases</li>
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Unlimited stops</li>
@@ -342,10 +367,10 @@
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Shareable trip link</li>
             <li><i class="ph-fill ph-check" aria-hidden="true"></i> Post-trip recap</li>
           </ul>
-        </div>
-        <div class="pl-ticket-foot">
-          <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Upgrade to First Class</a>
-          <p class="pl-ticket-trust">One payment. No subscription.</p>
+          <div class="pl-ticket-foot">
+            <a class="btn btn-primary pl-ticket-cta" href="https://northlander.app" target="_blank" rel="noopener">Upgrade to First Class</a>
+            <p class="pl-ticket-trust">One payment. No subscription.</p>
+          </div>
         </div>
       </article>
     </div>
@@ -467,10 +492,21 @@
     <article class="pl-journal">
       <div class="pl-journal-spine" aria-hidden="true"></div>
       <div class="pl-journal-page pl-journal-page--left">
-        <img class="pl-journal-suitcase" src="/images/northlander-luggage-gold.png" alt="" aria-hidden="true">
-        <div class="pl-journal-tag">
-          <span>Trip Suitcase</span>
-          <strong>Fall Trip to North Bay</strong>
+        <div class="pl-journal-cover">
+          <div class="pl-journal-stamp" aria-hidden="true">
+            <span>Boarding Pass</span>
+            <strong>The North</strong>
+            <span>2026</span>
+          </div>
+          <div class="pl-journal-polaroid">
+            <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
+            <img src="/images/northlander-north-bay.jpeg" alt="">
+            <figcaption>North Bay, mile 226</figcaption>
+          </div>
+          <div class="pl-journal-tag">
+            <span>Trip Suitcase</span>
+            <strong>Fall Trip to North Bay</strong>
+          </div>
         </div>
       </div>
       <div class="pl-journal-page pl-journal-page--right">
