@@ -1914,7 +1914,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   transition:background .15s, color .15s, border-color .15s;
 }
 .topnav-plan:hover{
-  background:#f3ece0;color:var(--rail-deep);border-color:#f3ece0;
+  background:var(--poster-crimson);color:#f3ece0;border-color:var(--poster-crimson);
 }
 
 /* ===== Stop-page "Plan Your Trip" CTA card =====
