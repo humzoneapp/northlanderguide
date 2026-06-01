@@ -170,21 +170,39 @@
               {/each}
             </div>
           </div>
-          <button
-            type="button"
-            class="btn-primary flex items-center gap-2"
-            on:click={() => (showShareModal = true)}
-            aria-label="Share your trip as a poster"
-          >
-            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="18" cy="5" r="3"/>
-              <circle cx="6" cy="12" r="3"/>
-              <circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span>Share trip</span>
-          </button>
+          <div class="flex flex-wrap items-center gap-3">
+            <a
+              href={`/trips/${trip.id}/print`}
+              target="_blank"
+              rel="noopener"
+              class="btn-primary flex items-center gap-2"
+              aria-label="Export this trip as a PDF"
+              style="background:#0a2d21;border-color:#0a2d21"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2 H6 a2 2 0 0 0 -2 2 v16 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V8 Z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="9" y1="13" x2="15" y2="13"/>
+                <line x1="9" y1="17" x2="13" y2="17"/>
+              </svg>
+              <span>Export PDF</span>
+            </a>
+            <button
+              type="button"
+              class="btn-primary flex items-center gap-2"
+              on:click={() => (showShareModal = true)}
+              aria-label="Share your trip as a poster"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span>Share trip</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
