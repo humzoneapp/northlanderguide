@@ -5,6 +5,7 @@
     addBooking,
     toggleBooking,
     renameBooking,
+    updateBooking,
     deleteBooking,
     BOOKING_KINDS
   } from '$lib/stores/bookings.js';
@@ -21,6 +22,15 @@
 
   let editingId = null;
   let editingDraft = '';
+
+  /* Tracks which room-kind rows have their accommodation panel
+     open. Keys are booking ids; truthy means open. Plain object
+     so Svelte detects every toggle (re-assign to new object). */
+  let expanded = {};
+
+  function toggleExpanded(id) {
+    expanded = { ...expanded, [id]: !expanded[id] };
+  }
 
   $: tripId, refresh();
   $: total = items.length;
@@ -85,6 +95,21 @@
     await refresh();
   }
 
+  /* Save handler for the room-detail fields. Fires on blur per
+     field so the user gets snappy feedback without having to
+     hunt for a Save button. Mutates the local item in-place to
+     keep the row's local view in sync without a full refetch. */
+  async function saveRoomField(id, field, value) {
+    const updated = await updateBooking(id, { [field]: value });
+    if (updated) {
+      const idx = items.findIndex((i) => i.id === id);
+      if (idx >= 0) {
+        items[idx] = updated;
+        items = items;
+      }
+    }
+  }
+
   function kindLabel(id) {
     return (BOOKING_KINDS.find((k) => k.id === id) || BOOKING_KINDS[4]).label;
   }
@@ -111,7 +136,12 @@
     {:else}
       <ul class="book-list">
         {#each items as item (item.id)}
-          <li class="book-row" class:is-booked={item.status === 'booked'}>
+          <li
+            class="book-row"
+            class:is-booked={item.status === 'booked'}
+            class:has-extras={item.kind === 'room'}
+            class:is-expanded={item.kind === 'room' && expanded[item.id]}
+          >
             <span class="book-icon" aria-label={kindLabel(item.kind)} title={kindLabel(item.kind)}>
               {#if item.kind === 'train'}
                 <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -177,12 +207,92 @@
               {item.status === 'booked' ? 'Booked' : 'Pending'}
             </button>
 
+            {#if item.kind === 'room'}
+              <button
+                type="button"
+                class="book-expand"
+                class:is-open={expanded[item.id]}
+                on:click={() => toggleExpanded(item.id)}
+                aria-label={expanded[item.id] ? 'Hide room details' : 'Show room details'}
+                aria-expanded={!!expanded[item.id]}
+              >
+                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+            {/if}
+
             <button
               type="button"
               class="book-remove"
               on:click={() => remove(item.id)}
               aria-label={`Remove ${item.title}`}
             >&times;</button>
+
+            {#if item.kind === 'room' && expanded[item.id]}
+              <div class="book-extras">
+                <div class="extras-grid">
+                  <label>
+                    <span class="extras-kicker">Check-in</span>
+                    <input
+                      type="date"
+                      value={item.checkIn || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
+                      on:change={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
+                    />
+                  </label>
+                  <label>
+                    <span class="extras-kicker">Check-out</span>
+                    <input
+                      type="date"
+                      value={item.checkOut || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
+                      on:change={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
+                    />
+                  </label>
+                  <label class="extras-full">
+                    <span class="extras-kicker">Address</span>
+                    <input
+                      type="text"
+                      maxlength="240"
+                      placeholder="123 Main St, Bracebridge ON"
+                      value={item.address || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'address', e.currentTarget.value)}
+                    />
+                  </label>
+                  <label>
+                    <span class="extras-kicker">Host or contact</span>
+                    <input
+                      type="text"
+                      maxlength="120"
+                      placeholder="Phone, email, or host name"
+                      value={item.contact || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'contact', e.currentTarget.value)}
+                    />
+                  </label>
+                  <label>
+                    <span class="extras-kicker">Confirmation #</span>
+                    <input
+                      type="text"
+                      maxlength="60"
+                      placeholder="Booking ref."
+                      value={item.confirmation || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'confirmation', e.currentTarget.value)}
+                    />
+                  </label>
+                  <label class="extras-full">
+                    <span class="extras-kicker">Notes</span>
+                    <textarea
+                      rows="2"
+                      maxlength="500"
+                      placeholder="Parking, wifi password, late check-in instructions..."
+                      value={item.notes || ''}
+                      on:blur={(e) => saveRoomField(item.id, 'notes', e.currentTarget.value)}
+                    ></textarea>
+                  </label>
+                </div>
+              </div>
+            {/if}
           </li>
         {/each}
       </ul>
@@ -228,6 +338,10 @@
     gap: 10px;
     padding: 10px 0;
     border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
+  }
+  .book-row.has-extras {
+    /* Add a chevron column between the status pill and the remove X. */
+    grid-template-columns: 28px 1fr auto auto auto;
   }
   .book-row:last-child {
     border-bottom: 0;
@@ -368,5 +482,97 @@
   .book-add-btn:disabled {
     color: rgba(125, 58, 30, 0.4);
     cursor: not-allowed;
+  }
+
+  /* ===== Room expand panel ===== */
+  .book-expand {
+    background: transparent;
+    border: 1px dashed rgba(139, 106, 58, 0.6);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #7d3a1e;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.15s, border-color 0.15s;
+  }
+  .book-expand:hover {
+    background: rgba(125, 58, 30, 0.08);
+    border-color: #7d3a1e;
+  }
+  .book-expand.is-open {
+    transform: rotate(180deg);
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #c9a84c;
+  }
+
+  .book-row.is-expanded {
+    background: rgba(196, 134, 15, 0.04);
+  }
+
+  .book-extras {
+    grid-column: 1 / -1;
+    padding: 12px 4px 6px 38px; /* indent under the icon */
+    margin-top: 4px;
+    border-top: 1px dashed rgba(139, 106, 58, 0.35);
+  }
+  .extras-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 14px;
+  }
+  .extras-grid .extras-full {
+    grid-column: 1 / -1;
+  }
+  .extras-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .extras-kicker {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .extras-grid input,
+  .extras-grid textarea {
+    background: #fffdf6;
+    border: 1px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 6px 9px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 14px;
+    color: #0a2d21;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .extras-grid textarea {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    resize: vertical;
+    min-height: 56px;
+    line-height: 1.5;
+  }
+  .extras-grid input:focus,
+  .extras-grid textarea:focus {
+    border-color: #7d3a1e;
+  }
+  .extras-grid input::placeholder,
+  .extras-grid textarea::placeholder {
+    color: rgba(90, 79, 61, 0.5);
+    font-style: italic;
+  }
+
+  @media (max-width: 540px) {
+    .extras-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

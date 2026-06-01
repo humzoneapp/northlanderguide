@@ -204,11 +204,35 @@
     {:else}
       <ul class="checklist">
         {#each bookings as item}
+          {@const hasRoomDetail = item.kind === 'room' && (item.checkIn || item.checkOut || item.address || item.contact || item.confirmation || item.notes)}
           <li class:packed={item.status === 'booked'}>
             <span class="check-box" class:packed={item.status === 'booked'}></span>
             <span class="booking-line">
               <strong>{item.title}</strong>
               <em>{kindLabel(item.kind)}{item.dueDate ? '  ·  due ' + item.dueDate : ''}</em>
+              {#if hasRoomDetail}
+                <span class="room-detail">
+                  {#if item.checkIn || item.checkOut}
+                    <span class="room-dates">
+                      {item.checkIn ? 'In: ' + item.checkIn : ''}
+                      {item.checkIn && item.checkOut ? ' · ' : ''}
+                      {item.checkOut ? 'Out: ' + item.checkOut : ''}
+                    </span>
+                  {/if}
+                  {#if item.address}
+                    <span>{item.address}</span>
+                  {/if}
+                  {#if item.contact}
+                    <span>{item.contact}</span>
+                  {/if}
+                  {#if item.confirmation}
+                    <span>Confirmation {item.confirmation}</span>
+                  {/if}
+                  {#if item.notes}
+                    <span class="room-notes">{item.notes}</span>
+                  {/if}
+                </span>
+              {/if}
             </span>
             <span class="status-cell">{item.status === 'booked' ? 'Booked' : 'Pending'}</span>
           </li>
@@ -571,6 +595,28 @@
     font-size: 11.5px;
     color: #5a4f3d;
     margin-top: 1px;
+  }
+  .room-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 6px;
+    padding-left: 10px;
+    border-left: 1.5px solid #7d3a1e;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11.5px;
+    color: #0a2d21;
+  }
+  .room-detail .room-dates {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .room-detail .room-notes {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #241f1a;
+    margin-top: 2px;
+    white-space: pre-wrap;
   }
   .status-cell {
     font-family: 'Spline Sans', sans-serif;

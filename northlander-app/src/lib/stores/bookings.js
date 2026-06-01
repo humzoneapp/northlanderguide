@@ -16,9 +16,20 @@ import { db } from './trips.js';
  * @property {string} title
  * @property {BookingKind} kind
  * @property {BookingStatus} status
- * @property {string|null} dueDate    - YYYY-MM-DD or null
+ * @property {string|null} dueDate         - YYYY-MM-DD or null
+ * @property {string|null} [checkIn]       - YYYY-MM-DD, room only
+ * @property {string|null} [checkOut]      - YYYY-MM-DD, room only
+ * @property {string|null} [address]       - free text, mostly room
+ * @property {string|null} [contact]       - phone / email / host name
+ * @property {string|null} [confirmation]  - booking reference number
+ * @property {string|null} [notes]         - free text
  * @property {number} createdAt
  * @property {number} updatedAt
+ *
+ * The extra room fields (checkIn, checkOut, address, contact,
+ * confirmation, notes) are unindexed JSON properties on the row, so
+ * they don't require a Dexie schema bump. The BookingChecklist
+ * surfaces a chevron toggle on room bookings to expose them.
  */
 
 export const BOOKING_KINDS = [
@@ -78,6 +89,41 @@ export async function renameBooking(id, title) {
   const clean = String(title || '').trim();
   if (!clean) return null;
   await db.bookings.update(id, { title: clean, updatedAt: Date.now() });
+  return db.bookings.get(id);
+}
+
+/* The set of fields a caller can patch through the generic helper.
+   `title`, `kind`, `status`, and `dueDate` go through their own
+   helpers so the validation lives in one place. Everything below is
+   free-form text for the room expand panel. */
+const PATCHABLE_TEXT_FIELDS = [
+  'checkIn', 'checkOut', 'address', 'contact', 'confirmation', 'notes'
+];
+
+/** Generic patch helper for the room expand panel. Trims string
+    values, treats empty strings as null so a cleared field clears
+    rather than storing "". Returns the patched row. */
+export async function updateBooking(id, patch = {}) {
+  if (id == null) return null;
+  const row = await db.bookings.get(id);
+  if (!row) return null;
+  const next = {};
+  for (const k of PATCHABLE_TEXT_FIELDS) {
+    if (patch[k] === undefined) continue;
+    const v = patch[k] == null ? '' : String(patch[k]);
+    const trimmed = v.trim();
+    next[k] = trimmed ? trimmed.slice(0, 500) : null;
+  }
+  if (patch.title !== undefined) {
+    const t = String(patch.title || '').trim();
+    if (t) next.title = t;
+  }
+  if (patch.dueDate !== undefined) {
+    next.dueDate = patch.dueDate ? String(patch.dueDate) : null;
+  }
+  if (Object.keys(next).length === 0) return row;
+  next.updatedAt = Date.now();
+  await db.bookings.update(id, next);
   return db.bookings.get(id);
 }
 
