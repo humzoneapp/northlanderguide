@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { walkMinsBetween } = require('./walk');
 
 /* Load backend/.env without depending on the dotenv package. Existing
    environment variables win over the file. */
@@ -39,7 +40,10 @@ const path = require('path');
 const API_KEY = process.env.AIRTABLE_API_KEY;
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_ID = 'tblfVQcLjEv0a4sCJ';
-const GOOGLE_KEY = process.env.GOOGLE_PLACES_KEY;
+/* GOOGLE_PLACES_KEY is no longer read by this script. Walking-time
+   estimates run through backend/walk.js (Haversine + detour) which
+   needs no key. The env var is intentionally not deleted from the
+   workflow yet so the user can decide if/when to remove it. */
 
 if (!API_KEY || !BASE_ID) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID in backend/.env');
@@ -229,29 +233,16 @@ async function fetchTable(tableId, filter) {
   return records;
 }
 
-/* ---- Walking time + distance from a station to a listing via the
-   Google Distance Matrix API (mode=walking). Returns null on
-   ZERO_RESULTS, no walkable route, or any error, so the caller can
-   deactivate the listing. ---- */
+/* ---- Walking-time estimate from a station to a listing via
+   Haversine distance + a small detour factor (see backend/walk.js).
+   Replaced the previous Google Distance Matrix call after that API
+   ran up unexpected charges. Free, instant, accurate to within a
+   couple of minutes for the small-town stops on the Northlander
+   route. Returns null only when coordinates are missing. ---- */
 async function getWalk(station, lat, lng) {
-  try {
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json`
-      + `?origins=${station.lat},${station.lng}`
-      + `&destinations=${lat},${lng}`
-      + `&mode=walking&key=${GOOGLE_KEY}`;
-    const res = await fetchWithRetry(() => fetch(url));
-    const d = await res.json();
-    const el = d.rows && d.rows[0] && d.rows[0].elements && d.rows[0].elements[0];
-    if (d.status === 'OK' && el && el.status === 'OK' && el.duration) {
-      return {
-        walkMins: Math.round(el.duration.value / 60),
-        walkDistance: el.distance ? el.distance.text : null
-      };
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
+  const mins = walkMinsBetween(station.lat, station.lng, lat, lng);
+  if (mins == null) return null;
+  return { walkMins: mins, walkDistance: null };
 }
 
 /* ---- PATCH one Airtable record, retrying briefly on rate limit ---- */
@@ -392,25 +383,24 @@ function sortListings(arr) {
   let walkSucceeded = 0, walkDeactivated = 0;
   const deactivated = new Set();
 
-  if (needWalk.length && !GOOGLE_KEY) {
-    console.warn(`GOOGLE_PLACES_KEY not set: skipping walking distance for ${needWalk.length} listings.`);
-  } else {
-    for (const m of needWalk) {
-      const station = STATION_COORDS[m.stopId];
-      if (!station) continue;
-      const result = await getWalk(station, m.listing.lat, m.listing.lng);
-      await sleep(100);
-      if (result && result.walkMins != null) {
-        m.listing.walkMins = result.walkMins;
-        m.listing.walkDistance = result.walkDistance;
-        await updateRecord(m.recordId, { [FIELD.walkMins]: result.walkMins });
-        walkSucceeded++;
-      } else {
-        await updateRecord(m.recordId, { [FIELD.active]: false });
-        deactivated.add(m.recordId);
-        walkDeactivated++;
-        console.log(`Deactivated (no walkable route): ${m.listing.name} - ${m.listing.stop}`);
-      }
+  /* Walk-time pass: pure Haversine, no external API. We still
+     defer to the Airtable record by writing the estimate back so
+     repeat runs don't recompute. Listings with no coordinates get
+     deactivated as before since they can't be located on the map. */
+  for (const m of needWalk) {
+    const station = STATION_COORDS[m.stopId];
+    if (!station) continue;
+    const result = await getWalk(station, m.listing.lat, m.listing.lng);
+    if (result && result.walkMins != null) {
+      m.listing.walkMins = result.walkMins;
+      m.listing.walkDistance = result.walkDistance;
+      await updateRecord(m.recordId, { [FIELD.walkMins]: result.walkMins });
+      walkSucceeded++;
+    } else {
+      await updateRecord(m.recordId, { [FIELD.active]: false });
+      deactivated.add(m.recordId);
+      walkDeactivated++;
+      console.log(`Deactivated (no coordinates): ${m.listing.name} - ${m.listing.stop}`);
     }
   }
 

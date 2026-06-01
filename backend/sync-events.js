@@ -22,6 +22,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { geocodeNominatim, walkMinsBetween } = require('./walk');
 
 (function loadEnv() {
   const envPath = path.join(__dirname, '.env');
@@ -39,7 +40,10 @@ const path = require('path');
 
 const KEY = process.env.AIRTABLE_API_KEY;
 const BASE = process.env.AIRTABLE_BASE_ID;
-const GKEY = process.env.GOOGLE_PLACES_KEY;
+/* GOOGLE_PLACES_KEY is no longer used by this sync. Walk times come
+   from backend/walk.js (Haversine after a free Nominatim geocode).
+   Left in the workflow env for now so re-adding it later is a
+   one-line change in the YAML. */
 const TABLE = 'tblPPmCZ7gBlvNGk2';
 const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
 
@@ -47,8 +51,6 @@ if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');
   process.exit(1);
 }
-/* GOOGLE_PLACES_KEY is optional. If missing, walk-time computation
-   is silently skipped and existing cached values still publish. */
 
 const FIELD = {
   name: 'fldf49uTL7Ix798Lu',
@@ -123,24 +125,17 @@ async function fetchWithRetry(fn, retries = 3, delay = 1500) {
   }
 }
 
-/* ---- Google Distance Matrix: walking minutes from a station to an
-       address string. Returns null on any failure so the caller can
-       silently fall through without breaking the publish. ---- */
+/* ---- Walking minutes from a station to an event venue.
+       Free implementation: geocode the address via OpenStreetMap's
+       Nominatim service, then compute Haversine + detour via
+       backend/walk.js. The caller is responsible for throttling
+       between calls (Nominatim's usage policy caps us at 1 request
+       per second; we sleep 1100ms between). ---- */
 async function walkMinutesFromStation(station, address) {
-  if (!GKEY || !station || !address) return null;
-  try {
-    const url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
-      + '?origins=' + station.lat + ',' + station.lng
-      + '&destinations=' + encodeURIComponent(address)
-      + '&mode=walking&key=' + GKEY;
-    const r = await fetchWithRetry(() => fetch(url));
-    const d = await r.json();
-    const el = d.rows && d.rows[0] && d.rows[0].elements && d.rows[0].elements[0];
-    if (d.status === 'OK' && el && el.status === 'OK' && el.duration) {
-      return Math.round(el.duration.value / 60);
-    }
-  } catch (e) { /* swallow */ }
-  return null;
+  if (!station || !address) return null;
+  const point = await geocodeNominatim(address);
+  if (!point) return null;
+  return walkMinsBetween(station.lat, station.lng, point.lat, point.lng);
 }
 
 /* Hard-delete every Events row whose End Date is before today (Toronto
@@ -324,10 +319,14 @@ function mapRecord(rec) {
       ev.walkMins = mins;
       walkComputed++;
       await cacheWalkMins(ev.id, mins);
-      await sleep(220);
     } else {
       walkSkipped++;
     }
+    /* Nominatim's usage policy caps free use at 1 request per second.
+       Sleep 1100ms after every attempt (success or miss) so we stay
+       well clear of the rate limit even when many events need a
+       fresh geocode in the same run. */
+    await sleep(1100);
   }
 
   for (const ev of eventsToKeep) {

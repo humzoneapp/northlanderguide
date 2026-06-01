@@ -10,15 +10,12 @@ name: Sync listings from Airtable
 
 on:
   workflow_dispatch:
-  # CRON TRIGGER DISABLED 2026-06-01: Google APIs were disabled in the
-  # Cloud console after runaway Distance Matrix charges. The script
-  # already guards against a missing GOOGLE_PLACES_KEY (it skips
-  # walk-time fetches; existing cached values still publish), but
-  # pausing the cron keeps the workflow from auto-firing twice a day
-  # and wasting CI minutes until the key is regenerated. Re-enable by
-  # uncommenting the schedule block.
-  # schedule:
-  #   - cron: '15 6,18 * * *'
+  # Cron restored 2026-06-01 after the Google freeze: walk-time
+  # estimates now come from backend/walk.js (pure Haversine since
+  # listings already carry lat/lng), so the sync no longer hits any
+  # paid API. The previous 6:15 / 18:15 UTC firing rhythm is preserved.
+  schedule:
+    - cron: '15 6,18 * * *'
 
 jobs:
   sync:

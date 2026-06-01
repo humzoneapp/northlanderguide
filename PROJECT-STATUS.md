@@ -90,11 +90,80 @@ what's already wired. Keep this short; details belong in the code.
   - **/stops/:id (rendered by `site/stop-page.js` `setSeo()`)**: Organization, WebSite, WebPage (with `speakable` on `.sp-hero-title`, `.sp-hero-tagline`, `.sp-h2`), BreadcrumbList (Home → Stops → {Stop}), a `["TouristAttraction", "Place"]` dual-typed node with `geo` coordinates and `containedInPlace` (the stop's region from `data.js`), a SoftwareApplication reference back to `/plan#app`, an `ItemList` of every listing at that stop as `LocalBusiness` entries (with `AggregateRating` when the rating is a real number, not "NR"), and `FAQPage` when the stop has FAQs in `FAQS_DATA`.
 - **Validate after edits**: paste the deployed URL into Google's Rich Results Test (`https://search.google.com/test/rich-results`) to confirm the graph still parses. The home `ItemList` of 16 stops is the easiest to sanity-check (all 16 should appear with images and geo).
 
+### Walking-distance estimation
+- Walking time from a stop's train station to a listing or event venue used to come from **Google Distance Matrix**. After unexpected Google API charges (see "Incidents") that integration was replaced with a free, in-process algorithm in `backend/walk.js`:
+  - `haversineKm(lat1, lng1, lat2, lng2)` returns great-circle distance in km.
+  - `walkMinsBetween(...)` multiplies by `DETOUR_FACTOR` (1.25, the typical small-town walking-path-to-straight-line ratio) and `MIN_PER_KM` (13, a comfortable 4.6 km/h pace) and floors at 1 minute. Output is within roughly 2 to 3 minutes of Google's old answers along the Northlander route.
+  - `geocodeNominatim(address)` resolves a postal address to lat/lng via OpenStreetMap's free Nominatim service. Required for the events sync because submitted events only carry an address string, not coordinates.
+- **`backend/sync-from-airtable.js`** (the listings cron): pure Haversine, no geocoder needed because every listing already has lat/lng from earlier enrichment runs. `getWalk` now calls `walkMinsBetween` directly. No external request per listing.
+- **`backend/sync-events.js`** (the events cron): calls `geocodeNominatim(address)` then `walkMinsBetween`. The caller sleeps 1100 ms between attempts (success or miss) so the run stays under Nominatim's 1 request/second cap. The Nominatim helper sends a `User-Agent: NorthlanderGuide/1.0 (https://northlanderguide.com)` so OSM can identify the traffic and contact us if needed; per their policy, do not remove it.
+- **Both cron workflows are re-enabled** on their original schedules (`sync-listings.yml` at 6:15 / 18:15 UTC, `sync-events.yml` at 7:15 / 19:15 UTC). They no longer hit any paid API.
+- `GOOGLE_PLACES_KEY` is no longer read by either cron script. The env var stays in the workflow YAMLs for now so re-enabling Google later is a one-line change. The manual scripts (`enrich-listing.js`, `backfill-listings.js`, `update.js`, `build-static.js`) still call Google Places + Photos and are paused until the billing source is identified.
+
+## Incidents
+
+### 2026-06-01: Google API runaway charges
+- **Symptoms**: $396 in Google Cloud charges accrued, projection trending toward $2000. User disabled all Google APIs in the Cloud console and deleted the offending credential.
+- **Live website was not the source**: stop-page maps already used OpenStreetMap tiles via Leaflet, the "Get directions" links on listing cards built outbound `google.com/maps/dir/?...` deep links (consumer Google Maps, no API key, no cost), and `googleapis.com` references on every public page were Google Fonts CSS only. No Google Maps JavaScript API, Static Maps, or Embed API anywhere in `site/`.
+- **No API key in committed code**: grep for `AIza[A-Za-z0-9_\-]{30,}` across the entire repo returns zero hits. The key lived only in GitHub Actions secrets, local `backend/.env` (gitignored), and Vercel env vars.
+- **Likely cost source**: the two cron-scheduled workflows (`sync-events.yml` and `sync-listings.yml`) that called Distance Matrix on every listing/event without a cached `walkMins`. The `build-static.js` and `enrich-listing.js` scripts also call Places Photos (the most expensive endpoint at ~$7 / 1000 calls) but they only run on manual dispatch.
+- **Remediation (committed)**: paused both cron triggers in commit `052dcd0`, then replaced the Google Distance Matrix integration with the `backend/walk.js` Haversine + Nominatim algorithm described above. Re-enabled the cron triggers afterward. The crons no longer hit any paid API.
+- **Owner action items**: regenerate the API key (or leave it deleted), review the Google Cloud Billing report to identify which API drove the charges, set a $5 budget alert, and decide whether to remove `GOOGLE_PLACES_KEY` from the GitHub Actions secrets and Vercel env. The active site stays fully functional without it.
+
+## Northlander.app
+
+The marketing page at `/plan` claims four App-Guide integrations. We're now building the actual app under `northlander-app/` as a free-tier-only PWA on top of Vercel + SvelteKit, deployed at `northlander.app` (domain owned at Namecheap, hosting still to be wired). No backend, no accounts, no payments for the MVP - everything lives on the user's device via IndexedDB.
+
+### Stack and infrastructure
+- **SvelteKit 2 + Svelte 4 + Vite 5**, `@sveltejs/adapter-vercel` for hosting. `npm install && npm run dev` to run locally.
+- **Tailwind 3** with the vintage palette token-for-token matching the Guide: `ivory`, `ivory-soft`, `cream`, `paper`, `forest`, `forest-2`, `rust`, `rust-d`, `amber`, `gold`, `ink`, `muted`. Fonts: Fraunces (serif) + Spline Sans (sans), loaded from Google Fonts CSS. Custom utilities: `bg-linen` (diagonal weave background), `shadow-ticket` and `shadow-tag` (drop-shadows for cards), reusable `.kicker`, `.btn-primary`, and `.topbar` component classes in `src/app.css`.
+- **Dexie 4** for IndexedDB storage. Database name `northlander`, version 1, four tables: `trips` (primary key = slug), `packingItems`, `bookings`, `diaryEntries`. Bump the version with a documented migration when extending.
+- **Service worker** at `src/service-worker.js`: precache the SvelteKit shell on install, network-first for navigations with the cached shell as the offline fallback, cache-first for build assets. Registration is wired via `svelte.config.js` `kit.serviceWorker.register`. `loading="eager" / lazy"` and `fetchpriority="high"` hints follow the same pattern as the Guide.
+- **PWA manifest** at `static/manifest.webmanifest`: `display: standalone`, `theme_color: #0a2d21`, `background_color: #f5f0e8`, brand favicon as the icon. The app installs as a real PWA on phones.
+
+### Data model (Dexie tables)
+- **trips**: `{ id, name, stopIds[], color, strap, colorId, departureDate?, direction?, createdAt, updatedAt }`. `id` is a slug from the trip name kept stable across rename (so child rows don't orphan). `direction` is `'northbound' | 'southbound'` (defaults to northbound).
+- **packingItems**: `{ id (auto), tripId, name, packed, createdAt, updatedAt }`.
+- **bookings**: `{ id (auto), tripId, title, kind, status, dueDate?, createdAt, updatedAt }`. `kind` is `train | room | meal | activity | other`. `status` is `pending | booked`.
+- **diaryEntries**: declared in the schema but unused in the MVP; reserved for the travel diary in a later phase.
+- `deleteTrip(id)` wraps the cascade cleanup (trips + packingItems + bookings + diaryEntries) in one Dexie transaction.
+
+### Stores and helpers
+- `src/lib/stores/trips.js` exports `LEATHER_COLORS` (five swatches: rust, amber, forest, teal, burgundy), `slugify`, `uniqueTripSlug`, `createTrip`, `getTrip`, `listTrips`, `updateTrip`, `renameTrip`, `changeTripColor`, `deleteTrip`, plus the live `trips` writable that updates whenever a helper fires. Rename intentionally does NOT change the slug.
+- `src/lib/stores/packing.js`: `listPackingItems`, `addPackingItem`, `togglePackingItem`, `renamePackingItem`, `deletePackingItem`.
+- `src/lib/stores/bookings.js`: `BOOKING_KINDS` palette, `listBookings` (pending-first then by due date then creation order), `addBooking`, `toggleBooking`, `renameBooking`, `setBookingKind`, `deleteBooking`.
+- `src/lib/data/stops.js`: the 16 stops in route order with `id, name, region, hook, image, lat, lng, offsetMinutes`. Hand-maintained from `site/data.js`. Helpers: `getStop`, `getStopsByIds` (preserves input order), `routeIndex`, `stopImageUrl` (absolute path on the Guide), `stopGuideUrl`.
+- `src/lib/data/schedule.js`: `NORTHBOUND_DEPARTURE`, `SOUTHBOUND_DEPARTURE`, `ROUTE_TOTAL_MINUTES (680)`, `DIRECTIONS` metadata, `travelMinutes(offset, direction)` (reverses offsets for southbound), `arrivalClock`, `travelDuration`, `formatTripDate` (UTC-anchored so the weekday doesn't drift across timezones), `todayLocalISO`.
+- `src/lib/utils/poster.js`: pure Canvas API 1080x1080 PNG drawer. `generatePosterBlob(trip)` waits on `document.fonts` before drawing, lays out the vintage poster (cream paper with linen weave, forest header band, auto-scaling Fraunces trip name, italic date/departure line, gold "Boarding Pass / The North / All Seasons" stamp, dashed railway with gold-haloed station dots, forest footer with "Packed with Northlander.app"). `deliverPoster(blob, filename, title)` hands the file to `navigator.share` when the browser supports file shares; otherwise downloads it.
+
+### Routes and components
+- `/` (home): hero, station-platform grid of the user's tinted-suitcase trips, dashed "+ New trip" card. Each trip card is a real `<a href="/trips/[id]">`. Empty state shows one big centered invitation. Tilts are stable per-index so cards don't reshuffle.
+- `/trips/[id]` (trip detail; `ssr=false; prerender=false`): suitcase visual + click-to-rename name + leather color picker on the left, Share trip button on the right; ScheduleStrip + RouteList in the main column; PackingList + BookingChecklist stacked in the right column; danger-zone delete with two-step confirm at the bottom. Loading + not-found states.
+- `/add` (cross-site hand-off; `ssr=false; prerender=false`): reads `?name=...&kind=...&stop=...&address=...&url=...&source=guide`. Shows the listing in a cream preview card, then a trip picker (existing trips as radio rows with tinted suitcases, plus a dashed "+ Start a new trip" with an inline name input that defaults to "Trip to <Stop>"). Save creates the trip if needed, writes a booking with the mapped kind, briefly says "Stowed", redirects to the trip view.
+- Components:
+  - `Suitcase.svelte` - reusable inline SVG suitcase tinted by `color` + `strap` props, optional luggage tag with text.
+  - `NewTripModal.svelte` - scalloped cream-paper ticket with a forest header. Name input, live suitcase preview, five leather swatches. Esc / backdrop close.
+  - `StopPickerModal.svelte` - 16 stops in route order with vintage-punch checkboxes, projected arrival time per stop, header reflects the chosen direction. Save emits ids in canonical south-to-north order.
+  - `ScheduleStrip.svelte` - native date picker with a "Use today" shortcut, plus a two-pill direction toggle showing "Toronto Union to Cochrane" / "Cochrane to Toronto Union" sub-labels.
+  - `RouteList.svelte` - vertical dashed railway with gold-haloed dots, stop name + bold rust arrival clock, region + travel duration kicker, "Guide ->" link out. Reverses the displayed order for southbound trips.
+  - `PackingList.svelte` and `BookingChecklist.svelte` - X-of-Y counters in the header, inline rename, dismiss X, quick-add row at the bottom, gold strikethrough when packed/booked. Booking rows also show an inline SVG kind icon and a Pending/Booked status pill (click to toggle).
+  - `ShareModal.svelte` - calls `generatePosterBlob`, shows a downscaled preview in a forest-bordered frame, button switches text between "Share Poster" and "Download Poster" based on `navigator.canShare` capability.
+
+### Cross-site Add to Trip handoff
+- Every listing card on the Guide (`site/stop-page.js` `listingCard()`) renders an "+ Add to trip" pill in the top-right corner of the card. The card structure is `<article class="sp-lcard">` with an inner `<a class="sp-lcard-link">` for the card click and a separate `<button class="sp-lc-add">` for the pill, so we never nest a button inside an anchor. CSS lives in `site/stop-page.css`.
+- The pill carries the pre-built hand-off URL on `data-app-url`. A document-level capture click handler at the bottom of `stop-page.js` catches the pill on any card (including ones re-rendered after a category-tab swap or filter change), preventDefaults the outer card link's bubble, and `window.open`s the URL in a new tab.
+- The hand-off URL is `https://northlander.app/add?source=guide&kind={appKindForCat(catKey)}&name={listing}&stop={stopId}&address={...}&url={website}`. `appKindForCat` maps Guide categories to the App's five booking kinds: restaurants -> meal, accommodations -> room, parks / attractions -> activity, transportation -> train, shops / other -> other.
+- The App's `/add` route parses the params, lets the user pick or create a trip, and writes a booking with the mapped kind. Always opens in a new tab so the user doesn't lose their place on the Guide.
+
+### Hosting plan
+- Domain `northlander.app` is registered at Namecheap. Hosting not yet wired: planned as a separate Vercel project pointed at `northlander-app/` as its root directory, with one CNAME swap at Namecheap to delegate DNS to Vercel. Vercel handles SSL, CDN, builds, and the App-Vercel project is free-tier eligible for our traffic levels.
+- All four cross-site CTAs from the Guide (`/plan` page CTAs, stop-page Plan Your Trip card, listing-card Add to Trip pills, topbar Plan a Trip pill) link to `https://northlander.app` / `https://northlander.app/add` / `https://northlanderguide.com/plan`. These work whether the app is online or not - if it's not hosted yet the user just hits a Vercel 404 until the deploy lands.
+
 ## Env vars and secrets
 
 - Vercel: `WEBHOOK_SECRET`, `GITHUB_PAT`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` (used by submit-tip and trigger-tip-sync; enrich-listing function is dormant).
-- GitHub Actions: `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `GOOGLE_PLACES_KEY`. Anthropic key lives under secret name `NorthlanderGuide` (the workflow falls back to that name if `ANTHROPIC_API_KEY` is unset).
-- Local `backend/.env`: Airtable creds + Google Places. No Anthropic key locally.
+- GitHub Actions: `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`. `GOOGLE_PLACES_KEY` is no longer required by the cron scripts (`sync-events.js`, `sync-from-airtable.js`) - they switched to `backend/walk.js` for walking-time estimation after the 2026-06-01 Google freeze. The env var still appears in the workflow YAMLs in case the manual scripts (`enrich-listing.yml`, `backfill-listings.yml`) are run, but it can be removed from secrets without breaking the crons. Anthropic key lives under secret name `NorthlanderGuide` (the workflow falls back to that name if `ANTHROPIC_API_KEY` is unset).
+- Local `backend/.env`: Airtable creds. Google Places key is no longer needed for the everyday sync flow; only the manual enrichment scripts read it.
 
 ## House style (codified in prompts and CLAUDE conduct)
 
