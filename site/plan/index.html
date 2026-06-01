@@ -679,31 +679,22 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   });
 })();
 
-(function(){
-  var dd = document.getElementById('navDropdown');
-  if(!dd) return;
-  var toggle = dd.querySelector('.nav-dropdown-toggle');
-  if(!toggle) return;
-  toggle.addEventListener('click', function(e){
-    e.stopPropagation();
-    var open = !dd.classList.contains('open');
-    dd.classList.toggle('open', open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
-  document.addEventListener('click', function(e){
-    if(!dd.contains(e.target)){
-      dd.classList.remove('open');
-      toggle.setAttribute('aria-expanded','false');
-    }
-  });
-})();
+/* "More" dropdown is wired in stop-explorer.js. Adding a second
+   click handler here would race with that one and immediately close
+   the dropdown after it opens. */
 
+/* Back-to-top: show from page load (same UX as the home page) and
+   handle the click with an explicit smooth scroll because the
+   href="#top" hash navigation can stall behind a sticky URL bar
+   on mobile. */
 (function(){
   var btn = document.querySelector('.totop');
   if(!btn) return;
-  window.addEventListener('scroll', function(){
-    btn.classList.toggle('show', window.scrollY > 600);
-  }, {passive:true});
+  btn.classList.add('show');
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
 })();
 
 /* FAQ accordion: open one at a time */
