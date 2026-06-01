@@ -117,9 +117,11 @@
 </a>
 
 <script src="/data.js"></script>
-<script src="/listings-data.js"></script>
-<script src="/stop-pages-data.js"></script>
-<script src="/events-data.js"></script>
+<!-- ?v=N is bumped to force-bust every visitor's cached copy on
+     deploy. See site/index.html for the same suffix. -->
+<script src="/listings-data.js?v=2"></script>
+<script src="/stop-pages-data.js?v=2"></script>
+<script src="/events-data.js?v=2"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/stop-explorer.js"></script>
 <script src="/stop-page.js"></script>
