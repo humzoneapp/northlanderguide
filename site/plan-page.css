@@ -56,12 +56,18 @@
 .pl-hero-stamp{
   position:absolute;top:32px;right:32px;z-index:3;
   transform:rotate(-7deg);
+  transform-origin:50% 10%;
   background:rgba(245,240,232,.92);
   color:var(--pl-rust);
   border:2px solid var(--pl-rust);
   padding:10px 18px;text-align:center;
   font-family:'Fraunces',Georgia,serif;
   box-shadow:0 6px 18px rgba(0,0,0,.35);
+  animation:pl-hero-stamp-sway 6s ease-in-out infinite;
+}
+@keyframes pl-hero-stamp-sway{
+  0%,100%{transform:rotate(-8deg)}
+  50%    {transform:rotate(-4deg)}
 }
 .pl-hero-stamp span{
   display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
@@ -518,12 +524,13 @@
 }
 .pl-ticket--first .pl-ticket-class{color:var(--pl-forest)}
 .pl-ticket--first .pl-ticket-features li i{color:var(--pl-gold)}
-/* Vintage circular postmark badge. Floats ABOVE the top-left corner
-   of the First Class ticket so it never crowds the vertical 'Pass'
-   text on the stub or the price on the right. Double border + slight
-   rotation = wax-seal / rubber-stamp feel. */
+/* Vintage circular postmark badge. Floats fully ABOVE the top edge
+   of the First Class ticket so it never overlaps the vertical 'Pass'
+   text on the stub or the price on the right. The bottom of the
+   stamp barely kisses the top border for a tacked-on look. Double
+   border + a subtle continuous sway = wax-seal / rubber-stamp feel. */
 .pl-stamp{
-  position:absolute;top:-48px;left:-12px;z-index:4;
+  position:absolute;top:-86px;left:8px;z-index:4;
   width:92px;height:92px;border-radius:50%;
   background:var(--pl-gold);color:var(--pl-forest);
   border:3px double var(--pl-forest);
@@ -532,10 +539,16 @@
   font-weight:900;font-size:13px;letter-spacing:.08em;
   text-transform:uppercase;text-align:center;line-height:1.1;
   transform:rotate(-10deg);
+  transform-origin:50% 80%;
   box-shadow:0 6px 16px rgba(60,40,10,.3),
              inset 0 0 0 2px rgba(31,61,45,.08);
+  animation:pl-stamp-sway 5s ease-in-out infinite;
 }
 .pl-stamp span{display:block}
+@keyframes pl-stamp-sway{
+  0%,100%{transform:rotate(-12deg)}
+  50%    {transform:rotate(-7deg)}
+}
 .pl-route-line{
   display:flex;align-items:center;gap:6px;margin:0 0 8px;
 }
@@ -945,8 +958,14 @@
   border:3px solid var(--pl-forest);
   padding:18px 28px;text-align:center;
   transform:rotate(-6deg);
+  transform-origin:50% 10%;
   box-shadow:0 8px 22px rgba(0,0,0,.35);
   justify-self:start;
+  animation:pl-cta-stamp-sway 5.5s ease-in-out infinite;
+}
+@keyframes pl-cta-stamp-sway{
+  0%,100%{transform:rotate(-7deg)}
+  50%    {transform:rotate(-3deg)}
 }
 .pl-finalcta-stamp span{
   display:block;font-size:12px;letter-spacing:.22em;
@@ -1016,6 +1035,114 @@
   .pl-testimonial{margin:60px -18px 0;padding:56px 24px}
   .pl-testimonial-mark{font-size:120px;top:-24px;left:0}
   .pl-finalcta{margin:60px -18px 0;padding:56px 24px}
+}
+
+/* ==================================================================
+   MOTION
+   A few small, vintage-poster-appropriate animations: hanging
+   stamps that sway like a sign in the wind, a chapter-divider
+   train icon that bobs like a railway car, hover lifts on the
+   polaroids, and gentle hover transforms on the icon badges.
+   All gated behind prefers-reduced-motion so users who have asked
+   the OS for less motion get the static design.
+   ================================================================== */
+
+/* Chapter-divider train: subtle continuous bob. The icon itself is
+   inside .pl-divider-badge; we animate the badge so the shadow
+   moves with it. */
+.pl-divider-badge{
+  animation:pl-divider-bob 4s ease-in-out infinite;
+}
+@keyframes pl-divider-bob{
+  0%,100%{transform:translate(-50%,-50%)}
+  50%    {transform:translate(-50%,calc(-50% - 4px))}
+}
+
+/* Polaroids: pick one up on hover - lift, drop shadow, straighten
+   slightly so it reads as 'looking closer at this trip'. */
+.pl-polaroid,
+.pl-journal-polaroid{
+  transition:transform .35s cubic-bezier(.2,.7,.3,1),
+             box-shadow .35s ease;
+}
+.pl-polaroid-1:hover{
+  transform:rotate(-1deg) translateY(-8px);
+  box-shadow:0 20px 36px rgba(40,20,5,.35),0 2px 4px rgba(40,20,5,.15);
+}
+.pl-polaroid-2:hover{
+  transform:rotate(0deg) translateY(-16px);
+  box-shadow:0 20px 36px rgba(40,20,5,.35),0 2px 4px rgba(40,20,5,.15);
+}
+.pl-polaroid-3:hover{
+  transform:rotate(2deg) translateY(-8px);
+  box-shadow:0 20px 36px rgba(40,20,5,.35),0 2px 4px rgba(40,20,5,.15);
+}
+.pl-journal-polaroid:hover{
+  transform:rotate(0deg) translateY(-4px);
+}
+
+/* Feature-card icons: a small bounce on hover. */
+.pl-feature i{
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), color .2s;
+}
+.pl-feature:hover i{
+  transform:translateY(-4px) scale(1.08) rotate(-4deg);
+}
+
+/* Use-case tile icons: scale + small lift on hover, layered with
+   the existing card hover that lifts the tile itself. */
+.pl-usecase-inner i{
+  transition:transform .3s cubic-bezier(.2,.7,.3,1);
+}
+.pl-usecase:hover .pl-usecase-inner i{
+  transform:scale(1.18) translateY(-2px);
+}
+
+/* Trust badge: subtle pendulum rotation on hover. */
+.pl-trust-badge{
+  transition:transform .5s cubic-bezier(.2,.7,.3,1);
+}
+.pl-trust-card:hover .pl-trust-badge{
+  transform:rotate(-10deg) scale(1.06);
+}
+
+/* Step numbers: small lift on hover of the parent step. */
+.pl-step-num{
+  transition:transform .3s cubic-bezier(.2,.7,.3,1),
+             box-shadow .3s ease;
+}
+.pl-step:hover .pl-step-num{
+  transform:translateY(-4px);
+  box-shadow:0 10px 22px rgba(10,45,33,.34);
+}
+
+/* Hero CTA buttons: a tiny lift on hover so they feel pressable. */
+.pl-hero-cta .btn{
+  transition:transform .2s ease, background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.pl-hero-cta .btn:hover{
+  transform:translateY(-2px);
+}
+
+/* Respect the user's OS-level motion preference. */
+@media (prefers-reduced-motion: reduce){
+  .pl-stamp,
+  .pl-hero-stamp,
+  .pl-finalcta-stamp,
+  .pl-divider-badge,
+  .pl-marquee-track,
+  .pl-ticker-track{
+    animation:none !important;
+  }
+  .pl-polaroid,
+  .pl-journal-polaroid,
+  .pl-feature i,
+  .pl-usecase-inner i,
+  .pl-trust-badge,
+  .pl-step-num,
+  .pl-hero-cta .btn{
+    transition:none !important;
+  }
 }
 
 /* ==================================================================

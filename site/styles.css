@@ -1900,12 +1900,12 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 @media (max-width: 520px) { .stop-explorer .se-grid { grid-template-columns: 1fr; } }
 
 /* ===== "Plan a Trip" nav pill (shared across all pages) =====
-   Sits inline with other .topnav items. The default border picks up
-   the mustard gold from the logo "Guide" wordmark so the pill reads
-   as part of the brand. On hover it flips to a solid ivory pill with
-   forest-green text, matching the topbar's deep evergreen rather
-   than the mustard-yellow it used to use. */
-.topnav-plan{
+   Sits inline with other .topnav items. Text stays ivory in both
+   states; only the background flips to rusty brown on hover. The
+   selectors use `a.topnav-plan` so they out-specify the
+   `.topnav a:hover{color:var(--gold)}` rule above and the text
+   doesn't pick up the gold link-hover. */
+a.topnav-plan{
   font-family:'Spline Sans',sans-serif;
   font-size:.82rem;font-weight:600;letter-spacing:.02em;
   color:#f3ece0;text-decoration:none;
@@ -1913,7 +1913,7 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
   border:1px dashed var(--poster-gold);
   transition:background .15s, color .15s, border-color .15s;
 }
-.topnav-plan:hover{
+a.topnav-plan:hover{
   background:var(--poster-crimson);color:#f3ece0;border-color:var(--poster-crimson);
 }
 
