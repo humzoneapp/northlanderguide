@@ -34,9 +34,9 @@ export const LEATHER_COLORS = [
 /* The database. Bumping the version triggers Dexie's upgrade path;
    keep migrations small and well-commented as the schema grows. */
 /* v1 - original four trip-scoped tables.
-   v2 - adds bucketItems for the cross-trip wishlist (places I
-        want to visit later). Additive only; no data migration on
-        existing installs. */
+   v2 - adds bucketItems for the cross-trip wishlist.
+   v3 - adds budgetEntries for the per-trip budget tracker. All
+        additive; no data migration on existing installs. */
 export const db = new Dexie('northlander');
 db.version(1).stores({
   trips: '&id, name, updatedAt',
@@ -46,6 +46,9 @@ db.version(1).stores({
 });
 db.version(2).stores({
   bucketItems: '++id, kind, stopId, createdAt'
+});
+db.version(3).stores({
+  budgetEntries: '++id, tripId, category, createdAt'
 });
 
 /* ---------- slugging ----------
@@ -138,12 +141,21 @@ export async function changeTripColor(id, colorId) {
 /* Delete a trip plus every row that references it. Wrap in a single
    transaction so a partial failure can't strand orphans. */
 export async function deleteTrip(id) {
-  await db.transaction('rw', db.trips, db.packingItems, db.bookings, db.diaryEntries, async () => {
-    await db.trips.delete(id);
-    await db.packingItems.where({ tripId: id }).delete();
-    await db.bookings.where({ tripId: id }).delete();
-    await db.diaryEntries.where({ tripId: id }).delete();
-  });
+  await db.transaction(
+    'rw',
+    db.trips,
+    db.packingItems,
+    db.bookings,
+    db.diaryEntries,
+    db.budgetEntries,
+    async () => {
+      await db.trips.delete(id);
+      await db.packingItems.where({ tripId: id }).delete();
+      await db.bookings.where({ tripId: id }).delete();
+      await db.diaryEntries.where({ tripId: id }).delete();
+      await db.budgetEntries.where({ tripId: id }).delete();
+    }
+  );
   trips.set(await listTrips());
 }
 

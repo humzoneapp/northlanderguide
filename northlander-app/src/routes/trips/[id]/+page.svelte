@@ -10,6 +10,7 @@
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
   import TravelDiary from '$lib/components/TravelDiary.svelte';
   import EventsAlongRoute from '$lib/components/EventsAlongRoute.svelte';
+  import BudgetTracker from '$lib/components/BudgetTracker.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import {
     getTrip,
@@ -245,6 +246,13 @@
         </article>
       </div>
     </div>
+  </section>
+
+  <!-- ===== Ledger: budget tracker ===== -->
+  <section class="max-w-[1080px] mx-auto px-6 mt-8">
+    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+      <BudgetTracker tripId={trip.id} />
+    </article>
   </section>
 
   <!-- ===== Journey: travel diary ===== -->

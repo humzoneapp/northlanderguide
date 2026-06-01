@@ -4,6 +4,13 @@
   import { getTrip } from '$lib/stores/trips.js';
   import { listPackingItems } from '$lib/stores/packing.js';
   import { listBookings, BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import {
+    listBudgetEntries,
+    totalOf,
+    breakdownByCategory,
+    formatAmount,
+    BUDGET_CATEGORIES
+  } from '$lib/stores/budget.js';
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
   import {
@@ -18,6 +25,7 @@
   let trip = null;
   let packing = [];
   let bookings = [];
+  let budget = [];
   let diary = [];
   let loaded = false;
   let printed = false;
@@ -35,6 +43,9 @@
   function kindLabel(k) {
     return (BOOKING_KINDS.find((b) => b.id === k) || BOOKING_KINDS[4]).label;
   }
+  function budgetCatLabel(id) {
+    return (BUDGET_CATEGORIES.find((c) => c.id === id) || BUDGET_CATEGORIES[4]).label;
+  }
 
   function diaryDate(ms) {
     const d = new Date(ms);
@@ -51,9 +62,10 @@
   onMount(async () => {
     trip = (await getTrip(id)) || null;
     if (trip) {
-      [packing, bookings, diary] = await Promise.all([
+      [packing, bookings, budget, diary] = await Promise.all([
         listPackingItems(id),
         listBookings(id),
+        listBudgetEntries(id),
         listDiaryEntries(id)
       ]);
     }
@@ -204,6 +216,43 @@
       </ul>
     {/if}
   </section>
+
+  <!-- ===== Budget page ===== -->
+  {#if budget.length > 0}
+    <section class="sheet">
+      <h2 class="sheet-title">Budget ledger</h2>
+      <p class="sheet-sub">{formatAmount(totalOf(budget))} planned in {budget.length} {budget.length === 1 ? 'line' : 'lines'}</p>
+
+      <ul class="ledger-print">
+        {#each budget as entry}
+          <li>
+            <span class="ledger-label">{entry.label}</span>
+            <span class="ledger-cat">{budgetCatLabel(entry.category)}</span>
+            <span class="ledger-amount">{formatAmount(entry.amount)}</span>
+          </li>
+        {/each}
+      </ul>
+
+      <div class="ledger-total">
+        <span>Total</span>
+        <span>{formatAmount(totalOf(budget))}</span>
+      </div>
+
+      {#if budget.length > 1}
+        {@const bd = breakdownByCategory(budget)}
+        <div class="ledger-breakdown">
+          {#each BUDGET_CATEGORIES as c}
+            {#if bd[c.id] > 0}
+              <span class="ledger-chip">
+                <strong>{c.label}</strong>
+                <span>{formatAmount(bd[c.id])}</span>
+              </span>
+            {/if}
+          {/each}
+        </div>
+      {/if}
+    </section>
+  {/if}
 
   <!-- ===== Diary pages ===== -->
   {#if diary.length > 0}
@@ -575,5 +624,78 @@
     text-transform: uppercase;
     color: #5a4f3d;
     margin: 14px 0 32px;
+  }
+
+  /* ===== Budget print layout ===== */
+  .ledger-print {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ledger-print li {
+    display: grid;
+    grid-template-columns: 1fr auto 110px;
+    align-items: baseline;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dotted rgba(139, 106, 58, 0.5);
+    font-size: 13px;
+    color: #0a2d21;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .ledger-label {
+    font-family: 'Spline Sans', sans-serif;
+    font-weight: 600;
+  }
+  .ledger-cat {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #7d3a1e;
+  }
+  .ledger-amount {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    text-align: right;
+    color: #0a2d21;
+  }
+  .ledger-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0 14px;
+    border-top: 2px solid #0a2d21;
+    margin-top: 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: #0a2d21;
+  }
+  .ledger-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .ledger-chip {
+    border: 1.5px dashed #8b6a3a;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    color: #0a2d21;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .ledger-chip strong {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #7d3a1e;
   }
 </style>
