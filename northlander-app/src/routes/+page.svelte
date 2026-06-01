@@ -2,6 +2,7 @@
   import Suitcase from '$lib/components/Suitcase.svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import { trips } from '$lib/stores/trips.js';
+  import { getStopsByIds } from '$lib/data/stops.js';
 
   let showNewModal = false;
 
@@ -11,10 +12,15 @@
   const tilts = [-3, 0, 4, -2, 3, -4];
   const offsets = [8, -6, 10, 4, -4, 6];
 
+  /* Tag line shown on each trip card's luggage tag. With stops:
+     "Toronto Union to Cochrane (4 stops)". Without: a small nudge. */
   function summarize(stopIds) {
-    if (!stopIds || stopIds.length === 0) return 'No stops yet';
-    if (stopIds.length === 1) return `${stopIds.length} stop`;
-    return `${stopIds.length} stops`;
+    const stops = getStopsByIds(stopIds);
+    if (stops.length === 0) return 'No stops yet';
+    if (stops.length === 1) return stops[0].name;
+    const first = stops[0].name;
+    const last = stops[stops.length - 1].name;
+    return `${first} to ${last} (${stops.length} stops)`;
   }
 </script>
 

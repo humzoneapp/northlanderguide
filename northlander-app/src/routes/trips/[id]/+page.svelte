@@ -3,10 +3,13 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import Suitcase from '$lib/components/Suitcase.svelte';
+  import RouteList from '$lib/components/RouteList.svelte';
+  import StopPickerModal from '$lib/components/StopPickerModal.svelte';
   import {
     getTrip,
     renameTrip,
     changeTripColor,
+    updateTrip,
     deleteTrip,
     LEATHER_COLORS
   } from '$lib/stores/trips.js';
@@ -17,6 +20,7 @@
   let editingName = false;
   let nameDraft = '';
   let confirmingDelete = false;
+  let showStopPicker = false;
 
   /** @type {HTMLInputElement | undefined} */
   let nameInput;
@@ -64,6 +68,14 @@
     const id = trip.id;
     await deleteTrip(id);
     await goto('/');
+  }
+
+  async function saveStops(event) {
+    if (!trip) return;
+    const stopIds = event.detail.stopIds || [];
+    const updated = await updateTrip(trip.id, { stopIds });
+    if (updated) trip = updated;
+    showStopPicker = false;
   }
 </script>
 
@@ -154,51 +166,55 @@
     </div>
   </section>
 
-  <!-- ===== Trip contents (empty states for now) ===== -->
+  <!-- ===== Trip contents ===== -->
   <section class="max-w-[1080px] mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-6">
       <!-- Route -->
       <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-        <div class="kicker mb-1">Route</div>
-        <h3 class="font-serif font-bold text-forest text-xl mb-2">Stops on this trip</h3>
-        {#if !trip.stopIds || trip.stopIds.length === 0}
+        <div class="flex items-center justify-between mb-2 gap-3">
+          <div>
+            <div class="kicker mb-1">Route</div>
+            <h3 class="font-serif font-bold text-forest text-xl">Stops on this trip</h3>
+          </div>
+          <button
+            type="button"
+            on:click={() => (showStopPicker = true)}
+            class="font-serif italic text-rust hover:text-forest text-sm whitespace-nowrap underline decoration-dashed underline-offset-4"
+          >
+            {trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Add stops'}
+          </button>
+        </div>
+        <RouteList stopIds={trip.stopIds || []} />
+      </article>
+
+      <!-- Right column: Packing + Bookings stacked -->
+      <div class="grid grid-cols-1 gap-6">
+        <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+          <div class="kicker mb-1">Packing</div>
+          <h3 class="font-serif font-bold text-forest text-xl mb-2">Packing list</h3>
           <p class="font-serif italic text-muted">
-            No stops yet. Add stops from the Guide and the train schedule fills in around them.
+            Your suitcase is empty. Toothbrush, train ticket, your better book...
           </p>
-        {:else}
-          <ol class="font-serif text-ink">
-            {#each trip.stopIds as id}
-              <li class="py-1 border-b border-dashed border-[#8b6a3a]/35">{id}</li>
-            {/each}
-          </ol>
-        {/if}
-        <a
-          href="https://northlanderguide.com/#stopnav"
-          target="_blank"
-          rel="noopener"
-          class="inline-block mt-3 text-rust hover:text-forest text-sm font-semibold no-underline"
-        >Browse stops on the Guide &rarr;</a>
-      </article>
+        </article>
 
-      <!-- Packing -->
-      <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-        <div class="kicker mb-1">Packing</div>
-        <h3 class="font-serif font-bold text-forest text-xl mb-2">Packing list</h3>
-        <p class="font-serif italic text-muted">
-          Your suitcase is empty. Toothbrush, train ticket, your better book...
-        </p>
-      </article>
-
-      <!-- Bookings -->
-      <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-        <div class="kicker mb-1">Bookings</div>
-        <h3 class="font-serif font-bold text-forest text-xl mb-2">Booking checklist</h3>
-        <p class="font-serif italic text-muted">
-          Train tickets, rooms, restaurants. Nothing booked yet.
-        </p>
-      </article>
+        <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+          <div class="kicker mb-1">Bookings</div>
+          <h3 class="font-serif font-bold text-forest text-xl mb-2">Booking checklist</h3>
+          <p class="font-serif italic text-muted">
+            Train tickets, rooms, restaurants. Nothing booked yet.
+          </p>
+        </article>
+      </div>
     </div>
   </section>
+
+  {#if showStopPicker}
+    <StopPickerModal
+      selected={trip.stopIds || []}
+      on:save={saveStops}
+      on:close={() => (showStopPicker = false)}
+    />
+  {/if}
 
   <!-- ===== Danger zone ===== -->
   <section class="max-w-[1080px] mx-auto px-6 mt-12 mb-20">
