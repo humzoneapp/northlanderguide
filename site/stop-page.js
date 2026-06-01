@@ -6,7 +6,10 @@
 (function () {
   'use strict';
 
-  const SITE = 'https://www.northlanderguide.com';
+  /* Non-www canonical so it matches the /plan page and the home
+     page. If the deployed site auto-redirects between www and
+     non-www, this version is the one Google should index. */
+  const SITE = 'https://northlanderguide.com';
   const SP = window.STOP_PAGES_DATA || {};
   const STOPS = window.STOPS || [];
   const LIST = window.LISTINGS_DATA || {};
@@ -443,7 +446,7 @@
   html += '<section class="sp-hero">'
     + '<div class="sp-hero-frame">'
     + (page.travelTime ? '<span class="sp-hero-travel">' + esc(travelCompact(page.travelTime)) + '</span>' : '')
-    + '<img id="spHeroImg" src="' + esc(heroImg) + '" alt="' + esc(displayName) + ' station illustration">'
+    + '<img id="spHeroImg" src="' + esc(heroImg) + '" alt="' + esc(displayName) + ' station illustration" fetchpriority="high" loading="eager" decoding="async">'
     + '</div></section>';
   html += '<div class="sp-hero-titlewrap"><h1 class="sp-hero-title" id="spTitle">' + esc(displayName) + '</h1>'
     + (page.heroTagline ? '<p class="sp-hero-tagline">' + esc(page.heroTagline) + '</p>' : '') + '</div>';
@@ -1036,52 +1039,182 @@
     });
   }
 
-  /* ---- SEO ---- */
+  /* ---- SEO ----
+     Sets the per-stop title, description, canonical, Open Graph and
+     Twitter Card meta in the document head, then injects a single
+     application/ld+json @graph containing Organization, WebSite,
+     WebPage, BreadcrumbList, TouristAttraction (the stop itself
+     with geo), ItemList (the local businesses on the stop), and
+     FAQPage. The Northlander.app SoftwareApplication is referenced
+     by @id so crawlers connect the stop guide to the trip planner. */
   function setSeo() {
-    const title = page.pageTitle || (displayName + ' - NorthlanderGuide.com');
-    const desc = page.metaDescription || (page.heroTagline || '');
     const url = SITE + '/stops/' + stopId;
     const img = SITE + heroImg;
+    const hook = (meta.hook || '').trim();
+    const region = (meta.region || '').trim();
+
+    // Title: keyword-led, under ~60 chars where possible.
+    const title = page.pageTitle
+      || (displayName + ': Northlander Train Stop Guide');
+    // Description: editorial intro first sentence, fall back to hook.
+    const introSentence = (function () {
+      const intro = (page.editorialIntro || '').trim();
+      if (!intro) return '';
+      const m = intro.match(/^[\s\S]*?[.!?](?:\s|$)/);
+      return (m ? m[0] : intro).trim();
+    })();
+    const desc = page.metaDescription
+      || (hook ? (hook + (introSentence ? ' ' + introSentence : '')) : (page.heroTagline || ''));
+
     document.title = title;
+    setText('docTitle', title);
     setMeta('name', 'description', desc, 'metaDescription');
+    setMeta('property', 'og:url', url, 'ogUrl');
     setMeta('property', 'og:title', title, 'ogTitle');
     setMeta('property', 'og:description', desc, 'ogDescription');
     setMeta('property', 'og:image', img, 'ogImage');
+    setMeta('property', 'og:image:alt',
+      displayName + ' station on the Ontario Northland Northlander train route',
+      'ogImageAlt');
+    setMeta('name', 'twitter:title', title, 'twTitle');
+    setMeta('name', 'twitter:description', desc, 'twDescription');
+    setMeta('name', 'twitter:image', img, 'twImage');
+    setMeta('name', 'twitter:image:alt',
+      displayName + ' station on the Ontario Northland Northlander train route',
+      'twImageAlt');
     const can = document.getElementById('canonicalLink'); if (can) can.href = url;
 
-    const ld = [
+    // ---- Build the JSON-LD @graph ----
+    const orgId = SITE + '/#organization';
+    const siteId = SITE + '/#website';
+    const webpageId = url + '#webpage';
+    const breadcrumbId = url + '#breadcrumb';
+    const placeId = url + '#place';
+
+    const graph = [
       {
-        '@context': 'https://schema.org', '@type': 'TouristDestination',
-        name: displayName, description: desc, image: img, url: url,
-        geo: meta.lat != null ? { '@type': 'GeoCoordinates', latitude: meta.lat, longitude: meta.lng } : undefined
+        '@type': 'Organization',
+        '@id': orgId,
+        name: 'NorthlanderGuide',
+        url: SITE,
+        description: "Independent traveller's directory and trip planner for the Ontario Northland Northlander train route from Toronto Union to Cochrane."
       },
       {
-        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        '@type': 'WebSite',
+        '@id': siteId,
+        url: SITE,
+        name: 'NorthlanderGuide.com',
+        publisher: { '@id': orgId },
+        inLanguage: 'en-CA'
+      },
+      {
+        '@type': 'WebPage',
+        '@id': webpageId,
+        url: url,
+        name: title,
+        description: desc,
+        isPartOf: { '@id': siteId },
+        about: { '@id': placeId },
+        breadcrumb: { '@id': breadcrumbId },
+        primaryImageOfPage: { '@type': 'ImageObject', url: img, caption: displayName + ' on the Northlander route' },
+        inLanguage: 'en-CA',
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.sp-hero-title', '.sp-hero-tagline', '.sp-h2'] }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': breadcrumbId,
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
           { '@type': 'ListItem', position: 2, name: 'Stops', item: SITE + '/#stopnav' },
           { '@type': 'ListItem', position: 3, name: displayName, item: url }
         ]
+      },
+      Object.assign({
+        '@type': ['TouristAttraction', 'Place'],
+        '@id': placeId,
+        name: displayName,
+        description: desc,
+        image: img,
+        url: url,
+        publicAccess: true,
+        isAccessibleForFree: true
+      }, region ? { containedInPlace: { '@type': 'Place', name: region } } : {},
+         meta.lat != null && meta.lng != null
+           ? { geo: { '@type': 'GeoCoordinates', latitude: meta.lat, longitude: meta.lng } }
+           : {}
+      ),
+      /* Reference the SoftwareApplication defined on /plan so crawlers
+         connect every stop guide back to the trip planner. */
+      {
+        '@type': 'SoftwareApplication',
+        '@id': SITE + '/plan#app',
+        name: 'Northlander.app',
+        url: 'https://northlander.app',
+        applicationCategory: 'TravelApplication'
       }
     ];
+
+    // Listings as ItemList of LocalBusiness entries (when we have them).
+    const listingItems = [];
+    let pos = 1;
+    Object.keys(stopListings).forEach(catKey => {
+      const arr = stopListings[catKey] || [];
+      arr.forEach(l => {
+        if (!l || !l.name) return;
+        const item = {
+          '@type': 'LocalBusiness',
+          name: l.name,
+          description: l.desc || undefined,
+          address: l.address ? { '@type': 'PostalAddress', streetAddress: l.address } : undefined
+        };
+        if (l.rating != null && l.rating !== 'NR' && !isNaN(parseFloat(l.rating))) {
+          item.aggregateRating = {
+            '@type': 'AggregateRating',
+            ratingValue: parseFloat(l.rating),
+            ratingCount: l.ratingCount || 1,
+            bestRating: 5
+          };
+        }
+        // Drop undefined fields so they don't pollute the JSON.
+        Object.keys(item).forEach(k => item[k] === undefined && delete item[k]);
+        listingItems.push({ '@type': 'ListItem', position: pos++, item: item });
+      });
+    });
+    if (listingItems.length) {
+      graph.push({
+        '@type': 'ItemList',
+        '@id': url + '#listings',
+        name: 'Things to do at ' + displayName,
+        numberOfItems: listingItems.length,
+        itemListElement: listingItems
+      });
+    }
+
     if (faqs.length) {
-      ld.push({
-        '@context': 'https://schema.org', '@type': 'FAQPage',
+      graph.push({
+        '@type': 'FAQPage',
+        '@id': url + '#faq',
         mainEntity: faqs.map(f => ({
-          '@type': 'Question', name: f.question,
+          '@type': 'Question',
+          name: f.question,
           acceptedAnswer: { '@type': 'Answer', text: f.answer }
         }))
       });
     }
+
     const s = document.createElement('script');
     s.type = 'application/ld+json';
-    s.textContent = JSON.stringify(ld);
+    s.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
     document.head.appendChild(s);
   }
   function setMeta(attr, key, val, id) {
     let el = document.getElementById(id) || document.querySelector('meta[' + attr + '="' + key + '"]');
     if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el); }
     el.setAttribute('content', val || '');
+  }
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || '';
   }
 
   function renderNotFound() {
