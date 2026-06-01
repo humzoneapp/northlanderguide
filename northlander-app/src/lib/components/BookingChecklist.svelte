@@ -177,6 +177,7 @@
             </span>
 
             {#if editingId === item.id}
+              <!-- svelte-ignore a11y-autofocus -->
               <input
                 type="text"
                 bind:value={editingDraft}
@@ -187,7 +188,6 @@
                   if (e.key === 'Enter') { e.preventDefault(); commitRename(); }
                   if (e.key === 'Escape') cancelRename();
                 }}
-                /* svelte-ignore a11y-autofocus */
                 autofocus
               />
             {:else}
