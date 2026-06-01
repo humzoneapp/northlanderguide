@@ -9,6 +9,7 @@
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
   import TravelDiary from '$lib/components/TravelDiary.svelte';
+  import EventsAlongRoute from '$lib/components/EventsAlongRoute.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import {
     getTrip,
@@ -232,6 +233,17 @@
   <section class="max-w-[1080px] mx-auto px-6 mt-8">
     <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
       <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
+    </article>
+  </section>
+
+  <!-- ===== Events along your route ===== -->
+  <section class="max-w-[1080px] mx-auto px-6 mt-8">
+    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+      <EventsAlongRoute
+        tripId={trip.id}
+        stopIds={trip.stopIds || []}
+        departureDate={trip.departureDate || null}
+      />
     </article>
   </section>
 
