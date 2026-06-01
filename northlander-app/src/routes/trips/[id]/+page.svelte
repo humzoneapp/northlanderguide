@@ -174,6 +174,19 @@
           </div>
           <div class="flex flex-wrap items-center gap-3">
             <a
+              href={`/trips/${trip.id}/recap`}
+              class="btn-primary flex items-center gap-2"
+              aria-label="See a recap of this trip"
+              style="background:#c4860f;border-color:#c4860f;color:#0a2d21"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 4 H20 V20 H4 Z"/>
+                <path d="M4 9 L20 9"/>
+                <path d="M9 4 L9 9"/>
+              </svg>
+              <span>Recap</span>
+            </a>
+            <a
               href={`/trips/${trip.id}/print`}
               target="_blank"
               rel="noopener"
