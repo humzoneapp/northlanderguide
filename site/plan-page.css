@@ -1,691 +1,931 @@
 /* ==================================================================
    /plan page - Northlander.app landing
-   Vintage railway poster meets travel journal.
-   Palette:
-     --paper (#f3ece0)  base ivory page
-     --plan-ivory       slightly warmer ivory for sections (#F5F0E8 in spec)
-     --plan-forest      forest green block (#2D5016)
-     --plan-rust        rusty brown accent borders/buttons (#8B3A1A)
-     --plan-gold        gold highlights (#C9A84C)
+   Editorial vintage railway poster + travel magazine.
+   Mirrors the stop-page editorial language: big Fraunces titles,
+   pull quotes, chapter dividers, full-bleed forest-green bands,
+   asymmetric grids, scrolling tickers.
    ================================================================== */
 
-:root{
-  --plan-ivory:#f5f0e8;
-  --plan-ivory-2:#ece4d1;
-  --plan-forest:#2d5016;
-  --plan-forest-d:#22400f;
-  --plan-rust:#8b3a1a;
-  --plan-rust-d:#6e2e15;
-  --plan-gold:#c9a84c;
-  --plan-gold-d:#b39235;
-  --plan-ink:#241f1a;
-}
-
-/* ----- page shell ----- */
 .plan-page-body{
-  background:var(--plan-ivory);
-}
-.plan-main{
-  display:block;
+  --pl-ivory:#f5f0e8;
+  --pl-ivory-soft:#ede8da;
+  --pl-cream:#ede0cc;
+  --pl-paper:#f6ecd2;
+  --pl-forest:#0a2d21;
+  --pl-forest-2:#1f3d2d;
+  --pl-rust:#7d3a1e;
+  --pl-rust-d:#5e2a14;
+  --pl-amber:#c4860f;
+  --pl-gold:#c9a84c;
+  --pl-ink:#241f1a;
+  --pl-muted:#5a4f3d;
+  background:var(--pl-ivory);
+  color:var(--pl-ink);
+  font-family:'Spline Sans',system-ui,sans-serif;
 }
 
-/* Linen-paper texture overlay specific to /plan, layered on top of
-   the global body::before noise so warm sections read like aged
-   poster paper. */
-.plan-page-body::after{
-  content:"";
-  position:fixed;inset:0;pointer-events:none;z-index:9998;
-  opacity:.05;mix-blend-mode:multiply;
-  background-image:
-    repeating-linear-gradient(45deg, rgba(60,40,20,.18) 0 1px, transparent 1px 6px),
-    repeating-linear-gradient(-45deg, rgba(60,40,20,.12) 0 1px, transparent 1px 9px);
-}
+.plan-main{max-width:1180px;margin:0 auto;padding:0 24px 80px}
 
-/* ===== 1. HERO ===== */
-.pl-hero{
+/* ==================================================================
+   1. HERO
+   Cinematic full-bleed photo, then the title block sits BELOW the
+   image (like the stop pages) so the type can be massive and the
+   image stays uncropped.
+   ================================================================== */
+.pl-hero{position:relative;margin:0 -24px}
+.pl-hero-frame{
   position:relative;
-  width:100%;
-  /* Tall enough to let the suitcase + train + journal + phone +
-     ticket scene breathe on desktop. Mobile shortens slightly so
-     the headline does not float far below the fold. */
   height:clamp(440px,72vh,720px);
   overflow:hidden;
   background:#1a120c;
 }
 .pl-hero-img{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  object-position:center center;
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center center;
+  display:block;
 }
-/* Bottom-up vignette only - keeps the whole scene visible while
-   making the text band readable. */
 .pl-hero-vignette{
   position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to bottom,
-    rgba(20,15,10,0) 0%,
-    rgba(20,15,10,0) 45%,
-    rgba(20,15,10,.55) 80%,
-    rgba(20,15,10,.78) 100%);
+  background:linear-gradient(180deg,
+    rgba(10,30,20,.55) 0%,
+    rgba(10,30,20,0) 28%,
+    rgba(10,30,20,0) 55%,
+    rgba(10,30,20,.5) 100%);
 }
-.pl-hero-inner{
-  position:absolute;left:0;right:0;bottom:0;
-  padding:1.6rem 1.4rem clamp(1.6rem, 4vw, 3rem);
-  color:#f3ece0;
-  text-align:left;
-  max-width:1080px;margin:0 auto;
+/* Vintage stamp diagonal on the hero image */
+.pl-hero-stamp{
+  position:absolute;top:32px;right:32px;z-index:3;
+  transform:rotate(-7deg);
+  background:rgba(245,240,232,.92);
+  color:var(--pl-rust);
+  border:2px solid var(--pl-rust);
+  padding:10px 18px;text-align:center;
+  font-family:'Fraunces',Georgia,serif;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.pl-hero-stamp span{
+  display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:700;color:var(--pl-rust-d);
+}
+.pl-hero-stamp strong{
+  display:block;font-size:22px;font-weight:900;line-height:1;
+  margin:4px 0;letter-spacing:.04em;color:var(--pl-rust);
+}
+
+.pl-hero-titlewrap{
+  position:relative;
+  max-width:1180px;
+  margin:36px auto 0;
+  padding:0 24px;
 }
 .pl-kicker{
-  font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;
-  font-weight:700;color:var(--plan-gold);
-  margin-bottom:.5rem;
+  font-family:'Spline Sans',sans-serif;
+  text-transform:uppercase;letter-spacing:.26em;
+  font-size:11px;font-weight:700;color:var(--pl-rust);
+  margin-bottom:14px;
 }
 .pl-hero-title{
   font-family:'Fraunces',Georgia,serif;
-  font-weight:900;line-height:1.04;letter-spacing:-.01em;
-  font-size:clamp(2rem,6vw,4rem);
-  margin-bottom:.6rem;
-  text-shadow:0 2px 18px rgba(0,0,0,.45);
+  font-weight:900;color:var(--pl-forest);
+  font-size:clamp(56px,9vw,118px);
+  line-height:.9;letter-spacing:-.02em;margin:0;
+  text-shadow:2px 2px 0 rgba(190,175,150,.55);
 }
-.pl-hero-title em{font-style:italic;color:var(--plan-gold)}
-.pl-hero-sub{
-  font-size:clamp(.98rem,1.6vw,1.2rem);
-  max-width:38ch;margin-bottom:1.2rem;
-  color:#efe6d2;
-  text-shadow:0 1px 8px rgba(0,0,0,.5);
+.pl-hero-title em{
+  font-style:italic;font-weight:500;color:var(--pl-rust);
 }
-.pl-hero-cta{display:flex;gap:.8rem;flex-wrap:wrap}
+.pl-hero-tagline{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+  color:var(--pl-rust);font-size:clamp(18px,2.4vw,26px);
+  line-height:1.3;margin:18px 0 0;max-width:680px;
+}
+.pl-hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
 
-/* ===== shared section frame ===== */
-.pl-section{
-  padding:clamp(2.6rem,6vw,4.4rem) 1.25rem;
+/* Ghost button reskin for the cream backdrop below hero */
+.btn-ghost-dark{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.85rem 1.5rem;border-radius:4px;font-weight:600;
+  font-size:.95rem;text-decoration:none;
+  background:transparent;color:var(--pl-forest);
+  border:2px solid var(--pl-forest);
+  transition:transform .15s, background .2s, color .2s;
+  cursor:pointer;
+}
+.btn-ghost-dark:hover{
+  background:var(--pl-forest);color:var(--pl-ivory);
+}
+.btn-ghost-dark:active{transform:scale(.97)}
+
+/* ==================================================================
+   TABLE OF CONTENTS - sticky horizontal nav (same pattern as
+   stop-page sp-toc).
+   ================================================================== */
+.pl-toc{
+  position:sticky;top:58px;z-index:40;
+  background:rgba(247,239,222,.96);
+  backdrop-filter:saturate(140%) blur(6px);
+  -webkit-backdrop-filter:saturate(140%) blur(6px);
+  border-top:1px solid #d9cfba;border-bottom:1px solid #d9cfba;
+  margin:36px -24px 0;padding:8px 0;
+}
+.pl-toc-row{
+  display:flex;gap:8px;overflow-x:auto;padding:0 24px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
   max-width:1180px;margin:0 auto;
 }
-.pl-section-head{
-  text-align:center;
-  margin-bottom:2rem;
+.pl-toc-row::-webkit-scrollbar{display:none}
+.pl-toc-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:999px;
+  font-size:13px;font-weight:600;color:var(--pl-muted);
+  text-decoration:none;white-space:nowrap;flex:none;line-height:1;
+  background:transparent;
+  transition:background .15s, color .15s, box-shadow .15s;
 }
-.pl-section-lede{
-  max-width:62ch;margin:1rem auto 0;
-  color:#4a3f2f;font-size:1.02rem;line-height:1.65;
+.pl-toc-link .ph-light{font-size:16px;color:var(--pl-rust)}
+.pl-toc-link:hover{background:rgba(141,61,34,.08);color:var(--pl-ink)}
+.pl-toc-link.is-active{
+  background:var(--pl-rust);color:var(--pl-ivory);
+  box-shadow:0 2px 8px rgba(141,61,34,.28);
 }
+.pl-toc-link.is-active .ph-light{color:var(--pl-ivory)}
 
-/* Forest-green station-sign headline block - like railway signage.
-   Slight 3D shadow + dashed ivory inner border. */
-.pl-station-sign{
-  display:inline-block;
-  background:var(--plan-forest);
-  color:var(--plan-ivory);
-  padding:.85rem 1.6rem;
-  border:1px solid var(--plan-forest-d);
-  box-shadow:
-    0 4px 0 var(--plan-forest-d),
-    0 8px 18px rgba(20,30,12,.22);
-  position:relative;
-  border-radius:2px;
+/* ==================================================================
+   SHARED SECTION HEADERS - match stop-page .sp-label / .sp-h2 voice
+   ================================================================== */
+.pl-section{margin:64px 0 0;position:relative}
+.pl-section-kicker{
+  font-family:'Spline Sans',sans-serif;
+  text-transform:uppercase;letter-spacing:.22em;
+  font-size:11px;font-weight:700;color:var(--pl-rust);
+  margin:0 0 12px;
 }
-.pl-station-sign::before{
-  content:"";
-  position:absolute;inset:5px;
-  border:1px dashed rgba(245,240,232,.55);
-  border-radius:1px;
-  pointer-events:none;
+.pl-section-kicker--light{color:var(--pl-amber)}
+.pl-section-h2{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  color:var(--pl-forest);
+  font-size:clamp(2rem,4.5vw,3.2rem);
+  line-height:1.02;letter-spacing:-.01em;margin:0 0 18px;
 }
-.pl-station-sign h2{
+.pl-section-h2--light{color:var(--pl-ivory)}
+.pl-section-deck{
   font-family:'Fraunces',Georgia,serif;
-  font-weight:900;
-  font-size:clamp(1.6rem,4vw,2.4rem);
-  line-height:1.1;letter-spacing:.01em;
-  color:var(--plan-ivory);
-  margin:0;
-  text-transform:none;
+  font-size:18px;line-height:1.6;color:var(--pl-ink);
+  max-width:60ch;margin:0 0 32px;
 }
 
-/* ===== 2. PROBLEM ===== */
-.pl-pain-grid{
-  display:grid;gap:1.1rem;
-  grid-template-columns:1fr;
+.pl-sub-h3{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:22px;color:var(--pl-forest);
+  margin:48px 0 18px;
 }
-@media(min-width:720px){
-  .pl-pain-grid{grid-template-columns:repeat(3,1fr)}
+
+/* ==================================================================
+   2. EDITORIAL OPENING - two-column intro mirroring sp-intro
+   ================================================================== */
+.pl-intro-grid{
+  display:grid;grid-template-columns:65% 35%;gap:48px;
+  align-items:start;
 }
-.pl-pain-card{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-rust);
-  border-radius:4px;
-  padding:1.4rem 1.2rem;
-  text-align:center;
-  position:relative;
-  box-shadow:0 4px 16px rgba(80,50,20,.06);
-}
-.pl-pain-card::before,
-.pl-pain-card::after{
-  content:"";
-  position:absolute;width:8px;height:8px;border-radius:50%;
-  background:var(--plan-rust);opacity:.5;
-}
-.pl-pain-card::before{top:-4px;left:-4px}
-.pl-pain-card::after{bottom:-4px;right:-4px}
-.pl-pain-icon{
-  font-size:2rem;color:var(--plan-rust);
-  margin-bottom:.6rem;display:inline-block;
-}
-.pl-pain-card h3{
+.pl-intro-body p{
   font-family:'Fraunces',Georgia,serif;
-  font-size:1.18rem;font-weight:700;
-  color:var(--plan-forest);
-  margin-bottom:.4rem;
+  font-size:18px;line-height:1.8;color:var(--pl-ink);
+  margin:0 0 20px;
 }
-.pl-pain-card p{
-  color:#4a3f2f;font-size:.94rem;
+.pl-intro-aside{
+  padding-top:6px;
+  border-left:2px solid var(--pl-rust);
+  padding-left:24px;
+}
+.pl-pullquote{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+  font-size:26px;line-height:1.3;color:var(--pl-rust);
+  margin:0 0 28px;
+}
+.pl-stat-block{margin:0 0 22px}
+.pl-stat-num{
+  font-family:'Fraunces',Georgia,serif;font-weight:700;
+  color:var(--pl-forest);font-size:46px;line-height:1;display:block;
+}
+.pl-stat-label{
+  text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:600;
+  color:var(--pl-muted);margin-top:6px;display:block;
 }
 
-/* ===== 3. PRODUCT SNAPSHOT ===== */
-.pl-suitcase-row{
+.pl-pain-list{margin-top:36px;display:flex;flex-direction:column;gap:18px}
+.pl-pain{
+  display:flex;align-items:flex-start;gap:18px;
+  padding:18px 0;border-top:1px solid #d9cfba;
+}
+.pl-pain:last-child{border-bottom:1px solid #d9cfba}
+.pl-pain-num{
+  font-family:'Fraunces',Georgia,serif;font-weight:700;
+  font-size:32px;color:var(--pl-rust);line-height:1;flex:none;min-width:48px;
+}
+.pl-pain h3{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:20px;color:var(--pl-forest);margin:0 0 4px;
+}
+.pl-pain p{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:16px;line-height:1.5;color:var(--pl-ink);opacity:.85;margin:0;
+}
+
+/* ==================================================================
+   STOP PHOTO MARQUEE - full bleed scrolling band of real stop photos
+   ================================================================== */
+.pl-marquee{
+  margin:56px -24px 0;
+  background:var(--pl-cream);
+  border-top:3px solid var(--pl-forest);
+  border-bottom:3px solid var(--pl-forest);
+  padding:18px 0;overflow:hidden;white-space:nowrap;
+  position:relative;
+}
+.pl-marquee-track{
+  display:inline-flex;align-items:stretch;gap:14px;
+  animation:pl-marquee-scroll 90s linear infinite;
+}
+.pl-marquee:hover .pl-marquee-track{animation-play-state:paused}
+.pl-marquee-item{
+  display:inline-block;position:relative;
+  width:200px;height:140px;flex:none;
+  overflow:hidden;border:2px solid var(--pl-forest);
+  background:var(--pl-ivory);
+}
+.pl-marquee-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .4s ease;
+}
+.pl-marquee-item:hover img{transform:scale(1.05)}
+.pl-marquee-item figcaption{
+  position:absolute;left:0;right:0;bottom:0;
+  background:rgba(10,45,33,.86);color:var(--pl-ivory);
+  font-family:'Fraunces',Georgia,serif;
+  font-size:13px;font-weight:600;letter-spacing:.04em;
+  padding:5px 10px;text-align:left;
+}
+@keyframes pl-marquee-scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+/* ==================================================================
+   3. PRODUCT SNAPSHOT - suitcases on a platform
+   ================================================================== */
+.pl-platform{
+  position:relative;margin:36px -24px 0;
+  background:linear-gradient(180deg, #ede0cc 0%, #d8c4a0 100%);
+  padding:48px 24px 0;overflow:hidden;
+  border-top:3px solid var(--pl-forest);
+}
+.pl-platform-floorboards{
+  position:absolute;left:0;right:0;bottom:0;height:36px;
+  background:
+    repeating-linear-gradient(90deg,
+      #6b4528 0 90px,
+      #5a3920 90px 91px,
+      #6b4528 91px 180px);
+  border-top:2px solid #5a3920;
+}
+.pl-platform-row{
   display:flex;justify-content:center;align-items:flex-end;
-  gap:clamp(.5rem,3vw,2rem);
-  margin:1.4rem auto 2.4rem;
-  max-width:760px;
-  /* Suitcase PNGs ship on black backgrounds; multiply on the warm
-     ivory removes the black entirely. */
+  gap:clamp(20px,5vw,80px);max-width:1080px;margin:0 auto;
+  position:relative;z-index:2;padding-bottom:54px;
 }
-.pl-suitcase{
-  width:clamp(110px,22vw,220px);
-  height:auto;
-  mix-blend-mode:multiply;
-  filter:drop-shadow(0 8px 14px rgba(40,30,15,.18));
+.pl-trunk{
+  position:relative;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
 }
-.pl-suitcase-1{transform:rotate(-4deg) translateY(6px)}
-.pl-suitcase-2{transform:rotate(1deg) translateY(-4px);width:clamp(130px,26vw,260px)}
-.pl-suitcase-3{transform:rotate(5deg) translateY(8px)}
+.pl-trunk img{
+  width:clamp(140px,22vw,220px);
+  height:auto;mix-blend-mode:multiply;
+  filter:drop-shadow(0 8px 14px rgba(40,20,5,.32));
+}
+.pl-trunk-1{transform:rotate(-3deg) translateY(8px)}
+.pl-trunk-2{transform:translateY(-6px)}
+.pl-trunk-2 img{width:clamp(160px,26vw,260px)}
+.pl-trunk-3{transform:rotate(4deg) translateY(10px)}
+/* Luggage tag hanging off each suitcase */
+.pl-trunk figcaption{
+  margin-top:-16px;position:relative;z-index:3;
+  background:#e8d6a8;
+  border:1px solid #8b6a3a;
+  border-radius:4px;
+  padding:8px 14px;min-width:140px;
+  box-shadow:0 4px 10px rgba(40,20,5,.2);
+  transform:rotate(-2deg);
+}
+.pl-trunk-2 figcaption{transform:rotate(1.5deg)}
+.pl-trunk-3 figcaption{transform:rotate(3deg)}
+.pl-trunk figcaption::before{
+  content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  width:8px;height:8px;border-radius:50%;
+  background:var(--pl-ivory);border:1px solid #8b6a3a;
+}
+.pl-trunk-tag-line{
+  display:block;text-transform:uppercase;letter-spacing:.2em;
+  font-size:9px;font-weight:700;color:var(--pl-rust);
+}
+.pl-trunk figcaption strong{
+  display:block;font-family:'Fraunces',Georgia,serif;
+  font-weight:700;font-size:15px;color:var(--pl-forest);
+  letter-spacing:.01em;margin-top:2px;
+}
 
-.pl-feature-grid{
-  display:grid;gap:1rem;
-  grid-template-columns:1fr;
-  margin-top:1.4rem;
-}
-@media(min-width:640px){
-  .pl-feature-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(min-width:960px){
-  .pl-feature-grid{grid-template-columns:repeat(3,1fr)}
+/* Feature mini-grid below the platform */
+.pl-features{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  margin:48px 0 0;
 }
 .pl-feature{
-  background:#fbf5e8;
-  border:1px dotted #b08a52;
-  border-radius:4px;
-  padding:1.3rem 1.2rem;
-  text-align:left;
-  display:flex;flex-direction:column;gap:.4rem;
-  position:relative;
+  padding:24px 26px;
+  border-top:1px solid #d9cfba;
+  border-right:1px solid #d9cfba;
 }
-.pl-feature-icon{
-  font-size:1.7rem;color:var(--plan-rust);
+.pl-feature:nth-child(3n){border-right:0}
+.pl-feature:nth-last-child(-n+3){border-bottom:1px solid #d9cfba}
+.pl-feature i{
+  font-size:32px;color:var(--pl-rust);display:block;margin-bottom:10px;
 }
 .pl-feature h3{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:20px;color:var(--pl-forest);margin:0 0 6px;
+}
+.pl-feature p{
   font-family:'Fraunces',Georgia,serif;
-  font-size:1.08rem;color:var(--plan-forest);
-  font-weight:700;
+  font-size:15px;line-height:1.55;color:var(--pl-ink);opacity:.85;margin:0;
 }
-.pl-feature p{color:#4a3f2f;font-size:.94rem;line-height:1.55}
 
-/* ===== 4. PRICING - railway tickets ===== */
-.pl-tickets{
-  display:grid;gap:1.6rem;
-  grid-template-columns:1fr;
-  max-width:880px;margin:0 auto;
-  align-items:stretch;
+/* ==================================================================
+   CHAPTER DIVIDER - mirrors sp-divider
+   ================================================================== */
+.pl-divider{
+  position:relative;height:1px;background:var(--pl-forest);
+  margin:64px 0;border:0;
 }
-@media(min-width:780px){
-  .pl-tickets{grid-template-columns:1fr 1.15fr;align-items:stretch}
+.pl-divider::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:3px;
+  background:var(--pl-forest);
+}
+.pl-divider-badge{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:48px;height:48px;border-radius:50%;
+  background:var(--pl-forest);color:var(--pl-ivory);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+
+/* ==================================================================
+   4. PRICING - vintage tickets
+   ================================================================== */
+.pl-pricing{padding-bottom:0}
+.pl-tickets{
+  display:grid;gap:32px;grid-template-columns:1fr;
+  margin-top:18px;
+}
+@media(min-width:820px){
+  .pl-tickets{grid-template-columns:1fr 1.1fr;align-items:stretch}
 }
 .pl-ticket{
   position:relative;
-  background:
-    /* warm linen */
-    linear-gradient(180deg, #fbf3df 0%, #f4e9cd 100%);
-  border:2px dashed var(--plan-rust);
-  border-radius:6px;
-  padding:1.8rem 1.5rem 1.6rem;
+  background:linear-gradient(180deg, #fbf3df 0%, #f4e9cd 100%);
+  border:2.5px solid var(--pl-rust);
+  padding:28px 28px 24px;
   display:flex;flex-direction:column;
-  box-shadow:0 8px 22px rgba(80,50,20,.13);
-  overflow:hidden;
+  box-shadow:0 10px 28px rgba(80,50,20,.16);
+  /* punched-ticket scallop on left and right edges */
+  -webkit-mask-image:
+    radial-gradient(circle 8px at 0% 50%, transparent 7px, black 8px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, black 8px);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    radial-gradient(circle 8px at 0% 50%, transparent 7px, black 8px),
+    radial-gradient(circle 8px at 100% 50%, transparent 7px, black 8px);
 }
-/* Punch holes on the inner edge of each ticket */
-.pl-ticket-punch{
-  position:absolute;left:50%;top:0;transform:translateX(-50%);
-  width:60%;height:14px;
-  background-image:radial-gradient(circle at 8px 7px, var(--plan-ivory) 4px, transparent 4.5px);
-  background-size:18px 14px;
-  background-repeat:repeat-x;
-  opacity:.7;pointer-events:none;
-}
-.pl-ticket-head{
-  display:flex;justify-content:space-between;align-items:baseline;
-  border-bottom:1px dashed rgba(110,70,40,.5);
-  padding-bottom:.7rem;margin-bottom:.9rem;gap:1rem;
+.pl-ticket-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:18px;padding-bottom:18px;
+  border-bottom:1px dashed rgba(125,60,30,.5);
 }
 .pl-ticket-class{
   font-family:'Fraunces',Georgia,serif;font-weight:900;
-  font-size:1.5rem;color:var(--plan-forest);
-  letter-spacing:.01em;
-}
-.pl-ticket-price{
-  font-family:'Fraunces',Georgia,serif;font-weight:700;
-  font-size:1.45rem;color:var(--plan-rust);
-}
-.pl-ticket-price span{
-  font-size:.78rem;font-weight:500;color:#7b6748;
-  display:block;letter-spacing:.05em;
-  font-family:'Spline Sans',sans-serif;
-}
-.pl-ticket-suitcase{
-  width:120px;height:auto;
-  mix-blend-mode:multiply;
-  align-self:center;
-  margin:.4rem auto 1rem;
-  filter:drop-shadow(0 6px 10px rgba(40,30,15,.16));
+  font-size:32px;color:var(--pl-forest);line-height:1;
+  letter-spacing:-.01em;
 }
 .pl-ticket-pitch{
-  font-style:italic;
-  text-align:center;
-  font-family:'Fraunces',Georgia,serif;
-  color:#5a4a32;font-size:1.02rem;
-  margin-bottom:1rem;
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  color:var(--pl-rust);font-size:15px;margin-top:6px;
+}
+.pl-ticket-price{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:34px;color:var(--pl-rust);line-height:1;text-align:right;
+}
+.pl-ticket-price small{
+  display:block;font-family:'Spline Sans',sans-serif;
+  font-size:11px;font-weight:600;color:var(--pl-muted);
+  letter-spacing:.18em;text-transform:uppercase;margin-top:4px;
+}
+.pl-ticket-body{
+  display:grid;grid-template-columns:140px 1fr;gap:22px;
+  align-items:center;margin:22px 0 18px;
+}
+.pl-ticket-suitcase{
+  width:100%;max-width:140px;mix-blend-mode:multiply;
+  filter:drop-shadow(0 6px 12px rgba(40,30,15,.18));
 }
 .pl-ticket-features{
-  list-style:none;padding:0;margin:0 0 1.2rem;
-  display:flex;flex-direction:column;gap:.45rem;
-  font-size:.96rem;color:#3a2f22;
+  list-style:none;padding:0;margin:0;
+  display:flex;flex-direction:column;gap:8px;
+  font-size:15px;color:var(--pl-ink);
 }
 .pl-ticket-features li{
-  display:flex;align-items:center;gap:.55rem;
-  line-height:1.4;
+  display:flex;align-items:center;gap:8px;line-height:1.4;
 }
 .pl-ticket-features li i{
-  color:var(--plan-gold);font-size:1rem;flex:0 0 auto;
+  color:var(--pl-gold);font-size:16px;flex:none;
 }
+.pl-ticket-foot{margin-top:auto}
 .pl-ticket-cta{
-  margin-top:auto;width:100%;
-  background:var(--plan-rust);
-  border-color:var(--plan-rust);
-  color:var(--plan-ivory);
+  margin-top:0;width:100%;
+  background:var(--pl-rust);border-color:var(--pl-rust);
+  color:var(--pl-ivory);
 }
 .pl-ticket-cta:hover{
-  background:var(--plan-forest);border-color:var(--plan-forest);
-  color:var(--plan-ivory);
+  background:var(--pl-forest);border-color:var(--pl-forest);
+  color:var(--pl-ivory);
 }
 .pl-ticket-trust{
-  text-align:center;color:#7b6748;
-  font-size:.82rem;margin-top:.7rem;
-  font-style:italic;
+  text-align:center;color:var(--pl-muted);font-size:13px;
+  margin-top:10px;font-family:'Fraunces',Georgia,serif;font-style:italic;
 }
 
 /* First-class flourishes */
 .pl-ticket--first{
-  background:
-    linear-gradient(180deg, #fcf2d4 0%, #f0e1b3 100%);
-  border:2.5px solid var(--plan-rust);
-  border-style:dashed;
-  box-shadow:0 12px 30px rgba(80,50,20,.18);
+  background:linear-gradient(180deg, #fbeec1 0%, #efdfa8 100%);
+  border-color:var(--pl-rust-d);
+  box-shadow:0 14px 36px rgba(80,50,20,.22);
 }
-.pl-ticket--first .pl-ticket-class{color:var(--plan-rust)}
-.pl-route-line{
-  display:flex;align-items:center;gap:6px;
-  margin:0 auto .8rem;width:60%;
-  opacity:.7;
-}
-.pl-route-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--plan-forest);flex:0 0 auto;
-}
-.pl-route-dash{
-  flex:1;height:0;
-  border-top:2px dashed var(--plan-rust);
-}
+.pl-ticket--first .pl-ticket-class{color:var(--pl-rust)}
 .pl-stamp{
-  position:absolute;top:14px;right:-30px;
+  position:absolute;top:18px;right:-34px;z-index:3;
   transform:rotate(14deg);
-  background:var(--plan-gold);
-  color:var(--plan-forest-d);
+  background:var(--pl-gold);
+  color:var(--pl-forest);
   font-family:'Fraunces',Georgia,serif;
-  font-weight:900;font-size:.82rem;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  padding:.45rem 2.2rem;
-  border:2px solid var(--plan-forest-d);
-  box-shadow:0 4px 12px rgba(60,40,10,.3);
-  text-align:center;line-height:1.05;
-  z-index:2;
+  font-weight:900;font-size:13px;letter-spacing:.1em;
+  text-transform:uppercase;text-align:center;line-height:1;
+  padding:10px 36px;
+  border:2px solid var(--pl-forest);
+  box-shadow:0 4px 12px rgba(60,40,10,.32);
+}
+.pl-route-line{
+  display:flex;align-items:center;gap:6px;margin:14px 0 4px;
+}
+.pl-route-stop{
+  width:10px;height:10px;border-radius:50%;background:var(--pl-forest);flex:none;
+  box-shadow:0 0 0 2px var(--pl-gold);
+}
+.pl-route-link{
+  flex:1;height:0;border-top:2px dashed var(--pl-rust);
 }
 
-/* ===== 5. WHY UPGRADE ===== */
-.pl-scenario-grid{
-  display:grid;gap:1.1rem;grid-template-columns:1fr;
+/* WHY UPGRADE sub-band inside pricing */
+.pl-whyupgrade{margin-top:56px}
+.pl-scenario-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+  margin-top:4px;
 }
-@media(min-width:760px){
-  .pl-scenario-grid{grid-template-columns:repeat(3,1fr)}
+.pl-scenario{padding-top:8px;border-top:2px solid var(--pl-rust)}
+.pl-scenario i{
+  font-size:30px;color:var(--pl-rust);display:block;margin:14px 0 10px;
 }
-.pl-scenario{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-gold-d);
-  border-radius:4px;
-  padding:1.4rem 1.2rem;
-  text-align:center;
+.pl-scenario h4{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:18px;color:var(--pl-forest);margin:0 0 6px;
 }
-.pl-scenario-icon{
-  font-size:2rem;color:var(--plan-gold-d);
-  margin-bottom:.5rem;display:inline-block;
-}
-.pl-scenario h3{
+.pl-scenario p{
   font-family:'Fraunces',Georgia,serif;
-  font-size:1.12rem;font-weight:700;
-  color:var(--plan-forest);
-  margin-bottom:.45rem;
+  font-size:15px;line-height:1.5;color:var(--pl-ink);opacity:.85;margin:0;
 }
-.pl-scenario p{color:#4a3f2f;font-size:.94rem}
 
-/* ===== 6. HOW IT WORKS ===== */
+/* ==================================================================
+   TICKER BAND - mirrors sp-ticker, lines of inspiration
+   ================================================================== */
+.pl-ticker{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  overflow:hidden;margin:64px -24px 0;padding:18px 0;
+  white-space:nowrap;
+}
+.pl-ticker-track{
+  display:inline-flex;align-items:center;gap:0;
+  animation:pl-ticker-scroll 80s linear infinite;
+}
+.pl-ticker:hover .pl-ticker-track{animation-play-state:paused}
+.pl-ticker-item{
+  display:inline-flex;align-items:center;gap:14px;padding:0 28px;
+}
+.pl-ticker-cat{
+  text-transform:uppercase;letter-spacing:.18em;
+  font-size:11px;font-weight:700;color:var(--pl-amber);
+}
+.pl-ticker-fact{
+  font-family:'Fraunces',Georgia,serif;font-size:17px;
+  color:var(--pl-ivory);font-style:italic;
+}
+.pl-ticker-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--pl-amber);flex:none;
+}
+@keyframes pl-ticker-scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+/* ==================================================================
+   6. HOW IT WORKS - three big steps with connecting line
+   ================================================================== */
+.pl-howitworks{padding-top:0}
 .pl-steps{
-  list-style:none;padding:0;margin:0;
-  display:grid;gap:1.2rem;
-  grid-template-columns:1fr;
-  counter-reset:plstep;
-}
-@media(min-width:780px){
-  .pl-steps{grid-template-columns:repeat(3,1fr)}
-}
-.pl-step{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-forest);
-  border-radius:4px;
-  padding:1.6rem 1.3rem 1.4rem;
-  text-align:center;
+  list-style:none;padding:0;margin:32px 0 0;
+  display:grid;grid-template-columns:1fr;gap:28px;
   position:relative;
 }
+@media(min-width:780px){
+  .pl-steps{grid-template-columns:repeat(3,1fr);gap:0}
+  /* Rail line connecting the three steps */
+  .pl-steps::before{
+    content:"";position:absolute;left:8%;right:8%;top:34px;
+    border-top:2px dashed var(--pl-rust);z-index:1;
+  }
+}
+.pl-step{
+  position:relative;padding:0 22px;text-align:center;background:var(--pl-ivory);
+  z-index:2;
+}
 .pl-step-num{
-  position:absolute;top:-18px;left:50%;transform:translateX(-50%);
-  width:38px;height:38px;border-radius:50%;
-  background:var(--plan-forest);
-  color:var(--plan-ivory);
+  width:68px;height:68px;border-radius:50%;
+  background:var(--pl-forest);color:var(--pl-ivory);
+  border:3px solid var(--pl-gold);
+  font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:30px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Fraunces',Georgia,serif;
-  font-weight:900;font-size:1.2rem;
-  border:2px solid var(--plan-ivory);
-  box-shadow:0 3px 8px rgba(20,30,12,.3);
+  margin:0 auto;box-shadow:0 6px 18px rgba(10,45,33,.28);
+  position:relative;z-index:3;
 }
 .pl-step-icon{
-  font-size:2.2rem;color:var(--plan-rust);
-  margin:.6rem 0 .4rem;display:inline-block;
+  font-size:36px;color:var(--pl-rust);
+  display:block;margin:22px auto 12px;
 }
 .pl-step h3{
-  font-family:'Fraunces',Georgia,serif;
-  font-size:1.18rem;font-weight:700;
-  color:var(--plan-forest);
-  margin-bottom:.5rem;
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:24px;color:var(--pl-forest);margin:0 0 10px;
 }
-.pl-step p{color:#4a3f2f;font-size:.95rem;line-height:1.55}
+.pl-step p{
+  font-family:'Fraunces',Georgia,serif;
+  font-size:16px;line-height:1.55;color:var(--pl-ink);
+  opacity:.88;margin:0;max-width:30ch;margin-left:auto;margin-right:auto;
+}
 
-/* ===== 7. USE CASES ===== */
+/* ==================================================================
+   7. USE CASES - full bleed forest band with photo tiles
+   ================================================================== */
+.pl-usecases{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  margin:80px -24px 0;padding:60px 24px;
+  position:relative;overflow:hidden;
+}
+.pl-usecases-inner{max-width:1180px;margin:0 auto}
 .pl-usecase-grid{
-  display:grid;gap:.9rem;
+  display:grid;gap:16px;margin-top:28px;
   grid-template-columns:repeat(2,1fr);
 }
-@media(min-width:640px){
-  .pl-usecase-grid{grid-template-columns:repeat(3,1fr)}
-}
-@media(min-width:920px){
+@media(min-width:760px){
   .pl-usecase-grid{grid-template-columns:repeat(5,1fr)}
 }
 .pl-usecase{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-rust);
-  border-radius:4px;
-  padding:1.4rem 1rem;
-  text-align:center;
-  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  position:relative;
+  aspect-ratio:3/4;
+  background-color:#1a3527;
+  background-size:cover;background-position:center center;
+  background-repeat:no-repeat;
+  border:2px solid var(--pl-amber);
+  overflow:hidden;
+  transition:transform .25s ease;
 }
-.pl-usecase i{
-  font-size:1.9rem;color:var(--plan-rust);
+.pl-usecase:hover{transform:translateY(-4px)}
+.pl-usecase::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    rgba(10,30,20,0) 30%, rgba(10,30,20,.85) 100%);
+}
+.pl-usecase-inner{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:18px 16px;color:var(--pl-ivory);
+  text-align:left;z-index:2;
+}
+.pl-usecase-inner i{
+  font-size:24px;color:var(--pl-amber);display:block;margin-bottom:8px;
 }
 .pl-usecase h3{
-  font-family:'Fraunces',Georgia,serif;
-  font-size:1.02rem;color:var(--plan-forest);
-  font-weight:700;
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:19px;color:var(--pl-ivory);line-height:1.15;
+  margin:0;letter-spacing:.01em;
 }
 
-/* ===== 8. APP PREVIEW ===== */
-.pl-preview-card{
-  max-width:780px;margin:0 auto;
-  background:#fbf5e8;
-  border:2px dashed var(--plan-rust);
-  border-radius:6px;
-  padding:1.6rem;
-  display:grid;gap:1.2rem;
-  grid-template-columns:1fr;
-  align-items:center;
-  box-shadow:0 8px 22px rgba(80,50,20,.1);
-}
-@media(min-width:680px){
-  .pl-preview-card{grid-template-columns:180px 1fr}
-}
-.pl-preview-suitcase{
-  width:100%;max-width:180px;height:auto;
-  mix-blend-mode:multiply;
-  justify-self:center;
-  filter:drop-shadow(0 6px 12px rgba(40,30,15,.18));
-}
-.pl-preview-trip-label{
-  font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
-  font-weight:700;color:var(--plan-rust);
-  margin-bottom:.4rem;
-}
-.pl-preview-trip-name{
-  font-family:'Fraunces',Georgia,serif;
-  font-size:1.5rem;font-weight:900;
-  color:var(--plan-forest);
-  margin-bottom:.7rem;
-}
-.pl-preview-stops{
-  display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem;
-}
-.pl-preview-stop{
-  background:var(--plan-ivory);
-  border:1px dashed var(--plan-rust);
-  border-radius:3px;
-  padding:.25rem .55rem;
-  font-size:.82rem;color:var(--plan-forest);
-  font-weight:600;
-}
-.pl-preview-stats{
-  display:grid;gap:.7rem;
-  grid-template-columns:repeat(2,1fr);
-  border-top:1px dashed rgba(110,70,40,.5);
-  padding-top:.9rem;
-}
-@media(min-width:520px){
-  .pl-preview-stats{grid-template-columns:repeat(4,1fr)}
-}
-.pl-preview-stats > div{
-  display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;
-}
-.pl-preview-stats b{
-  font-family:'Fraunces',Georgia,serif;
-  font-size:1.2rem;color:var(--plan-rust);
-}
-.pl-preview-stats span{
-  font-size:.76rem;color:#7b6748;
-  letter-spacing:.04em;
-}
-.pl-preview-tiles{
-  display:grid;gap:.8rem;
-  grid-template-columns:repeat(2,1fr);
-  max-width:780px;margin:1.2rem auto 0;
-}
-@media(min-width:680px){
-  .pl-preview-tiles{grid-template-columns:repeat(4,1fr)}
-}
-.pl-preview-tile{
-  background:var(--plan-forest);
-  color:var(--plan-ivory);
-  border:1px dashed rgba(245,240,232,.4);
-  border-radius:4px;
-  padding:.9rem .6rem;
-  text-align:center;
-  display:flex;flex-direction:column;align-items:center;gap:.35rem;
-  font-size:.85rem;font-weight:600;
-}
-.pl-preview-tile i{font-size:1.4rem;color:var(--plan-gold)}
-
-/* ===== 9. TESTIMONIAL - luggage tag ===== */
-.pl-testimonial{display:flex;justify-content:center}
-.pl-luggage-tag{
+/* ==================================================================
+   8. APP PREVIEW - journal spread
+   ================================================================== */
+.pl-journal{
   position:relative;
-  background:#f0e2c0;
-  /* Luggage tag rounded-rectangle silhouette */
-  border:1.5px solid #8b6a3a;
-  border-radius:8px;
-  padding:2rem 1.6rem 1.6rem;
-  max-width:520px;
-  box-shadow:
-    0 8px 22px rgba(60,40,10,.18),
-    inset 0 0 0 4px #f0e2c0,
-    inset 0 0 0 5px rgba(139,106,58,.35);
-  transform:rotate(-1.5deg);
-  font-family:'Fraunces',Georgia,serif;
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  background:#fbf3df;
+  border:1px solid #d9cfba;
+  box-shadow:0 18px 40px rgba(40,30,15,.18);
+  margin-top:32px;
+  min-height:420px;
 }
-.pl-tag-hole{
-  position:absolute;top:14px;left:50%;transform:translateX(-50%);
-  width:18px;height:18px;border-radius:50%;
-  background:var(--plan-ivory);
-  border:1px solid #8b6a3a;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.2);
+.pl-journal-spine{
+  position:absolute;left:50%;top:0;bottom:0;
+  width:1px;background:rgba(110,70,40,.4);
+  box-shadow:0 0 24px 6px rgba(110,70,40,.15);
 }
-.pl-tag-string{
-  position:absolute;top:-26px;left:50%;transform:translateX(-50%);
-  width:2px;height:32px;
-  background:repeating-linear-gradient(180deg, #6b4528 0 4px, #8b6a3a 4px 8px);
-  border-radius:1px;
+.pl-journal-page{
+  position:relative;padding:36px;
+  background-image:repeating-linear-gradient(0deg,
+    transparent 0, transparent 31px,
+    rgba(110,70,40,.08) 31px, rgba(110,70,40,.08) 32px);
+  background-position:0 36px;
 }
-.pl-luggage-tag blockquote{
-  margin:1.4rem 0 .8rem;
-  font-size:1.08rem;line-height:1.55;
-  color:#3a2f22;font-style:italic;
+.pl-journal-page--left{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(180deg, #f8ecc8 0%, #efddae 100%);
 }
-.pl-luggage-tag figcaption{
-  text-align:right;
-  font-size:.92rem;color:var(--plan-rust);
-  font-weight:700;font-style:normal;
+.pl-journal-suitcase{
+  width:80%;max-width:240px;mix-blend-mode:multiply;
+  filter:drop-shadow(0 10px 18px rgba(40,30,15,.28));
+}
+.pl-journal-tag{
+  margin-top:18px;background:#e8d6a8;
+  border:1px solid #8b6a3a;border-radius:4px;
+  padding:10px 18px;text-align:center;
+  box-shadow:0 4px 10px rgba(40,20,5,.2);
+  transform:rotate(-2deg);
+}
+.pl-journal-tag span{
+  display:block;text-transform:uppercase;letter-spacing:.22em;
+  font-size:10px;font-weight:700;color:var(--pl-rust);
+}
+.pl-journal-tag strong{
+  display:block;font-family:'Fraunces',Georgia,serif;
+  font-weight:700;font-size:18px;color:var(--pl-forest);
+  margin-top:2px;
+}
+.pl-journal-section{margin-bottom:24px}
+.pl-journal-label{
+  text-transform:uppercase;letter-spacing:.18em;
+  font-size:11px;font-weight:700;color:var(--pl-rust);margin-bottom:10px;
+}
+.pl-journal-stops{
+  list-style:none;padding:0;margin:0;
+}
+.pl-journal-stops li{
+  font-family:'Fraunces',Georgia,serif;font-size:18px;
+  color:var(--pl-forest);font-weight:500;
+  padding:6px 0;display:flex;align-items:center;gap:12px;
+  border-bottom:1px dashed rgba(110,70,40,.35);
+}
+.pl-journal-stop-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--pl-rust);box-shadow:0 0 0 2px var(--pl-gold);
+  flex:none;
+}
+.pl-journal-stats{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px 22px;
+  padding:18px 0;border-top:1px solid rgba(110,70,40,.25);
+  border-bottom:1px solid rgba(110,70,40,.25);margin-bottom:18px;
+}
+.pl-journal-stats > div{display:flex;flex-direction:column;gap:2px}
+.pl-journal-stats b{
+  font-family:'Fraunces',Georgia,serif;font-weight:700;
+  font-size:22px;color:var(--pl-rust);
+}
+.pl-journal-stats span{
+  font-size:11px;letter-spacing:.06em;color:var(--pl-muted);
+  text-transform:uppercase;
+}
+.pl-journal-tiles{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+}
+.pl-journal-tile{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  padding:14px 12px;text-align:left;
+  font-family:'Spline Sans',sans-serif;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.pl-journal-tile i{font-size:18px;color:var(--pl-gold)}
+
+/* ==================================================================
+   9. TESTIMONIAL - full bleed forest band, oversized quote mark
+   ================================================================== */
+.pl-testimonial{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  margin:80px -24px 0;padding:72px 24px;
+  position:relative;overflow:hidden;
+}
+.pl-testimonial::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(45deg,
+    rgba(245,240,232,.025) 0, rgba(245,240,232,.025) 1px,
+    transparent 1px, transparent 8px);
+  pointer-events:none;
+}
+.pl-testimonial-inner{
+  max-width:820px;margin:0 auto;text-align:left;
+  position:relative;
+}
+.pl-testimonial-mark{
+  position:absolute;left:-12px;top:-46px;
+  font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:180px;color:var(--pl-gold);
+  line-height:1;opacity:.45;pointer-events:none;
+}
+.pl-testimonial blockquote{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+  font-size:clamp(22px,3vw,32px);line-height:1.4;
+  color:var(--pl-ivory);margin:0 0 22px;position:relative;z-index:2;
+}
+.pl-testimonial figcaption{
+  font-family:'Spline Sans',sans-serif;
+  font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--pl-amber);
+  position:relative;z-index:2;
 }
 
-/* ===== 10. TRUST ===== */
+/* ==================================================================
+   10. TRUST - stamped badges
+   ================================================================== */
 .pl-trust-grid{
-  display:grid;gap:1rem;
-  grid-template-columns:1fr;
+  display:grid;gap:0;grid-template-columns:1fr;margin-top:32px;
 }
-@media(min-width:640px){
+@media(min-width:680px){
   .pl-trust-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(min-width:980px){
   .pl-trust-grid{grid-template-columns:repeat(4,1fr)}
 }
 .pl-trust-card{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-forest);
-  border-radius:4px;
-  padding:1.3rem 1.1rem;
-  text-align:center;
+  padding:28px 24px;
+  border-top:3px solid var(--pl-forest);
+  border-right:1px solid #d9cfba;
 }
-.pl-trust-icon{
-  font-size:1.8rem;color:var(--plan-forest);margin-bottom:.5rem;
-  display:inline-block;
+.pl-trust-card:nth-last-child(-n+1){border-right:0}
+@media(min-width:980px){
+  .pl-trust-card:nth-child(4n){border-right:0}
+}
+@media(min-width:680px) and (max-width:979px){
+  .pl-trust-card:nth-child(2n){border-right:0}
+}
+.pl-trust-badge{
+  width:54px;height:54px;border-radius:50%;
+  background:var(--pl-forest);color:var(--pl-amber);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:14px;
+  box-shadow:0 4px 12px rgba(10,45,33,.2);
 }
 .pl-trust-card h3{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:19px;color:var(--pl-forest);margin:0 0 6px;
+}
+.pl-trust-card p{
   font-family:'Fraunces',Georgia,serif;
-  font-size:1.06rem;color:var(--plan-forest);
-  font-weight:700;margin-bottom:.4rem;
+  font-size:15px;line-height:1.55;color:var(--pl-ink);
+  opacity:.85;margin:0;
 }
-.pl-trust-card p{color:#4a3f2f;font-size:.92rem;line-height:1.5}
 
-/* ===== 11. FAQ ===== */
-.pl-faq-list{
-  max-width:760px;margin:0 auto;
-  display:flex;flex-direction:column;gap:.7rem;
-}
+/* ==================================================================
+   11. FAQ - stop-page style border-left accordion
+   ================================================================== */
+.pl-faq-list{margin-top:32px}
 .pl-faq-item{
-  background:#fbf5e8;
-  border:1.5px dashed var(--plan-rust);
-  border-radius:4px;
-  padding:0;
-  overflow:hidden;
+  border-left:4px solid var(--pl-rust);
+  padding:0 0 0 22px;margin:0 0 14px;
+  background:transparent;
+  border-radius:0;
+  border-top:0;border-right:0;border-bottom:0;
 }
 .pl-faq-item summary{
   list-style:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:space-between;gap:1rem;
-  padding:1.05rem 1.2rem;
-  font-family:'Fraunces',Georgia,serif;
-  font-size:1.05rem;font-weight:700;
-  color:var(--plan-forest);
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;width:100%;padding:18px 0;
+  font-family:'Spline Sans',sans-serif;font-size:17px;font-weight:600;
+  color:var(--pl-ink);
 }
 .pl-faq-item summary::-webkit-details-marker{display:none}
 .pl-faq-item summary i{
-  color:var(--plan-rust);
-  font-size:1.2rem;
+  color:var(--pl-rust);font-size:22px;flex:none;
   transition:transform .25s ease;
 }
 .pl-faq-item[open] summary i{transform:rotate(45deg)}
 .pl-faq-item p{
-  padding:0 1.2rem 1.1rem;
-  color:#3a2f22;font-size:.96rem;line-height:1.6;
-  border-top:1px dashed rgba(110,70,40,.35);
-  padding-top:.9rem;
+  font-family:'Fraunces',Georgia,serif;
+  font-size:16px;line-height:1.7;color:var(--pl-muted);
+  padding:0 24px 18px 0;margin:0;
 }
 
-/* ===== 12. FINAL CTA ===== */
-.pl-finalcta{padding-bottom:clamp(3rem,7vw,5rem)}
+/* ==================================================================
+   12. FINAL CTA - full bleed forest band with stamp
+   ================================================================== */
+.pl-finalcta{
+  background:var(--pl-forest);color:var(--pl-ivory);
+  margin:80px -24px 0;padding:72px 24px;
+  position:relative;overflow:hidden;
+}
 .pl-finalcta-inner{
-  background:var(--plan-forest);
-  color:var(--plan-ivory);
-  border:2px dashed var(--plan-gold);
-  border-radius:6px;
-  padding:clamp(2rem,5vw,3.4rem) 1.4rem;
-  text-align:center;
-  max-width:900px;margin:0 auto;
-  position:relative;
-  box-shadow:0 10px 30px rgba(20,30,12,.22);
+  max-width:1180px;margin:0 auto;
+  display:grid;grid-template-columns:1fr;gap:32px;align-items:center;
 }
-.pl-finalcta-inner::before{
-  content:"";
-  position:absolute;inset:8px;
-  border:1px dotted rgba(245,240,232,.35);
-  border-radius:3px;pointer-events:none;
+@media(min-width:780px){
+  .pl-finalcta-inner{grid-template-columns:auto 1fr;gap:64px}
 }
-.pl-finalcta-inner h2{
-  font-family:'Fraunces',Georgia,serif;
-  font-size:clamp(1.7rem,4vw,2.4rem);
-  font-weight:900;margin-bottom:.6rem;color:var(--plan-ivory);
+.pl-finalcta-stamp{
+  background:var(--pl-amber);color:var(--pl-forest);
+  border:3px solid var(--pl-forest);
+  padding:18px 28px;text-align:center;
+  transform:rotate(-6deg);
+  box-shadow:0 8px 22px rgba(0,0,0,.35);
+  justify-self:start;
 }
-.pl-finalcta-inner p{
-  font-size:1.02rem;color:#e7decc;
-  max-width:48ch;margin:0 auto 1.4rem;
+.pl-finalcta-stamp span{
+  display:block;font-size:12px;letter-spacing:.22em;
+  text-transform:uppercase;font-weight:700;
+}
+.pl-finalcta-stamp strong{
+  display:block;font-family:'Fraunces',Georgia,serif;
+  font-weight:900;font-size:38px;letter-spacing:.04em;line-height:1;
+  margin-top:6px;
+}
+.pl-finalcta-body h2{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:clamp(2rem,4.5vw,3rem);
+  color:var(--pl-ivory);margin:0 0 12px;line-height:1.05;
+}
+.pl-finalcta-body p{
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:18px;color:#e7decc;margin:0 0 22px;
 }
 .pl-finalcta-row{
-  display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;align-items:center;
+  display:flex;gap:18px;flex-wrap:wrap;align-items:center;
 }
 .pl-finalcta-row .btn-primary{
-  background:var(--plan-rust);border-color:var(--plan-rust);
-  color:var(--plan-ivory);
+  background:var(--pl-rust);border-color:var(--pl-rust);
+  color:var(--pl-ivory);
 }
 .pl-finalcta-row .btn-primary:hover{
-  background:var(--plan-gold);border-color:var(--plan-gold);
-  color:var(--plan-forest);
+  background:var(--pl-amber);border-color:var(--pl-amber);color:var(--pl-forest);
 }
 .pl-finalcta-link{
-  color:var(--plan-gold);text-decoration:none;
-  font-weight:600;font-size:.95rem;letter-spacing:.02em;
+  color:var(--pl-amber);text-decoration:none;
+  font-weight:600;font-size:.95rem;letter-spacing:.04em;
   display:inline-flex;align-items:center;gap:.3rem;
-  border-bottom:1px dashed transparent;
-  padding:.4rem 0;
+  border-bottom:1px dashed transparent;padding:.4rem 0;
 }
-.pl-finalcta-link:hover{border-bottom-color:var(--plan-gold)}
+.pl-finalcta-link:hover{border-bottom-color:var(--pl-amber)}
 
+/* ==================================================================
+   RESPONSIVE
+   ================================================================== */
+@media(max-width:780px){
+  .plan-main{padding:0 18px 60px}
+  .pl-hero{margin:0 -18px}
+  .pl-hero-titlewrap{padding:0 18px}
+  .pl-toc{margin:28px -18px 0}
+  .pl-toc-row{padding:0 18px}
+  .pl-intro-grid{grid-template-columns:1fr;gap:32px}
+  .pl-intro-aside{border-left:0;padding-left:0;border-top:2px solid var(--pl-rust);padding-top:18px}
+  .pl-stat-num{font-size:36px}
+  .pl-pullquote{font-size:22px}
+  .pl-marquee{margin:40px -18px 0}
+  .pl-marquee-item{width:160px;height:110px}
+  .pl-platform{margin:28px -18px 0;padding:36px 18px 0}
+  .pl-platform-row{gap:14px;padding-bottom:48px}
+  .pl-trunk figcaption{min-width:110px;padding:6px 10px}
+  .pl-trunk figcaption strong{font-size:13px}
+  .pl-features{grid-template-columns:1fr}
+  .pl-feature{border-right:0}
+  .pl-feature:nth-last-child(-n+1){border-bottom:1px solid #d9cfba}
+  .pl-ticket-body{grid-template-columns:1fr;text-align:center}
+  .pl-ticket-suitcase{margin:0 auto}
+  .pl-scenario-row{grid-template-columns:1fr;gap:24px}
+  .pl-ticker{margin:48px -18px 0}
+  .pl-usecases{margin:60px -18px 0;padding:48px 18px}
+  .pl-journal{grid-template-columns:1fr;min-height:0}
+  .pl-journal-spine{display:none}
+  .pl-journal-page{padding:24px}
+  .pl-testimonial{margin:60px -18px 0;padding:56px 24px}
+  .pl-testimonial-mark{font-size:120px;top:-24px;left:0}
+  .pl-finalcta{margin:60px -18px 0;padding:56px 24px}
+}
+
+/* ==================================================================
+   STOP PAGE "Plan Your Trip" CTA - lives in styles.css now but keep
+   a hook here so the design tokens are visible in one place.
+   ================================================================== */
