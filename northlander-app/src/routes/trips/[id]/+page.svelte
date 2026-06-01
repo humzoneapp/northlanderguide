@@ -5,6 +5,8 @@
   import Suitcase from '$lib/components/Suitcase.svelte';
   import RouteList from '$lib/components/RouteList.svelte';
   import StopPickerModal from '$lib/components/StopPickerModal.svelte';
+  import PackingList from '$lib/components/PackingList.svelte';
+  import BookingChecklist from '$lib/components/BookingChecklist.svelte';
   import {
     getTrip,
     renameTrip,
@@ -190,19 +192,11 @@
       <!-- Right column: Packing + Bookings stacked -->
       <div class="grid grid-cols-1 gap-6">
         <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-          <div class="kicker mb-1">Packing</div>
-          <h3 class="font-serif font-bold text-forest text-xl mb-2">Packing list</h3>
-          <p class="font-serif italic text-muted">
-            Your suitcase is empty. Toothbrush, train ticket, your better book...
-          </p>
+          <PackingList tripId={trip.id} />
         </article>
 
         <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-          <div class="kicker mb-1">Bookings</div>
-          <h3 class="font-serif font-bold text-forest text-xl mb-2">Booking checklist</h3>
-          <p class="font-serif italic text-muted">
-            Train tickets, rooms, restaurants. Nothing booked yet.
-          </p>
+          <BookingChecklist tripId={trip.id} />
         </article>
       </div>
     </div>

@@ -1,0 +1,320 @@
+<script>
+  import { onMount } from 'svelte';
+  import {
+    listPackingItems,
+    addPackingItem,
+    togglePackingItem,
+    renamePackingItem,
+    deletePackingItem
+  } from '$lib/stores/packing.js';
+
+  /** @type {string} */
+  export let tripId;
+
+  /** @type {import('$lib/stores/packing.js').PackingItem[]} */
+  let items = [];
+  let loaded = false;
+  let newName = '';
+  let busy = false;
+
+  /** id of the item currently being renamed inline, or null. */
+  let editingId = null;
+  let editingDraft = '';
+
+  $: tripId, refresh();
+  $: total = items.length;
+  $: packedCount = items.filter((i) => i.packed).length;
+
+  onMount(refresh);
+
+  async function refresh() {
+    if (!tripId) {
+      items = [];
+      loaded = true;
+      return;
+    }
+    items = await listPackingItems(tripId);
+    loaded = true;
+  }
+
+  async function handleAdd() {
+    if (busy) return;
+    const clean = newName.trim();
+    if (!clean) return;
+    busy = true;
+    try {
+      await addPackingItem(tripId, clean);
+      newName = '';
+      await refresh();
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function toggle(id) {
+    await togglePackingItem(id);
+    await refresh();
+  }
+
+  function startRename(item) {
+    editingId = item.id;
+    editingDraft = item.name;
+  }
+
+  async function commitRename() {
+    if (editingId == null) return;
+    const id = editingId;
+    const draft = editingDraft;
+    editingId = null;
+    editingDraft = '';
+    if (draft.trim()) {
+      await renamePackingItem(id, draft);
+      await refresh();
+    }
+  }
+
+  function cancelRename() {
+    editingId = null;
+    editingDraft = '';
+  }
+
+  async function remove(id) {
+    await deletePackingItem(id);
+    await refresh();
+  }
+</script>
+
+<div>
+  <div class="flex items-baseline justify-between mb-2">
+    <div>
+      <div class="kicker">Packing</div>
+      <h3 class="font-serif font-bold text-forest text-xl">Packing list</h3>
+    </div>
+    {#if total > 0}
+      <span class="font-serif italic text-rust text-sm flex-none">
+        {packedCount} of {total} packed
+      </span>
+    {/if}
+  </div>
+
+  {#if loaded}
+    {#if items.length === 0}
+      <p class="font-serif italic text-muted mb-3">
+        Your suitcase is empty. Toothbrush, train ticket, your better book...
+      </p>
+    {:else}
+      <ul class="pack-list">
+        {#each items as item (item.id)}
+          <li class="pack-row" class:is-packed={item.packed}>
+            <button
+              type="button"
+              class="check-token"
+              on:click={() => toggle(item.id)}
+              aria-label={item.packed ? `Unpack ${item.name}` : `Pack ${item.name}`}
+              aria-pressed={item.packed}
+            >
+              {#if item.packed}
+                <svg viewBox="0 0 16 16" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 8 7 12 13 4"></polyline>
+                </svg>
+              {/if}
+            </button>
+
+            {#if editingId === item.id}
+              <input
+                type="text"
+                bind:value={editingDraft}
+                maxlength="80"
+                class="pack-input"
+                on:blur={commitRename}
+                on:keydown={(e) => {
+                  if (e.key === 'Enter') { e.preventDefault(); commitRename(); }
+                  if (e.key === 'Escape') cancelRename();
+                }}
+                /* svelte-ignore a11y-autofocus */
+                autofocus
+              />
+            {:else}
+              <button
+                type="button"
+                class="pack-name"
+                on:click={() => startRename(item)}
+                aria-label={`Rename ${item.name}`}
+              >{item.name}</button>
+            {/if}
+
+            <button
+              type="button"
+              class="pack-remove"
+              on:click={() => remove(item.id)}
+              aria-label={`Remove ${item.name}`}
+            >&times;</button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    <!-- Quick add input - always available at the bottom -->
+    <form on:submit|preventDefault={handleAdd} class="pack-add">
+      <span class="pack-add-bullet" aria-hidden="true">+</span>
+      <input
+        type="text"
+        bind:value={newName}
+        maxlength="80"
+        placeholder="Add an item..."
+        class="pack-add-input"
+      />
+      <button
+        type="submit"
+        class="pack-add-btn"
+        disabled={busy || !newName.trim()}
+        aria-label="Add item"
+      >Add</button>
+    </form>
+  {/if}
+</div>
+
+<style>
+  .pack-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+  }
+  .pack-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
+  }
+  .pack-row:last-child {
+    border-bottom: 0;
+  }
+  .check-token {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #8b6a3a;
+    background: transparent;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .check-token:hover {
+    border-color: #7d3a1e;
+  }
+  .pack-row.is-packed .check-token {
+    border-color: #0a2d21;
+    background: #c9a84c;
+    color: #0a2d21;
+  }
+  .pack-name {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 4px 0;
+    cursor: text;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 1rem;
+    color: #241f1a;
+    transition: color 0.15s;
+  }
+  .pack-name:hover {
+    color: #7d3a1e;
+  }
+  .pack-row.is-packed .pack-name {
+    text-decoration: line-through;
+    text-decoration-color: #c9a84c;
+    text-decoration-thickness: 2px;
+    color: #5a4f3d;
+  }
+  .pack-input {
+    flex: 1;
+    min-width: 0;
+    background: #fffdf6;
+    border: 0;
+    border-bottom: 2px solid #7d3a1e;
+    padding: 4px 2px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 1rem;
+    color: #241f1a;
+    outline: none;
+  }
+  .pack-remove {
+    flex: none;
+    background: transparent;
+    border: 0;
+    color: rgba(139, 106, 58, 0.55);
+    font-size: 20px;
+    line-height: 1;
+    padding: 4px 6px;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .pack-remove:hover {
+    color: #7d3a1e;
+  }
+
+  .pack-add {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px dashed rgba(139, 106, 58, 0.45);
+  }
+  .pack-add-bullet {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px dashed #7d3a1e;
+    color: #7d3a1e;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .pack-add-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    padding: 4px 0;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 1rem;
+    color: #241f1a;
+    outline: none;
+  }
+  .pack-add-input::placeholder {
+    color: rgba(90, 79, 61, 0.55);
+    font-style: italic;
+  }
+  .pack-add-btn {
+    flex: none;
+    background: transparent;
+    border: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    color: #7d3a1e;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.15s;
+  }
+  .pack-add-btn:hover:not(:disabled) {
+    color: #0a2d21;
+  }
+  .pack-add-btn:disabled {
+    color: rgba(125, 58, 30, 0.4);
+    cursor: not-allowed;
+  }
+</style>
