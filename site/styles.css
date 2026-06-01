@@ -1900,18 +1900,21 @@ footer{background:var(--rail-deep);color:#cad7cf;padding:2.6rem 1.4rem 1.6rem}
 @media (max-width: 520px) { .stop-explorer .se-grid { grid-template-columns: 1fr; } }
 
 /* ===== "Plan a Trip" nav pill (shared across all pages) =====
-   Sits inline with other .topnav items; gold hover ties it to the
-   /plan page's vintage ticket palette. */
+   Sits inline with other .topnav items. The default border picks up
+   the mustard gold from the logo "Guide" wordmark so the pill reads
+   as part of the brand. On hover it flips to a solid ivory pill with
+   forest-green text, matching the topbar's deep evergreen rather
+   than the mustard-yellow it used to use. */
 .topnav-plan{
   font-family:'Spline Sans',sans-serif;
   font-size:.82rem;font-weight:600;letter-spacing:.02em;
   color:#f3ece0;text-decoration:none;
   padding:.35rem .8rem;border-radius:3px;
-  border:1px dashed rgba(243,236,224,.55);
+  border:1px dashed var(--poster-gold);
   transition:background .15s, color .15s, border-color .15s;
 }
 .topnav-plan:hover{
-  background:#c9a84c;color:#0a2d21;border-color:#c9a84c;
+  background:#f3ece0;color:var(--rail-deep);border-color:#f3ece0;
 }
 
 /* ===== Stop-page "Plan Your Trip" CTA card =====
