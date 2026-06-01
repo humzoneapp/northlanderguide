@@ -16,6 +16,9 @@
   let submitting = false;
 
   $: count = working.size;
+  /* Direction metadata for the header subtitle. Computed up here
+     because {@const} can only sit inside a logic block in Svelte 4. */
+  $: dirMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0];
 
   onMount(() => {
     /* Re-seed from the prop in case the modal is reopened on the
@@ -75,7 +78,6 @@
         <span id="stop-picker-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
           Choose Your Stops
         </span>
-        {@const dirMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0]}
         <span class="text-gold font-serif italic text-[12px]">{dirMeta.from} to {dirMeta.to}, {dirMeta.label.toLowerCase()}</span>
       </div>
       <button
