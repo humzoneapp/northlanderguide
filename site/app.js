@@ -1329,10 +1329,17 @@ function cardArt(cat, seed){
    principle (crossfade is the same idea, simpler). */
 function imageBlock(item, cat, seed, cls){
   const fallback = cardArt(cat, seed);
-  /* Prefer Airtable photos (full URLs), then the static build image. */
-  const hero = (item && Array.isArray(item.photos) && item.photos.length)
-    ? item.photos[0]
-    : (item && item.image);
+  /* Prefer the static local build image over Airtable photo URLs.
+     Airtable's v5.airtableusercontent.com signed attachment URLs
+     expire after a few hours, so a visitor returning to the site
+     after expiry would see every card image fail to load. The local
+     images/listings/*.jpg paths are baked at sync time and never
+     expire. The Airtable URL is kept as a fallback for the rare case
+     where a newly-added listing has not yet had its photos cached
+     locally. */
+  const hero = (item && item.image)
+    ? item.image
+    : (item && Array.isArray(item.photos) && item.photos.length ? item.photos[0] : null);
   if(hero){
     /* Loading state is just the neutral grey background on the
        container (CSS). The illustrated fallback is hidden by
@@ -1363,14 +1370,15 @@ function imageBlock(item, cat, seed, cls){
 ------------------------------------------------------------------- */
 function detailImageBlock(item, cat, seed){
   const fallback = cardArt(cat, seed);
-  /* Prefer Airtable photos (full URLs); fall back to the static build
-     images array. Both are used directly as image src values. The array
-     order is preserved exactly with no resorting, so the first photo is
-     the cover and the gallery follows the Airtable attachment order. */
-  const photos = (item && Array.isArray(item.photos)) ? item.photos.filter(Boolean) : [];
-  const imgs = photos.length
-    ? photos
-    : ((item && Array.isArray(item.images)) ? item.images.filter(Boolean) : []);
+  /* Prefer the local static images array over Airtable's signed photo
+     URLs. Airtable's v5.airtableusercontent.com URLs expire after a
+     few hours, which silently breaks every gallery image for
+     returning visitors. The local images/listings/*.jpg paths are
+     baked at sync time and stable. Airtable URLs remain as a
+     fallback for listings that have not yet been image-cached. */
+  const localImgs = (item && Array.isArray(item.images)) ? item.images.filter(Boolean) : [];
+  const airtablePhotos = (item && Array.isArray(item.photos)) ? item.photos.filter(Boolean) : [];
+  const imgs = localImgs.length ? localImgs : airtablePhotos;
   /* Single image path: behaviour identical to imageBlock. The
      illustrated fallback is hidden by default and only revealed
      if the photo errors out. */
