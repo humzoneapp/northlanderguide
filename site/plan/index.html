@@ -1,17 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-CA">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Plan Your Northlander Trip - NorthlanderGuide.com</title>
-<meta name="description" content="Plan your Northlander train trip in one place. Pack your route, stops, packing list, bookings, budget and itinerary into a single suitcase with Northlander.app.">
+
+<!-- Primary SEO: title leads with the main keyword phrase ("Northlander
+     Train Trip Planner") then the differentiator ("Free Itinerary App")
+     so the snippet earns clicks for both intent ("plan a trip") and
+     value ("free"). Stays under 60 chars to avoid Google truncation. -->
+<title>Northlander Train Trip Planner: Free Itinerary App</title>
+<meta name="description" content="Plan your Ontario Northland train trip from Toronto to Cochrane. Save stops from the guide, build packing lists, track bookings and budget, work offline. Free Carry-On, no credit card.">
 <link rel="canonical" href="https://northlanderguide.com/plan">
 
-<meta property="og:title" content="Pack Your Perfect Northlander Trip">
-<meta property="og:description" content="Discover on NorthlanderGuide.com. Plan in Northlander.app.">
+<!-- Lets Google use the full hero image for rich snippets and gives
+     it permission to generate text snippets and video previews. -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="author" content="NorthlanderGuide">
+<meta name="publisher" content="NorthlanderGuide">
+<meta name="theme-color" content="#0a2d21">
+<meta name="format-detection" content="telephone=no">
+<meta name="application-name" content="NorthlanderGuide">
+
+<!-- Open Graph (Facebook, LinkedIn, Slack, iMessage previews) -->
+<meta property="og:site_name" content="NorthlanderGuide">
+<meta property="og:locale" content="en_CA">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://northlanderguide.com/plan">
+<meta property="og:title" content="Plan Your Northlander Train Trip: Free Itinerary App">
+<meta property="og:description" content="Pack your Northern Ontario train trip into one suitcase. Save stops, build packing lists, track bookings and budget, work offline. Free Carry-On, no credit card.">
 <meta property="og:image" content="https://northlanderguide.com/images/northlander-plan-my-trip.jpeg">
+<meta property="og:image:alt" content="A vintage suitcase with route stickers, a journal, a phone, a train ticket and the Northlander train at a Northern Ontario station">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Plan Your Northlander Train Trip: Free Itinerary App">
+<meta name="twitter:description" content="Pack your Northern Ontario train trip into one suitcase. Save stops, build packing lists, track bookings, work offline. Free Carry-On.">
+<meta name="twitter:image" content="https://northlanderguide.com/images/northlander-plan-my-trip.jpeg">
+<meta name="twitter:image:alt" content="A vintage suitcase with route stickers, a journal, a phone and the Northlander train at a Northern Ontario station">
+
+<!-- Preconnect to Northlander.app so the hero CTA is instant. -->
+<link rel="preconnect" href="https://northlander.app">
+<link rel="dns-prefetch" href="https://northlander.app">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +50,226 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css"/>
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/plan-page.css">
+
+<!-- ===== Structured data (JSON-LD) =====
+     A single @graph that interlinks Organization, WebSite, WebPage,
+     BreadcrumbList, SoftwareApplication (with the two pricing tiers
+     as Offers), HowTo (3 planning steps), and FAQPage (7 Q&As).
+     Tested against the schema.org spec and Google's Rich Results
+     guidelines (2025-2026 cycle): WebPage, Organization,
+     BreadcrumbList, SoftwareApplication and FAQPage are all
+     eligible for indexing and richer SERP presentation. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://northlanderguide.com/#organization",
+      "name": "NorthlanderGuide",
+      "url": "https://northlanderguide.com",
+      "description": "Independent traveller's directory and trip planner for the Ontario Northland Northlander train route from Toronto Union to Cochrane.",
+      "areaServed": {
+        "@type": "AdministrativeArea",
+        "name": "Northern Ontario, Canada"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://northlanderguide.com/#website",
+      "url": "https://northlanderguide.com",
+      "name": "NorthlanderGuide.com",
+      "description": "A traveller's directory of restaurants, parks, attractions and events at every stop on the Northlander train, Toronto to Timmins, Ontario.",
+      "publisher": { "@id": "https://northlanderguide.com/#organization" },
+      "inLanguage": "en-CA",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://northlanderguide.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://northlanderguide.com/plan#webpage",
+      "url": "https://northlanderguide.com/plan",
+      "name": "Plan Your Northlander Train Trip",
+      "description": "Plan your Ontario Northland train trip with route, packing list, bookings, budget and offline itinerary in one place. Free Carry-On suitcase, no credit card needed.",
+      "isPartOf": { "@id": "https://northlanderguide.com/#website" },
+      "about": { "@id": "https://northlanderguide.com/plan#app" },
+      "breadcrumb": { "@id": "https://northlanderguide.com/plan#breadcrumb" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://northlanderguide.com/images/northlander-plan-my-trip.jpeg",
+        "caption": "A vintage suitcase, journal, phone, ticket and the Northlander train at a Northern Ontario station"
+      },
+      "inLanguage": "en-CA",
+      "datePublished": "2026-06-01",
+      "dateModified": "2026-06-01",
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": [".pl-hero-title", ".pl-hero-tagline", ".pl-section-h2"]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://northlanderguide.com/plan#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://northlanderguide.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Plan a Trip", "item": "https://northlanderguide.com/plan" }
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://northlanderguide.com/plan#app",
+      "name": "Northlander.app",
+      "url": "https://northlander.app",
+      "applicationCategory": "TravelApplication",
+      "applicationSubCategory": "Trip Planner",
+      "operatingSystem": "Web, iOS, Android",
+      "description": "Trip planner built for the Ontario Northland Northlander train route. Save stops from NorthlanderGuide.com with one tap, auto-fill train boarding and arrival times, add your own activities between trains, and access your itinerary offline.",
+      "softwareVersion": "1.0",
+      "publisher": { "@id": "https://northlanderguide.com/#organization" },
+      "featureList": [
+        "Route map of every Northlander stop",
+        "Packing list with seasonal items",
+        "Travel diary",
+        "Bucket list",
+        "Events along your route",
+        "Booking checklist",
+        "Train schedule auto-fill",
+        "Custom activity time slots",
+        "Offline itinerary access",
+        "Budget tracker (First Class)",
+        "Accommodation notes (First Class)",
+        "Photo album (First Class)",
+        "PDF itinerary export (First Class)",
+        "Shareable trip link (First Class)",
+        "Post-trip recap (First Class)"
+      ],
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Carry-On",
+          "price": "0",
+          "priceCurrency": "CAD",
+          "availability": "https://schema.org/InStock",
+          "url": "https://northlander.app",
+          "description": "Free forever. One trip suitcase, up to five stops, packing list, travel diary, bucket list, route map, events along the route, and booking checklist. No credit card needed."
+        },
+        {
+          "@type": "Offer",
+          "name": "First Class",
+          "price": "9.99",
+          "priceCurrency": "CAD",
+          "availability": "https://schema.org/InStock",
+          "url": "https://northlander.app",
+          "description": "One-time payment, no subscription. Unlimited trip suitcases and stops, budget tracker, accommodation notes, photo album, PDF export of full itinerary, shareable trip link, and post-trip recap."
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://northlanderguide.com/plan#howto",
+      "name": "How to plan a Northlander train trip",
+      "description": "Three steps to plan your Ontario Northland train trip using NorthlanderGuide.com and Northlander.app.",
+      "totalTime": "PT15M",
+      "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "CAD",
+        "value": "0"
+      },
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Browse the Guide",
+          "text": "Explore station pages, events, attractions, food, lodging and route inspiration on NorthlanderGuide.com.",
+          "url": "https://northlanderguide.com/#stopnav"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Pack Your Bag",
+          "text": "Send your favourite stops into Northlander.app and build your suitcase-style trip plan.",
+          "url": "https://northlander.app"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Journey With Confidence",
+          "text": "Use your checklist, map, notes, budget and itinerary before, during and after your trip. Works offline once loaded.",
+          "url": "https://northlander.app"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://northlanderguide.com/plan#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Carry-On really free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Create one trip suitcase with up to 5 stops and use all core planning tools for free. No credit card needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does $9.99 one-time mean?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You pay once for First Class access. No monthly fees, no subscription, no renewal."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I plan more than one trip?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. First Class includes unlimited trip suitcases."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I print my itinerary?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. First Class includes PDF export of your full itinerary."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Northlander.app separate from NorthlanderGuide.com?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. NorthlanderGuide.com helps you discover the route. Northlander.app helps you save and organise your trip."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need a train ticket to use it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. You can plan your trip before booking your ticket."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will Northlander.app work if I lose signal on the train?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Once your trip is loaded, the app caches everything locally so your itinerary, packing list, notes and booking checklist stay available even when you're between cell towers. Changes you make offline sync the next time you have a connection."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body class="plan-page-body">
 
@@ -91,7 +340,8 @@
   <section class="pl-hero" aria-label="Pack your Northlander trip">
     <div class="pl-hero-frame">
       <img class="pl-hero-img" src="/images/northlander-plan-my-trip.jpeg"
-           alt="A vintage suitcase with route stickers beside a train, a journal, a phone and a ticket at a Northern Ontario station">
+           alt="A vintage suitcase with route stickers beside a train, a journal, a phone and a ticket at a Northern Ontario station"
+           fetchpriority="high" loading="eager" decoding="async">
       <div class="pl-hero-vignette" aria-hidden="true"></div>
       <span class="pl-hero-stamp" aria-hidden="true">
         <span>One-Way</span>
@@ -180,33 +430,33 @@
   <div class="pl-marquee">
     <div class="pl-marquee-track">
       <!-- Doubled for seamless loop -->
-      <a class="pl-marquee-item" href="/stops/union" aria-label="Explore the Toronto Union stop guide"><img src="/images/northlander-toronto-union.jpeg" alt="Toronto Union"><span class="pl-marquee-name">Toronto Union</span></a>
-      <a class="pl-marquee-item" href="/stops/washago" aria-label="Explore the Washago stop guide"><img src="/images/northlander-washago.jpeg" alt="Washago"><span class="pl-marquee-name">Washago</span></a>
-      <a class="pl-marquee-item" href="/stops/gravenhurst" aria-label="Explore the Gravenhurst stop guide"><img src="/images/northlander-gravenhurst.jpeg" alt="Gravenhurst"><span class="pl-marquee-name">Gravenhurst</span></a>
-      <a class="pl-marquee-item" href="/stops/bracebridge" aria-label="Explore the Bracebridge stop guide"><img src="/images/northlander-bracebridge.jpeg" alt="Bracebridge"><span class="pl-marquee-name">Bracebridge</span></a>
-      <a class="pl-marquee-item" href="/stops/huntsville" aria-label="Explore the Huntsville stop guide"><img src="/images/northlander-huntsville.jpeg" alt="Huntsville"><span class="pl-marquee-name">Huntsville</span></a>
-      <a class="pl-marquee-item" href="/stops/southriver" aria-label="Explore the South River stop guide"><img src="/images/northlander-south-river.jpeg" alt="South River"><span class="pl-marquee-name">South River</span></a>
-      <a class="pl-marquee-item" href="/stops/temagami" aria-label="Explore the Temagami stop guide"><img src="/images/northlander-temagami.jpeg" alt="Temagami"><span class="pl-marquee-name">Temagami</span></a>
-      <a class="pl-marquee-item" href="/stops/northbay" aria-label="Explore the North Bay stop guide"><img src="/images/northlander-north-bay.jpeg" alt="North Bay"><span class="pl-marquee-name">North Bay</span></a>
-      <a class="pl-marquee-item" href="/stops/temiskaming" aria-label="Explore the Temiskaming Shores stop guide"><img src="/images/northlander-temiskaming-shores.jpeg" alt="Temiskaming Shores"><span class="pl-marquee-name">Temiskaming Shores</span></a>
-      <a class="pl-marquee-item" href="/stops/englehart" aria-label="Explore the Englehart stop guide"><img src="/images/northlander-englehart.jpeg" alt="Englehart"><span class="pl-marquee-name">Englehart</span></a>
-      <a class="pl-marquee-item" href="/stops/kirklandlake" aria-label="Explore the Kirkland Lake stop guide"><img src="/images/northlander-kirkland-lake.jpeg" alt="Kirkland Lake"><span class="pl-marquee-name">Kirkland Lake</span></a>
-      <a class="pl-marquee-item" href="/stops/timmins" aria-label="Explore the Timmins stop guide"><img src="/images/northlander-timmins-porcupine.jpeg" alt="Timmins"><span class="pl-marquee-name">Timmins</span></a>
-      <a class="pl-marquee-item" href="/stops/cochrane" aria-label="Explore the Cochrane stop guide"><img src="/images/northlander-cochrane.jpeg" alt="Cochrane"><span class="pl-marquee-name">Cochrane</span></a>
+      <a class="pl-marquee-item" href="/stops/union" aria-label="Explore the Toronto Union stop guide"><img src="/images/northlander-toronto-union.jpeg" alt="Toronto Union" loading="lazy" decoding="async"><span class="pl-marquee-name">Toronto Union</span></a>
+      <a class="pl-marquee-item" href="/stops/washago" aria-label="Explore the Washago stop guide"><img src="/images/northlander-washago.jpeg" alt="Washago" loading="lazy" decoding="async"><span class="pl-marquee-name">Washago</span></a>
+      <a class="pl-marquee-item" href="/stops/gravenhurst" aria-label="Explore the Gravenhurst stop guide"><img src="/images/northlander-gravenhurst.jpeg" alt="Gravenhurst" loading="lazy" decoding="async"><span class="pl-marquee-name">Gravenhurst</span></a>
+      <a class="pl-marquee-item" href="/stops/bracebridge" aria-label="Explore the Bracebridge stop guide"><img src="/images/northlander-bracebridge.jpeg" alt="Bracebridge" loading="lazy" decoding="async"><span class="pl-marquee-name">Bracebridge</span></a>
+      <a class="pl-marquee-item" href="/stops/huntsville" aria-label="Explore the Huntsville stop guide"><img src="/images/northlander-huntsville.jpeg" alt="Huntsville" loading="lazy" decoding="async"><span class="pl-marquee-name">Huntsville</span></a>
+      <a class="pl-marquee-item" href="/stops/southriver" aria-label="Explore the South River stop guide"><img src="/images/northlander-south-river.jpeg" alt="South River" loading="lazy" decoding="async"><span class="pl-marquee-name">South River</span></a>
+      <a class="pl-marquee-item" href="/stops/temagami" aria-label="Explore the Temagami stop guide"><img src="/images/northlander-temagami.jpeg" alt="Temagami" loading="lazy" decoding="async"><span class="pl-marquee-name">Temagami</span></a>
+      <a class="pl-marquee-item" href="/stops/northbay" aria-label="Explore the North Bay stop guide"><img src="/images/northlander-north-bay.jpeg" alt="North Bay" loading="lazy" decoding="async"><span class="pl-marquee-name">North Bay</span></a>
+      <a class="pl-marquee-item" href="/stops/temiskaming" aria-label="Explore the Temiskaming Shores stop guide"><img src="/images/northlander-temiskaming-shores.jpeg" alt="Temiskaming Shores" loading="lazy" decoding="async"><span class="pl-marquee-name">Temiskaming Shores</span></a>
+      <a class="pl-marquee-item" href="/stops/englehart" aria-label="Explore the Englehart stop guide"><img src="/images/northlander-englehart.jpeg" alt="Englehart" loading="lazy" decoding="async"><span class="pl-marquee-name">Englehart</span></a>
+      <a class="pl-marquee-item" href="/stops/kirklandlake" aria-label="Explore the Kirkland Lake stop guide"><img src="/images/northlander-kirkland-lake.jpeg" alt="Kirkland Lake" loading="lazy" decoding="async"><span class="pl-marquee-name">Kirkland Lake</span></a>
+      <a class="pl-marquee-item" href="/stops/timmins" aria-label="Explore the Timmins stop guide"><img src="/images/northlander-timmins-porcupine.jpeg" alt="Timmins" loading="lazy" decoding="async"><span class="pl-marquee-name">Timmins</span></a>
+      <a class="pl-marquee-item" href="/stops/cochrane" aria-label="Explore the Cochrane stop guide"><img src="/images/northlander-cochrane.jpeg" alt="Cochrane" loading="lazy" decoding="async"><span class="pl-marquee-name">Cochrane</span></a>
 
-      <a class="pl-marquee-item" href="/stops/union" aria-hidden="true" tabindex="-1"><img src="/images/northlander-toronto-union.jpeg" alt=""><span class="pl-marquee-name">Toronto Union</span></a>
-      <a class="pl-marquee-item" href="/stops/washago" aria-hidden="true" tabindex="-1"><img src="/images/northlander-washago.jpeg" alt=""><span class="pl-marquee-name">Washago</span></a>
-      <a class="pl-marquee-item" href="/stops/gravenhurst" aria-hidden="true" tabindex="-1"><img src="/images/northlander-gravenhurst.jpeg" alt=""><span class="pl-marquee-name">Gravenhurst</span></a>
-      <a class="pl-marquee-item" href="/stops/bracebridge" aria-hidden="true" tabindex="-1"><img src="/images/northlander-bracebridge.jpeg" alt=""><span class="pl-marquee-name">Bracebridge</span></a>
-      <a class="pl-marquee-item" href="/stops/huntsville" aria-hidden="true" tabindex="-1"><img src="/images/northlander-huntsville.jpeg" alt=""><span class="pl-marquee-name">Huntsville</span></a>
-      <a class="pl-marquee-item" href="/stops/southriver" aria-hidden="true" tabindex="-1"><img src="/images/northlander-south-river.jpeg" alt=""><span class="pl-marquee-name">South River</span></a>
-      <a class="pl-marquee-item" href="/stops/temagami" aria-hidden="true" tabindex="-1"><img src="/images/northlander-temagami.jpeg" alt=""><span class="pl-marquee-name">Temagami</span></a>
-      <a class="pl-marquee-item" href="/stops/northbay" aria-hidden="true" tabindex="-1"><img src="/images/northlander-north-bay.jpeg" alt=""><span class="pl-marquee-name">North Bay</span></a>
-      <a class="pl-marquee-item" href="/stops/temiskaming" aria-hidden="true" tabindex="-1"><img src="/images/northlander-temiskaming-shores.jpeg" alt=""><span class="pl-marquee-name">Temiskaming Shores</span></a>
-      <a class="pl-marquee-item" href="/stops/englehart" aria-hidden="true" tabindex="-1"><img src="/images/northlander-englehart.jpeg" alt=""><span class="pl-marquee-name">Englehart</span></a>
-      <a class="pl-marquee-item" href="/stops/kirklandlake" aria-hidden="true" tabindex="-1"><img src="/images/northlander-kirkland-lake.jpeg" alt=""><span class="pl-marquee-name">Kirkland Lake</span></a>
-      <a class="pl-marquee-item" href="/stops/timmins" aria-hidden="true" tabindex="-1"><img src="/images/northlander-timmins-porcupine.jpeg" alt=""><span class="pl-marquee-name">Timmins</span></a>
-      <a class="pl-marquee-item" href="/stops/cochrane" aria-hidden="true" tabindex="-1"><img src="/images/northlander-cochrane.jpeg" alt=""><span class="pl-marquee-name">Cochrane</span></a>
+      <a class="pl-marquee-item" href="/stops/union" aria-hidden="true" tabindex="-1"><img src="/images/northlander-toronto-union.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Toronto Union</span></a>
+      <a class="pl-marquee-item" href="/stops/washago" aria-hidden="true" tabindex="-1"><img src="/images/northlander-washago.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Washago</span></a>
+      <a class="pl-marquee-item" href="/stops/gravenhurst" aria-hidden="true" tabindex="-1"><img src="/images/northlander-gravenhurst.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Gravenhurst</span></a>
+      <a class="pl-marquee-item" href="/stops/bracebridge" aria-hidden="true" tabindex="-1"><img src="/images/northlander-bracebridge.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Bracebridge</span></a>
+      <a class="pl-marquee-item" href="/stops/huntsville" aria-hidden="true" tabindex="-1"><img src="/images/northlander-huntsville.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Huntsville</span></a>
+      <a class="pl-marquee-item" href="/stops/southriver" aria-hidden="true" tabindex="-1"><img src="/images/northlander-south-river.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">South River</span></a>
+      <a class="pl-marquee-item" href="/stops/temagami" aria-hidden="true" tabindex="-1"><img src="/images/northlander-temagami.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Temagami</span></a>
+      <a class="pl-marquee-item" href="/stops/northbay" aria-hidden="true" tabindex="-1"><img src="/images/northlander-north-bay.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">North Bay</span></a>
+      <a class="pl-marquee-item" href="/stops/temiskaming" aria-hidden="true" tabindex="-1"><img src="/images/northlander-temiskaming-shores.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Temiskaming Shores</span></a>
+      <a class="pl-marquee-item" href="/stops/englehart" aria-hidden="true" tabindex="-1"><img src="/images/northlander-englehart.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Englehart</span></a>
+      <a class="pl-marquee-item" href="/stops/kirklandlake" aria-hidden="true" tabindex="-1"><img src="/images/northlander-kirkland-lake.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Kirkland Lake</span></a>
+      <a class="pl-marquee-item" href="/stops/timmins" aria-hidden="true" tabindex="-1"><img src="/images/northlander-timmins-porcupine.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Timmins</span></a>
+      <a class="pl-marquee-item" href="/stops/cochrane" aria-hidden="true" tabindex="-1"><img src="/images/northlander-cochrane.jpeg" alt="" loading="lazy" decoding="async"><span class="pl-marquee-name">Cochrane</span></a>
     </div>
   </div>
 
@@ -219,7 +469,7 @@
     <div class="pl-scrapbook">
       <div class="pl-polaroid pl-polaroid-1">
         <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
-        <img src="/images/northlander-bracebridge.jpeg" alt="Muskoka in autumn, a view from one stop on the route">
+        <img src="/images/northlander-bracebridge.jpeg" alt="Muskoka in autumn, a view from one stop on the route" loading="lazy" decoding="async">
         <figcaption>
           <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 2 days</span>
           <strong>Muskoka Weekend</strong>
@@ -228,7 +478,7 @@
       </div>
       <div class="pl-polaroid pl-polaroid-2">
         <span class="pl-tape pl-tape-tr" aria-hidden="true"></span>
-        <img src="/images/northlander-north-bay.jpeg" alt="North Bay shoreline">
+        <img src="/images/northlander-north-bay.jpeg" alt="North Bay shoreline" loading="lazy" decoding="async">
         <figcaption>
           <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 4 days</span>
           <strong>Lakeside in North Bay</strong>
@@ -237,7 +487,7 @@
       </div>
       <div class="pl-polaroid pl-polaroid-3">
         <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
-        <img src="/images/northlander-cochrane.jpeg" alt="Cochrane in winter, the end of the Northlander line">
+        <img src="/images/northlander-cochrane.jpeg" alt="Cochrane in winter, the end of the Northlander line" loading="lazy" decoding="async">
         <figcaption>
           <span class="pl-polaroid-meta">Trip <span class="pl-polaroid-dot"></span> 6 days</span>
           <strong>Cochrane in Winter</strong>
@@ -519,7 +769,7 @@
           </div>
           <div class="pl-journal-polaroid">
             <span class="pl-tape pl-tape-tl" aria-hidden="true"></span>
-            <img src="/images/northlander-north-bay.jpeg" alt="">
+            <img src="/images/northlander-north-bay.jpeg" alt="North Bay, mile 226 on the Northlander route" loading="lazy" decoding="async">
             <figcaption>North Bay, mile 226</figcaption>
           </div>
           <div class="pl-journal-tag">
