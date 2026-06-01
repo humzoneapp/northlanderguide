@@ -8,6 +8,7 @@
   import StopPickerModal from '$lib/components/StopPickerModal.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
+  import TravelDiary from '$lib/components/TravelDiary.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import {
     getTrip,
@@ -225,6 +226,13 @@
         </article>
       </div>
     </div>
+  </section>
+
+  <!-- ===== Journey: travel diary ===== -->
+  <section class="max-w-[1080px] mx-auto px-6 mt-8">
+    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
+      <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
+    </article>
   </section>
 
   {#if showStopPicker}
