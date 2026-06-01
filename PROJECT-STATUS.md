@@ -56,9 +56,25 @@ what's already wired. Keep this short; details belong in the code.
 - `api/enrich-listing.js` Vercel function exists and is deployed. Not yet wired to an Airtable automation - currently triggered manually via the Actions tab.
 - 610 active listings have been auto-enriched under the strict prompt, then `Needs Review` was bulk-cleared and a full sync published them.
 
+### Image pipeline
+
+- Listing cards prefer the **stable local image paths** baked into `images/listings/*.jpg` over Airtable's signed attachment URLs (`v5.airtableusercontent.com/...`). The Airtable URLs expire roughly every 2 hours; before the fix, every listing card image would silently fail to load for any returning visitor after the URL TTL, leaving cards looking empty. Both `imageBlock` (card grid) and `detailImageBlock` (detail gallery) check `item.image` / `item.images` first, fall through to `item.photos` only as a fallback for very newly-added listings that have not yet been image-cached.
+- 604 of 612 listings currently have local image paths. The 8 without will use the SVG illustrated fallback (or a temporary Airtable URL until the next photo build).
+- Data files use `?v=N` in script tags (`/listings-data.js?v=3` etc.) for one-shot cache busts. Combined with the `Cache-Control: max-age=0, must-revalidate` headers in `vercel.json`, this gives us both a forced bust on deploy and ongoing freshness without long-cached stale copies.
+
 ### Stops + homepage
 - 16 stops in canonical order; STOP_ID slug map kept in sync between `backend/sync-from-airtable.js`, `backend/enrich-listing.js`, `site/data.js`.
 - Don't Forget Items section uses Phosphor light icons.
+
+### Plan a Trip page (/plan)
+- `/plan` (`site/plan/index.html` + `site/plan-page.css`) is a vintage-railway-poster + travel-magazine landing page for converting NorthlanderGuide.com visitors into Northlander.app users. Twelve chapter-titled sections: cinematic hero with `images/northlander-plan-my-trip.jpeg`, editorial opening with pull-quote and stats sidebar, full-bleed scrolling photo marquee of every stop, scrapbook of three tilted polaroid trip cards (Muskoka Weekend, Lakeside in North Bay, Cochrane in Winter), six-feature grid, two pricing tickets (Carry-On free / First Class $9.99 one-time), why-upgrade scenarios, forest-green inspirational ticker band, three-step "How It Works", full-bleed Use Cases tiles backed by real stop photos, journal-spread app preview, full-bleed testimonial, trust grid, FAQ accordion, full-bleed final CTA. Sticky chapter TOC mirrors the stop-page `.sp-toc` pattern.
+- Pricing tickets are typographic only (no illustration art). Both share warm cream paper; Carry-On has a rust vertical "Northlander Pass" stub on the left, First Class has a forest-green stub plus a rust "Best Value" sticker overhanging the top-right corner. Every feature has a one-line italic Fraunces description under the bold Spline feature name. Carry-On's price reads "Free / always" so its header column height matches First Class's "$9.99 / one-time".
+- Tasteful motion (all gated behind `prefers-reduced-motion: reduce`): hero stamp, Best Value sticker, and final-CTA stamp sway gently; the chapter-divider train icon bobs; polaroids lift and straighten on hover; feature, use-case, and trust icons each get a small hover transform; step numbers lift; hero CTAs press up.
+- `/plan` loads `/data.js` and `/stop-explorer.js` so the topbar "Explore Stops" button opens the explorer modal AND the "More" dropdown works (the dropdown handler lives in `stop-explorer.js`, not in `app.js`). Do not add a second dropdown handler inline; it races with the explorer one and immediately closes the menu after it opens. Back-to-top uses `window.scrollTo({behavior:'smooth'})` because the native `href="#top"` is unreliable behind the sticky topbar.
+
+### Plan a Trip nav pill + stop-page CTA
+- "Plan a Trip" topnav pill is in `site/index.html`, `site/stops/index.html`, `site/submit-event/index.html`, plus the mobile menu on each. Styles live in `site/styles.css` selected as `a.topnav-plan` (not `.topnav-plan`) so the rule out-specifies the earlier `.topnav a:hover{color:var(--gold)}` and the text doesn't pick up the gold link-hover. Default border is the dashed logo gold; hover flips the background to rusty brown `poster-crimson` while the text stays ivory.
+- Each stop page (`site/stop-page.js`, between the "Continue Your Journey" and "Before You Board" sections) renders a "Plan Your Trip" CTA card pointing at `/plan`. Styles live in `site/styles.css` under `.sp-plan-trip-cta`.
 
 ## Env vars and secrets
 
@@ -79,3 +95,4 @@ what's already wired. Keep this short; details belong in the code.
 - `backend/server.js` Eventbrite proxy is dead code now; safe to delete if we never reintroduce live Eventbrite imports.
 - "Submit a Listing" and "Advertise" links (header and footer) currently point at `#` placeholders. Same Airtable-backed pattern as Submit an Event would let us ship these quickly.
 - The dedicated `/submit-event/` page is not linked in the XML sitemap (no sitemap exists yet). Should be added when we build one.
+- New listings added in Airtable since the last static photo build will fall back to Airtable URLs in `item.photos` until `backend/build-static.js` is re-run. Those fallback URLs expire after ~2 hours, so brand-new listings can briefly look image-less to returning visitors. Re-running the photo build resolves it; consider wiring it into the listings sync workflow once we trust the script not to thrash.
