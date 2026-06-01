@@ -33,14 +33,19 @@ export const LEATHER_COLORS = [
 
 /* The database. Bumping the version triggers Dexie's upgrade path;
    keep migrations small and well-commented as the schema grows. */
+/* v1 - original four trip-scoped tables.
+   v2 - adds bucketItems for the cross-trip wishlist (places I
+        want to visit later). Additive only; no data migration on
+        existing installs. */
 export const db = new Dexie('northlander');
 db.version(1).stores({
-  // pkey = id; secondary indexes on name + updatedAt for sort/search
   trips: '&id, name, updatedAt',
-  // future: packingItems, bookings, diaryEntries, photos, budgetEntries
   packingItems: '++id, tripId, name, packed',
   bookings: '++id, tripId, kind, status, dueDate',
   diaryEntries: '++id, tripId, stopId, createdAt'
+});
+db.version(2).stores({
+  bucketItems: '++id, kind, stopId, createdAt'
 });
 
 /* ---------- slugging ----------

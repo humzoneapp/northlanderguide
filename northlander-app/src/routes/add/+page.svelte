@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { trips, createTrip, LEATHER_COLORS } from '$lib/stores/trips.js';
   import { addBooking, BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import { addBucketItem, deleteBucketItem } from '$lib/stores/bucket.js';
   import Suitcase from '$lib/components/Suitcase.svelte';
 
   /* Payload parsed from the URL. Defaults are deliberately gentle:
@@ -15,12 +16,14 @@
     stop: '',
     address: '',
     url: '',
-    source: 'guide'
+    source: 'guide',
+    bucketId: null
   };
 
   let loaded = false;
   let saving = false;
   let saved = false;
+  let savedBucket = false;
   let pickedTripId = '';
   let newTripName = '';
   let pickerMode = 'existing'; // 'existing' | 'new'
@@ -31,13 +34,15 @@
   onMount(() => {
     const url = $page.url;
     const get = (k) => (url.searchParams.get(k) || '').trim();
+    const bucketIdRaw = get('bucketId');
     payload = {
       name: get('name').slice(0, 120) || 'From the Guide',
       kind: normalizeKind(get('kind')),
       stop: get('stop'),
       address: get('address').slice(0, 240),
       url: get('url').slice(0, 240),
-      source: get('source') || 'guide'
+      source: get('source') || 'guide',
+      bucketId: bucketIdRaw && /^\d+$/.test(bucketIdRaw) ? Number(bucketIdRaw) : null
     };
     loaded = true;
     /* Default to the most recently updated trip; if there are none
@@ -75,9 +80,33 @@
         ? `${payload.name} - ${payload.address}`
         : payload.name;
       await addBooking(tripId, { title, kind: payload.kind });
+      /* If this came from the bucket list, remove the wishlist row
+         so the same place doesn't show up in both places. */
+      if (payload.bucketId != null) {
+        await deleteBucketItem(payload.bucketId);
+      }
       saved = true;
-      /* Brief confirmation, then redirect into the trip. */
       setTimeout(() => goto(`/trips/${tripId}`), 600);
+    } catch (err) {
+      console.error(err);
+      saving = false;
+    }
+  }
+
+  async function handleSaveForLater() {
+    if (saving) return;
+    saving = true;
+    try {
+      await addBucketItem({
+        name: payload.name,
+        kind: payload.kind,
+        stopId: payload.stop || null,
+        address: payload.address || null,
+        url: payload.url || null,
+        source: payload.source || 'guide'
+      });
+      savedBucket = true;
+      setTimeout(() => goto('/bucket'), 600);
     } catch (err) {
       console.error(err);
       saving = false;
@@ -198,20 +227,39 @@
     <!-- Actions -->
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
       <a href="/" class="font-serif italic text-muted hover:text-rust">Cancel</a>
-      <button
-        type="button"
-        class="btn-primary disabled:opacity-50"
-        on:click={handleSave}
-        disabled={saving || saved || (pickerMode === 'new' && !(newTripName || '').trim())}
-      >
-        {#if saved}
-          Stowed
-        {:else if saving}
-          Stowing...
-        {:else}
-          Stow in suitcase
+      <div class="flex flex-wrap items-center gap-3 ml-auto">
+        {#if payload.bucketId == null}
+          <!-- Save-for-someday is hidden when the visit STARTED at the
+               bucket list - we'd just push it back into the bucket. -->
+          <button
+            type="button"
+            class="save-later"
+            on:click={handleSaveForLater}
+            disabled={saving || saved || savedBucket}
+            title="Save to your bucket list instead of a trip"
+          >
+            {#if savedBucket}
+              Saved
+            {:else}
+              Save for someday
+            {/if}
+          </button>
         {/if}
-      </button>
+        <button
+          type="button"
+          class="btn-primary disabled:opacity-50"
+          on:click={handleSave}
+          disabled={saving || saved || savedBucket || (pickerMode === 'new' && !(newTripName || '').trim())}
+        >
+          {#if saved}
+            Stowed
+          {:else if saving}
+            Stowing...
+          {:else}
+            Stow in suitcase
+          {/if}
+        </button>
+      </div>
     </div>
   {/if}
 </section>
@@ -271,5 +319,28 @@
   }
   .picker-new-input:focus {
     border-color: #7d3a1e;
+  }
+
+  .save-later {
+    background: transparent;
+    border: 2px dashed #7d3a1e;
+    color: #7d3a1e;
+    padding: 0.65rem 1.1rem;
+    border-radius: 4px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .save-later:hover:not(:disabled) {
+    background: #7d3a1e;
+    color: #f5f0e8;
+    border-style: solid;
+  }
+  .save-later:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>
