@@ -516,9 +516,6 @@
 
         <div class="it-actions">
           {#if stops.length === 0}
-            <!-- Empty trip: lead with the only useful action. Add-a-plan
-                 would open a modal that knows it can't go anywhere
-                 without stops, so we don't show it yet. -->
             <button
               type="button"
               class="btn-primary cover-add"
@@ -529,15 +526,6 @@
               <span>Pick your stops</span>
             </button>
           {:else}
-            <button
-              type="button"
-              class="btn-primary cover-add"
-              on:click={() => openAddPlan('', 'all')}
-              aria-label="Add a place to your trip from the Guide"
-            >
-              <span class="cover-add-plus">+</span>
-              <span>Add a plan</span>
-            </button>
             <button
               type="button"
               class="btn-primary cover-edit"
@@ -878,28 +866,6 @@
     </section>
   {/if}
 
-  <!-- ===== Sign off ===== -->
-  <section class="foot">
-    <h2>Ride safe.</h2>
-    <p>Open this on your phone the morning you board.</p>
-    <div class="it-actions foot-actions">
-      <button
-        type="button"
-        class="btn-primary cover-add"
-        on:click={() => openAddPlan('', 'all')}
-      >
-        <span class="cover-add-plus">+</span>
-        <span>Add a plan</span>
-      </button>
-      <a
-        href={`/trips/${trip.id}/print`}
-        target="_blank"
-        rel="noopener"
-        class="btn-primary cover-print"
-      >Save as PDF</a>
-    </div>
-  </section>
-
   <!-- ===== Trip kit (drawers) ===== -->
   <section class="kit">
     <div class="kit-inner">
@@ -1137,6 +1103,23 @@
           </div>
         </div>
       </Drawer>
+    </div>
+  </section>
+
+  <!-- ===== Sign off =====
+       Closes the page with an editorial signature. Same italic
+       Fraunces vocabulary as the home dashboard's "Stay curious"
+       line so the two pages read as one publication. -->
+  <section class="foot">
+    <h2>Bon voyage.</h2>
+    <p>Open this on your phone the morning you board.</p>
+    <div class="it-actions foot-actions">
+      <a
+        href={`/trips/${trip.id}/print`}
+        target="_blank"
+        rel="noopener"
+        class="btn-primary cover-print"
+      >Save as PDF</a>
     </div>
   </section>
 
