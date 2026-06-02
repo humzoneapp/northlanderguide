@@ -1,9 +1,55 @@
 <script>
-  import { onMount } from 'svelte';
+  /* ==================================================================
+     Trip page = cinematic itinerary by default.
+
+     This page absorbed what used to live at /trips/[id]/itinerary.
+     The page now opens with the magazine-spread itinerary (forest
+     cover, narrative band, full-bleed stop scenes) and the older
+     trip-detail cards (Packing, Bookings, Budget, Photos, Diary,
+     Events, Schedule + Identity) collapse into the "Trip kit"
+     drawer rail below the sign off.
+
+     /trips/[id]/itinerary now just redirects here.
+     /trips/[id]/print stays as the dedicated print-friendly view.
+     ================================================================== */
+
+  import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+
+  /* ---------- Trip data ---------- */
+  import {
+    getTrip,
+    renameTrip,
+    changeTripColor,
+    updateTrip,
+    deleteTrip,
+    LEATHER_COLORS
+  } from '$lib/stores/trips.js';
+  import { listBookings, BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import { listDiaryEntries } from '$lib/stores/diary.js';
+  import { listPhotos } from '$lib/stores/photos.js';
+  import { listPackingItems } from '$lib/stores/packing.js';
+  import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
+
+  /* ---------- Stop + schedule helpers ---------- */
+  import {
+    getStopsByIds,
+    stopGuideUrl,
+    stopImageUrl
+  } from '$lib/data/stops.js';
+  import {
+    arrivalClock,
+    departureFor,
+    formatTripDate,
+    DIRECTIONS,
+    travelDuration,
+    travelMinutes,
+    todayLocalISO
+  } from '$lib/data/schedule.js';
+
+  /* ---------- Components ---------- */
   import Suitcase from '$lib/components/Suitcase.svelte';
-  import RouteList from '$lib/components/RouteList.svelte';
   import ScheduleStrip from '$lib/components/ScheduleStrip.svelte';
   import StopPickerModal from '$lib/components/StopPickerModal.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
@@ -14,57 +60,59 @@
   import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
-  import TripWizard from '$lib/components/TripWizard.svelte';
-  import { listBookings } from '$lib/stores/bookings.js';
-  import {
-    getTrip,
-    renameTrip,
-    changeTripColor,
-    updateTrip,
-    deleteTrip,
-    LEATHER_COLORS
-  } from '$lib/stores/trips.js';
+  import Drawer from '$lib/components/Drawer.svelte';
 
-  /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[] } | null} */
+  /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
   let loading = true;
-  let editingName = false;
-  let nameDraft = '';
-  let confirmingDelete = false;
+
+  /* The five row collections we read up here so the cinematic
+     scenes can render them; the drawer components mount their own
+     copies for editing. Counts here drive the cover stats and the
+     drawer badges. */
+  let bookings = [];
+  let diary = [];
+  let photos = [];
+  let packingCount = 0;
+  let budgetEntries = [];
+
+  /* Modal flags */
   let showStopPicker = false;
   let showShareModal = false;
   let showAddPlan = false;
-  /** Bookings snapshot passed into AddPlanModal so it can show
-      already-added listings as checkmarks. Reloaded each time the
-      modal opens to stay fresh. */
-  let bookingsSnap = [];
-  /** Total bookings on this trip - drives the wizard's "first plan"
-      step. Refreshed on load and whenever the AddPlanModal closes. */
-  let bookingsCount = 0;
+  let addPlanStop = '';
+  let addPlanKind = 'all';
 
-  async function refreshBookingsCount() {
-    if (!trip) {
-      bookingsCount = 0;
-      return;
-    }
-    const rows = await listBookings(trip.id);
-    bookingsCount = rows.length;
-  }
-
-  async function openAddPlan() {
-    bookingsSnap = trip ? await listBookings(trip.id) : [];
-    showAddPlan = true;
-  }
-
-  async function closeAddPlan() {
-    showAddPlan = false;
-    await refreshBookingsCount();
-  }
-
+  /* Inline rename state on the cover H1 */
+  let editingName = false;
+  let nameDraft = '';
   /** @type {HTMLInputElement | undefined} */
   let nameInput;
 
+  let confirmingDelete = false;
+
+  /* Object URLs for the per-stop polaroid strips. Built once on
+     load and revoked on destroy so blobs don't leak across nav. */
+  let photoUrls = new Map();
+
   $: tripId = $page.params.id;
+  $: stops = trip ? deriveStops(trip) : [];
+  $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
+  $: depClock = trip ? departureFor(trip.direction || 'northbound') : '09:00';
+  $: unassigned = bookings.filter((b) => !b.stopId);
+  $: bookedCount = bookings.filter((b) => b.status === 'booked').length;
+  $: pendingCount = bookings.length - bookedCount;
+  $: tripDateLine = trip && trip.departureDate ? formatTripDate(trip.departureDate) : '';
+  $: countdown = daysUntil(trip && trip.departureDate);
+  $: budgetTotal = totalOf(budgetEntries);
+
+  /* First five stop photos for the cover collage. Tilts vary by
+     index so the cluster looks scattered. */
+  $: collagePhotos = stops.slice(0, 5).map((s, idx) => ({
+    src: stopImageUrl(s),
+    name: s.name,
+    tilt: ((idx % 5) - 2) * 4
+  }));
 
   onMount(load);
 
@@ -72,17 +120,93 @@
     loading = true;
     trip = (await getTrip(tripId)) || null;
     loading = false;
-    await refreshBookingsCount();
+    if (!trip) return;
+
+    [bookings, diary, photos, packingCount, budgetEntries] = await Promise.all([
+      listBookings(trip.id),
+      listDiaryEntries(trip.id),
+      listPhotos(trip.id),
+      listPackingItems(trip.id).then((rows) => rows.length),
+      listBudgetEntries(trip.id)
+    ]);
+
+    /* Per-stop polaroid thumbnails. We only need ones pinned to
+       a stop for the scene strips - loose photos don't appear
+       in the cinematic view. */
+    const next = new Map();
+    for (const p of photos) {
+      if (p.stopId) next.set(p.id, URL.createObjectURL(p.thumb));
+    }
+    photoUrls = next;
   }
+
+  onDestroy(() => {
+    for (const u of photoUrls.values()) URL.revokeObjectURL(u);
+    photoUrls.clear();
+  });
+
+  /* ---------- Derived helpers ---------- */
+
+  function deriveStops(t) {
+    const forward = getStopsByIds(t.stopIds || []);
+    return (t.direction === 'southbound') ? forward.slice().reverse() : forward;
+  }
+
+  function bookingsAt(stopId) { return bookings.filter((b) => b.stopId === stopId); }
+  function diaryAt(stopId)    { return diary.filter((d) => d.stopId === stopId); }
+  function photosAt(stopId)   { return photos.filter((p) => p.stopId === stopId); }
+  function thumbUrl(p)        { return photoUrls.get(p.id) || ''; }
+
+  /* Per-stop sub-section grouping in scene bodies. Order tells a
+     short story: how you got there, where you stay, what you eat,
+     what you do, anything else. */
+  const KIND_GROUPS = [
+    { label: 'Travel',  kinds: ['train'] },
+    { label: 'Sleep',   kinds: ['room'] },
+    { label: 'Eat',     kinds: ['meal'] },
+    { label: 'Do',      kinds: ['activity'] },
+    { label: 'Other',   kinds: ['other'] }
+  ];
+
+  function bookingsByGroup(items) {
+    const out = [];
+    for (const g of KIND_GROUPS) {
+      const matches = items.filter((b) => g.kinds.includes(b.kind));
+      if (matches.length > 0) out.push({ label: g.label, items: matches });
+    }
+    return out;
+  }
+
+  /* Window between this stop's arrival and the next stop's
+     departure. Drives the "About 2h 25m before the next train"
+     copy in empty-state scenes. */
+  function hereDuration(i) {
+    if (i >= stops.length - 1) return 'End of the line';
+    const a = travelMinutes(stops[i].offsetMinutes, trip.direction || 'northbound');
+    const b = travelMinutes(stops[i + 1].offsetMinutes, trip.direction || 'northbound');
+    const delta = Math.max(0, b - a);
+    if (delta < 60) return `About ${delta}m before the next train`;
+    const h = Math.floor(delta / 60);
+    const m = delta % 60;
+    return `About ${h}h${m ? ' ' + m + 'm' : ''} before the next train`;
+  }
+
+  function daysUntil(yyyymmdd) {
+    if (!yyyymmdd) return null;
+    const today = todayLocalISO();
+    const a = new Date(today);
+    const b = new Date(yyyymmdd);
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+
+  /* ---------- Actions ---------- */
 
   function startRename() {
     if (!trip) return;
     nameDraft = trip.name;
     editingName = true;
-    /* let the input render before focusing */
     queueMicrotask(() => nameInput?.focus());
   }
-
   async function saveRename() {
     if (!trip) return;
     const next = nameDraft.trim();
@@ -91,7 +215,6 @@
     const updated = await renameTrip(trip.id, next);
     if (updated) trip = updated;
   }
-
   function cancelRename() {
     editingName = false;
     nameDraft = '';
@@ -105,8 +228,7 @@
 
   async function handleDelete() {
     if (!trip) return;
-    const id = trip.id;
-    await deleteTrip(id);
+    await deleteTrip(trip.id);
     await goto('/');
   }
 
@@ -117,6 +239,28 @@
     if (updated) trip = updated;
     showStopPicker = false;
   }
+
+  async function openAddPlan(stopId = '', kind = 'all') {
+    addPlanStop = stopId;
+    addPlanKind = kind;
+    showAddPlan = true;
+  }
+  async function closeAddPlan() {
+    showAddPlan = false;
+    /* Refetch so scenes + counts refresh without a page reload. */
+    if (trip) {
+      const [b, p] = await Promise.all([
+        listBookings(trip.id),
+        listPackingItems(trip.id).then((r) => r.length)
+      ]);
+      bookings = b;
+      packingCount = p;
+    }
+  }
+
+  function kindLabel(id) {
+    return (BOOKING_KINDS.find((k) => k.id === id) || BOOKING_KINDS[4]).label;
+  }
 </script>
 
 <svelte:head>
@@ -124,90 +268,546 @@
 </svelte:head>
 
 {#if loading}
-  <div class="max-w-[860px] mx-auto px-6 py-16 text-center font-serif italic text-muted">
-    Standing by at the platform...
-  </div>
+  <p class="status">Standing by at the platform...</p>
 {:else if !trip}
   <!-- ===== Trip not found ===== -->
-  <section class="max-w-[640px] mx-auto px-6 py-20 text-center">
-    <div class="kicker">Hmm.</div>
-    <h1 class="font-serif font-black text-forest text-[clamp(2rem,5vw,3rem)] leading-[1.05] mt-3">
-      That suitcase has left the station.
-    </h1>
-    <p class="font-serif italic text-rust mt-3">
-      We couldn't find a trip at this address. It may have been deleted on another device.
-    </p>
-    <a href="/" class="btn-primary mt-6">Back to your platform</a>
+  <section class="not-found">
+    <div class="kicker kicker-light">Hmm.</div>
+    <h1>That suitcase has left the station.</h1>
+    <p>We couldn't find a trip at this address. It may have been deleted on another device.</p>
+    <a href="/" class="btn-primary cover-add">Back to your platform</a>
   </section>
 {:else}
-  <!-- ===== Breadcrumb ===== -->
-  <nav class="max-w-[1080px] mx-auto px-6 pt-6 text-[11px] uppercase tracking-[0.18em] font-bold text-muted">
-    <a href="/" class="text-muted hover:text-rust no-underline">Platform</a>
-    <span class="mx-2 text-rust">/</span>
-    <span class="text-ink">{trip.name}</span>
+  <!-- ===== Breadcrumb (inside the forest band so it sits over the gradient) ===== -->
+  <nav class="crumbs">
+    <div class="crumbs-inner">
+      <a href="/">Platform</a>
+      <span class="crumbs-sep">/</span>
+      <span class="crumbs-now">{trip.name}</span>
+    </div>
   </nav>
 
-  <!-- ===== First-run wizard =====
-       Hides itself once the user has named the trip, picked stops,
-       and dropped at least one plan (or after they tap "Skip the
-       coach"). Stop / plan buttons dispatch into the same modal
-       openers the rest of the page uses. -->
-  <div class="max-w-[1080px] mx-auto px-6 pt-6">
-    <TripWizard
-      {trip}
-      {bookingsCount}
-      on:pickStops={() => (showStopPicker = true)}
-      on:addPlan={openAddPlan}
-    />
-  </div>
-
-  <!-- ===== Trip hero ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 pt-6 pb-10">
-    <div class="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10 items-center">
-      <!-- Suitcase visual -->
-      <div class="mx-auto md:mx-0 max-w-[240px]">
-        <Suitcase color={trip.color} strap={trip.strap} label="" />
-      </div>
-
-      <!-- Editable trip name + color picker -->
-      <div>
-        <div class="kicker mb-2">Trip Suitcase</div>
+  <!-- ===== Cinematic cover ===== -->
+  <header class="cover">
+    <div class="cover-noise" aria-hidden="true"></div>
+    <div class="cover-inner">
+      <div class="cover-text">
+        <div class="kicker kicker-light">A Northlander Itinerary</div>
 
         {#if editingName}
-          <form on:submit|preventDefault={saveRename} class="flex flex-wrap items-center gap-3">
+          <form class="cover-name-form" on:submit|preventDefault={saveRename}>
             <input
               bind:this={nameInput}
               bind:value={nameDraft}
               type="text"
               maxlength="60"
-              class="font-serif font-black text-forest text-[clamp(1.8rem,4vw,2.6rem)] bg-transparent border-b-2 border-rust focus:outline-none focus:border-forest flex-1 min-w-[200px]"
+              class="cover-name-input"
               on:blur={saveRename}
               on:keydown={(e) => e.key === 'Escape' && cancelRename()}
             />
-            <span class="text-muted text-xs font-serif italic">Enter to save</span>
+            <span class="cover-name-hint">Enter to save</span>
           </form>
         {:else}
           <button
             type="button"
             on:click={startRename}
-            class="text-left bg-transparent border-0 p-0 cursor-pointer group"
+            class="cover-name-btn"
             aria-label="Rename trip"
           >
-            <h1 class="font-serif font-black text-forest text-[clamp(2rem,5vw,3rem)] leading-[1.02] group-hover:text-rust transition-colors">
-              {trip.name}
-            </h1>
-            <span class="kicker text-muted/70 group-hover:text-rust">Tap to rename</span>
+            <h1>{trip.name}</h1>
+            <span class="cover-name-hint">Tap to rename</span>
           </button>
         {/if}
 
-        <div class="mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span class="kicker block mb-2">Leather</span>
-            <div class="flex flex-wrap gap-3">
+        <div class="cover-leg">
+          {#if dirMeta}{dirMeta.from} <span class="leg-soft">to</span> {dirMeta.to}{/if}
+          {#if dirMeta}<span class="dot">&middot;</span>{/if}
+          {dirMeta?.label || 'Northbound'}
+        </div>
+
+        {#if tripDateLine}
+          <div class="cover-date">{tripDateLine}</div>
+        {/if}
+
+        {#if countdown != null}
+          <div class="cover-countdown">
+            {#if countdown > 1}
+              <strong>{countdown}</strong> days until you board
+            {:else if countdown === 1}
+              <strong>Tomorrow.</strong> Final checks on the platform.
+            {:else if countdown === 0}
+              <strong>Today.</strong> Safe travels.
+            {:else}
+              You've been. This is your record.
+            {/if}
+          </div>
+        {:else}
+          <div class="cover-countdown italic-soft">
+            Pick a departure date in your trip kit and we'll count it down.
+          </div>
+        {/if}
+
+        <ul class="cover-stats">
+          <li><b>{stops.length}</b><span>{stops.length === 1 ? 'Stop' : 'Stops'}</span></li>
+          <li><b>{bookings.length}</b><span>Plans</span></li>
+          <li><b>{bookedCount}</b><span>Booked</span></li>
+          <li><b>{photos.length}</b><span>Photos</span></li>
+          <li><b>{diary.length}</b><span>Notes</span></li>
+        </ul>
+
+        <div class="it-actions">
+          <button
+            type="button"
+            class="btn-primary cover-add"
+            on:click={() => openAddPlan('', 'all')}
+            aria-label="Add a place to your trip from the Guide"
+          >
+            <span class="cover-add-plus">+</span>
+            <span>Add a plan</span>
+          </button>
+          <button
+            type="button"
+            class="btn-primary cover-edit"
+            on:click={() => (showStopPicker = true)}
+            aria-label="Edit the stops on this route"
+          >
+            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="6" cy="6" r="2"/>
+              <circle cx="6" cy="18" r="2"/>
+              <circle cx="18" cy="12" r="2"/>
+              <path d="M6 8 L6 16"/>
+              <path d="M8 6 L16 11"/>
+              <path d="M8 18 L16 13"/>
+            </svg>
+            <span>{stops.length > 0 ? 'Edit route' : 'Pick stops'}</span>
+          </button>
+          <a
+            href={`/trips/${trip.id}/recap`}
+            class="btn-primary cover-recap"
+            aria-label="See a recap of this trip"
+          >
+            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 4 H20 V20 H4 Z"/>
+              <path d="M4 9 L20 9"/>
+              <path d="M9 4 L9 9"/>
+            </svg>
+            <span>Recap</span>
+          </a>
+          <a
+            href={`/trips/${trip.id}/print`}
+            target="_blank"
+            rel="noopener"
+            class="btn-primary cover-print"
+            aria-label="Open the print-ready version in a new tab"
+          >
+            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2 H6 a2 2 0 0 0 -2 2 v16 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V8 Z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="13" y2="17"/>
+            </svg>
+            <span>Export PDF</span>
+          </a>
+          <button
+            type="button"
+            class="btn-primary cover-share"
+            on:click={() => (showShareModal = true)}
+            aria-label="Share your trip as a poster"
+          >
+            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Polaroid collage of stops -->
+      {#if collagePhotos.length > 0}
+        <div class="collage" aria-hidden="true">
+          {#each collagePhotos as p, i}
+            <figure class="collage-card" style="--rot:{p.tilt}deg;--i:{i}">
+              <img src={p.src} alt="" loading="lazy" />
+              <figcaption>{p.name}</figcaption>
+            </figure>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </header>
+
+  <!-- ===== Narrative band ===== -->
+  <section class="narrative">
+    <div class="narrative-inner">
+      <div class="kicker">The Story So Far</div>
+      <h2 class="narrative-line">
+        {#if stops.length === 0}
+          Your suitcase has nothing in it yet. The first move is to choose where you want to go.
+        {:else if bookings.length === 0 && diary.length === 0}
+          Your route is set. Now the fun part: what you'll eat, where you'll sleep, and what you'll do at each stop.
+        {:else}
+          {stops.length} stops between {stops[0].name} and {stops[stops.length - 1].name}, with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
+        {/if}
+      </h2>
+
+      {#if stops.length === 0}
+        <button
+          type="button"
+          class="narrative-cta"
+          on:click={() => (showStopPicker = true)}
+        >Pick your stops &rarr;</button>
+      {:else}
+        <p class="narrative-hint">
+          Tap a prompt at any stop below to drop a plan in, or open a drawer in your trip kit to manage packing, the ledger, your photo album, and more.
+        </p>
+      {/if}
+    </div>
+  </section>
+
+  {#if stops.length > 0}
+    <!-- ===== Stop scenes ===== -->
+    <section class="scenes">
+      {#each stops as stop, i}
+        {@const stopBookings = bookingsAt(stop.id)}
+        {@const stopDiary = diaryAt(stop.id)}
+        {@const stopPhotos = photosAt(stop.id)}
+        {@const groups = bookingsByGroup(stopBookings)}
+        {@const isLast = i === stops.length - 1}
+        {@const isEmpty = groups.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
+
+        <article class="scene" style="--bg:url('{stopImageUrl(stop)}')">
+          <div class="scene-bg" aria-hidden="true"></div>
+          <div class="scene-veil" aria-hidden="true"></div>
+
+          <div class="scene-inner">
+            <div class="scene-sign">
+              <span class="scene-num">{i + 1} of {stops.length}</span>
+              <div class="scene-clock">{arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}</div>
+              <span class="scene-clock-kicker">{i === 0 ? 'Departure' : 'Arrival'}</span>
+            </div>
+
+            <div class="scene-head">
+              <div>
+                <div class="kicker kicker-light">Chapter {i + 1}</div>
+                <h2 class="scene-name">{stop.name}</h2>
+                <div class="scene-region">{stop.region}</div>
+              </div>
+              <a
+                href={stopGuideUrl(stop)}
+                target="_blank"
+                rel="noopener"
+                class="scene-explore"
+              >
+                <span>Open on the Guide</span>
+                <svg viewBox="0 0 24 24" class="scene-explore-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            </div>
+
+            <div class="scene-body">
+              {#if isEmpty}
+                <div class="scene-empty">
+                  <p class="scene-empty-line">
+                    {#if i === 0}
+                      Your journey starts here.
+                    {:else if isLast}
+                      Last stop. Make it count.
+                    {:else}
+                      {hereDuration(i)}.
+                    {/if}
+                  </p>
+                  <p class="scene-empty-sub">
+                    {#if i === 0}
+                      Grab a coffee, check the platform board, and step on.
+                    {:else if isLast}
+                      Stay overnight? Wander? Catch the connecting train? It's up to you.
+                    {:else}
+                      Eat something local. Walk to a viewpoint. Sit by the water. Whatever fits in the window.
+                    {/if}
+                  </p>
+                  <div class="scene-prompts">
+                    <button
+                      type="button"
+                      class="prompt prompt-eat"
+                      on:click={() => openAddPlan(stop.id, 'eat')}
+                    >
+                      <span class="prompt-kicker">Eat</span>
+                      <span class="prompt-label">Find a restaurant in {stop.name}</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="prompt prompt-sleep"
+                      on:click={() => openAddPlan(stop.id, 'stay')}
+                    >
+                      <span class="prompt-kicker">Sleep</span>
+                      <span class="prompt-label">Find a place to stay</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="prompt prompt-do"
+                      on:click={() => openAddPlan(stop.id, 'do')}
+                    >
+                      <span class="prompt-kicker">Do</span>
+                      <span class="prompt-label">See what's nearby</span>
+                    </button>
+                  </div>
+                </div>
+              {:else}
+                <div class="scene-when">
+                  {#if !isLast}
+                    {hereDuration(i)}
+                  {:else}
+                    End of the line
+                  {/if}
+                </div>
+
+                {#each groups as group}
+                  <div class="scene-group">
+                    <div class="group-head">
+                      <span class="group-label">{group.label}</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <ul class="scene-list">
+                      {#each group.items as b}
+                        <li class:is-booked={b.status === 'booked'}>
+                          <div class="line-main">
+                            <span class="line-title">{b.title}</span>
+                            <span class="line-status" class:is-booked={b.status === 'booked'}>
+                              {b.status === 'booked' ? 'Booked' : 'Pending'}
+                            </span>
+                          </div>
+                          {#if b.kind === 'room' && (b.checkIn || b.checkOut || b.address || b.contact || b.confirmation)}
+                            <div class="line-room">
+                              {#if b.checkIn || b.checkOut}
+                                <span class="line-room-dates">
+                                  {b.checkIn ? 'In ' + b.checkIn : ''}{b.checkIn && b.checkOut ? '  ·  ' : ''}{b.checkOut ? 'Out ' + b.checkOut : ''}
+                                </span>
+                              {/if}
+                              {#if b.address}<span>{b.address}</span>{/if}
+                              {#if b.contact}<span>{b.contact}</span>{/if}
+                              {#if b.confirmation}<span>Conf. {b.confirmation}</span>{/if}
+                            </div>
+                          {/if}
+                          {#if b.notes}
+                            <p class="line-notes">{b.notes}</p>
+                          {/if}
+                        </li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/each}
+
+                {#if stopDiary.length > 0}
+                  <div class="scene-group">
+                    <div class="group-head">
+                      <span class="group-label">Notes from the journey</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <ul class="scene-diary">
+                      {#each stopDiary as d}
+                        <li>{d.text}</li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
+
+                {#if stopPhotos.length > 0}
+                  <div class="scene-group">
+                    <div class="group-head">
+                      <span class="group-label">Polaroids</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <div class="scene-photos">
+                      {#each stopPhotos.slice(0, 6) as p, idx}
+                        <figure class="mini-polaroid" style="--rot:{((idx % 5) - 2) * 3}deg">
+                          <img src={thumbUrl(p)} alt={p.caption || stop.name} loading="lazy" />
+                        </figure>
+                      {/each}
+                      {#if stopPhotos.length > 6}
+                        <span class="scene-photos-more">+{stopPhotos.length - 6} in your album</span>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              {/if}
+            </div>
+          </div>
+        </article>
+
+        {#if !isLast}
+          <div class="connector" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="connector-train" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="14" rx="3"/>
+              <path d="M4 11 L20 11"/>
+              <circle cx="8.5" cy="20" r="1.4"/>
+              <circle cx="15.5" cy="20" r="1.4"/>
+              <path d="M7 17 L7 19"/>
+              <path d="M17 17 L17 19"/>
+            </svg>
+            <div class="connector-rail" aria-hidden="true"></div>
+            <span class="connector-time">
+              {travelDuration(
+                Math.abs((stops[i + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
+              )}
+              to {stops[i + 1].name}
+            </span>
+          </div>
+        {/if}
+      {/each}
+    </section>
+  {/if}
+
+  {#if unassigned.length > 0}
+    <!-- ===== Loose plans ===== -->
+    <section class="loose">
+      <div class="loose-inner">
+        <div class="kicker">Loose plans</div>
+        <h2>Not pinned to a stop yet</h2>
+        <p>Open the Plans drawer below to pin these to the right stop.</p>
+        <ul class="loose-list">
+          {#each unassigned as b}
+            <li>
+              <span class="line-title">{b.title}</span>
+              <span class="loose-kind">{kindLabel(b.kind)}</span>
+              <span class="line-status" class:is-booked={b.status === 'booked'}>
+                {b.status === 'booked' ? 'Booked' : 'Pending'}
+              </span>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </section>
+  {/if}
+
+  <!-- ===== Sign off ===== -->
+  <section class="foot">
+    <h2>Ride safe.</h2>
+    <p>Open this on your phone the morning you board.</p>
+    <div class="it-actions foot-actions">
+      <button
+        type="button"
+        class="btn-primary cover-add"
+        on:click={() => openAddPlan('', 'all')}
+      >
+        <span class="cover-add-plus">+</span>
+        <span>Add a plan</span>
+      </button>
+      <a
+        href={`/trips/${trip.id}/print`}
+        target="_blank"
+        rel="noopener"
+        class="btn-primary cover-print"
+      >Save as PDF</a>
+    </div>
+  </section>
+
+  <!-- ===== Trip kit (drawers) ===== -->
+  <section class="kit">
+    <div class="kit-inner">
+      <div class="kit-head">
+        <div class="kicker">Your trip kit</div>
+        <h2>Everything else that travels with you.</h2>
+        <p>Tap any drawer to open it. These are the working surfaces - lists you tick off, ledgers you balance, photos you drop in along the way.</p>
+      </div>
+
+      <Drawer
+        title="Pack the suitcase"
+        kicker="What's going in"
+        count={packingCount}
+        countLabel={packingCount === 1 ? 'item' : 'items'}
+      >
+        <PackingList tripId={trip.id} />
+      </Drawer>
+
+      <Drawer
+        title="Plans &amp; reservations"
+        kicker="Tickets, rooms, tables"
+        count={bookings.length}
+        countLabel={pendingCount > 0 ? `${pendingCount} pending` : 'all booked'}
+      >
+        <BookingChecklist tripId={trip.id} stopIds={trip.stopIds || []} />
+      </Drawer>
+
+      <Drawer
+        title="The ledger"
+        kicker="What it costs"
+        count={budgetEntries.length}
+        countLabel={budgetEntries.length > 0 ? formatAmount(budgetTotal) : ''}
+      >
+        <BudgetTracker tripId={trip.id} />
+      </Drawer>
+
+      <Drawer
+        title="Polaroids"
+        kicker="What you saw"
+        count={photos.length}
+        countLabel={photos.length === 1 ? 'photo' : 'photos'}
+      >
+        <PhotoAlbum tripId={trip.id} stopIds={trip.stopIds || []} />
+      </Drawer>
+
+      <Drawer
+        title="Travel diary"
+        kicker="What you wrote"
+        count={diary.length}
+        countLabel={diary.length === 1 ? 'note' : 'notes'}
+      >
+        <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
+      </Drawer>
+
+      <Drawer
+        title="Happening nearby"
+        kicker="Events on your dates"
+      >
+        <EventsAlongRoute
+          tripId={trip.id}
+          stopIds={trip.stopIds || []}
+          departureDate={trip.departureDate || null}
+        />
+      </Drawer>
+
+      <Drawer
+        title="Trip details"
+        kicker="Dates, route, leather"
+      >
+        <div class="details-grid">
+          <div class="details-col">
+            <div class="kicker details-kicker">Schedule</div>
+            <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
+          </div>
+
+          <div class="details-col">
+            <div class="kicker details-kicker">Route</div>
+            <p class="details-meta">
+              {#if trip.stopIds && trip.stopIds.length > 0}
+                {trip.stopIds.length} {trip.stopIds.length === 1 ? 'stop' : 'stops'} chosen.
+              {:else}
+                No stops chosen yet.
+              {/if}
+            </p>
+            <button
+              type="button"
+              class="details-btn"
+              on:click={() => (showStopPicker = true)}
+            >{trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Pick stops'}</button>
+          </div>
+
+          <div class="details-col details-col-leather">
+            <div class="kicker details-kicker">Leather</div>
+            <div class="details-suitcase">
+              <Suitcase color={trip.color} strap={trip.strap} label="" />
+            </div>
+            <div class="leather-row">
               {#each LEATHER_COLORS as c}
                 <button
                   type="button"
-                  class="pl-swatch group relative w-10 h-10 rounded-full border-2 transition"
+                  class="pl-swatch"
                   class:is-selected={trip.colorId === c.id}
                   style="background:{c.body};border-color:{trip.colorId === c.id ? c.strap : 'transparent'}"
                   on:click={() => pickColor(c.id)}
@@ -217,157 +817,42 @@
               {/each}
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              class="btn-primary flex items-center gap-2"
-              on:click={openAddPlan}
-              aria-label="Add a place to your trip from the Guide"
-              style="background:#6e2e17;border-color:#6e2e17"
-            >
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              <span>Add a plan</span>
-            </button>
-            <a
-              href={`/trips/${trip.id}/itinerary`}
-              class="btn-primary flex items-center gap-2"
-              aria-label="Open the visual itinerary for this trip"
-            >
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="16" rx="2"/>
-                <line x1="3" y1="9" x2="21" y2="9"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <circle cx="8" cy="14" r="1" fill="currentColor"/>
-                <circle cx="12" cy="14" r="1" fill="currentColor"/>
-                <circle cx="16" cy="14" r="1" fill="currentColor"/>
-              </svg>
-              <span>Itinerary</span>
-            </a>
-            <a
-              href={`/trips/${trip.id}/recap`}
-              class="btn-primary flex items-center gap-2"
-              aria-label="See a recap of this trip"
-              style="background:#c4860f;border-color:#c4860f;color:#0a2d21"
-            >
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 4 H20 V20 H4 Z"/>
-                <path d="M4 9 L20 9"/>
-                <path d="M9 4 L9 9"/>
-              </svg>
-              <span>Recap</span>
-            </a>
-            <a
-              href={`/trips/${trip.id}/print`}
-              target="_blank"
-              rel="noopener"
-              class="btn-primary flex items-center gap-2"
-              aria-label="Export this trip as a PDF"
-              style="background:#0a2d21;border-color:#0a2d21"
-            >
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14 2 H6 a2 2 0 0 0 -2 2 v16 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V8 Z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="9" y1="13" x2="15" y2="13"/>
-                <line x1="9" y1="17" x2="13" y2="17"/>
-              </svg>
-              <span>Export PDF</span>
-            </a>
-            <button
-              type="button"
-              class="btn-primary flex items-center gap-2"
-              on:click={() => (showShareModal = true)}
-              aria-label="Share your trip as a poster"
-            >
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="18" cy="5" r="3"/>
-                <circle cx="6" cy="12" r="3"/>
-                <circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              <span>Share trip</span>
-            </button>
-          </div>
         </div>
-      </div>
+      </Drawer>
     </div>
   </section>
 
-  <!-- ===== Trip contents ===== -->
-  <section class="max-w-[1080px] mx-auto px-6">
-    <div class="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-6">
-      <!-- Route -->
-      <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-        <div class="flex items-center justify-between mb-2 gap-3">
-          <div>
-            <div class="kicker mb-1">Route</div>
-            <h3 class="font-serif font-bold text-forest text-xl">Stops on this trip</h3>
-          </div>
+  <!-- ===== Danger zone ===== -->
+  <section class="danger">
+    <div class="danger-inner">
+      <div>
+        <div class="kicker">Danger zone</div>
+        <p>Deleting a suitcase removes its packing list, bookings and notes. There's no undo.</p>
+      </div>
+      {#if confirmingDelete}
+        <div class="danger-actions">
           <button
             type="button"
-            on:click={() => (showStopPicker = true)}
-            class="font-serif italic text-rust hover:text-forest text-sm whitespace-nowrap underline decoration-dashed underline-offset-4"
-          >
-            {trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Add stops'}
-          </button>
+            on:click={() => (confirmingDelete = false)}
+            class="danger-cancel"
+          >Cancel</button>
+          <button
+            type="button"
+            on:click={handleDelete}
+            class="btn-primary danger-confirm"
+          >Yes, delete the suitcase</button>
         </div>
-        <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
-        <RouteList
-          stopIds={trip.stopIds || []}
-          departureDate={trip.departureDate || null}
-          direction={trip.direction || 'northbound'}
-        />
-      </article>
-
-      <!-- Right column: Packing + Bookings stacked -->
-      <div class="grid grid-cols-1 gap-6">
-        <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-          <PackingList tripId={trip.id} />
-        </article>
-
-        <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-          <BookingChecklist tripId={trip.id} stopIds={trip.stopIds || []} />
-        </article>
-      </div>
+      {:else}
+        <button
+          type="button"
+          on:click={() => (confirmingDelete = true)}
+          class="danger-link"
+        >Delete this trip</button>
+      {/if}
     </div>
   </section>
 
-  <!-- ===== Ledger: budget tracker ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 mt-8">
-    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-      <BudgetTracker tripId={trip.id} />
-    </article>
-  </section>
-
-  <!-- ===== Album: trip photos ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 mt-8">
-    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-      <PhotoAlbum tripId={trip.id} stopIds={trip.stopIds || []} />
-    </article>
-  </section>
-
-  <!-- ===== Journey: travel diary ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 mt-8">
-    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-      <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
-    </article>
-  </section>
-
-  <!-- ===== Events along your route ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 mt-8">
-    <article class="bg-cream border-l-4 border-rust p-5 shadow-ticket">
-      <EventsAlongRoute
-        tripId={trip.id}
-        stopIds={trip.stopIds || []}
-        departureDate={trip.departureDate || null}
-      />
-    </article>
-  </section>
-
+  <!-- ===== Modals ===== -->
   {#if showStopPicker}
     <StopPickerModal
       selected={trip.stopIds || []}
@@ -385,48 +870,961 @@
     <AddPlanModal
       tripId={trip.id}
       stopIds={trip.stopIds || []}
-      existingBookings={bookingsSnap}
+      initialStop={addPlanStop}
+      initialKind={addPlanKind}
+      existingBookings={bookings}
       on:close={closeAddPlan}
     />
   {/if}
-
-  <!-- ===== Danger zone ===== -->
-  <section class="max-w-[1080px] mx-auto px-6 mt-12 mb-20">
-    <div class="border-t border-dashed border-[#8b6a3a]/40 pt-6 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <div class="kicker text-muted mb-1">Danger zone</div>
-        <p class="font-serif italic text-muted">Deleting a suitcase removes its packing list, bookings and notes. There's no undo.</p>
-      </div>
-      {#if confirmingDelete}
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            on:click={() => (confirmingDelete = false)}
-            class="font-serif italic text-muted hover:text-rust text-sm"
-          >Cancel</button>
-          <button
-            type="button"
-            on:click={handleDelete}
-            class="btn-primary"
-            style="background:#5e2a14;border-color:#5e2a14"
-          >Yes, delete the suitcase</button>
-        </div>
-      {:else}
-        <button
-          type="button"
-          on:click={() => (confirmingDelete = true)}
-          class="font-serif font-semibold text-rust hover:text-forest"
-        >Delete this trip</button>
-      {/if}
-    </div>
-  </section>
 {/if}
 
 <style>
-  .pl-swatch:hover {
+  .status {
+    text-align: center;
+    padding: 80px 24px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #c9a84c;
+    background: #0a2d21;
+    margin: 0;
+  }
+  .not-found {
+    text-align: center;
+    padding: 80px 24px;
+    color: #f3ece0;
+    background: #0a2d21;
+  }
+  .not-found h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 14px 0 12px;
+  }
+  .not-found p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #cad7cf;
+    margin: 0 0 24px;
+  }
+
+  /* ===== Breadcrumb ===== */
+  .crumbs {
+    background: #0a2d21;
+    color: #cad7cf;
+    padding: 18px 24px 0;
+  }
+  .crumbs-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .crumbs-inner a {
+    color: #c9a84c;
+    text-decoration: none;
+  }
+  .crumbs-inner a:hover { color: #f5f0e8; }
+  .crumbs-sep {
+    color: #7d3a1e;
+    margin: 0 8px;
+  }
+  .crumbs-now { color: #f5f0e8; }
+
+  /* ===== Cover ===== */
+  .cover {
+    position: relative;
+    background:
+      radial-gradient(ellipse at 70% 20%, rgba(196, 134, 15, 0.35), transparent 60%),
+      linear-gradient(180deg, #0a2d21 0%, #16543e 100%);
+    color: #f5f0e8;
+    padding: 40px 24px 64px;
+    overflow: hidden;
+  }
+  .cover-noise {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
+    pointer-events: none;
+  }
+  .cover-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    position: relative;
+    z-index: 2;
+  }
+  @media (min-width: 880px) {
+    .cover-inner {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+    }
+  }
+  .kicker {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .kicker-light { color: #c4860f; }
+
+  /* H1 + inline rename */
+  .cover-name-btn {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+    display: block;
+    width: 100%;
+  }
+  .cover-name-btn h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    line-height: 0.95;
+    margin: 12px 0 6px;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+    color: #f5f0e8;
+    transition: color 160ms ease;
+  }
+  .cover-name-btn:hover h1 { color: #c4860f; }
+  .cover-name-hint {
+    display: block;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(202, 215, 207, 0.55);
+    margin-bottom: 10px;
+  }
+  .cover-name-form { margin: 12px 0 6px; }
+  .cover-name-input {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    line-height: 1;
+    background: transparent;
+    color: #f5f0e8;
+    border: 0;
+    border-bottom: 2px solid #c4860f;
+    outline: none;
+    width: 100%;
+    padding-bottom: 6px;
+  }
+
+  /* Direction leg + date + countdown */
+  .cover-leg {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #cad7cf;
+    font-weight: 600;
+  }
+  .cover-leg .leg-soft { opacity: 0.7; }
+  .cover-leg .dot {
+    margin: 0 8px;
+    color: #c4860f;
+  }
+  .cover-date {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(18px, 2.4vw, 22px);
+    color: #c9a84c;
+    margin: 10px 0 4px;
+  }
+  .cover-countdown {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(20px, 3vw, 28px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    margin: 14px 0 20px;
+  }
+  .cover-countdown strong {
+    font-weight: 900;
+    color: #c4860f;
+  }
+  .cover-countdown.italic-soft {
+    font-style: italic;
+    color: #cad7cf;
+    font-size: clamp(15px, 2vw, 18px);
+  }
+
+  /* Stats grid */
+  .cover-stats {
+    list-style: none;
+    padding: 22px 0 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 16px;
+    border-top: 1px dashed rgba(201, 168, 76, 0.45);
+  }
+  .cover-stats li { display: flex; flex-direction: column; }
+  .cover-stats b {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(26px, 3.6vw, 34px);
+    color: #c9a84c;
+    line-height: 1;
+  }
+  .cover-stats span {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #cad7cf;
+    margin-top: 4px;
+  }
+
+  /* Action row */
+  .it-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 26px;
+  }
+  /* Primary amber - the main action */
+  .cover-add {
+    background: #c4860f;
+    border-color: #c4860f;
+    color: #0a2d21;
+    font-weight: 700;
+    padding: 0.85rem 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 22px rgba(196, 134, 15, 0.35);
+  }
+  .cover-add:hover {
+    background: #f5f0e8;
+    border-color: #f5f0e8;
+    color: #0a2d21;
+  }
+  .cover-add-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1;
+  }
+  /* Quiet outline - secondary actions */
+  .cover-edit,
+  .cover-print,
+  .cover-share {
+    background: transparent;
+    border: 2px solid rgba(201, 168, 76, 0.45);
+    color: #c9a84c;
+    padding: 0.7rem 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+  .cover-edit:hover,
+  .cover-print:hover,
+  .cover-share:hover {
+    background: rgba(201, 168, 76, 0.12);
+    border-color: #c9a84c;
+    color: #f5f0e8;
+  }
+  /* Recap pops in gold so the post-trip view is easy to spot */
+  .cover-recap {
+    background: #c9a84c;
+    border-color: #c9a84c;
+    color: #0a2d21;
+    padding: 0.7rem 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+  .cover-recap:hover {
+    background: #f5f0e8;
+    border-color: #f5f0e8;
+    color: #0a2d21;
+  }
+  .cover-edit-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Polaroid collage */
+  .collage {
+    position: relative;
+    min-height: 280px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+  }
+  .collage-card {
+    background: #fbf6ea;
+    padding: 8px 8px 12px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+    margin: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--i, 0) * -4px));
+    transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+  }
+  .collage-card:hover {
+    transform: rotate(0deg) translateY(-8px);
+    z-index: 4;
+  }
+  .collage-card img {
+    width: clamp(110px, 16vw, 180px);
+    height: clamp(110px, 16vw, 180px);
+    object-fit: cover;
+    background: #ede0cc;
+    display: block;
+  }
+  .collage-card figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    color: #0a2d21;
+    text-align: center;
+    padding-top: 6px;
+  }
+
+  /* ===== Narrative band ===== */
+  .narrative {
+    background: #fbf6ea;
+    padding: 40px 24px;
+    border-bottom: 2px solid #7d3a1e;
+  }
+  .narrative-inner {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .narrative-line {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    color: #0a2d21;
+    line-height: 1.15;
+    margin: 8px 0 14px;
+  }
+  .narrative-hint {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: 16px;
+    line-height: 1.55;
+    margin: 0;
+    max-width: 60ch;
+  }
+  .narrative-cta {
+    display: inline-block;
+    background: #6e2e17;
+    color: #f3ece0;
+    border: 2px solid #6e2e17;
+    padding: 0.65rem 1.1rem;
+    border-radius: 4px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .narrative-cta:hover {
+    background: #884023;
+    border-color: #884023;
+  }
+
+  /* ===== Stop scenes ===== */
+  .scenes {
+    background: #0a2d21;
+    padding: 0;
+  }
+  .scene {
+    position: relative;
+    color: #f5f0e8;
+    overflow: hidden;
+  }
+  .scene-bg {
+    position: absolute;
+    inset: 0;
+    background-image: var(--bg);
+    background-size: cover;
+    background-position: center center;
+    transform: scale(1.05);
+  }
+  .scene-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(10, 30, 20, 0.85) 0%, rgba(10, 30, 20, 0.72) 40%, rgba(10, 30, 20, 0.92) 100%),
+      radial-gradient(circle at 80% 20%, rgba(196, 134, 15, 0.25), transparent 55%);
+  }
+  .scene-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 24px 64px;
+  }
+
+  .scene-sign {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 8px 16px;
+    background: rgba(245, 240, 232, 0.12);
+    border: 1px dashed rgba(201, 168, 76, 0.5);
+    border-radius: 3px;
+    margin-bottom: 18px;
+  }
+  .scene-num {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c4860f;
+    font-weight: 700;
+  }
+  .scene-clock {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: #f5f0e8;
+    line-height: 1;
+  }
+  .scene-clock-kicker {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #cad7cf;
+    font-weight: 700;
+  }
+
+  .scene-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+    border-bottom: 1px dashed rgba(201, 168, 76, 0.35);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+  }
+  .scene-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(2.4rem, 7vw, 4.4rem);
+    line-height: 0.92;
+    margin: 8px 0 4px;
+    letter-spacing: -0.015em;
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.5);
+  }
+  .scene-region {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    font-weight: 700;
+  }
+  .scene-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #c4860f;
+    color: #0a2d21;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+    box-shadow: 0 6px 14px rgba(196, 134, 15, 0.35);
+  }
+  .scene-explore:hover {
+    background: #f5f0e8;
+    color: #0a2d21;
     transform: translateY(-2px);
   }
+  .scene-explore-icon { width: 16px; height: 16px; }
+
+  /* Empty state */
+  .scene-empty { margin-top: 8px; }
+  .scene-empty-line {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    color: #c9a84c;
+    margin: 0 0 8px;
+    line-height: 1.05;
+  }
+  .scene-empty-sub {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(15px, 2vw, 18px);
+    color: #f5f0e8;
+    opacity: 0.88;
+    margin: 0 0 24px;
+    max-width: 56ch;
+  }
+  .scene-prompts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 640px) {
+    .scene-prompts {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .prompt {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(245, 240, 232, 0.08);
+    border: 1.5px dashed rgba(201, 168, 76, 0.55);
+    padding: 16px 18px;
+    text-decoration: none;
+    color: #f5f0e8;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .prompt:hover {
+    background: rgba(196, 134, 15, 0.18);
+    border-color: #c9a84c;
+    transform: translateY(-2px);
+  }
+  .prompt-kicker {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #c4860f;
+    font-weight: 700;
+  }
+  .prompt-label {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 16px;
+    color: #f5f0e8;
+    line-height: 1.3;
+  }
+
+  /* Plans groups */
+  .scene-when {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c4860f;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .scene-group { margin-top: 22px; }
+  .group-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .group-label {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 18px;
+    color: #c9a84c;
+    flex: 0 0 auto;
+  }
+  .group-rule {
+    flex: 1;
+    height: 0;
+    border-top: 1px dashed rgba(201, 168, 76, 0.35);
+  }
+  .scene-list { list-style: none; padding: 0; margin: 0; }
+  .scene-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(245, 240, 232, 0.08);
+  }
+  .scene-list li:last-child { border-bottom: 0; }
+  .line-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .line-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(17px, 2.3vw, 22px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .scene-list li.is-booked .line-title {
+    text-decoration: line-through;
+    text-decoration-color: #c9a84c;
+    text-decoration-thickness: 1.5px;
+    color: #cad7cf;
+  }
+  .line-status {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1.5px dashed #c4860f;
+    color: #c4860f;
+    background: rgba(196, 134, 15, 0.16);
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .line-status.is-booked {
+    background: #c9a84c;
+    color: #0a2d21;
+    border-color: #c9a84c;
+  }
+  .line-room {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 6px;
+    padding-left: 12px;
+    border-left: 2px solid #c4860f;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    color: #cad7cf;
+  }
+  .line-room-dates {
+    color: #c9a84c;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .line-notes {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #f5f0e8;
+    opacity: 0.85;
+    margin: 6px 0 0;
+    white-space: pre-wrap;
+  }
+
+  .scene-diary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .scene-diary li {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(15px, 2vw, 17px);
+    color: #f5f0e8;
+    line-height: 1.55;
+    padding-left: 14px;
+    border-left: 2px solid #c4860f;
+    white-space: pre-wrap;
+  }
+
+  .scene-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+  }
+  .mini-polaroid {
+    background: #fbf6ea;
+    padding: 6px 6px 10px;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.4);
+    margin: 0;
+    transform: rotate(var(--rot, 0deg));
+    transition: transform 0.3s ease;
+  }
+  .mini-polaroid:hover { transform: rotate(0deg) translateY(-3px); }
+  .mini-polaroid img {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    background: #ede0cc;
+    display: block;
+  }
+  .scene-photos-more {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #c9a84c;
+    font-size: 14px;
+  }
+
+  /* ===== Connector ===== */
+  .connector {
+    background: #0a2d21;
+    color: #c4860f;
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(201, 168, 76, 0.25);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+  }
+  .connector-train { width: 24px; height: 24px; color: #c4860f; }
+  .connector-rail {
+    width: clamp(40px, 12vw, 120px);
+    height: 0;
+    border-top: 2px dashed #c4860f;
+  }
+  .connector-time {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(15px, 2vw, 18px);
+    color: #f5f0e8;
+  }
+
+  /* ===== Loose plans ===== */
+  .loose {
+    background: #fbf6ea;
+    padding: 48px 24px;
+  }
+  .loose-inner { max-width: 920px; margin: 0 auto; }
+  .loose h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    color: #0a2d21;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    margin: 8px 0 8px;
+  }
+  .loose p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 0 0 16px;
+  }
+  .loose-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .loose-list li {
+    background: #fffdf6;
+    border-left: 4px solid #c4860f;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .loose-list .line-title { color: #0a2d21; font-size: 16px; }
+  .loose-kind {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    font-weight: 700;
+  }
+  .loose-list .line-status {
+    color: #6e2e17;
+    border-color: #c4860f;
+  }
+
+  /* ===== Sign off ===== */
+  .foot {
+    background: linear-gradient(180deg, #0e3b2c 0%, #0a2d21 100%);
+    color: #f5f0e8;
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .foot h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    color: #c9a84c;
+    margin: 0 0 6px;
+  }
+  .foot p {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #cad7cf;
+    margin: 0 0 28px;
+  }
+  .foot-actions { justify-content: center; margin-top: 0; }
+
+  /* ===== Trip kit ===== */
+  .kit {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(196, 134, 15, 0.06), transparent 55%),
+      #f3ece0;
+    padding: 56px 24px 32px;
+  }
+  .kit-inner {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .kit-head {
+    margin-bottom: 24px;
+  }
+  .kit-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    color: #0a2d21;
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    margin: 6px 0 8px;
+    line-height: 1.15;
+  }
+  .kit-head p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  /* Trip details drawer body */
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding-top: 8px;
+  }
+  @media (min-width: 720px) {
+    .details-grid {
+      grid-template-columns: 1.2fr 1fr 1fr;
+    }
+  }
+  .details-col {
+    min-width: 0;
+  }
+  .details-col-leather {
+    text-align: center;
+  }
+  .details-kicker {
+    margin-bottom: 8px;
+    color: #7d3a1e;
+  }
+  .details-meta {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 0 0 10px;
+  }
+  .details-btn {
+    background: #6e2e17;
+    color: #f3ece0;
+    border: 2px solid #6e2e17;
+    padding: 0.55rem 1rem;
+    border-radius: 4px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .details-btn:hover {
+    background: #884023;
+    border-color: #884023;
+  }
+  .details-suitcase {
+    max-width: 140px;
+    margin: 0 auto 10px;
+  }
+  .leather-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .pl-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border-width: 2px;
+    border-style: solid;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .pl-swatch:hover { transform: translateY(-2px); }
   .pl-swatch.is-selected {
     box-shadow: 0 0 0 3px #c9a84c, 0 6px 12px rgba(40, 20, 5, 0.25);
+  }
+
+  /* ===== Danger zone ===== */
+  .danger {
+    background: #f3ece0;
+    padding: 24px 24px 64px;
+  }
+  .danger-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    border-top: 1px dashed rgba(125, 58, 30, 0.4);
+    padding-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .danger p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 4px 0 0;
+  }
+  .danger-link {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    color: #6e2e17;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .danger-link:hover { color: #0a2d21; }
+  .danger-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .danger-cancel {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .danger-cancel:hover { color: #6e2e17; }
+  .danger-confirm {
+    background: #5e2a14;
+    border-color: #5e2a14;
+  }
+  .danger-confirm:hover {
+    background: #7d3a1e;
+    border-color: #7d3a1e;
   }
 </style>
