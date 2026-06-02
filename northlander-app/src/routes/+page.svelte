@@ -4,9 +4,10 @@
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
   import { trips } from '$lib/stores/trips.js';
-  import { STOPS, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
+  import { STOPS, getStop, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
-  import { todayLocalISO } from '$lib/data/schedule.js';
+  import { listPackingItems } from '$lib/stores/packing.js';
+  import { todayLocalISO, formatTripDate } from '$lib/data/schedule.js';
 
   let showNewModal = false;
   /* The trips store populates from Dexie on first paint. We wait
@@ -36,26 +37,104 @@
     return `${first} to ${last} (${stops.length} stops)`;
   }
 
-  /* Plans-per-trip map for the dashed stub on each suitcase tag.
-     Reloaded reactively whenever the trips list changes (add, delete,
-     rename, etc.) so the dashboard never lies about counts. */
-  let planCounts = {};
+  /* Per-trip stats for the suitcase cards: total plans, how many of
+     those are still pending, and packing progress (total + packed).
+     Reloaded reactively whenever the trips list changes. The three
+     queries run in parallel per trip so the dashboard paints fast. */
+  let tripStats = {};
 
-  async function loadPlanCounts(list) {
+  async function loadTripStats(list) {
     if (!Array.isArray(list) || list.length === 0) {
-      planCounts = {};
+      tripStats = {};
       return;
     }
     const entries = await Promise.all(
       list.map(async (t) => {
-        const rows = await listBookings(t.id);
-        return [t.id, rows.length];
+        const [bookings, packing] = await Promise.all([
+          listBookings(t.id),
+          listPackingItems(t.id)
+        ]);
+        const pendingPlans = bookings.filter((b) => b.status === 'pending').length;
+        const packedCount = packing.filter((p) => p.packed).length;
+        return [t.id, {
+          planCount: bookings.length,
+          pendingPlans,
+          packTotal: packing.length,
+          packDone: packedCount
+        }];
       })
     );
-    planCounts = Object.fromEntries(entries);
+    tripStats = Object.fromEntries(entries);
   }
 
-  $: loadPlanCounts($trips);
+  $: loadTripStats($trips);
+
+  /* Italic "next move" line on each card. Reads the trip's state and
+     coaches the user one action ahead. Past-departure trips suggest
+     opening the recap. Today / Tomorrow get warm urgency copy. */
+  function nextMove(trip) {
+    const stats = tripStats[trip.id] || {};
+    const stopCount = (trip.stopIds || []).length;
+    const days = trip.departureDate ? daysUntilDate(trip.departureDate) : null;
+
+    if (days != null && days < 0) return 'View the recap';
+    if (days === 0) return 'All aboard today';
+    if (days === 1) return 'Boarding tomorrow';
+
+    if (stopCount === 0) return 'Pick your first stops';
+    if ((stats.planCount || 0) === 0) return 'Drop your first plan';
+    if ((stats.pendingPlans || 0) > 0) {
+      return `${stats.pendingPlans} plan${stats.pendingPlans === 1 ? '' : 's'} still to book`;
+    }
+    if ((stats.packTotal || 0) === 0) return 'Pack the camera';
+    if ((stats.packDone || 0) < (stats.packTotal || 0)) {
+      return `${stats.packTotal - stats.packDone} item${stats.packTotal - stats.packDone === 1 ? '' : 's'} left to pack`;
+    }
+    return 'All packed, ready to roll';
+  }
+
+  function daysUntilDate(yyyymmdd) {
+    if (!yyyymmdd) return null;
+    const today = todayLocalISO();
+    const a = new Date(today);
+    const b = new Date(yyyymmdd);
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+
+  /* First stop's hero photo, surfaced as a small tucked polaroid on
+     the suitcase card. Returns null when the trip has no stops yet
+     so the empty-state card can skip the polaroid entirely. */
+  function firstStopThumb(trip) {
+    const stops = getStopsByIds(trip.stopIds || []);
+    if (stops.length === 0) return null;
+    return { name: stops[0].name, url: stopImageUrl(stops[0]) };
+  }
+
+  /* Packing progress fraction 0..1, used by the dashed arc on the
+     luggage tag. Returns null when there's nothing on the list yet. */
+  function packFraction(trip) {
+    const s = tripStats[trip.id];
+    if (!s || !s.packTotal) return null;
+    return Math.max(0, Math.min(1, s.packDone / s.packTotal));
+  }
+
+  /* "Next departure" plaque copy. Picks the earliest trip with a
+     date >= today. Falls back to a quiet-platform line when no
+     trip has a date yet. */
+  $: nextDeparture = (() => {
+    const today = todayLocalISO();
+    const list = ($trips || [])
+      .filter((t) => t.departureDate && t.departureDate >= today)
+      .sort((a, b) => a.departureDate.localeCompare(b.departureDate));
+    if (list.length === 0) return null;
+    const t = list[0];
+    const days = daysUntilDate(t.departureDate);
+    let when;
+    if (days === 0) when = 'Today';
+    else if (days === 1) when = 'Tomorrow';
+    else when = `In ${days} days`;
+    return { trip: t, when, dateLabel: formatTripDate(t.departureDate) };
+  })();
 
   /* Compact countdown for the stub. Hidden when no departureDate. */
   function countdownLabel(yyyymmdd) {
@@ -137,36 +216,79 @@
   </div>
 </header>
 
-<!-- ===== Trip platform ===== -->
+<!-- ===== Trip platform =====
+     Staged like an actual station: an enamel platform sign + a small
+     departure-board plaque sit above a wood-floor platform with brass
+     rail and warm gas-lamp vignette. Each trip card is the user's
+     luggage waiting on that platform - tucked polaroid from the
+     first stop, packing-progress ring on the tag, and an italic
+     "next move" line that coaches the user toward their next action. -->
 <section class="dash-platform-wrap">
-  <div class="dash-section-head">
-    <div class="kicker">Your Suitcases</div>
-    <h2>Trips you're packing</h2>
+  <div class="dash-stationhead">
+    <div class="stationhead-sign">
+      <span class="stationhead-rivet" aria-hidden="true"></span>
+      <span class="stationhead-rivet stationhead-rivet--r" aria-hidden="true"></span>
+      <div class="stationhead-text">
+        <span class="stationhead-kicker">Platform 1  ·  Now Boarding</span>
+        <h2 class="stationhead-title">
+          {#if $trips.length === 0}
+            An empty platform
+          {:else if $trips.length === 1}
+            One suitcase on the platform
+          {:else}
+            {$trips.length} suitcases on the platform
+          {/if}
+        </h2>
+      </div>
+    </div>
+
+    {#if $trips.length > 0}
+      <aside class="dash-board" aria-label="Departure board">
+        <span class="dash-board-kicker">Next Departure</span>
+        {#if nextDeparture}
+          <strong class="dash-board-name">{nextDeparture.trip.name}</strong>
+          <span class="dash-board-when">{nextDeparture.when}  ·  {nextDeparture.dateLabel}</span>
+        {:else}
+          <strong class="dash-board-name dash-board-name--quiet">Mid-day lull</strong>
+          <span class="dash-board-when">No dates set  ·  The platform is yours</span>
+        {/if}
+      </aside>
+    {/if}
   </div>
 
   <div class="dash-platform">
-    <div class="dash-platform-floor" aria-hidden="true"></div>
-
+    <div class="dash-platform-glow" aria-hidden="true"></div>
     <div class="dash-platform-inner">
       {#if $trips.length === 0}
-        <!-- Welcoming empty state. One big invitation card. -->
+        <!-- Empty-state vignette: one big invitation luggage card with a
+             tucked Toronto Union polaroid so even an empty platform
+             carries the brand. -->
+        {@const heroStop = STOPS.find((s) => s.id === 'union')}
         <div class="dash-empty">
           <button
             type="button"
-            class="trunk-new bg-transparent border-0 cursor-pointer text-center p-0 group"
+            class="trunk trunk-empty"
             on:click={() => (showNewModal = true)}
             aria-label="Start your first trip"
           >
-            <div class="aspect-[10/8] flex items-center justify-center rounded-xl border-[2.5px] border-dashed border-forest bg-cream/60 transition-colors group-hover:bg-cream group-hover:border-rust">
-              <div class="text-center px-4">
-                <div class="font-serif font-black text-forest text-[56px] leading-none mb-3">+</div>
-                <div class="font-serif italic text-rust text-lg">Tag your first suitcase</div>
-              </div>
+            {#if heroStop}
+              <figure class="trunk-polaroid trunk-polaroid--empty" aria-hidden="true">
+                <img src={stopImageUrl(heroStop)} alt="" loading="lazy" decoding="async" />
+                <figcaption>{heroStop.name}</figcaption>
+              </figure>
+            {/if}
+            <div class="trunk-svg trunk-svg--empty">
+              <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="block w-full h-auto" aria-hidden="true">
+                <ellipse cx="100" cy="146" rx="62" ry="6" fill="rgba(40,20,5,0.22)" />
+                <rect x="22" y="30" width="156" height="108" rx="10" fill="#fbf6ea" stroke="#7d3a1e" stroke-width="2.5" stroke-dasharray="6 5"/>
+                <text x="100" y="105" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="64" text-anchor="middle" fill="#7d3a1e">+</text>
+              </svg>
             </div>
-            <div class="trunk-tag mt-3 mx-auto bg-[#e8d6a8] border border-[#8b6a3a] rounded px-3 py-2 shadow-tag max-w-[220px]">
-              <span class="block uppercase tracking-[0.2em] text-[9px] font-bold text-rust">Welcome aboard</span>
-              <strong class="block font-serif font-bold text-forest text-base leading-tight">Pick a name, pick a colour</strong>
-              <span class="block font-serif italic text-muted text-xs mt-1">Free, no credit card</span>
+            <div class="trunk-tag trunk-tag--empty">
+              <span class="trunk-tag-kicker">Welcome aboard</span>
+              <strong class="trunk-tag-name">Tag your first suitcase</strong>
+              <span class="trunk-tag-route">Pick a name, pick a colour</span>
+              <span class="trunk-next">Free, no credit card</span>
             </div>
           </button>
         </div>
@@ -178,26 +300,48 @@
             {@const railStops = (trip.stopIds || []).slice(0, railCap)}
             {@const railOverflow = Math.max(0, stopCount - railCap)}
             {@const hasRail = stopCount >= 2}
+            {@const thumb = firstStopThumb(trip)}
+            {@const prog = packFraction(trip)}
             <a
               href={`/trips/${trip.id}`}
               class="trunk relative block no-underline text-left group"
               style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px"
             >
+              {#if thumb}
+                <figure class="trunk-polaroid" aria-hidden="true">
+                  <img src={thumb.url} alt="" loading="lazy" decoding="async" />
+                  <figcaption>{thumb.name}</figcaption>
+                </figure>
+              {/if}
+
               <div class="trunk-svg">
                 <Suitcase color={trip.color} strap={trip.strap} label="" />
               </div>
-              <div class="trunk-tag mt-[-12px] mx-auto bg-[#e8d6a8] border border-[#8b6a3a] rounded px-3 py-2 shadow-tag relative z-10 max-w-[200px]">
-                <span class="block uppercase tracking-[0.2em] text-[9px] font-bold text-rust">Trip</span>
-                <strong class="block font-serif font-bold text-forest text-base leading-tight">{trip.name}</strong>
-                <span class="block font-serif italic text-muted text-xs mt-1">{summarize(trip.stopIds)}</span>
 
-                <!-- Mini route rail: numbered dots on a dashed gold line
-                     for 2+ stop trips, plain dashed rule for 0/1-stop.
-                     Same visual vocabulary as the RouteMap pins on the
-                     trip page, scaled down. -->
+              <div class="trunk-tag">
+                {#if prog != null}
+                  <!-- Packing-progress arc on the tag corner. Faded
+                       dashed gold ring + solid amber arc filling
+                       clockwise from 12 o'clock. -->
+                  <span class="trunk-prog" aria-label={`${tripStats[trip.id]?.packDone || 0} of ${tripStats[trip.id]?.packTotal || 0} packed`}>
+                    <svg viewBox="0 0 36 36" aria-hidden="true">
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="#c9a84c" stroke-width="2" stroke-dasharray="2 3" opacity="0.3"/>
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="#c9a84c" stroke-width="2.6" stroke-linecap="round"
+                              pathLength="100"
+                              stroke-dasharray="{(prog * 100).toFixed(1)} 100"
+                              transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <span class="trunk-prog-num">{Math.round(prog * 100)}</span>
+                  </span>
+                {/if}
+
+                <span class="trunk-tag-kicker">Trip</span>
+                <strong class="trunk-tag-name">{trip.name}</strong>
+                <span class="trunk-tag-route">{summarize(trip.stopIds)}</span>
+
                 {#if hasRail}
                   <div class="trunk-rail" aria-hidden="true">
-                    <span class="rail-badge" title="{trip.direction === 'southbound' ? 'Southbound' : 'Northbound'}">
+                    <span class="rail-badge" title={trip.direction === 'southbound' ? 'Southbound' : 'Northbound'}>
                       {trip.direction === 'southbound' ? 'S' : 'N'}
                     </span>
                     {#each railStops as _, ri}
@@ -213,19 +357,15 @@
                   <div class="trunk-divider"></div>
                 {/if}
 
-                <!-- Stub: countdown + plans glance. Lets the user read
-                     the platform grid without opening each trip. -->
-                <div class="trunk-stub flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-rust">
+                <div class="trunk-stub">
                   {#if trip.departureDate}
                     <span>{countdownLabel(trip.departureDate)}</span>
-                    <span class="text-[#8b6a3a]/55">&middot;</span>
+                    <span class="trunk-stub-sep">&middot;</span>
                   {/if}
-                  {#if planCounts[trip.id]}
-                    <span>{planCounts[trip.id]} {planCounts[trip.id] === 1 ? 'plan' : 'plans'}</span>
-                  {:else}
-                    <span class="italic font-serif normal-case tracking-normal text-muted/80">Nothing booked yet</span>
-                  {/if}
+                  <span>{(tripStats[trip.id]?.planCount || 0)} {(tripStats[trip.id]?.planCount || 0) === 1 ? 'plan' : 'plans'}</span>
                 </div>
+
+                <span class="trunk-next">{nextMove(trip)}</span>
               </div>
             </a>
           {/each}
@@ -233,25 +373,30 @@
           <!-- New Trip slot at the end -->
           <button
             type="button"
-            class="trunk-new bg-transparent border-0 cursor-pointer text-center p-0 group"
+            class="trunk trunk-empty"
             on:click={() => (showNewModal = true)}
             aria-label="Tag a new trip"
           >
-            <div class="aspect-[10/8] flex items-center justify-center rounded-xl border-[2.5px] border-dashed border-forest bg-cream/40 transition-colors group-hover:bg-cream group-hover:border-rust">
-              <div class="text-center">
-                <div class="font-serif font-black text-forest text-[44px] leading-none mb-2">+</div>
-                <div class="font-serif italic text-rust text-base">New trip</div>
-              </div>
+            <div class="trunk-svg trunk-svg--empty">
+              <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="block w-full h-auto" aria-hidden="true">
+                <ellipse cx="100" cy="146" rx="62" ry="6" fill="rgba(40,20,5,0.22)" />
+                <rect x="22" y="30" width="156" height="108" rx="10" fill="#fbf6ea" stroke="#7d3a1e" stroke-width="2.5" stroke-dasharray="6 5"/>
+                <text x="100" y="105" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="56" text-anchor="middle" fill="#7d3a1e">+</text>
+              </svg>
             </div>
-            <div class="trunk-tag mt-3 mx-auto bg-[#e8d6a8] border border-[#8b6a3a] rounded px-3 py-2 shadow-tag max-w-[180px]">
-              <span class="block uppercase tracking-[0.2em] text-[9px] font-bold text-rust">Open</span>
-              <strong class="block font-serif font-bold text-forest text-base leading-tight">Start packing</strong>
-              <span class="block font-serif italic text-muted text-xs mt-1">Free, no credit card</span>
+            <div class="trunk-tag trunk-tag--empty">
+              <span class="trunk-tag-kicker">Open</span>
+              <strong class="trunk-tag-name">Start packing</strong>
+              <span class="trunk-tag-route">A fresh suitcase</span>
+              <span class="trunk-next">An empty space on the platform</span>
             </div>
           </button>
         </div>
       {/if}
     </div>
+
+    <div class="dash-platform-rail" aria-hidden="true"></div>
+    <div class="dash-platform-floor" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -499,36 +644,178 @@
     text-align: center;
   }
 
-  /* ===== Platform ===== */
+  /* ===== Platform =====
+     Restaged as a vintage station: enamel sign + small departure
+     plaque sit above a warm wood-floor platform with a brass rail
+     and gas-lamp vignette. */
   .dash-platform-wrap {
     padding: 40px 0 0;
   }
+
+  /* Station head: enamel-style platform sign + departure plaque.
+     Cream porcelain look with double border and two rivets to read
+     as a real metal sign. */
+  .dash-stationhead {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .stationhead-sign {
+    position: relative;
+    background: #f3ece0;
+    border: 2px solid #0a2d21;
+    box-shadow: inset 0 0 0 4px #fbf6ea, 0 8px 18px rgba(10, 30, 20, 0.18);
+    padding: 12px 28px 12px 28px;
+    min-width: 240px;
+  }
+  .stationhead-rivet {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #f3ece0 0%, #8b6a3a 70%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  .stationhead-rivet--r { left: auto; right: 8px; }
+  .stationhead-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+  }
+  .stationhead-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #7d3a1e;
+  }
+  .stationhead-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+    line-height: 1.05;
+    color: #0a2d21;
+    margin: 0;
+  }
+
+  /* Departure-board plaque on the right of the section head. Forest
+     wood-look background with brass border + gold serif text so it
+     reads as a station's brass departures sign. */
+  .dash-board {
+    background:
+      linear-gradient(180deg, #0a2d21 0%, #06231a 100%);
+    border: 2px solid #c9a84c;
+    box-shadow:
+      inset 0 0 0 3px #0a2d21,
+      0 10px 20px rgba(10, 30, 20, 0.28);
+    padding: 10px 16px 12px;
+    color: #f5f0e8;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 220px;
+    max-width: 340px;
+  }
+  .dash-board-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #c9a84c;
+  }
+  .dash-board-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.15;
+    color: #f5f0e8;
+  }
+  .dash-board-name--quiet {
+    font-style: italic;
+    color: #c4860f;
+  }
+  .dash-board-when {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    color: #d6c2a0;
+    letter-spacing: 0.04em;
+  }
+
   .dash-platform {
     position: relative;
+    /* Warm sepia sky above + wood undertone fading in toward the
+       floor. The vertical gradient does the heavy lifting; the
+       diagonal hatch is a subtle paper-grain echo from the rest
+       of the design. */
     background:
-      linear-gradient(180deg, #ede0cc 0%, #e3d2b3 100%);
+      linear-gradient(180deg, #ede0cc 0%, #d8c39b 70%, #b89265 100%);
     background-image:
       repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.05) 0, rgba(45, 30, 20, 0.05) 1px, transparent 1px, transparent 9px);
     border-top: 3px solid #0a2d21;
     border-bottom: 3px solid #0a2d21;
-    margin-top: 14px;
+    margin-top: 18px;
     overflow: hidden;
   }
+  /* Warm gas-lamp glow at the top corners + a center floor halo. */
+  .dash-platform-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse 600px 240px at 8% -10%, rgba(255, 204, 102, 0.22), transparent 60%),
+      radial-gradient(ellipse 600px 240px at 92% -10%, rgba(255, 204, 102, 0.22), transparent 60%),
+      radial-gradient(ellipse 700px 200px at 50% 100%, rgba(196, 134, 15, 0.18), transparent 70%),
+      radial-gradient(ellipse at center, transparent 35%, rgba(40, 25, 10, 0.18) 100%);
+  }
+  /* Brass rail strip sitting on top of the wooden floor. */
+  .dash-platform-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    height: 3px;
+    z-index: 2;
+    background: linear-gradient(180deg, #c9a84c 0%, #8a6c1c 100%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18), 0 -1px 0 rgba(0, 0, 0, 0.25);
+  }
+  /* Wood-plank floor with varying plank widths so the perspective
+     reads a little more handmade. Darker plank lines mid + thinner
+     accents in between. */
   .dash-platform-floor {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 36px;
-    border-top: 2px solid #5a3920;
-    background-image: repeating-linear-gradient(90deg, #6b4528 0 90px, #5a3920 90px 91px, #6b4528 91px 180px);
+    height: 60px;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, #6b4528 0%, #3f2814 100%),
+      repeating-linear-gradient(90deg,
+        #6b4528 0 96px,
+        #5a3920 96px 98px,
+        #6b4528 98px 156px,
+        #4a3018 156px 158px,
+        #6b4528 158px 220px);
+    background-blend-mode: multiply;
+    box-shadow: inset 0 8px 14px rgba(0, 0, 0, 0.35);
   }
   .dash-platform-inner {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     max-width: 1080px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: 56px 24px 96px;
   }
 
   .dash-empty {
@@ -539,37 +826,198 @@
   .trip-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 36px 32px;
     align-items: end;
   }
   @media (min-width: 540px) {
-    .trip-grid {
-      grid-template-columns: 1fr 1fr;
-    }
+    .trip-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (min-width: 920px) {
-    .trip-grid {
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-    }
+    .trip-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
   }
 
-  /* Trunk rotation/offset driven by inline CSS variables. */
+  /* Card / luggage. Tilt + lift driven by inline CSS vars per index,
+     so the row reads as scattered luggage rather than a neat grid. */
   .trunk {
+    position: relative;
     transform: rotate(var(--rot, 0deg)) translateY(var(--y, 0px));
+    text-decoration: none;
+    color: inherit;
   }
+  .trunk-empty {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+  }
+
+  /* Tucked polaroid: peeks out from the top-left of the suitcase so
+     each card carries a real photo from the trip's first stop.
+     Slight tilt makes it feel like a memento clipped under the
+     luggage strap. */
+  .trunk-polaroid {
+    position: absolute;
+    top: -14px;
+    left: -10px;
+    z-index: 0;
+    width: 78px;
+    background: #fbf6ea;
+    padding: 5px 5px 12px;
+    box-shadow: 0 10px 20px rgba(20, 14, 6, 0.45);
+    transform: rotate(-9deg);
+    transition: transform 0.3s ease;
+    margin: 0;
+  }
+  .trunk-polaroid img {
+    display: block;
+    width: 100%;
+    height: 56px;
+    object-fit: cover;
+  }
+  .trunk-polaroid figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 9px;
+    color: #0a2d21;
+    text-align: center;
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+  .trunk:hover .trunk-polaroid {
+    transform: rotate(-4deg) translateY(-3px);
+  }
+  /* Empty-state polaroid sits a little bigger and more centered. */
+  .trunk-polaroid--empty {
+    top: -18px;
+    left: -14px;
+    width: 96px;
+  }
+  .trunk-polaroid--empty img { height: 68px; }
+
+  .trunk-svg {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.25s ease;
+    filter: drop-shadow(0 12px 18px rgba(10, 20, 5, 0.45));
+  }
+  .trunk-svg--empty { opacity: 0.92; }
+  .trunk:hover .trunk-svg {
+    transform: translateY(-4px);
+  }
+
+  /* Luggage tag. Sits below the suitcase, ticket-paper feel, slight
+     tilt so it doesn't read as a database row. The packing-progress
+     ring lives in the top-right corner as a real luggage sticker. */
   .trunk-tag {
+    position: relative;
+    z-index: 2;
+    margin: -12px auto 0;
+    max-width: 220px;
+    background: #e8d6a8;
+    border: 1px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 9px 12px 10px;
+    box-shadow: 0 8px 14px rgba(40, 20, 5, 0.32);
     transform: rotate(-2deg);
     transition: transform 0.2s ease;
+    text-align: left;
   }
   .trunk:hover .trunk-tag {
     transform: rotate(0deg) translateY(-2px);
   }
-  .trunk-svg {
-    transition: transform 0.25s ease;
-    filter: drop-shadow(0 8px 14px rgba(40, 20, 5, 0.32));
+  .trunk-tag--empty { background: #f3ece0; }
+  .trunk-tag-kicker {
+    display: block;
+    font-family: 'Spline Sans', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 9px;
+    font-weight: 700;
+    color: #7d3a1e;
   }
-  .trunk:hover .trunk-svg {
-    transform: translateY(-4px);
+  .trunk-tag-name {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    color: #0a2d21;
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+  .trunk-tag-route {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 11.5px;
+    color: #6d5a36;
+    margin-top: 2px;
+  }
+
+  .trunk-prog {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 36px;
+    height: 36px;
+    background: #fbf6ea;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(40, 20, 5, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .trunk-prog svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .trunk-prog-num {
+    position: relative;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 10.5px;
+    color: #7d3a1e;
+    line-height: 1;
+  }
+  .trunk-prog-num::after {
+    content: '%';
+    font-size: 6.5px;
+    margin-left: 0.5px;
+    vertical-align: top;
+    font-weight: 700;
+  }
+
+  .trunk-stub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #7d3a1e;
+  }
+  .trunk-stub-sep { color: rgba(139, 106, 58, 0.55); }
+
+  /* Italic Fraunces "next move" coaching line at the bottom of the
+     tag. Reads the trip's state and tells the user the next concrete
+     action so the card feels alive rather than static. */
+  .trunk-next {
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.35);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #7d3a1e;
+    line-height: 1.2;
   }
 
   /* ===== Mini route rail on suitcase tags =====
