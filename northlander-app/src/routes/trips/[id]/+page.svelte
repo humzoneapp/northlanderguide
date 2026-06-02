@@ -627,32 +627,36 @@
             <li><b>{diary.length}</b><span>Notes</span></li>
           </ul>
         {:else}
-          <!-- Empty trip welcome - replaces the misleading direction
-               leg + row of zeros with a warmer invitation. The
-               narrative band beneath still carries the "Pick your
-               stops" CTA, this block sets the tone above it. -->
+          <!-- Empty-trip welcome. This is the entire page until
+               the user picks a route - one warm prompt, one button.
+               Everything below the cover stays hidden until both
+               departing and arriving stops are saved. -->
           <div class="cover-welcome">
             <p class="cover-welcome-lede">
-              An empty suitcase. A route waiting to be drawn.
+              Where to first?
             </p>
             <p class="cover-welcome-sub">
-              Pick a few stops and your itinerary starts to take shape here.
-              Each stop becomes a chapter you can fill with plans, polaroids,
-              and notes from the journey.
+              Tell us where the journey begins and ends. The rest of
+              your itinerary - packing, plans, photos, the ledger -
+              will open once you pick your route.
             </p>
           </div>
         {/if}
 
-        <div class="it-actions">
+        <div class="it-actions" class:it-actions--solo={stops.length === 0}>
           {#if stops.length === 0}
             <button
               type="button"
-              class="btn-primary cover-add"
+              class="btn-primary cover-add cover-pick-route"
               on:click={() => (showStopPicker = true)}
-              aria-label="Pick the stops on this trip"
+              aria-label="Pick where the journey begins and ends"
             >
-              <span class="cover-add-plus">+</span>
-              <span>Pick your stops</span>
+              <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="6" cy="12" r="2.5"/>
+                <circle cx="18" cy="12" r="2.5"/>
+                <path d="M8.5 12 L15.5 12" stroke-dasharray="2 2"/>
+              </svg>
+              <span>Pick your route</span>
             </button>
           {:else}
             <button
@@ -672,6 +676,7 @@
               <span>Edit route</span>
             </button>
           {/if}
+          {#if stops.length > 0}
           <a
             href={`/trips/${trip.id}/recap`}
             class="btn-primary cover-recap"
@@ -714,6 +719,7 @@
             </svg>
             <span>Share</span>
           </button>
+          {/if}
         </div>
       </div>
 
@@ -731,12 +737,15 @@
     </div>
   </header>
 
-  <!-- ===== Narrative band =====
-       Hidden entirely when the trip is empty - the cover welcome
-       above already sets the warm tone + the "Pick your stops"
-       amber button is right there in the action row, so a second
-       prompt would just be noise. -->
+  <!-- ===== Onboarding gate =====
+       Until the user has picked a Departing + Arriving stop, the rest
+       of the page stays hidden. The banner above carries the only
+       call to action ("Pick your route"). The moment stops are
+       saved, the narrative band, scenes, route map, trip kit,
+       sign-off and danger zone reveal together as a single unfold. -->
   {#if stops.length > 0}
+
+  <!-- ===== Narrative band ===== -->
     <section class="narrative">
       <div class="narrative-inner">
         <div class="kicker">The Story So Far</div>
@@ -752,7 +761,6 @@
         </p>
       </div>
     </section>
-  {/if}
 
   <!-- ===== Route map (chapter-jump nav) ===== -->
   <RouteMap
@@ -761,7 +769,6 @@
     departureClock={depClock}
   />
 
-  {#if stops.length > 0}
     <!-- ===== Stop scenes ===== -->
     <section class="scenes">
       {#each stops as stop, i}
@@ -970,7 +977,6 @@
         {/if}
       {/each}
     </section>
-  {/if}
 
   {#if unassigned.length > 0}
     <!-- ===== Loose plans ===== -->
@@ -1281,6 +1287,8 @@
       {/if}
     </div>
   </section>
+
+  {/if}<!-- end onboarding gate -->
 
   <!-- ===== Modals ===== -->
   {#if showStopPicker}
