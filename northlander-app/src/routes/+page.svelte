@@ -241,7 +241,7 @@
           class="btn-primary dash-cta"
           on:click={() => (showNewModal = true)}
         >
-          {$trips.length === 0 ? 'Start your first trip' : '+ Tag a new suitcase'}
+          {$trips.length === 0 ? 'Start your first trip' : '+ Start a new trip'}
         </button>
       </div>
     </div>
@@ -298,10 +298,10 @@
           type="button"
           class="polaroid polaroid-cta"
           on:click={() => (showNewModal = true)}
-          aria-label="Tag your first suitcase"
+          aria-label="Start your first trip"
         >
           <span class="polaroid-tape" aria-hidden="true"></span>
-          <span class="polaroid-stamp polaroid-stamp--invite" aria-hidden="true">Tag a Suitcase</span>
+          <span class="polaroid-stamp polaroid-stamp--invite" aria-hidden="true">Start a Trip</span>
           <div class="polaroid-photo polaroid-photo-faded">
             {#if heroStop}
               <img src={stopImageUrl(heroStop)} alt="" loading="lazy" decoding="async" />
@@ -350,11 +350,7 @@
                 </div>
               {/if}
 
-              <span
-                class="polaroid-seal"
-                style="--seal:{trip.color};--seal-dark:{trip.strap}"
-                aria-hidden="true"
-              >
+              <span class="polaroid-seal" aria-hidden="true">
                 <span>{initial}</span>
               </span>
             </div>
@@ -381,7 +377,7 @@
           type="button"
           class="polaroid polaroid-cta"
           on:click={() => (showNewModal = true)}
-          aria-label="Tag a new suitcase"
+          aria-label="Start a new trip"
         >
           <span class="polaroid-tape" aria-hidden="true"></span>
           <span class="polaroid-stamp polaroid-stamp--invite" aria-hidden="true">A New Trip</span>
@@ -819,8 +815,8 @@
     border-radius: 50%;
     background:
       radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 35%),
-      var(--seal, #7d3a1e);
-    border: 2.5px solid var(--seal-dark, #5e2a14);
+      #7d3a1e;
+    border: 2.5px solid #5e2a14;
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.18),
       0 6px 12px rgba(0, 0, 0, 0.4);

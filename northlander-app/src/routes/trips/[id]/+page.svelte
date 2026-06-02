@@ -21,12 +21,10 @@
   import {
     getTrip,
     renameTrip,
-    changeTripColor,
     updateTrip,
     deleteTrip,
     setTripCover,
-    clearTripCover,
-    LEATHER_COLORS
+    clearTripCover
   } from '$lib/stores/trips.js';
   import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
   import { listDiaryEntries, addDiaryEntry } from '$lib/stores/diary.js';
@@ -53,7 +51,6 @@
   } from '$lib/data/schedule.js';
 
   /* ---------- Components ---------- */
-  import Suitcase from '$lib/components/Suitcase.svelte';
   import ScheduleStrip from '$lib/components/ScheduleStrip.svelte';
   import TripRoutePicker from '$lib/components/TripRoutePicker.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
@@ -96,21 +93,6 @@
   let nameInput;
 
   let confirmingDelete = false;
-
-  /* Custom-leather drafts for the trip-page color editor. Mirror the
-     same shape as NewTripModal so the user can keep tinting an
-     existing suitcase after creation. Initialised from the trip's
-     stored colors on mount + whenever the trip row changes. */
-  let customBodyDraft = '#7d3a1e';
-  let customStrapDraft = '#5e2a14';
-  $: if (trip && trip.colorId === 'custom') {
-    /* Only mirror the saved colors back into the drafts when the trip
-       is already a custom one. For preset trips we keep the drafts
-       at their last-edited values so clicking Custom doesn't snap
-       the picker back to the preset hue. */
-    if (trip.color)  customBodyDraft  = trip.color;
-    if (trip.strap)  customStrapDraft = trip.strap;
-  }
 
   /* Custom cover photo for the banner. Built from trip.coverBlob
      when present; revoked whenever the row swaps out or the page
@@ -407,29 +389,6 @@
   function cancelRename() {
     editingName = false;
     nameDraft = '';
-  }
-
-  async function pickColor(colorId) {
-    if (!trip) return;
-    const updated =
-      colorId === 'custom'
-        ? await changeTripColor(trip.id, 'custom', { body: customBodyDraft, strap: customStrapDraft })
-        : await changeTripColor(trip.id, colorId);
-    if (updated) trip = updated;
-  }
-
-  /* Live-save handler for the two custom inputs. Fires on every
-     <input> event so the dashboard suitcase tints alongside the
-     drag of the OS color wheel. */
-  async function saveCustomColor(field, value) {
-    if (!trip) return;
-    if (field === 'body')  customBodyDraft  = value;
-    if (field === 'strap') customStrapDraft = value;
-    const updated = await changeTripColor(trip.id, 'custom', {
-      body: customBodyDraft,
-      strap: customStrapDraft
-    });
-    if (updated) trip = updated;
   }
 
   async function handleDelete() {
@@ -1172,70 +1131,6 @@
             >{trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Pick stops'}</button>
           </div>
 
-          <div class="details-col details-col-leather">
-            <div class="kicker details-kicker">Leather</div>
-            <div class="details-suitcase">
-              <Suitcase color={trip.color} strap={trip.strap} label="" />
-            </div>
-            <div class="leather-row">
-              {#each LEATHER_COLORS as c}
-                <button
-                  type="button"
-                  class="pl-swatch"
-                  class:is-selected={trip.colorId === c.id}
-                  style="background:{c.body};border-color:{trip.colorId === c.id ? c.strap : 'transparent'}"
-                  on:click={() => pickColor(c.id)}
-                  aria-label={c.name}
-                  aria-pressed={trip.colorId === c.id}
-                ></button>
-              {/each}
-              <!-- Custom swatch: dashed-empty circle. Tap to reveal
-                   body + strap/buckle inputs below. Saves live as
-                   the user moves either picker. -->
-              <button
-                type="button"
-                class="pl-swatch pl-swatch-custom"
-                class:is-selected={trip.colorId === 'custom'}
-                on:click={() => pickColor('custom')}
-                aria-label="Custom leather"
-                aria-pressed={trip.colorId === 'custom'}
-              >
-                <svg viewBox="0 0 24 24" class="pl-swatch-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="8" />
-                  <path d="M12 8 L12 16 M8 12 L16 12" />
-                </svg>
-              </button>
-            </div>
-
-            {#if trip.colorId === 'custom'}
-              <div class="leather-custom-pickers">
-                <label class="leather-custom-pick">
-                  <span class="kicker">Body</span>
-                  <span class="leather-custom-row">
-                    <input
-                      type="color"
-                      value={customBodyDraft}
-                      on:input={(e) => saveCustomColor('body', e.currentTarget.value)}
-                      aria-label="Suitcase body color"
-                    />
-                    <span class="leather-custom-hex">{customBodyDraft.toUpperCase()}</span>
-                  </span>
-                </label>
-                <label class="leather-custom-pick">
-                  <span class="kicker">Strap &amp; buckle</span>
-                  <span class="leather-custom-row">
-                    <input
-                      type="color"
-                      value={customStrapDraft}
-                      on:input={(e) => saveCustomColor('strap', e.currentTarget.value)}
-                      aria-label="Strap and buckle color"
-                    />
-                    <span class="leather-custom-hex">{customStrapDraft.toUpperCase()}</span>
-                  </span>
-                </label>
-              </div>
-            {/if}
-          </div>
         </div>
       </Drawer>
     </div>
