@@ -188,11 +188,14 @@
                      trip page, scaled down. -->
                 {#if hasRail}
                   <div class="trunk-rail" aria-hidden="true">
+                    <span class="rail-badge" title="{trip.direction === 'southbound' ? 'Southbound' : 'Northbound'}">
+                      {trip.direction === 'southbound' ? 'S' : 'N'}
+                    </span>
                     {#each railStops as _, ri}
-                      {#if ri === 0}<span class="rail-seg"></span>{/if}
-                      <span class="rail-dot">{ri + 1}</span>
                       <span class="rail-seg"></span>
+                      <span class="rail-dot">{ri + 1}</span>
                     {/each}
+                    <span class="rail-seg"></span>
                     {#if railOverflow > 0}
                       <span class="rail-more">+{railOverflow}</span>
                     {/if}
@@ -573,6 +576,26 @@
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 0 1.3px #c9a84c;
+  }
+  /* Direction stamp at the head of the rail. Rust pill with cream
+     letter so it reads as a stationmaster's signpost and visually
+     separates from the forest+gold numbered dots. */
+  .rail-badge {
+    flex: 0 0 auto;
+    min-width: 16px;
+    height: 14px;
+    border-radius: 999px;
+    background: #7d3a1e;
+    color: #f3ece0;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .rail-seg {
     flex: 1 1 auto;
