@@ -70,15 +70,16 @@
     return 'Wrapped';
   }
 
-  /* Pick five stops with strong hero photos for the collage. Spaced
-     out along the route so the user sees south-to-north variety. */
-  const COLLAGE_STOP_IDS = ['union', 'bracebridge', 'huntsville', 'temagami', 'cochrane'];
+  /* Four stops with strong hero photos for the collage. Spaced
+     out along the route so the user sees south-to-north variety:
+     Toronto Union -> Bracebridge -> Huntsville -> Cochrane. */
+  const COLLAGE_STOP_IDS = ['union', 'bracebridge', 'huntsville', 'cochrane'];
   $: collageStops = COLLAGE_STOP_IDS
     .map((id) => STOPS.find((s) => s.id === id))
     .filter(Boolean)
     .map((s, i) => ({
       stop: s,
-      tilt: ((i % 5) - 2) * 4,
+      tilt: ((i % 4) - 1.5) * 4,
       lift: (i % 2 === 0) ? 0 : -10
     }));
 </script>
@@ -118,9 +119,6 @@
         >
           {$trips.length === 0 ? 'Start your first trip' : '+ Tag a new suitcase'}
         </button>
-        <a href="https://northlanderguide.com" target="_blank" rel="noopener" class="dash-guide-link">
-          Browse the Guide  &rarr;
-        </a>
       </div>
     </div>
 
@@ -267,26 +265,39 @@
         Lake towns, gold-mine country, polar bear country. Tap any stop to open its guide and start picking favourites.
       </p>
     </div>
+  </div>
 
-    <ul class="stop-grid">
-      {#each STOPS as stop, i}
-        <li>
-          <a
-            href={stopGuideUrl(stop)}
-            target="_blank"
-            rel="noopener"
-            class="stop-tile"
-          >
-            <span class="stop-num">{i + 1}</span>
-            <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
-            <div class="stop-tile-body">
-              <strong>{stop.name}</strong>
-              <span>{stop.region}</span>
-            </div>
-          </a>
-        </li>
+  <!-- Full-bleed scrolling band of real stop photos. Hover (or focus)
+       pauses the scroll. Each tile links out to the Guide. The list
+       is doubled so the loop seam is invisible. -->
+  <div class="dash-marquee" aria-label="The 16 stops on the Northlander route">
+    <div class="dash-marquee-track">
+      {#each STOPS as stop}
+        <a
+          class="dash-marquee-item"
+          href={stopGuideUrl(stop)}
+          target="_blank"
+          rel="noopener"
+          aria-label={`Explore the ${stop.name} stop guide`}
+        >
+          <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
+          <span class="dash-marquee-name">{stop.name}</span>
+        </a>
       {/each}
-    </ul>
+      {#each STOPS as stop}
+        <a
+          class="dash-marquee-item"
+          href={stopGuideUrl(stop)}
+          target="_blank"
+          rel="noopener"
+          aria-hidden="true"
+          tabindex="-1"
+        >
+          <img src={stopImageUrl(stop)} alt="" loading="lazy" decoding="async" />
+          <span class="dash-marquee-name">{stop.name}</span>
+        </a>
+      {/each}
+    </div>
   </div>
 </section>
 
@@ -423,17 +434,6 @@
     color: #0a2d21;
     border-color: #f5f0e8;
   }
-  .dash-guide-link {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #c9a84c;
-    text-decoration: none;
-    font-size: 1rem;
-  }
-  .dash-guide-link:hover {
-    color: #f5f0e8;
-  }
-
   /* Polaroid collage on the hero */
   .dash-collage {
     position: relative;
@@ -645,93 +645,117 @@
     border-top: 1px dashed rgba(139, 106, 58, 0.4);
   }
 
-  /* ===== Inspiration grid ===== */
+  /* ===== Inspiration marquee =====
+     Full-bleed cream paper band with forest top/bottom rails.
+     Mirrors the /plan page's `.pl-marquee` exactly so the App's
+     home page reads as a continuation of the Guide's plan flow. */
   .dash-inspire {
     background: #fbf6ea;
-    padding: 64px 0;
+    padding: 64px 0 0;
   }
   .dash-inspire-inner {
     max-width: 1180px;
     margin: 0 auto;
-  }
-  .stop-grid {
-    list-style: none;
     padding: 0 24px;
-    margin: 24px 0 0;
-    display: grid;
-    gap: 14px;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
-  .stop-tile {
-    position: relative;
-    display: block;
-    aspect-ratio: 5 / 6;
+  .dash-marquee {
+    margin: 40px 0 0;
+    background: #fbf6ea;
+    border-top: 3px solid #0a2d21;
+    border-bottom: 3px solid #0a2d21;
+    padding: 18px 0;
     overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    font-size: 0;
+    line-height: 0;
+    display: flex;
+    align-items: center;
+  }
+  .dash-marquee-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    animation: dash-marquee-scroll 90s linear infinite;
+    font-size: initial;
+    line-height: initial;
+  }
+  .dash-marquee:hover .dash-marquee-track,
+  .dash-marquee:focus-within .dash-marquee-track {
+    animation-play-state: paused;
+  }
+  .dash-marquee-item {
+    display: block;
+    position: relative;
+    width: 200px;
+    height: 140px;
+    flex: none;
+    overflow: hidden;
+    border: 2px solid #0a2d21;
+    background: #f5f0e8;
     text-decoration: none;
     color: inherit;
-    border: 2px solid #0a2d21;
-    box-shadow: 0 6px 18px rgba(40, 30, 20, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
-  .stop-tile:hover {
-    transform: translateY(-4px);
+  .dash-marquee-item:hover {
+    transform: translateY(-3px);
     border-color: #c4860f;
-    box-shadow: 0 12px 24px rgba(40, 30, 20, 0.28);
+    box-shadow: 0 10px 20px rgba(10, 45, 33, 0.22);
   }
-  .stop-tile img {
+  .dash-marquee-item:focus-visible {
+    outline: 3px solid #c4860f;
+    outline-offset: 2px;
+  }
+  .dash-marquee-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     transition: transform 0.4s ease;
   }
-  .stop-tile:hover img {
-    transform: scale(1.08);
+  .dash-marquee-item:hover img {
+    transform: scale(1.06);
   }
-  .stop-tile-body {
+  .dash-marquee-name {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 24px 12px 12px;
-    background: linear-gradient(180deg, transparent, rgba(10, 30, 20, 0.88));
+    background: rgba(10, 45, 33, 0.86);
     color: #f5f0e8;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  .stop-tile-body strong {
     font-family: 'Fraunces', Georgia, serif;
-    font-weight: 700;
-    font-size: 17px;
-    line-height: 1.1;
-  }
-  .stop-tile-body span {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10.5px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #c4860f;
-    font-weight: 700;
-    margin-top: 2px;
-  }
-  .stop-num {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 2;
-    background: #0a2d21;
-    color: #c9a84c;
-    border: 2px solid #c9a84c;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 5px 10px;
+    text-align: left;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .dash-marquee-name::after {
+    content: '\2192';
+    color: #c9a84c;
+    font-weight: 700;
     font-size: 14px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .dash-marquee-item:hover .dash-marquee-name::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  @keyframes dash-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (max-width: 640px) {
+    .dash-marquee-item { width: 160px; height: 110px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-marquee-track { animation: none; }
   }
 
   /* ===== How it works ===== */
