@@ -5,6 +5,7 @@
   import { listBookings, BOOKING_KINDS } from '$lib/stores/bookings.js';
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listPhotos } from '$lib/stores/photos.js';
+  import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import {
     getStopsByIds,
     getStop,
@@ -30,6 +31,33 @@
   /* Object URLs for per-stop photo strips. Built once, torn down on
      destroy so blobs don't leak across navigations. */
   let photoUrls = new Map();
+
+  /* AddPlanModal state. Pre-fills with the stop + kind the user
+     tapped from so the modal opens already focused on what they
+     want. The modal stays open across adds, so we only refresh
+     bookings on its close event. */
+  let showAddPlan = false;
+  let addPlanStop = '';
+  let addPlanKind = 'all';
+
+  async function openAddPlan(stopId = '', kind = 'all') {
+    addPlanStop = stopId;
+    addPlanKind = kind;
+    showAddPlan = true;
+  }
+
+  async function refreshBookings() {
+    if (trip) {
+      bookings = await listBookings(trip.id);
+    }
+  }
+
+  async function closeAddPlan() {
+    showAddPlan = false;
+    /* New plans land in IndexedDB immediately; we just refetch so
+       the scenes show them without a page reload. */
+    await refreshBookings();
+  }
 
   $: id = $page.params.id;
   $: stops = trip ? deriveStops(trip) : [];
@@ -208,8 +236,17 @@
         </ul>
 
         <div class="it-actions">
+          <button
+            type="button"
+            class="btn-primary cover-add"
+            on:click={() => openAddPlan('', 'all')}
+            aria-label="Add a place to your trip from the Guide"
+          >
+            <span class="cover-add-plus">+</span>
+            <span>Add a plan</span>
+          </button>
           <a href={`/trips/${trip.id}`} class="cover-back">&larr; Back to trip</a>
-          <button type="button" class="btn-primary" on:click={printItinerary}>Save as PDF</button>
+          <button type="button" class="btn-primary cover-print" on:click={printItinerary}>Save as PDF</button>
         </div>
       </div>
 
@@ -317,18 +354,30 @@
                     {/if}
                   </p>
                   <div class="scene-prompts">
-                    <a href={stopGuideUrl(stop)} target="_blank" rel="noopener" class="prompt prompt-eat">
+                    <button
+                      type="button"
+                      class="prompt prompt-eat"
+                      on:click={() => openAddPlan(stop.id, 'eat')}
+                    >
                       <span class="prompt-kicker">Eat</span>
                       <span class="prompt-label">Find a restaurant in {stop.name}</span>
-                    </a>
-                    <a href={stopGuideUrl(stop)} target="_blank" rel="noopener" class="prompt prompt-sleep">
+                    </button>
+                    <button
+                      type="button"
+                      class="prompt prompt-sleep"
+                      on:click={() => openAddPlan(stop.id, 'stay')}
+                    >
                       <span class="prompt-kicker">Sleep</span>
                       <span class="prompt-label">Find a place to stay</span>
-                    </a>
-                    <a href={stopGuideUrl(stop)} target="_blank" rel="noopener" class="prompt prompt-do">
+                    </button>
+                    <button
+                      type="button"
+                      class="prompt prompt-do"
+                      on:click={() => openAddPlan(stop.id, 'do')}
+                    >
                       <span class="prompt-kicker">Do</span>
                       <span class="prompt-label">See what's nearby</span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               {:else}
@@ -463,10 +512,29 @@
     <h2>Ride safe.</h2>
     <p>Open this on your phone the morning you board.</p>
     <div class="it-actions foot-actions">
+      <button
+        type="button"
+        class="btn-primary cover-add"
+        on:click={() => openAddPlan('', 'all')}
+      >
+        <span class="cover-add-plus">+</span>
+        <span>Add a plan</span>
+      </button>
       <a href={`/trips/${trip.id}`} class="cover-back">&larr; Back to trip</a>
-      <button type="button" class="btn-primary" on:click={printItinerary}>Save as PDF</button>
+      <button type="button" class="btn-primary cover-print" on:click={printItinerary}>Save as PDF</button>
     </div>
   </section>
+
+  {#if showAddPlan}
+    <AddPlanModal
+      tripId={trip.id}
+      stopIds={trip.stopIds || []}
+      initialStop={addPlanStop}
+      initialKind={addPlanKind}
+      existingBookings={bookings}
+      on:close={closeAddPlan}
+    />
+  {/if}
 {/if}
 
 <style>
@@ -623,6 +691,41 @@
     padding: 4px 6px;
   }
   .cover-back:hover {
+    color: #f5f0e8;
+  }
+  /* Primary action on the cover - amber so it stands out against
+     the forest background and reads as "this is the main thing
+     you do here". */
+  .cover-add {
+    background: #c4860f;
+    border-color: #c4860f;
+    color: #0a2d21;
+    font-weight: 700;
+    padding: 0.85rem 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 22px rgba(196, 134, 15, 0.35);
+  }
+  .cover-add:hover {
+    background: #f5f0e8;
+    border-color: #f5f0e8;
+    color: #0a2d21;
+  }
+  .cover-add-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .cover-print {
+    background: transparent;
+    border: 2px solid rgba(201, 168, 76, 0.5);
+    color: #c9a84c;
+  }
+  .cover-print:hover {
+    background: rgba(201, 168, 76, 0.1);
+    border-color: #c9a84c;
     color: #f5f0e8;
   }
 
@@ -865,6 +968,13 @@
     text-decoration: none;
     color: #f5f0e8;
     transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    /* Reset <button> defaults so the same class works for both
+       <a> and <button>. The element is decided at the call site
+       based on whether we want an outbound link or an in-app
+       modal trigger. */
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
   }
   .prompt:hover {
     background: rgba(196, 134, 15, 0.18);
