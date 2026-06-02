@@ -27,10 +27,10 @@
     LEATHER_COLORS
   } from '$lib/stores/trips.js';
   import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
-  import { listDiaryEntries } from '$lib/stores/diary.js';
-  import { listPhotos } from '$lib/stores/photos.js';
+  import { listDiaryEntries, addDiaryEntry } from '$lib/stores/diary.js';
+  import { listPhotos, addPhoto } from '$lib/stores/photos.js';
   import { listPackingItems, addPackingItem } from '$lib/stores/packing.js';
-  import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
+  import { listBudgetEntries, addBudgetEntry, totalOf, formatAmount } from '$lib/stores/budget.js';
 
   /* ---------- Stop + schedule helpers ---------- */
   import {
@@ -111,6 +111,79 @@
       packingCount = rows.length;
     } finally {
       quickPackingBusy = false;
+    }
+  }
+
+  /* Ledger quick-add: label + amount in two compact inputs.
+     Category defaults to 'other' so the user can drop quick
+     receipts; they can refine the category inside the drawer. */
+  let quickLedgerLabel = '';
+  let quickLedgerAmount = '';
+  let quickLedgerBusy = false;
+  async function quickAddLedger() {
+    if (!trip || quickLedgerBusy) return;
+    const label = quickLedgerLabel.trim();
+    const amount = Number(quickLedgerAmount);
+    if (!label || !Number.isFinite(amount) || amount <= 0) return;
+    quickLedgerBusy = true;
+    try {
+      await addBudgetEntry(trip.id, { label, amount, category: 'other' });
+      quickLedgerLabel = '';
+      quickLedgerAmount = '';
+      budgetEntries = await listBudgetEntries(trip.id);
+    } finally {
+      quickLedgerBusy = false;
+    }
+  }
+
+  /* Diary quick-add: a single line input that creates an unpinned
+     entry. The user can pin it to a stop later inside the drawer. */
+  let quickDiaryDraft = '';
+  let quickDiaryBusy = false;
+  async function quickAddDiary() {
+    if (!trip || quickDiaryBusy) return;
+    const clean = quickDiaryDraft.trim();
+    if (!clean) return;
+    quickDiaryBusy = true;
+    try {
+      await addDiaryEntry(trip.id, { text: clean, stopId: null });
+      quickDiaryDraft = '';
+      diary = await listDiaryEntries(trip.id);
+    } finally {
+      quickDiaryBusy = false;
+    }
+  }
+
+  /* Photos quick-add: file picker wrapped in a styled label so the
+     button itself triggers the native picker. addPhoto handles
+     the resize + thumb pipeline inside the photos store, so the
+     quick path here is just "fire and forget per file". Photos
+     count + photoUrls refresh after so the cover stats and any
+     pinned scene strips stay current. */
+  let quickPhotoBusy = false;
+  async function quickAddPhotos(event) {
+    const input = event.currentTarget;
+    if (!trip || quickPhotoBusy || !input || !input.files) return;
+    const files = Array.from(input.files).slice(0, 12);
+    if (files.length === 0) return;
+    quickPhotoBusy = true;
+    try {
+      for (const f of files) {
+        try { await addPhoto(trip.id, f, {}); } catch (e) { /* skip one bad file */ }
+      }
+      const next = await listPhotos(trip.id);
+      photos = next;
+      /* Refresh object URLs for any stop-pinned new photos so they
+         show up in scene strips on the next render. */
+      const nextUrls = new Map();
+      for (const p of next) {
+        if (p.stopId) nextUrls.set(p.id, URL.createObjectURL(p.thumb));
+      }
+      for (const u of photoUrls.values()) URL.revokeObjectURL(u);
+      photoUrls = nextUrls;
+    } finally {
+      quickPhotoBusy = false;
+      input.value = '';
     }
   }
 
@@ -794,6 +867,30 @@
         count={budgetEntries.length}
         countLabel={budgetEntries.length > 0 ? formatAmount(budgetTotal) : ''}
       >
+        <svelte:fragment slot="quick">
+          <form class="quick-ledger-form" on:submit|preventDefault={quickAddLedger}>
+            <input
+              type="text"
+              bind:value={quickLedgerLabel}
+              maxlength="80"
+              placeholder="Log a cost..."
+              aria-label="Quick-log label"
+              class="quick-ledger-label"
+              disabled={quickLedgerBusy}
+            />
+            <input
+              type="number"
+              inputmode="decimal"
+              step="0.01"
+              min="0"
+              bind:value={quickLedgerAmount}
+              placeholder="$"
+              aria-label="Quick-log amount"
+              class="quick-ledger-amount"
+              disabled={quickLedgerBusy}
+            />
+          </form>
+        </svelte:fragment>
         <BudgetTracker tripId={trip.id} />
       </Drawer>
 
@@ -803,6 +900,21 @@
         count={photos.length}
         countLabel={photos.length === 1 ? 'photo' : 'photos'}
       >
+        <svelte:fragment slot="quick">
+          <label class="quick-photo-btn" class:is-busy={quickPhotoBusy}>
+            <span class="quick-plus" aria-hidden="true">+</span>
+            <span>{quickPhotoBusy ? 'Uploading...' : 'Photo'}</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              class="quick-photo-input"
+              aria-label="Quick-add photos"
+              on:change={quickAddPhotos}
+              disabled={quickPhotoBusy}
+            />
+          </label>
+        </svelte:fragment>
         <PhotoAlbum tripId={trip.id} stopIds={trip.stopIds || []} />
       </Drawer>
 
@@ -812,6 +924,19 @@
         count={diary.length}
         countLabel={diary.length === 1 ? 'note' : 'notes'}
       >
+        <svelte:fragment slot="quick">
+          <form class="quick-diary-form" on:submit|preventDefault={quickAddDiary}>
+            <input
+              type="text"
+              bind:value={quickDiaryDraft}
+              maxlength="280"
+              placeholder="Jot a note..."
+              aria-label="Quick-add diary note"
+              class="quick-diary-input"
+              disabled={quickDiaryBusy}
+            />
+          </form>
+        </svelte:fragment>
         <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
       </Drawer>
 
@@ -1898,10 +2023,135 @@
     line-height: 1;
   }
 
+  /* Ledger quick-action: two compact inputs side by side. The label
+     takes the long lane, the amount sits in a tight 80px lane with
+     a $ placeholder. Same dashed pill aesthetic as the packing
+     input so the rail of quick-actions reads as one family. */
+  .quick-ledger-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+  }
+  .quick-ledger-label,
+  .quick-ledger-amount {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0a2d21;
+    background: transparent;
+    border: 1.5px dashed rgba(125, 58, 30, 0.45);
+    border-radius: 999px;
+    padding: 5px 12px;
+    outline: none;
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+  .quick-ledger-label { width: 160px; max-width: 36vw; }
+  .quick-ledger-amount {
+    width: 78px;
+    text-align: right;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+  }
+  .quick-ledger-label::placeholder,
+  .quick-ledger-amount::placeholder {
+    color: rgba(90, 79, 61, 0.65);
+    font-style: italic;
+  }
+  .quick-ledger-label:hover,
+  .quick-ledger-label:focus-visible,
+  .quick-ledger-amount:hover,
+  .quick-ledger-amount:focus-visible {
+    border-color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.06);
+  }
+  /* Hide native number spinner for the slim pill look. */
+  .quick-ledger-amount::-webkit-outer-spin-button,
+  .quick-ledger-amount::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .quick-ledger-amount { -moz-appearance: textfield; }
+
+  /* Diary quick-action: single text input, wider lane than packing
+     because a thought tends to run longer than an item name. */
+  .quick-diary-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+  }
+  .quick-diary-input {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #0a2d21;
+    background: transparent;
+    border: 1.5px dashed rgba(125, 58, 30, 0.45);
+    border-radius: 999px;
+    padding: 5px 14px;
+    width: 240px;
+    max-width: 50vw;
+    outline: none;
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+  .quick-diary-input::placeholder {
+    color: rgba(90, 79, 61, 0.65);
+  }
+  .quick-diary-input:hover,
+  .quick-diary-input:focus-visible {
+    border-color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.06);
+  }
+
+  /* Photos quick-action: styled file-picker label. Wraps the hidden
+     file input so tapping the label opens the native picker, and
+     the same rust-pill identity as the Plans quick-action signals
+     "primary action" without competing with the cover. */
+  .quick-photo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #6e2e17;
+    border: 1.5px solid #6e2e17;
+    color: #f3ece0;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+  }
+  .quick-photo-btn:hover {
+    background: #884023;
+    border-color: #884023;
+  }
+  .quick-photo-btn.is-busy {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .quick-photo-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* Mobile: tuck the quick-action below the title row so a tight
      header stays one line. */
   @media (max-width: 640px) {
     .quick-pack-input { width: 100%; max-width: none; }
+    .quick-ledger-form { flex-wrap: wrap; }
+    .quick-ledger-label { width: 100%; max-width: none; }
+    .quick-ledger-amount { flex: 1 1 auto; text-align: left; }
+    .quick-diary-input { width: 100%; max-width: none; }
   }
 
   /* Trip details drawer body */
