@@ -14,6 +14,7 @@
   import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
+  import TripWizard from '$lib/components/TripWizard.svelte';
   import { listBookings } from '$lib/stores/bookings.js';
   import {
     getTrip,
@@ -37,10 +38,27 @@
       already-added listings as checkmarks. Reloaded each time the
       modal opens to stay fresh. */
   let bookingsSnap = [];
+  /** Total bookings on this trip - drives the wizard's "first plan"
+      step. Refreshed on load and whenever the AddPlanModal closes. */
+  let bookingsCount = 0;
+
+  async function refreshBookingsCount() {
+    if (!trip) {
+      bookingsCount = 0;
+      return;
+    }
+    const rows = await listBookings(trip.id);
+    bookingsCount = rows.length;
+  }
 
   async function openAddPlan() {
     bookingsSnap = trip ? await listBookings(trip.id) : [];
     showAddPlan = true;
+  }
+
+  async function closeAddPlan() {
+    showAddPlan = false;
+    await refreshBookingsCount();
   }
 
   /** @type {HTMLInputElement | undefined} */
@@ -54,6 +72,7 @@
     loading = true;
     trip = (await getTrip(tripId)) || null;
     loading = false;
+    await refreshBookingsCount();
   }
 
   function startRename() {
@@ -127,6 +146,20 @@
     <span class="mx-2 text-rust">/</span>
     <span class="text-ink">{trip.name}</span>
   </nav>
+
+  <!-- ===== First-run wizard =====
+       Hides itself once the user has named the trip, picked stops,
+       and dropped at least one plan (or after they tap "Skip the
+       coach"). Stop / plan buttons dispatch into the same modal
+       openers the rest of the page uses. -->
+  <div class="max-w-[1080px] mx-auto px-6 pt-6">
+    <TripWizard
+      {trip}
+      {bookingsCount}
+      on:pickStops={() => (showStopPicker = true)}
+      on:addPlan={openAddPlan}
+    />
+  </div>
 
   <!-- ===== Trip hero ===== -->
   <section class="max-w-[1080px] mx-auto px-6 pt-6 pb-10">
@@ -353,7 +386,7 @@
       tripId={trip.id}
       stopIds={trip.stopIds || []}
       existingBookings={bookingsSnap}
-      on:close={() => (showAddPlan = false)}
+      on:close={closeAddPlan}
     />
   {/if}
 
