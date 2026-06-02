@@ -39,6 +39,10 @@
   let stopFilter = initialStop || '__all__';
   let kindFilter = KIND_TABS.some((t) => t.id === initialKind) ? initialKind : 'all';
   let query = '';
+  /* When true, listings already on the trip drop out of the result
+     list. The toggle only renders when there's at least one such
+     listing to hide, so it's quiet when the trip is empty. */
+  let hideAdded = false;
 
   /** @type {Record<string, Record<string, any[]>>} */
   let data = null;
@@ -107,6 +111,23 @@
   $: selectedStopIds = stopFilter === '__all__' ? (stopIds || []) : [stopFilter];
   $: catKeys = (KIND_TABS.find((t) => t.id === kindFilter) || KIND_TABS[0]).cats;
   $: rows = data ? searchListings(flattenListings(data, selectedStopIds, catKeys), query) : [];
+  /* hideAdded acts after stop + kind + search so the count the user
+     sees in the toggle is the count they're hiding from the
+     current view. */
+  $: addedInRows = rows.reduce(
+    (n, r) => n + (addedKeys.has(listingKeyFor(r.stopId, r.listing.name)) ? 1 : 0),
+    0
+  );
+  /* When hideAdded is on, freshly-added rows linger until justAdded
+     clears so the gold flash + "Added" pill still play for the user
+     before the row drops out. Otherwise the row would vanish the
+     instant they tap +, which feels broken. */
+  $: visibleRows = hideAdded
+    ? rows.filter((r) => {
+        const k = listingKeyFor(r.stopId, r.listing.name);
+        return !addedKeys.has(k) || justAdded.has(k);
+      })
+    : rows;
   $: addedCount = addedKeys.size;
   $: openStopForGuide = stopFilter === '__all__'
     ? (selectedStopIds[0] || null)
@@ -194,10 +215,10 @@
         <span class="ap-sub">
           {#if loading}
             Loading listings from the Guide...
-          {:else if rows.length === 0}
+          {:else if visibleRows.length === 0}
             From NorthlanderGuide.com
           {:else}
-            {rows.length} {rows.length === 1 ? 'place' : 'places'} along your route
+            {visibleRows.length} {visibleRows.length === 1 ? 'place' : 'places'} along your route
           {/if}
         </span>
       </div>
@@ -292,6 +313,21 @@
         placeholder="Search by name, dish, neighbourhood..."
         aria-label="Search listings"
       />
+      {#if addedInRows > 0 || (hideAdded && addedCount > 0)}
+        <button
+          type="button"
+          class="ap-hide-toggle"
+          class:is-on={hideAdded}
+          on:click={() => (hideAdded = !hideAdded)}
+          aria-pressed={hideAdded}
+        >
+          {#if hideAdded}
+            Show added
+          {:else}
+            Hide {addedInRows} on trip
+          {/if}
+        </button>
+      {/if}
       {#if openStopForGuide}
         <a
           href={listingGuideUrl(openStopForGuide, null)}
@@ -320,9 +356,18 @@
             No listings here yet. Try another stop or the All category.
           {/if}
         </p>
+      {:else if visibleRows.length === 0}
+        <p class="ap-status">
+          Every listing here is already on your trip.
+          <button
+            type="button"
+            class="ap-status-inline-btn"
+            on:click={() => (hideAdded = false)}
+          >Show them anyway</button>
+        </p>
       {:else}
         <ul class="ap-list">
-          {#each rows as row (row.stopId + '|' + row.listing.name)}
+          {#each visibleRows as row (row.stopId + '|' + row.listing.name)}
             {@const key = listingKeyFor(row.stopId, row.listing.name)}
             {@const added = addedKeys.has(key)}
             {@const flash = justAdded.has(key)}
@@ -660,6 +705,60 @@
     color: rgba(90, 79, 61, 0.55);
     font-style: italic;
   }
+  /* Hide-added toggle. Dashed gold pill on the off state so it
+     reads as a filter offer; flips to a filled forest pill on the
+     on state so the user knows the view has been narrowed. Only
+     renders while there's something to hide (or already hidden),
+     so a fresh modal stays uncluttered. */
+  .ap-hide-toggle {
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1.5px dashed #c4860f;
+    color: #7d3a1e;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .ap-hide-toggle:hover {
+    background: rgba(196, 134, 15, 0.1);
+    color: #0a2d21;
+  }
+  .ap-hide-toggle.is-on {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    border-style: solid;
+    color: #c9a84c;
+  }
+  .ap-hide-toggle.is-on:hover {
+    background: #114734;
+  }
+
+  /* "Show them anyway" button inside the empty-state status. */
+  .ap-status-inline-btn {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-left: 4px;
+    color: #7d3a1e;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+  }
+  .ap-status-inline-btn:hover {
+    color: #0a2d21;
+  }
+
   .ap-guide-link {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
