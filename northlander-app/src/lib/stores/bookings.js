@@ -70,10 +70,13 @@ export async function listBookings(tripId) {
     Optional listingKey is the AddPlanModal's dedupe handle for a
     Guide listing - "stopId|listing-name-slug" - so the modal can
     show an already-added checkmark instead of a + on rows that are
-    already on the trip. */
+    already on the trip. Optional startTime (HH:MM, 24h) seeds the
+    chronological scene ordering at add time so users can drop the
+    schedule slot in the modal rather than having to bounce back
+    to the BookingChecklist drawer afterward. */
 export async function addBooking(
   tripId,
-  { title, kind = 'other', dueDate = null, stopId = null, listingKey = null } = {}
+  { title, kind = 'other', dueDate = null, stopId = null, listingKey = null, startTime = null } = {}
 ) {
   const clean = String(title || '').trim();
   if (!clean) return null;
@@ -86,6 +89,7 @@ export async function addBooking(
     dueDate: dueDate || null,
     stopId: stopId || null,
     listingKey: listingKey || null,
+    startTime: normalizeStartTime(startTime),
     createdAt: now,
     updatedAt: now
   });

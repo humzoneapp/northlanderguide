@@ -12,7 +12,7 @@
     CATEGORY_MAP,
     KIND_TABS
   } from '$lib/data/listings.js';
-  import { addBooking } from '$lib/stores/bookings.js';
+  import { addBooking, updateBooking } from '$lib/stores/bookings.js';
   import { getStop, getStopsByIds } from '$lib/data/stops.js';
 
   /** @type {string} */
@@ -23,7 +23,7 @@
   export let initialStop = '';
   /** @type {string} - id from KIND_TABS, e.g. 'eat', 'stay', 'do' */
   export let initialKind = 'all';
-  /** @type {{ id: number, stopId: string|null, listingKey: string|null }[]} */
+  /** @type {Array<{ id: number, stopId: string|null, listingKey: string|null, startTime?: string|null }>} */
   export let existingBookings = [];
   /** @type {'northbound' | 'southbound'} - the trip's direction; drives
       the "Heading north - to Cochrane" badge above the chip row so
@@ -66,6 +66,48 @@
      order is preserved (Set iteration is ordered) so we can sort
      newest-first. */
   let sessionAdded = new Set();
+
+  /* Per-listing-key time pill state. The pill is editable on every
+     row whether or not the row is already on the trip, so two
+     things have to track:
+       - times: the display value the user sees + types into (HH:MM
+         or ''). For rows already on the trip we seed it from
+         existingBookings.startTime; for fresh rows it starts empty.
+       - bookingIdsByKey: maps listingKey to the bookings table id
+         so editing time on an added row dispatches updateBooking
+         rather than a new addBooking.
+     Both are plain Maps re-assigned on each mutation so Svelte
+     picks up the reactivity. */
+  let times = new Map(
+    (existingBookings || [])
+      .filter((b) => b && b.listingKey)
+      .map((b) => [b.listingKey, b.startTime || ''])
+  );
+  let bookingIdsByKey = new Map(
+    (existingBookings || [])
+      .filter((b) => b && b.listingKey && b.id != null)
+      .map((b) => [b.listingKey, b.id])
+  );
+
+  function getTime(key) {
+    return times.get(key) || '';
+  }
+
+  /* Time pill change handler. Stores the new value in `times` so
+     the pill keeps showing it; if the row is already on the trip
+     we also patch the booking via updateBooking. Pre-add changes
+     are committed at add time inside handleAdd. */
+  async function handleTimeChange(row, value) {
+    const key = listingKeyFor(row.stopId, row.listing.name);
+    times.set(key, value);
+    times = new Map(times);
+    if (addedKeys.has(key)) {
+      const id = bookingIdsByKey.get(key);
+      if (id != null) {
+        try { await updateBooking(id, { startTime: value }); } catch (_) {}
+      }
+    }
+  }
 
   /** @type {HTMLInputElement | undefined} */
   let searchInput;
@@ -204,12 +246,21 @@
     const title = row.listing.address
       ? `${row.listing.name} - ${row.listing.address}`
       : row.listing.name;
-    await addBooking(tripId, {
+    /* Pick up any time the user set on the pill before tapping +,
+       so the booking lands at the right slot in the cinematic
+       scenes on the trip page without a second edit. */
+    const startTime = times.get(key) || null;
+    const newId = await addBooking(tripId, {
       title,
       kind: categoryToKind(row.catKey),
       stopId: row.stopId,
-      listingKey: key
+      listingKey: key,
+      startTime
     });
+    if (newId != null) {
+      bookingIdsByKey.set(key, newId);
+      bookingIdsByKey = new Map(bookingIdsByKey);
+    }
     addedKeys = new Set([...addedKeys, key]);
     sessionAdded = new Set([...sessionAdded, key]);
     justAdded = new Set([...justAdded, key]);
@@ -451,24 +502,42 @@
                 {/if}
               </div>
 
-              <button
-                type="button"
-                class="ap-add"
-                class:is-on={added}
-                on:click={() => handleAdd(row)}
-                aria-label={added ? `Already added: ${row.listing.name}` : `Add ${row.listing.name} to your trip`}
-                disabled={added}
-              >
-                {#if added}
-                  <svg viewBox="0 0 16 16" class="ap-add-icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 8 7 12 13 4"></polyline>
-                  </svg>
-                  <span>Added</span>
-                {:else}
-                  <span class="ap-add-plus">+</span>
-                  <span>Add</span>
-                {/if}
-              </button>
+              <div class="ap-card-actions">
+                <!-- Time pill: same dashed-gold identity as the
+                     BookingChecklist row pill. Editable whether or
+                     not the row is on the trip, so the user can
+                     slot the time in before tapping +, or refine it
+                     after. handleTimeChange routes the value to
+                     updateBooking when the row already has a Dexie
+                     id, or just to local state when it doesn't. -->
+                <input
+                  type="time"
+                  class="ap-time"
+                  class:is-set={!!getTime(key)}
+                  value={getTime(key)}
+                  aria-label={`Time for ${row.listing.name}`}
+                  title={getTime(key) ? 'Tap to change time' : 'Tap to add a time'}
+                  on:change={(e) => handleTimeChange(row, e.currentTarget.value)}
+                />
+                <button
+                  type="button"
+                  class="ap-add"
+                  class:is-on={added}
+                  on:click={() => handleAdd(row)}
+                  aria-label={added ? `Already added: ${row.listing.name}` : `Add ${row.listing.name} to your trip`}
+                  disabled={added}
+                >
+                  {#if added}
+                    <svg viewBox="0 0 16 16" class="ap-add-icon" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 8 7 12 13 4"></polyline>
+                    </svg>
+                    <span>Added</span>
+                  {:else}
+                    <span class="ap-add-plus">+</span>
+                    <span>Add</span>
+                  {/if}
+                </button>
+              </div>
             </li>
           {/each}
         </ul>
@@ -962,10 +1031,57 @@
     margin: 0;
   }
 
+  /* Action column - vertical stack of time pill + add button so
+     the read order is "set time, then drop". On mobile the column
+     still sits to the right of the card body. */
+  .ap-card-actions {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 96px;
+  }
+  /* Time pill mirrors BookingChecklist's row pill so the modal and
+     the drawer speak the same language. Dashed gold by default,
+     filled amber once a value is set. Disappears into the row
+     padding when read-only / disabled. */
+  .ap-time {
+    align-self: stretch;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6e2e17;
+    background: transparent;
+    border: 1.5px dashed rgba(196, 134, 15, 0.55);
+    border-radius: 999px;
+    padding: 4px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .ap-time:hover,
+  .ap-time:focus-visible {
+    border-color: #c4860f;
+    background: rgba(196, 134, 15, 0.08);
+    outline: none;
+  }
+  .ap-time.is-set {
+    background: rgba(196, 134, 15, 0.18);
+    border-color: #c4860f;
+    border-style: solid;
+    color: #0a2d21;
+  }
+  .ap-time::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    margin-left: 2px;
+  }
+
   .ap-add {
-    align-self: flex-start;
+    align-self: stretch;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: #6e2e17;
     color: #f3ece0;
@@ -1035,9 +1151,15 @@
       width: 64px;
       height: 64px;
     }
-    .ap-add {
+    .ap-card-actions {
       grid-column: 1 / -1;
-      justify-self: end;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
+    .ap-time { width: 96px; align-self: auto; }
+    .ap-add { align-self: auto; }
   }
 </style>
