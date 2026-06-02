@@ -567,6 +567,15 @@
     <a href="/" class="btn-primary cover-add">Back to your platform</a>
   </section>
 {:else}
+  <!-- Theme wrapper. The trip's coverBg / coverAccent (or the suitcase
+       fallback) live as CSS custom properties here so every section
+       below - breadcrumb, cover, scenes, connectors, sign-off, route
+       map - can pull the same palette without redeclaring it. Cream
+       paper sections (narrative, drawers, danger zone) keep their
+       own paper tone since those are publication white-space, not
+       brand color. -->
+  <div class="trip-themed" style={coverThemeStyle}>
+
   <!-- ===== Breadcrumb (inside the forest band so it sits over the gradient) ===== -->
   <nav class="crumbs">
     <div class="crumbs-inner">
@@ -584,7 +593,7 @@
        below in the cream/ivory editorial style. A small "Change
        cover" button in the corner lets the user swap the banner
        image at any time. -->
-  <header class="cover" class:has-image={!!bannerImage} style={coverThemeStyle}>
+  <header class="cover" class:has-image={!!bannerImage}>
     <div
       class="cover-bg"
       class:has-image={!!bannerImage}
@@ -1417,6 +1426,8 @@
 
   {/if}<!-- end onboarding gate -->
 
+  </div><!-- end trip-themed wrapper -->
+
   <!-- ===== Modals ===== -->
   {#if showStopPicker}
     <TripRoutePicker
@@ -1475,7 +1486,7 @@
 
   /* ===== Breadcrumb ===== */
   .crumbs {
-    background: #0a2d21;
+    background: var(--cover-bg-bot, #0a2d21);
     color: #cad7cf;
     padding: 18px 24px 0;
   }
@@ -1990,7 +2001,7 @@
 
   /* ===== Stop scenes ===== */
   .scenes {
-    background: #0a2d21;
+    background: var(--cover-bg-bot, #0a2d21);
     padding: 0;
   }
   .scene {
@@ -2013,8 +2024,13 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, rgba(10, 30, 20, 0.85) 0%, rgba(10, 30, 20, 0.72) 40%, rgba(10, 30, 20, 0.92) 100%),
-      radial-gradient(circle at 80% 20%, rgba(196, 134, 15, 0.25), transparent 55%);
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 85%, transparent) 0%,
+        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 72%, transparent) 40%,
+        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 92%, transparent) 100%
+      ),
+      radial-gradient(circle at 80% 20%, rgba(196, 134, 15, 0.18), transparent 55%);
   }
   .scene-inner {
     position: relative;
@@ -2405,7 +2421,7 @@
 
   /* ===== Connector ===== */
   .connector {
-    background: #0a2d21;
+    background: var(--cover-bg-bot, #0a2d21);
     color: #c4860f;
     padding: 28px 24px;
     display: flex;
@@ -2486,7 +2502,7 @@
 
   /* ===== Sign off ===== */
   .foot {
-    background: linear-gradient(180deg, #0e3b2c 0%, #0a2d21 100%);
+    background: linear-gradient(180deg, var(--cover-bg-top, #0e3b2c) 0%, var(--cover-bg-bot, #0a2d21) 100%);
     color: #f5f0e8;
     padding: 56px 24px;
     text-align: center;
