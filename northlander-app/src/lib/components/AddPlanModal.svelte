@@ -59,6 +59,13 @@
   /* Per-listing-key toast state, briefly highlights the row that
      just got added. */
   let justAdded = new Set();
+  /* sessionAdded persists across the lifetime of THIS modal open
+     (cleared when the modal unmounts). Drives the "Just added"
+     pinning at the top of the list so the user can verify what
+     landed in the current session without scrolling. Insertion
+     order is preserved (Set iteration is ordered) so we can sort
+     newest-first. */
+  let sessionAdded = new Set();
 
   /** @type {HTMLInputElement | undefined} */
   let searchInput;
@@ -122,12 +129,41 @@
      clears so the gold flash + "Added" pill still play for the user
      before the row drops out. Otherwise the row would vanish the
      instant they tap +, which feels broken. */
-  $: visibleRows = hideAdded
+  $: filteredRows = hideAdded
     ? rows.filter((r) => {
         const k = listingKeyFor(r.stopId, r.listing.name);
         return !addedKeys.has(k) || justAdded.has(k);
       })
     : rows;
+  /* When hideAdded is off and the user has added something during
+     this modal session, those rows float to the top of the list
+     in reverse-add order (newest first). This is the "Just added"
+     pin: lets the user verify what they just dropped without
+     scrolling. When hideAdded is on, the sort would conflict with
+     the "focus on un-added" intent so we leave the order alone. */
+  $: visibleRows = (hideAdded || sessionAdded.size === 0)
+    ? filteredRows
+    : pinSessionAddedToTop(filteredRows, sessionAdded);
+
+  function pinSessionAddedToTop(list, recent) {
+    const order = new Map();
+    let i = 0;
+    for (const k of recent) order.set(k, i++);
+    const top = [];
+    const rest = [];
+    for (const r of list) {
+      const k = listingKeyFor(r.stopId, r.listing.name);
+      if (order.has(k)) top.push(r);
+      else rest.push(r);
+    }
+    /* Highest insertion index (newest add) goes first. */
+    top.sort((a, b) => {
+      const ak = listingKeyFor(a.stopId, a.listing.name);
+      const bk = listingKeyFor(b.stopId, b.listing.name);
+      return order.get(bk) - order.get(ak);
+    });
+    return [...top, ...rest];
+  }
   $: addedCount = addedKeys.size;
   $: openStopForGuide = stopFilter === '__all__'
     ? (selectedStopIds[0] || null)
@@ -175,6 +211,7 @@
       listingKey: key
     });
     addedKeys = new Set([...addedKeys, key]);
+    sessionAdded = new Set([...sessionAdded, key]);
     justAdded = new Set([...justAdded, key]);
     /* The toast highlight clears itself after ~1.5s so a burst of
        adds keeps each card lighting up briefly. */
@@ -371,8 +408,17 @@
             {@const key = listingKeyFor(row.stopId, row.listing.name)}
             {@const added = addedKeys.has(key)}
             {@const flash = justAdded.has(key)}
+            {@const pinned = !hideAdded && sessionAdded.has(key)}
             {@const img = listingImage(row.listing)}
-            <li class="ap-card-row" class:is-added={added} class:is-flash={flash}>
+            <li
+              class="ap-card-row"
+              class:is-added={added}
+              class:is-flash={flash}
+              class:is-pinned={pinned}
+            >
+              {#if pinned}
+                <span class="ap-pinned-tag" aria-hidden="true">Just added</span>
+              {/if}
               {#if img}
                 <img class="ap-thumb" src={img} alt={row.listing.name} loading="lazy" />
               {:else}
@@ -807,6 +853,35 @@
   }
   .ap-card-row.is-flash {
     background: rgba(196, 134, 15, 0.22);
+  }
+  /* Just-added rows pinned at the top of the current session. Gold
+     left border (a stationmaster's chalk mark) + a small "Just
+     added" Fraunces tag in the top-left corner so the user knows
+     the row is here because they just dropped it. Lasts the
+     lifetime of the modal session. */
+  .ap-card-row.is-pinned {
+    position: relative;
+    border-left: 3px solid #c9a84c;
+    background: rgba(245, 240, 232, 0.4);
+  }
+  .ap-card-row.is-pinned.is-flash {
+    background: rgba(196, 134, 15, 0.22);
+  }
+  .ap-pinned-tag {
+    position: absolute;
+    top: -8px;
+    left: 14px;
+    background: #c9a84c;
+    color: #0a2d21;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(40, 20, 5, 0.18);
+    pointer-events: none;
   }
   .ap-thumb {
     width: 96px;
