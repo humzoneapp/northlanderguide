@@ -97,8 +97,10 @@ export async function getTrip(id) {
 
 /* Create a new trip from a name + a leather color id. Generates a
    unique slug, persists it, refreshes the live store, returns the
-   created row (with its slug as `id`). */
-export async function createTrip({ name, colorId = 'rust' }) {
+   created row (with its slug as `id`). `body` and `strap` override
+   the palette when present, which is how the "custom" swatch in
+   NewTripModal hands its hex codes through. */
+export async function createTrip({ name, colorId = 'rust', body, strap } = {}) {
   const palette = LEATHER_COLORS.find((c) => c.id === colorId) || LEATHER_COLORS[0];
   const id = await uniqueTripSlug(name);
   const now = Date.now();
@@ -106,9 +108,9 @@ export async function createTrip({ name, colorId = 'rust' }) {
     id,
     name: String(name || 'Untitled trip').trim() || 'Untitled trip',
     stopIds: [],
-    color: palette.body,
-    strap: palette.strap,
-    colorId: palette.id,
+    color: body || palette.body,
+    strap: strap || palette.strap,
+    colorId: colorId === 'custom' ? 'custom' : palette.id,
     createdAt: now,
     updatedAt: now
   };
