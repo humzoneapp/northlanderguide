@@ -49,8 +49,52 @@
 
   /** @type {HTMLInputElement | undefined} */
   let searchInput;
+  /** Stop-chip row, used to scoped-querySelector the chip we want
+      to scroll into view. */
+  let chipRow;
 
   $: tripStops = getStopsByIds(stopIds || []);
+
+  /* Pick the best stop chip to surface for the current search
+     query. Prefix matches win over substring matches so typing
+     "br" jumps to Bracebridge rather than to a stop that happens
+     to contain "br" mid-name. Returns null while the query is
+     empty or too short to be useful (< 2 chars). Case-insensitive. */
+  function findStopByQuery(q, stops) {
+    const s = String(q || '').trim().toLowerCase();
+    if (s.length < 2 || !Array.isArray(stops) || stops.length === 0) return null;
+    let m = stops.find((stop) => String(stop.name || '').toLowerCase().startsWith(s));
+    if (m) return m;
+    m = stops.find((stop) => String(stop.name || '').toLowerCase().includes(s));
+    return m || null;
+  }
+
+  /* The hinted stop is the one we'd nudge the user toward on the
+     current query. Empty when nothing matches or when the match
+     is already the active filter (no point hinting at the chip
+     you've already tapped). */
+  $: hintedStop = findStopByQuery(query, tripStops);
+  $: hintedStopId = hintedStop && hintedStop.id !== stopFilter ? hintedStop.id : '';
+
+  /* Smooth-scroll a chip into the visible region of the row.
+     Scoped to the chip row so we don't accidentally scroll some
+     other ap-chip elsewhere in the DOM. */
+  async function scrollChipIntoView(id) {
+    if (!id || !chipRow) return;
+    await tick();
+    const safeId = (typeof CSS !== 'undefined' && CSS.escape) ? CSS.escape(id) : id;
+    const el = chipRow.querySelector(`[data-stop-id="${safeId}"]`);
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
+
+  /* Two scroll triggers: the active chip (so opening the modal
+     with initialStop lands on that chip + tapping a chip recentres
+     it), and the hinted chip (so typing a stop name brings that
+     chip into view even before the user taps it). */
+  $: scrollChipIntoView(stopFilter);
+  $: scrollChipIntoView(hintedStopId);
   $: selectedStopIds = stopFilter === '__all__' ? (stopIds || []) : [stopFilter];
   $: catKeys = (KIND_TABS.find((t) => t.id === kindFilter) || KIND_TABS[0]).cats;
   $: rows = data ? searchListings(flattenListings(data, selectedStopIds, catKeys), query) : [];
@@ -71,6 +115,12 @@
         await tick();
         searchInput?.focus();
       }
+      /* The reactive scrollChipIntoView only fires when stopFilter
+         itself changes, so it misses the initial render where
+         chipRow is the late-bound dependency. Kick it once
+         explicitly so initialStop lands centred in the chip row. */
+      await tick();
+      scrollChipIntoView(stopFilter);
     }
   });
 
@@ -158,10 +208,19 @@
       </div>
     </header>
 
-    <!-- Stop chips -->
-    <div class="ap-chips" role="tablist" aria-label="Stop">
+    <!-- Stop chips. Auto-scrolls to the active chip when stopFilter
+         changes and pulses the best stop-name match for the current
+         search query so the user can spot "type 'tem', jump to
+         Temagami." -->
+    <div
+      class="ap-chips"
+      role="tablist"
+      aria-label="Stop"
+      bind:this={chipRow}
+    >
       <button
         type="button"
+        data-stop-id="__all__"
         class="ap-chip"
         class:is-active={stopFilter === '__all__'}
         on:click={() => (stopFilter = '__all__')}
@@ -171,8 +230,10 @@
       {#each tripStops as s}
         <button
           type="button"
+          data-stop-id={s.id}
           class="ap-chip"
           class:is-active={stopFilter === s.id}
+          class:is-hint={hintedStopId === s.id}
           on:click={() => (stopFilter = s.id)}
           role="tab"
           aria-selected={stopFilter === s.id}
@@ -433,6 +494,27 @@
     background: #0a2d21;
     border-color: #0a2d21;
     color: #c9a84c;
+  }
+  /* Hint state - when the search query matches a stop name, that
+     stop's chip pulses gently with an amber halo so the user
+     spots it and can tap. We don't auto-select; "type to scroll"
+     is the soft prompt. The pulse skips when the chip is already
+     active (avoids loud animation on a tapped chip). */
+  .ap-chip.is-hint:not(.is-active) {
+    border-color: #c4860f;
+    border-style: solid;
+    color: #0a2d21;
+    animation: ap-chip-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes ap-chip-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(196, 134, 15, 0); }
+    50%      { box-shadow: 0 0 0 5px rgba(196, 134, 15, 0.22); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ap-chip.is-hint:not(.is-active) {
+      animation: none;
+      box-shadow: 0 0 0 3px rgba(196, 134, 15, 0.22);
+    }
   }
 
   /* ===== Kind tabs ===== */
