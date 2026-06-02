@@ -3,6 +3,8 @@
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import { trips } from '$lib/stores/trips.js';
   import { STOPS, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
+  import { listBookings } from '$lib/stores/bookings.js';
+  import { todayLocalISO } from '$lib/data/schedule.js';
 
   let showNewModal = false;
 
@@ -21,6 +23,40 @@
     const first = stops[0].name;
     const last = stops[stops.length - 1].name;
     return `${first} to ${last} (${stops.length} stops)`;
+  }
+
+  /* Plans-per-trip map for the dashed stub on each suitcase tag.
+     Reloaded reactively whenever the trips list changes (add, delete,
+     rename, etc.) so the dashboard never lies about counts. */
+  let planCounts = {};
+
+  async function loadPlanCounts(list) {
+    if (!Array.isArray(list) || list.length === 0) {
+      planCounts = {};
+      return;
+    }
+    const entries = await Promise.all(
+      list.map(async (t) => {
+        const rows = await listBookings(t.id);
+        return [t.id, rows.length];
+      })
+    );
+    planCounts = Object.fromEntries(entries);
+  }
+
+  $: loadPlanCounts($trips);
+
+  /* Compact countdown for the stub. Hidden when no departureDate. */
+  function countdownLabel(yyyymmdd) {
+    if (!yyyymmdd) return '';
+    const today = todayLocalISO();
+    const a = new Date(today);
+    const b = new Date(yyyymmdd);
+    const days = Math.round((b.getTime() - a.getTime()) / 86400000);
+    if (days > 1) return `${days} days`;
+    if (days === 1) return 'Tomorrow';
+    if (days === 0) return 'Today';
+    return 'Wrapped';
   }
 
   /* Pick five stops with strong hero photos for the collage. Spaced
@@ -140,6 +176,19 @@
                 <span class="block uppercase tracking-[0.2em] text-[9px] font-bold text-rust">Trip</span>
                 <strong class="block font-serif font-bold text-forest text-base leading-tight">{trip.name}</strong>
                 <span class="block font-serif italic text-muted text-xs mt-1">{summarize(trip.stopIds)}</span>
+                <!-- Dashed stub: countdown + plans glance. Lets the user
+                     read the platform grid without opening each trip. -->
+                <div class="trunk-stub mt-1.5 pt-1.5 border-t border-dashed border-[#8b6a3a]/40 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-rust">
+                  {#if trip.departureDate}
+                    <span>{countdownLabel(trip.departureDate)}</span>
+                    <span class="text-[#8b6a3a]/55">&middot;</span>
+                  {/if}
+                  {#if planCounts[trip.id]}
+                    <span>{planCounts[trip.id]} {planCounts[trip.id] === 1 ? 'plan' : 'plans'}</span>
+                  {:else}
+                    <span class="italic font-serif normal-case tracking-normal text-muted/80">Nothing booked yet</span>
+                  {/if}
+                </div>
               </div>
             </a>
           {/each}
