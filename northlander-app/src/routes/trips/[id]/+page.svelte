@@ -26,7 +26,7 @@
     deleteTrip,
     LEATHER_COLORS
   } from '$lib/stores/trips.js';
-  import { listBookings, BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listPhotos } from '$lib/stores/photos.js';
   import { listPackingItems } from '$lib/stores/packing.js';
@@ -62,6 +62,7 @@
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
   import RouteMap from '$lib/components/RouteMap.svelte';
+  import BookingKindIcon from '$lib/components/BookingKindIcon.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -158,24 +159,19 @@
   function photosAt(stopId)   { return photos.filter((p) => p.stopId === stopId); }
   function thumbUrl(p)        { return photoUrls.get(p.id) || ''; }
 
-  /* Per-stop sub-section grouping in scene bodies. Order tells a
-     short story: how you got there, where you stay, what you eat,
-     what you do, anything else. */
-  const KIND_GROUPS = [
-    { label: 'Travel',  kinds: ['train'] },
-    { label: 'Sleep',   kinds: ['room'] },
-    { label: 'Eat',     kinds: ['meal'] },
-    { label: 'Do',      kinds: ['activity'] },
-    { label: 'Other',   kinds: ['other'] }
-  ];
-
-  function bookingsByGroup(items) {
-    const out = [];
-    for (const g of KIND_GROUPS) {
-      const matches = items.filter((b) => g.kinds.includes(b.kind));
-      if (matches.length > 0) out.push({ label: g.label, items: matches });
-    }
-    return out;
+  /* Friendly kind label for the chip beside each chronological
+     scene line. Mirrors the AddPlanModal vocabulary so a user
+     who picked "Eat" in the modal sees "Eat" beside the
+     restaurant in the scene. */
+  const KIND_CHIPS = {
+    train:    'Travel',
+    room:     'Sleep',
+    meal:     'Eat',
+    activity: 'Do',
+    other:    'Other'
+  };
+  function kindChip(kind) {
+    return KIND_CHIPS[kind] || 'Other';
   }
 
   /* Window between this stop's arrival and the next stop's
@@ -483,9 +479,9 @@
         {@const stopBookings = bookingsAt(stop.id)}
         {@const stopDiary = diaryAt(stop.id)}
         {@const stopPhotos = photosAt(stop.id)}
-        {@const groups = bookingsByGroup(stopBookings)}
+        {@const orderedBookings = sortByStartTime(stopBookings)}
         {@const isLast = i === stops.length - 1}
-        {@const isEmpty = groups.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
+        {@const isEmpty = stopBookings.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
 
         <article id="scene-{i}" class="scene" style="--bg:url('{stopImageUrl(stop)}')">
           <div class="scene-bg" aria-hidden="true"></div>
@@ -575,41 +571,46 @@
                   {/if}
                 </div>
 
-                {#each groups as group}
-                  <div class="scene-group">
-                    <div class="group-head">
-                      <span class="group-label">{group.label}</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <ul class="scene-list">
-                      {#each group.items as b}
-                        <li class:is-booked={b.status === 'booked'}>
-                          <div class="line-main">
-                            <span class="line-title">{b.title}</span>
-                            <span class="line-status" class:is-booked={b.status === 'booked'}>
-                              {b.status === 'booked' ? 'Booked' : 'Pending'}
-                            </span>
-                          </div>
-                          {#if b.kind === 'room' && (b.checkIn || b.checkOut || b.address || b.contact || b.confirmation)}
-                            <div class="line-room">
-                              {#if b.checkIn || b.checkOut}
-                                <span class="line-room-dates">
-                                  {b.checkIn ? 'In ' + b.checkIn : ''}{b.checkIn && b.checkOut ? '  ·  ' : ''}{b.checkOut ? 'Out ' + b.checkOut : ''}
-                                </span>
-                              {/if}
-                              {#if b.address}<span>{b.address}</span>{/if}
-                              {#if b.contact}<span>{b.contact}</span>{/if}
-                              {#if b.confirmation}<span>Conf. {b.confirmation}</span>{/if}
-                            </div>
-                          {/if}
-                          {#if b.notes}
-                            <p class="line-notes">{b.notes}</p>
-                          {/if}
-                        </li>
-                      {/each}
-                    </ul>
+                <div class="scene-group">
+                  <div class="group-head">
+                    <span class="group-label">Schedule for {stop.name}</span>
+                    <span class="group-rule" aria-hidden="true"></span>
                   </div>
-                {/each}
+                  <ul class="scene-list scene-list-timeline">
+                    {#each orderedBookings as b}
+                      <li class:is-booked={b.status === 'booked'} class:is-untimed={!b.startTime}>
+                        <div class="line-main">
+                          <span class="line-time" class:placeholder={!b.startTime}>
+                            {b.startTime || 'Open'}
+                          </span>
+                          <span class="line-kind">
+                            <BookingKindIcon kind={b.kind} size="1em" />
+                            <span class="line-kind-label">{kindChip(b.kind)}</span>
+                          </span>
+                          <span class="line-title">{b.title}</span>
+                          <span class="line-status" class:is-booked={b.status === 'booked'}>
+                            {b.status === 'booked' ? 'Booked' : 'Pending'}
+                          </span>
+                        </div>
+                        {#if b.kind === 'room' && (b.checkIn || b.checkOut || b.address || b.contact || b.confirmation)}
+                          <div class="line-room">
+                            {#if b.checkIn || b.checkOut}
+                              <span class="line-room-dates">
+                                {b.checkIn ? 'In ' + b.checkIn : ''}{b.checkIn && b.checkOut ? '  ·  ' : ''}{b.checkOut ? 'Out ' + b.checkOut : ''}
+                              </span>
+                            {/if}
+                            {#if b.address}<span>{b.address}</span>{/if}
+                            {#if b.contact}<span>{b.contact}</span>{/if}
+                            {#if b.confirmation}<span>Conf. {b.confirmation}</span>{/if}
+                          </div>
+                        {/if}
+                        {#if b.notes}
+                          <p class="line-notes">{b.notes}</p>
+                        {/if}
+                      </li>
+                    {/each}
+                  </ul>
+                </div>
 
                 {#if stopDiary.length > 0}
                   <div class="scene-group">
@@ -681,6 +682,7 @@
         <ul class="loose-list">
           {#each unassigned as b}
             <li>
+              {#if b.startTime}<span class="loose-time">{b.startTime}</span>{/if}
               <span class="line-title">{b.title}</span>
               <span class="loose-kind">{kindLabel(b.kind)}</span>
               <span class="line-status" class:is-booked={b.status === 'booked'}>
@@ -1476,6 +1478,66 @@
     border-bottom: 1px solid rgba(245, 240, 232, 0.08);
   }
   .scene-list li:last-child { border-bottom: 0; }
+  /* Timeline rows lay out time | kind chip | title | status across
+     four tracks. Untimed rows tuck under a thin "Open" placeholder
+     so the column still aligns. */
+  .scene-list-timeline li {
+    display: block;
+  }
+  .scene-list-timeline .line-main {
+    display: grid;
+    grid-template-columns: 64px auto 1fr auto;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .line-time {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(18px, 2vw, 22px);
+    color: #c9a84c;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .line-time.placeholder {
+    color: rgba(201, 168, 76, 0.45);
+    font-weight: 600;
+    font-style: italic;
+  }
+  .line-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #c4860f;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .line-kind-label {
+    line-height: 1;
+  }
+  .scene-list-timeline .is-untimed { opacity: 0.85; }
+
+  /* Mobile: stack time + kind above title so things don't crunch. */
+  @media (max-width: 640px) {
+    .scene-list-timeline .line-main {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "time     status"
+        "kind     status"
+        "title    title";
+      gap: 4px 12px;
+    }
+    .scene-list-timeline .line-time   { grid-area: time; }
+    .scene-list-timeline .line-kind   { grid-area: kind; }
+    .scene-list-timeline .line-title  { grid-area: title; margin-top: 2px; }
+    .scene-list-timeline .line-status { grid-area: status; align-self: start; }
+  }
+
   .line-main {
     display: flex;
     align-items: baseline;
@@ -1648,6 +1710,14 @@
     flex-wrap: wrap;
   }
   .loose-list .line-title { color: #0a2d21; font-size: 16px; }
+  .loose-time {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-style: italic;
+    color: #6e2e17;
+    font-size: 15px;
+    margin-right: 6px;
+  }
   .loose-kind {
     font-family: 'Spline Sans', sans-serif;
     font-size: 11px;

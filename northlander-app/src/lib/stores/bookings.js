@@ -18,6 +18,9 @@ import { db } from './trips.js';
  * @property {BookingStatus} status
  * @property {string|null} dueDate         - YYYY-MM-DD or null
  * @property {string|null} [stopId]        - which stop this is pinned to
+ * @property {string|null} [startTime]     - HH:MM (24h), drives the
+ *                                           chronological ordering
+ *                                           in cinematic stop scenes
  * @property {string|null} [checkIn]       - YYYY-MM-DD, room only
  * @property {string|null} [checkOut]      - YYYY-MM-DD, room only
  * @property {string|null} [address]       - free text, mostly room
@@ -27,10 +30,11 @@ import { db } from './trips.js';
  * @property {number} createdAt
  * @property {number} updatedAt
  *
- * The extra room fields (checkIn, checkOut, address, contact,
+ * The extra fields (startTime, checkIn, checkOut, address, contact,
  * confirmation, notes) are unindexed JSON properties on the row, so
- * they don't require a Dexie schema bump. The BookingChecklist
- * surfaces a chevron toggle on room bookings to expose them.
+ * they don't require a Dexie schema bump. BookingChecklist surfaces
+ * a small time pill on every row and a chevron expand panel on room
+ * bookings for the longer-form details.
  */
 
 export const BOOKING_KINDS = [
@@ -111,6 +115,20 @@ const PATCHABLE_TEXT_FIELDS = [
   'checkIn', 'checkOut', 'address', 'contact', 'confirmation', 'notes'
 ];
 
+/* Permissive HH:MM (24h) validator. Accepts "9:30", "09:30", "23:59".
+   Anything else clears the field. */
+function normalizeStartTime(v) {
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const m = /^([0-9]{1,2}):([0-9]{2})$/.exec(s);
+  if (!m) return null;
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+}
+
 /** Generic patch helper for the room expand panel. Trims string
     values, treats empty strings as null so a cleared field clears
     rather than storing "". Returns the patched row. */
@@ -135,6 +153,9 @@ export async function updateBooking(id, patch = {}) {
   if (patch.stopId !== undefined) {
     next.stopId = patch.stopId ? String(patch.stopId) : null;
   }
+  if (patch.startTime !== undefined) {
+    next.startTime = normalizeStartTime(patch.startTime);
+  }
   if (Object.keys(next).length === 0) return row;
   next.updatedAt = Date.now();
   await db.bookings.update(id, next);
@@ -149,4 +170,21 @@ export async function setBookingKind(id, kind) {
 
 export async function deleteBooking(id) {
   await db.bookings.delete(id);
+}
+
+/** Chronological sort for cinematic stop scenes. Bookings with a
+    startTime ride at the top in HH:MM order; untimed bookings fall
+    to the end in insertion order so they read as "and also, whenever".
+    Pure function - does not mutate the input. */
+export function sortByStartTime(items) {
+  const list = Array.isArray(items) ? items.slice() : [];
+  const timed = list.filter((b) => b.startTime);
+  const untimed = list.filter((b) => !b.startTime);
+  timed.sort((a, b) => {
+    if (a.startTime < b.startTime) return -1;
+    if (a.startTime > b.startTime) return 1;
+    return a.createdAt - b.createdAt;
+  });
+  untimed.sort((a, b) => a.createdAt - b.createdAt);
+  return [...timed, ...untimed];
 }

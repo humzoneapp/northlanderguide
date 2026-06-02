@@ -208,7 +208,7 @@
           <li class:packed={item.status === 'booked'}>
             <span class="check-box" class:packed={item.status === 'booked'}></span>
             <span class="booking-line">
-              <strong>{item.title}</strong>
+              <strong>{item.startTime ? item.startTime + '  ' : ''}{item.title}</strong>
               <em>{kindLabel(item.kind)}{item.dueDate ? '  ·  due ' + item.dueDate : ''}</em>
               {#if hasRoomDetail}
                 <span class="room-detail">

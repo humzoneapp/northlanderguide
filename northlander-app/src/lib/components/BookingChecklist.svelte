@@ -193,6 +193,20 @@
               {/if}
             </span>
 
+            <!-- Time pill - inline editor for the optional startTime.
+                 Empty by default; users tap to enter HH:MM and the
+                 cinematic scenes pick the value up to order plans
+                 chronologically. -->
+            <input
+              type="time"
+              class="book-time"
+              class:is-set={!!item.startTime}
+              value={item.startTime || ''}
+              aria-label={`Time for ${item.title}`}
+              title={item.startTime ? 'Tap to change time' : 'Tap to add a time'}
+              on:change={(e) => saveRoomField(item.id, 'startTime', e.currentTarget.value)}
+            />
+
             {#if editingId === item.id}
               <!-- svelte-ignore a11y-autofocus -->
               <input
@@ -383,15 +397,16 @@
   }
   .book-row {
     display: grid;
-    grid-template-columns: 28px 1fr auto auto;
+    /* icon | time | title | status | remove */
+    grid-template-columns: 28px auto 1fr auto auto;
     align-items: center;
     gap: 10px;
     padding: 10px 0;
     border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
   }
   .book-row.has-extras {
-    /* Add a chevron column between the status pill and the remove X. */
-    grid-template-columns: 28px 1fr auto auto auto;
+    /* + chevron column between status and remove for rooms */
+    grid-template-columns: 28px auto 1fr auto auto auto;
   }
   .book-row:last-child {
     border-bottom: 0;
@@ -604,6 +619,47 @@
 
   .book-row.is-expanded {
     background: rgba(196, 134, 15, 0.04);
+  }
+
+  /* Compact time pill in column 2 of every row. Empty state gets
+     a dashed gold outline and a placeholder feel; once a value is
+     set we switch to a filled amber tag so the schedule reads at
+     a glance. The native time picker still pops on tap / focus. */
+  .book-time {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #6e2e17;
+    background: transparent;
+    border: 1.5px dashed rgba(196, 134, 15, 0.55);
+    border-radius: 999px;
+    padding: 3px 8px;
+    width: 84px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .book-time:hover,
+  .book-time:focus-visible {
+    border-color: #c4860f;
+    background: rgba(196, 134, 15, 0.08);
+    outline: none;
+  }
+  .book-time.is-set {
+    background: rgba(196, 134, 15, 0.18);
+    border-color: #c4860f;
+    border-style: solid;
+    color: #0a2d21;
+  }
+  .book-row.is-booked .book-time {
+    opacity: 0.65;
+  }
+  /* Webkit shows the up/down spinner by default - hide it to match
+     the slim pill look. */
+  .book-time::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    margin-left: 2px;
   }
 
   .book-extras {
