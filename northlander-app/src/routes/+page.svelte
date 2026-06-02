@@ -237,9 +237,9 @@
         {#if $trips.length === 0}
           An empty notebook
         {:else if $trips.length === 1}
-          One chapter in progress
+          One trip in progress
         {:else}
-          {$trips.length} chapters in progress
+          {$trips.length} trips in progress
         {/if}
       </h2>
       {#if nextDeparture}
@@ -247,7 +247,6 @@
           Next departure  &mdash;  <em>{nextDeparture.trip.name}</em>, {nextDeparture.when.toLowerCase()}.
         </p>
       {/if}
-      <span class="desk-rule" aria-hidden="true"></span>
     </header>
 
     {#if $trips.length === 0}
@@ -343,14 +342,14 @@
           aria-label="Tag a new suitcase"
         >
           <span class="polaroid-tape" aria-hidden="true"></span>
-          <span class="polaroid-stamp polaroid-stamp--invite" aria-hidden="true">A New Chapter</span>
+          <span class="polaroid-stamp polaroid-stamp--invite" aria-hidden="true">A New Trip</span>
           <div class="polaroid-photo polaroid-photo-blank" aria-hidden="true">
             <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="32" cy="32" r="22" stroke-dasharray="4 4" />
               <path d="M32 22 L32 42 M22 32 L42 32" />
             </svg>
           </div>
-          <div class="polaroid-paper">
+          <div class="polaroid-paper polaroid-paper--cta">
             <h3 class="polaroid-name">A fresh suitcase</h3>
             <p class="polaroid-meta">Tag a new trip</p>
             <p class="polaroid-next">Free, no credit card.</p>
@@ -660,24 +659,20 @@
     color: #7d3a1e;
     font-weight: 600;
   }
-  .desk-rule {
-    display: block;
-    width: 120px;
-    margin: 18px auto 0;
-    border-top: 1.5px dashed #c9a84c;
-  }
-
   /* Sign-off at the bottom of the section, same vocabulary as the
-     Guide's editorial mood. */
+     Guide's editorial mood. Generous top margin so the bottom of the
+     last polaroid (tilt + shadow extending beyond its grid cell)
+     doesn't crowd into the line. */
   .desk-signoff {
     text-align: center;
-    margin: 40px 0 0;
+    margin: 80px auto 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
     letter-spacing: 0.08em;
     color: #7d3a1e;
     opacity: 0.7;
+    max-width: 320px;
   }
 
   /* Scrapbook of polaroids. Stable per-index tilts driven by inline
@@ -870,6 +865,13 @@
     padding: 16px 4px 0;
   }
   .polaroid-paper--centered { text-align: center; }
+  /* The "+ new trip" polaroid sits below the dashed-circle icon
+     rather than a real photo, so push the name down a touch and
+     center it for a more invitational feel. */
+  .polaroid-paper--cta {
+    padding-top: 22px;
+    text-align: center;
+  }
   .polaroid-name {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
