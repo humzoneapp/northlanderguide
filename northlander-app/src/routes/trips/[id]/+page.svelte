@@ -2131,26 +2131,29 @@
      42px circular forest badge centered, holding a train icon.
      Italic Fraunces travel-time floats above the rule. 48px
      vertical margin keeps section rhythm. */
+  /* Chapter divider: a thin forest rule with a 42px circular forest
+     badge centered on it, and the italic travel-time on its own
+     line below the badge (so it never collides with the icon).
+     Mirrors the Guide's pl-divider pattern. */
   .chapter-divider {
     position: relative;
     max-width: 1080px;
     margin: 48px auto;
     padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
   }
   .chapter-divider-rule {
     position: absolute;
     left: 24px;
     right: 24px;
-    top: 50%;
+    top: 21px;
     height: 1px;
     background: rgba(10, 45, 33, 0.35);
+    z-index: 0;
   }
   .chapter-divider-badge {
     position: relative;
-    z-index: 2;
+    z-index: 1;
     width: 42px;
     height: 42px;
     border-radius: 50%;
@@ -2163,17 +2166,13 @@
   }
   .chapter-divider-badge svg { width: 20px; height: 20px; }
   .chapter-divider-time {
-    position: absolute;
-    top: calc(50% - 28px);
-    left: 50%;
-    transform: translateX(-50%);
+    display: block;
+    margin-top: 14px;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-weight: 500;
     font-size: 14px;
     color: #5a4f3d;
-    background: #fbf6ea;
-    padding: 0 12px;
     white-space: nowrap;
   }
 

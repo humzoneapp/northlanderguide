@@ -105,12 +105,16 @@
 
   <div class="relative z-10 w-full max-w-[680px] max-h-full bg-cream shadow-ticket pl-card flex flex-col">
 
-    <header class="bg-forest text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
+    <header class="bg-forest text-ivory px-6 py-4 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
       <div>
-        <span id="route-picker-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
+        <span
+          id="route-picker-title"
+          class="block font-serif uppercase tracking-[0.18em]"
+          style="color:#f5f0e8;font-weight:900;font-size:clamp(20px,2.6vw,26px);line-height:1.05;"
+        >
           {step === 1 ? 'Departing From' : 'Arriving To'}
         </span>
-        <span class="text-gold font-serif italic text-[12px]">
+        <span class="text-gold font-serif italic text-[13px] mt-1 block">
           {#if step === 1}
             Step 1 of 2 &middot; Choose where the journey begins
           {:else}
@@ -120,7 +124,7 @@
       </div>
       <button
         type="button"
-        class="text-gold text-xl leading-none hover:text-ivory"
+        class="text-gold text-2xl leading-none hover:text-ivory"
         on:click={close}
         aria-label="Close"
       >&times;</button>
