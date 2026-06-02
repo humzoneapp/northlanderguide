@@ -164,6 +164,11 @@
       {:else}
         <div class="trip-grid">
           {#each $trips as trip, i (trip.id)}
+            {@const stopCount = (trip.stopIds || []).length}
+            {@const railCap = 6}
+            {@const railStops = (trip.stopIds || []).slice(0, railCap)}
+            {@const railOverflow = Math.max(0, stopCount - railCap)}
+            {@const hasRail = stopCount >= 2}
             <a
               href={`/trips/${trip.id}`}
               class="trunk relative block no-underline text-left group"
@@ -176,9 +181,29 @@
                 <span class="block uppercase tracking-[0.2em] text-[9px] font-bold text-rust">Trip</span>
                 <strong class="block font-serif font-bold text-forest text-base leading-tight">{trip.name}</strong>
                 <span class="block font-serif italic text-muted text-xs mt-1">{summarize(trip.stopIds)}</span>
-                <!-- Dashed stub: countdown + plans glance. Lets the user
-                     read the platform grid without opening each trip. -->
-                <div class="trunk-stub mt-1.5 pt-1.5 border-t border-dashed border-[#8b6a3a]/40 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-rust">
+
+                <!-- Mini route rail: numbered dots on a dashed gold line
+                     for 2+ stop trips, plain dashed rule for 0/1-stop.
+                     Same visual vocabulary as the RouteMap pins on the
+                     trip page, scaled down. -->
+                {#if hasRail}
+                  <div class="trunk-rail" aria-hidden="true">
+                    {#each railStops as _, ri}
+                      {#if ri === 0}<span class="rail-seg"></span>{/if}
+                      <span class="rail-dot">{ri + 1}</span>
+                      <span class="rail-seg"></span>
+                    {/each}
+                    {#if railOverflow > 0}
+                      <span class="rail-more">+{railOverflow}</span>
+                    {/if}
+                  </div>
+                {:else}
+                  <div class="trunk-divider"></div>
+                {/if}
+
+                <!-- Stub: countdown + plans glance. Lets the user read
+                     the platform grid without opening each trip. -->
+                <div class="trunk-stub flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-rust">
                   {#if trip.departureDate}
                     <span>{countdownLabel(trip.departureDate)}</span>
                     <span class="text-[#8b6a3a]/55">&middot;</span>
@@ -518,6 +543,59 @@
   }
   .trunk:hover .trunk-svg {
     transform: translateY(-4px);
+  }
+
+  /* ===== Mini route rail on suitcase tags =====
+     Numbered dots on a dashed gold line for 2+ stop trips, plain
+     dashed rule for the rest. Mirrors the RouteMap pin identity
+     (dark forest circle + gold inset halo + gold number) so the
+     dashboard and the trip page read as one publication. */
+  .trunk-rail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 8px;
+    margin-bottom: 6px;
+  }
+  .rail-dot {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0a2d21;
+    color: #c9a84c;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 9px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1.3px #c9a84c;
+  }
+  .rail-seg {
+    flex: 1 1 auto;
+    min-width: 4px;
+    height: 0;
+    border-top: 1.5px dashed rgba(196, 134, 15, 0.75);
+  }
+  .rail-more {
+    flex: 0 0 auto;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #7d3a1e;
+    padding-left: 4px;
+  }
+  /* Plain dashed rule fallback for trips with 0 or 1 stops -
+     keeps the visual separation between the route line and the
+     countdown stub. */
+  .trunk-divider {
+    margin-top: 8px;
+    margin-bottom: 6px;
+    border-top: 1px dashed rgba(139, 106, 58, 0.4);
   }
 
   /* ===== Inspiration grid ===== */
