@@ -1687,17 +1687,19 @@
     flex-wrap: wrap;
     margin-top: 26px;
   }
-  /* Primary amber - the main action */
+  /* Primary gold - the main action. Matches the Recap button's
+     softer #c9a84c tone rather than the harsher amber, so the
+     primary CTA reads warm and editorial rather than aggressive. */
   .cover-add {
-    background: #c4860f;
-    border-color: #c4860f;
+    background: #c9a84c;
+    border-color: #c9a84c;
     color: #0a2d21;
     font-weight: 700;
     padding: 0.85rem 1.4rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 10px 22px rgba(196, 134, 15, 0.35);
+    box-shadow: 0 8px 18px rgba(201, 168, 76, 0.32);
   }
   .cover-add:hover {
     background: #f5f0e8;

@@ -571,12 +571,12 @@
     gap: 16px;
   }
   .dash-cta {
-    background: #c4860f;
+    background: #c9a84c;
     color: #0a2d21;
-    border-color: #c4860f;
+    border-color: #c9a84c;
     font-weight: 700;
     padding: 0.95rem 1.6rem;
-    box-shadow: 0 10px 22px rgba(196, 134, 15, 0.35);
+    box-shadow: 0 8px 18px rgba(201, 168, 76, 0.32);
   }
   .dash-cta:hover {
     background: #f5f0e8;
