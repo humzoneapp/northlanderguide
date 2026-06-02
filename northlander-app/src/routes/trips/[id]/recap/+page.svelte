@@ -6,12 +6,13 @@
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listBookings } from '$lib/stores/bookings.js';
   import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
-  import { getStopsByIds, getStop } from '$lib/data/stops.js';
+  import { getStopsByIds, getStop, stopImageUrl } from '$lib/data/stops.js';
   import {
     arrivalClock,
     departureFor,
     formatTripDate,
-    DIRECTIONS
+    DIRECTIONS,
+    travelDuration
   } from '$lib/data/schedule.js';
   import Suitcase from '$lib/components/Suitcase.svelte';
 
@@ -55,6 +56,32 @@
     const u = photoUrls.get(p.id);
     return u ? u.thumb : '';
   }
+
+  /* Five frames band between the cover and Chapter One. Prefers
+     the user's own photos so the recap reads as their record;
+     falls back to stop hero photos when no user photos are in
+     the album so the band still seeds the scrapbook mood for
+     trips that were planned but never photographed. */
+  function buildFrames(ps, ss, urls) {
+    if (Array.isArray(ps) && ps.length > 0) {
+      return ps.slice(0, 5).map((p, i) => ({
+        src: (urls.get(p.id) || {}).thumb || '',
+        caption: stopName(p.stopId) || p.caption || '',
+        tilt: ((i % 5) - 2) * 3,
+        isUser: true
+      }));
+    }
+    if (Array.isArray(ss) && ss.length > 0) {
+      return ss.slice(0, 5).map((s, i) => ({
+        src: stopImageUrl(s),
+        caption: s.name,
+        tilt: ((i % 5) - 2) * 3,
+        isUser: false
+      }));
+    }
+    return [];
+  }
+  $: frames = buildFrames(photos, stops, photoUrls);
 
   function relDate(ms) {
     if (!ms) return '';
@@ -162,16 +189,43 @@
     </div>
   </section>
 
+  <!-- ===== Five frames =====
+       Polaroid band between the cover and the chapters - mood-setter
+       made of the user's own photos when available, stop hero photos
+       otherwise. -->
+  {#if frames.length > 0}
+    <section class="frames">
+      <div class="frames-inner">
+        <div class="kicker frames-kicker">{photos.length > 0 ? 'A few frames' : 'The route in pictures'}</div>
+        <div class="frames-row">
+          {#each frames as f, i}
+            <figure class="frame-card" style="--rot:{f.tilt}deg;--i:{i}">
+              <img src={f.src} alt={f.caption} loading="lazy" />
+              {#if f.caption}<figcaption>{f.caption}</figcaption>{/if}
+            </figure>
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
+
   <!-- ===== The route taken ===== -->
   {#if stops.length > 0}
     <section class="section">
-      <div class="kicker">Chapter One</div>
-      <h2>Where you went</h2>
+      <header class="chapter-head">
+        <span class="chapter-medal" aria-hidden="true"><span class="chapter-num">1</span></span>
+        <span class="chapter-rule" aria-hidden="true"></span>
+        <div class="chapter-text">
+          <div class="kicker">Chapter One</div>
+          <h2>Where you went</h2>
+        </div>
+      </header>
 
       <ol class="timeline">
         {#each stops as stop, i}
           {@const stopPhotos = photosAt(stop.id)}
           {@const stopDiary = diaryAt(stop.id)}
+          {@const isLast = i === stops.length - 1}
           <li class="tl-row">
             <span class="tl-marker">{i + 1}</span>
             <div class="tl-card">
@@ -201,6 +255,28 @@
               {/if}
             </div>
           </li>
+
+          {#if !isLast}
+            <li class="tl-connector" aria-hidden="true">
+              <span class="tl-train">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="14" rx="3" />
+                  <path d="M4 11 L20 11" />
+                  <circle cx="8.5" cy="20" r="1.4" />
+                  <circle cx="15.5" cy="20" r="1.4" />
+                  <path d="M7 17 L7 19" />
+                  <path d="M17 17 L17 19" />
+                </svg>
+              </span>
+              <span class="tl-rail"></span>
+              <span class="tl-travel">
+                {travelDuration(
+                  Math.abs((stops[i + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
+                )}
+                to {stops[i + 1].name}
+              </span>
+            </li>
+          {/if}
         {/each}
       </ol>
     </section>
@@ -209,8 +285,14 @@
   <!-- ===== Photo wall ===== -->
   {#if photos.length > 0}
     <section class="section">
-      <div class="kicker">Chapter Two</div>
-      <h2>Through your lens</h2>
+      <header class="chapter-head">
+        <span class="chapter-medal" aria-hidden="true"><span class="chapter-num">2</span></span>
+        <span class="chapter-rule" aria-hidden="true"></span>
+        <div class="chapter-text">
+          <div class="kicker">Chapter Two</div>
+          <h2>Through your lens</h2>
+        </div>
+      </header>
 
       <div class="wall">
         {#each photos as p, i (p.id)}
@@ -231,8 +313,14 @@
   <!-- ===== Diary ===== -->
   {#if diary.length > 0}
     <section class="section">
-      <div class="kicker">Chapter Three</div>
-      <h2>In your own words</h2>
+      <header class="chapter-head">
+        <span class="chapter-medal" aria-hidden="true"><span class="chapter-num">3</span></span>
+        <span class="chapter-rule" aria-hidden="true"></span>
+        <div class="chapter-text">
+          <div class="kicker">Chapter Three</div>
+          <h2>In your own words</h2>
+        </div>
+      </header>
 
       <ol class="journal">
         {#each diary as entry}
@@ -253,8 +341,14 @@
   <!-- ===== Budget summary ===== -->
   {#if budget.length > 0}
     <section class="section">
-      <div class="kicker">Chapter Four</div>
-      <h2>By the numbers</h2>
+      <header class="chapter-head">
+        <span class="chapter-medal" aria-hidden="true"><span class="chapter-num">4</span></span>
+        <span class="chapter-rule" aria-hidden="true"></span>
+        <div class="chapter-text">
+          <div class="kicker">Chapter Four</div>
+          <h2>By the numbers</h2>
+        </div>
+      </header>
       <p class="budget-line">
         <strong>{formatAmount(totalSpent)}</strong>
         across {budget.length} {budget.length === 1 ? 'line' : 'lines'} in your ledger.
@@ -378,6 +472,59 @@
     justify-self: center;
   }
 
+  /* ===== Five frames band ===== */
+  .frames {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(196, 134, 15, 0.08), transparent 60%),
+      #f5f0e8;
+    padding: 40px 24px 36px;
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.3);
+  }
+  .frames-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .frames-kicker {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .frames-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+  }
+  .frame-card {
+    background: #fbf6ea;
+    padding: 8px 8px 14px;
+    box-shadow: 0 14px 28px rgba(40, 20, 5, 0.18);
+    margin: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--i, 0) * -2px));
+    transition: transform 320ms cubic-bezier(.2,.7,.3,1);
+  }
+  .frame-card:hover {
+    transform: rotate(0deg) translateY(-6px);
+    z-index: 4;
+  }
+  .frame-card img {
+    width: clamp(110px, 16vw, 170px);
+    height: clamp(110px, 16vw, 170px);
+    object-fit: cover;
+    background: #ede0cc;
+    display: block;
+  }
+  .frame-card figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    color: #0a2d21;
+    text-align: center;
+    padding-top: 6px;
+    max-width: clamp(110px, 16vw, 170px);
+    overflow-wrap: anywhere;
+  }
+
   /* ===== Section frame ===== */
   .section {
     max-width: 1080px;
@@ -402,6 +549,60 @@
     color: #7d3a1e;
   }
 
+  /* ===== Chapter heading ===== */
+  /* Numbered forest medallion + dashed gold rule + kicker + h2.
+     Mirrors the RouteMap pin and the TripWizard step badges so
+     the chapter rhythm reads as a continuation of the rest of
+     the app's vocabulary. */
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .chapter-medal {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #0a2d21;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      inset 0 0 0 2.5px #c9a84c,
+      0 0 0 4px rgba(196, 134, 15, 0.18),
+      0 6px 14px rgba(40, 20, 5, 0.18);
+  }
+  .chapter-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 19px;
+    color: #c9a84c;
+    line-height: 1;
+  }
+  .chapter-rule {
+    flex: 0 0 60px;
+    height: 0;
+    border-top: 2px dashed rgba(196, 134, 15, 0.7);
+  }
+  .chapter-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .chapter-text .kicker {
+    margin-bottom: 0;
+  }
+  .chapter-text h2 {
+    margin: 4px 0 0;
+  }
+  @media (max-width: 640px) {
+    .chapter-head { gap: 10px; }
+    .chapter-medal { width: 38px; height: 38px; }
+    .chapter-num { font-size: 16px; }
+    .chapter-rule { flex-basis: 30px; }
+  }
+
   /* ===== Timeline ===== */
   .timeline {
     list-style: none;
@@ -409,14 +610,10 @@
     margin: 0;
     position: relative;
   }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 18px;
-    top: 18px;
-    bottom: 18px;
-    border-left: 2px dashed #7d3a1e;
-  }
+  /* The decorative vertical rail has been retired - the connector
+     rows now carry the visual continuity between stops with their
+     own train icon + dashed line + travel-time label, the same
+     vocabulary the cinematic itinerary scenes use. */
   .tl-row {
     position: relative;
     display: grid;
@@ -444,6 +641,41 @@
     border-left: 4px solid #7d3a1e;
     padding: 14px 18px;
     box-shadow: 0 4px 12px rgba(80, 50, 20, 0.07);
+  }
+
+  /* Vintage train-line connector between timeline stops. Matches
+     the connector pattern in the cinematic itinerary scenes so the
+     recap reads as the same world. The row spans the full timeline
+     grid width and centres its contents. */
+  .tl-connector {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 14px 0;
+    color: #c4860f;
+  }
+  .tl-train {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #c4860f;
+  }
+  .tl-train svg { width: 24px; height: 24px; }
+  .tl-rail {
+    width: clamp(40px, 14vw, 140px);
+    height: 0;
+    border-top: 2px dashed rgba(196, 134, 15, 0.7);
+  }
+  .tl-travel {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: clamp(13px, 1.6vw, 15px);
   }
   .tl-head {
     display: flex;
