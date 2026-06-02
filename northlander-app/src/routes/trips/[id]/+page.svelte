@@ -26,6 +26,8 @@
     deleteTrip,
     setTripCover,
     clearTripCover,
+    setTripTheme,
+    clearTripTheme,
     LEATHER_COLORS
   } from '$lib/stores/trips.js';
   import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
@@ -110,6 +112,51 @@
        the picker back to the preset hue. */
     if (trip.color)  customBodyDraft  = trip.color;
     if (trip.strap)  customStrapDraft = trip.strap;
+  }
+
+  /* Cover theme: optional user-picked colors for the banner gradient
+     and the primary CTA. When unset (the default) we rely on CSS to
+     fall back to forest + gold. The drafts mirror the stored values
+     so the color inputs round-trip with persistence. */
+  const DEFAULT_COVER_BG = '#0a2d21';
+  const DEFAULT_COVER_ACCENT = '#c9a84c';
+  let themeBgDraft     = DEFAULT_COVER_BG;
+  let themeAccentDraft = DEFAULT_COVER_ACCENT;
+  $: if (trip) {
+    themeBgDraft     = trip.coverBg     || DEFAULT_COVER_BG;
+    themeAccentDraft = trip.coverAccent || DEFAULT_COVER_ACCENT;
+  }
+
+  $: coverThemeStyle = trip
+    ? `--cover-bg:${trip.coverBg || DEFAULT_COVER_BG};--cover-accent:${trip.coverAccent || DEFAULT_COVER_ACCENT};`
+    : '';
+
+  async function saveTheme(field, value) {
+    if (!trip) return;
+    if (field === 'bg')     themeBgDraft     = value;
+    if (field === 'accent') themeAccentDraft = value;
+    const updated = await setTripTheme(trip.id, {
+      coverBg:     themeBgDraft     === DEFAULT_COVER_BG     ? null : themeBgDraft,
+      coverAccent: themeAccentDraft === DEFAULT_COVER_ACCENT ? null : themeAccentDraft
+    });
+    if (updated) trip = updated;
+  }
+  async function applySuitcaseTheme() {
+    if (!trip) return;
+    themeBgDraft     = trip.color || DEFAULT_COVER_BG;
+    themeAccentDraft = trip.strap || DEFAULT_COVER_ACCENT;
+    const updated = await setTripTheme(trip.id, {
+      coverBg: themeBgDraft,
+      coverAccent: themeAccentDraft
+    });
+    if (updated) trip = updated;
+  }
+  async function resetTheme() {
+    if (!trip) return;
+    themeBgDraft     = DEFAULT_COVER_BG;
+    themeAccentDraft = DEFAULT_COVER_ACCENT;
+    const updated = await clearTripTheme(trip.id);
+    if (updated) trip = updated;
   }
 
   /* Custom cover photo for the banner. Built from trip.coverBlob
@@ -502,7 +549,7 @@
        below in the cream/ivory editorial style. A small "Change
        cover" button in the corner lets the user swap the banner
        image at any time. -->
-  <header class="cover" class:has-image={!!bannerImage}>
+  <header class="cover" class:has-image={!!bannerImage} style={coverThemeStyle}>
     <div
       class="cover-bg"
       class:has-image={!!bannerImage}
@@ -1235,6 +1282,48 @@
                 </label>
               </div>
             {/if}
+
+            <!-- Cover theme: optional per-trip palette for the banner
+                 gradient + primary button. Defaults to forest + gold;
+                 users can hand-pick or one-tap "Use suitcase colors"
+                 to tint the page with their leather choice. -->
+            <div class="theme-block">
+              <div class="kicker details-kicker">Cover theme</div>
+              <div class="leather-custom-pickers">
+                <label class="leather-custom-pick">
+                  <span class="kicker">Background</span>
+                  <span class="leather-custom-row">
+                    <input
+                      type="color"
+                      value={themeBgDraft}
+                      on:input={(e) => saveTheme('bg', e.currentTarget.value)}
+                      aria-label="Cover background color"
+                    />
+                    <span class="leather-custom-hex">{themeBgDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+                <label class="leather-custom-pick">
+                  <span class="kicker">Button</span>
+                  <span class="leather-custom-row">
+                    <input
+                      type="color"
+                      value={themeAccentDraft}
+                      on:input={(e) => saveTheme('accent', e.currentTarget.value)}
+                      aria-label="Primary button color"
+                    />
+                    <span class="leather-custom-hex">{themeAccentDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+              </div>
+              <div class="theme-presets">
+                <button type="button" class="theme-preset" on:click={applySuitcaseTheme}>
+                  Use suitcase colors
+                </button>
+                <button type="button" class="theme-reset" on:click={resetTheme}>
+                  Reset to forest
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </Drawer>
@@ -1380,7 +1469,13 @@
      forest-gradient look. */
   .cover {
     position: relative;
-    background: linear-gradient(180deg, #0a2d21 0%, #16543e 100%);
+    /* Two CSS custom properties drive the optional per-trip theme.
+       Defaults match the canonical forest + gold; the trip page
+       overrides them via inline style when the user has picked
+       a custom cover background or button color. */
+    --cover-bg: #0a2d21;
+    --cover-accent: #c9a84c;
+    background: linear-gradient(180deg, var(--cover-bg) 0%, #0a2d21 100%);
     color: #f5f0e8;
     padding: 56px 24px 64px;
     overflow: hidden;
@@ -1687,12 +1782,12 @@
     flex-wrap: wrap;
     margin-top: 26px;
   }
-  /* Primary gold - the main action. Matches the Recap button's
-     softer #c9a84c tone rather than the harsher amber, so the
-     primary CTA reads warm and editorial rather than aggressive. */
+  /* Primary gold - the main action. Defaults to the same gentle
+     #c9a84c the Recap pill uses; if the trip has a custom theme,
+     the cover element's --cover-accent variable overrides. */
   .cover-add {
-    background: #c9a84c;
-    border-color: #c9a84c;
+    background: var(--cover-accent, #c9a84c);
+    border-color: var(--cover-accent, #c9a84c);
     color: #0a2d21;
     font-weight: 700;
     padding: 0.85rem 1.4rem;
@@ -2720,6 +2815,49 @@
     font-size: 0.78rem;
     color: #0a2d21;
     letter-spacing: 0.06em;
+  }
+
+  /* Cover-theme block: sits below the leather swatch picker in the
+     Trip details drawer. Two color inputs (background + button)
+     wired through CSS variables on the cover element, plus two
+     preset shortcuts. */
+  .theme-block {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+  }
+  .theme-presets {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .theme-preset,
+  .theme-reset {
+    background: transparent;
+    border: 1.5px solid #7d3a1e;
+    color: #7d3a1e;
+    padding: 6px 12px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .theme-preset:hover {
+    background: #7d3a1e;
+    color: #f5f0e8;
+  }
+  .theme-reset {
+    border-color: rgba(125, 58, 30, 0.4);
+    border-style: dashed;
+    color: #5a4f3d;
+  }
+  .theme-reset:hover {
+    border-color: #5a4f3d;
+    color: #0a2d21;
   }
 
   /* ===== Danger zone ===== */
