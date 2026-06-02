@@ -1530,21 +1530,31 @@
     z-index: 0;
   }
   .cover-bg.has-image { background-color: #0a2d21; }
-  /* Editorial overlay: deeper at the bottom for text legibility,
-     warmer amber at the top for atmosphere. */
+  /* Editorial overlay over the banner image. Uses color-mix so the
+     veil tints the photo with the user's chosen theme color
+     instead of forcing a forest cast - that way the suitcase color
+     reaches the page even when a real photo sits behind it. */
   .cover-veil {
     position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
     background:
-      linear-gradient(180deg, rgba(10, 45, 33, 0.55) 0%, rgba(10, 45, 33, 0.85) 100%),
-      radial-gradient(ellipse at 70% 12%, rgba(196, 134, 15, 0.25), transparent 60%);
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cover-bg-top) 55%, transparent) 0%,
+        color-mix(in srgb, var(--cover-bg-bot) 88%, transparent) 100%
+      ),
+      radial-gradient(ellipse at 70% 12%, rgba(196, 134, 15, 0.18), transparent 60%);
   }
   .cover.has-image .cover-veil {
     background:
-      linear-gradient(180deg, rgba(10, 45, 33, 0.45) 0%, rgba(10, 45, 33, 0.88) 100%),
-      radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.35), transparent 70%);
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cover-bg-top) 45%, transparent) 0%,
+        color-mix(in srgb, var(--cover-bg-bot) 92%, transparent) 100%
+      ),
+      radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.28), transparent 70%);
   }
 
   /* Boarding-pass ticket header at the top of the cover. Forest
@@ -1555,9 +1565,9 @@
     z-index: 3;
     max-width: 1180px;
     margin: 0 auto 28px;
-    background: rgba(10, 45, 33, 0.72);
+    background: color-mix(in srgb, var(--cover-bg-bot) 78%, transparent);
     border: 1.5px solid #c9a84c;
-    box-shadow: inset 0 0 0 2px rgba(10, 45, 33, 0.85);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cover-bg-bot) 90%, transparent);
     padding: 12px 24px;
     display: flex;
     align-items: center;
