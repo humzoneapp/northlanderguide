@@ -139,7 +139,17 @@ export async function renameTrip(id, name) {
   return updateTrip(id, { name: String(name || '').trim() || 'Untitled trip' });
 }
 
-export async function changeTripColor(id, colorId) {
+export async function changeTripColor(id, colorId, { body, strap } = {}) {
+  if (colorId === 'custom') {
+    /* The trip page editor passes explicit hexes here. We still
+       persist colorId='custom' so the UI can recognise it on next
+       open and reopen the color inputs. */
+    return updateTrip(id, {
+      color: body || '#7d3a1e',
+      strap: strap || '#5e2a14',
+      colorId: 'custom'
+    });
+  }
   const palette = LEATHER_COLORS.find((c) => c.id === colorId);
   if (!palette) return null;
   return updateTrip(id, { color: palette.body, strap: palette.strap, colorId: palette.id });

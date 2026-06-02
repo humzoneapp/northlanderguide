@@ -95,6 +95,21 @@
 
   let confirmingDelete = false;
 
+  /* Custom-leather drafts for the trip-page color editor. Mirror the
+     same shape as NewTripModal so the user can keep tinting an
+     existing suitcase after creation. Initialised from the trip's
+     stored colors on mount + whenever the trip row changes. */
+  let customBodyDraft = '#7d3a1e';
+  let customStrapDraft = '#5e2a14';
+  $: if (trip && trip.colorId === 'custom') {
+    /* Only mirror the saved colors back into the drafts when the trip
+       is already a custom one. For preset trips we keep the drafts
+       at their last-edited values so clicking Custom doesn't snap
+       the picker back to the preset hue. */
+    if (trip.color)  customBodyDraft  = trip.color;
+    if (trip.strap)  customStrapDraft = trip.strap;
+  }
+
   /* Quick-action state for the closed-drawer inline inputs. The
      header form for Packing lives outside the drawer body so the
      user can drop a "toothbrush" without expanding the panel. */
@@ -332,7 +347,24 @@
 
   async function pickColor(colorId) {
     if (!trip) return;
-    const updated = await changeTripColor(trip.id, colorId);
+    const updated =
+      colorId === 'custom'
+        ? await changeTripColor(trip.id, 'custom', { body: customBodyDraft, strap: customStrapDraft })
+        : await changeTripColor(trip.id, colorId);
+    if (updated) trip = updated;
+  }
+
+  /* Live-save handler for the two custom inputs. Fires on every
+     <input> event so the dashboard suitcase tints alongside the
+     drag of the OS color wheel. */
+  async function saveCustomColor(field, value) {
+    if (!trip) return;
+    if (field === 'body')  customBodyDraft  = value;
+    if (field === 'strap') customStrapDraft = value;
+    const updated = await changeTripColor(trip.id, 'custom', {
+      body: customBodyDraft,
+      strap: customStrapDraft
+    });
     if (updated) trip = updated;
   }
 
@@ -1056,7 +1088,52 @@
                   aria-pressed={trip.colorId === c.id}
                 ></button>
               {/each}
+              <!-- Custom swatch: dashed-empty circle. Tap to reveal
+                   body + strap/buckle inputs below. Saves live as
+                   the user moves either picker. -->
+              <button
+                type="button"
+                class="pl-swatch pl-swatch-custom"
+                class:is-selected={trip.colorId === 'custom'}
+                on:click={() => pickColor('custom')}
+                aria-label="Custom leather"
+                aria-pressed={trip.colorId === 'custom'}
+              >
+                <svg viewBox="0 0 24 24" class="pl-swatch-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8" />
+                  <path d="M12 8 L12 16 M8 12 L16 12" />
+                </svg>
+              </button>
             </div>
+
+            {#if trip.colorId === 'custom'}
+              <div class="leather-custom-pickers">
+                <label class="leather-custom-pick">
+                  <span class="kicker">Body</span>
+                  <span class="leather-custom-row">
+                    <input
+                      type="color"
+                      value={customBodyDraft}
+                      on:input={(e) => saveCustomColor('body', e.currentTarget.value)}
+                      aria-label="Suitcase body color"
+                    />
+                    <span class="leather-custom-hex">{customBodyDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+                <label class="leather-custom-pick">
+                  <span class="kicker">Strap &amp; buckle</span>
+                  <span class="leather-custom-row">
+                    <input
+                      type="color"
+                      value={customStrapDraft}
+                      on:input={(e) => saveCustomColor('strap', e.currentTarget.value)}
+                      aria-label="Strap and buckle color"
+                    />
+                    <span class="leather-custom-hex">{customStrapDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+              </div>
+            {/if}
           </div>
         </div>
       </Drawer>
@@ -2338,6 +2415,71 @@
   .pl-swatch:hover { transform: translateY(-2px); }
   .pl-swatch.is-selected {
     box-shadow: 0 0 0 3px #c9a84c, 0 6px 12px rgba(40, 20, 5, 0.25);
+  }
+  .pl-swatch-custom {
+    background: #fbf6ea;
+    border-style: dashed;
+    border-color: #7d3a1e;
+    color: #7d3a1e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pl-swatch-custom.is-selected {
+    border-style: solid;
+    border-color: #5e2a14;
+  }
+  .pl-swatch-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Body + strap inputs revealed when the trip's leather is custom. */
+  .leather-custom-pickers {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .leather-custom-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 130px;
+    min-width: 0;
+    max-width: 180px;
+  }
+  .leather-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fbf6ea;
+    border: 1px solid #8b6a3a;
+    padding: 4px 8px 4px 4px;
+    border-radius: 3px;
+  }
+  .leather-custom-row input[type='color'] {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #8b6a3a;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .leather-custom-row input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
+  .leather-custom-row input[type='color']::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+  }
+  .leather-custom-hex {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 0.78rem;
+    color: #0a2d21;
+    letter-spacing: 0.06em;
   }
 
   /* ===== Danger zone ===== */
