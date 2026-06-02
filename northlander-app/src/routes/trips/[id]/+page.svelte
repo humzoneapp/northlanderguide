@@ -53,7 +53,7 @@
   /* ---------- Components ---------- */
   import Suitcase from '$lib/components/Suitcase.svelte';
   import ScheduleStrip from '$lib/components/ScheduleStrip.svelte';
-  import StopPickerModal from '$lib/components/StopPickerModal.svelte';
+  import TripRoutePicker from '$lib/components/TripRoutePicker.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
   import TravelDiary from '$lib/components/TravelDiary.svelte';
@@ -377,7 +377,8 @@
   async function saveStops(event) {
     if (!trip) return;
     const stopIds = event.detail.stopIds || [];
-    const updated = await updateTrip(trip.id, { stopIds });
+    const dir = event.detail.direction || trip.direction || 'northbound';
+    const updated = await updateTrip(trip.id, { stopIds, direction: dir });
     if (updated) trip = updated;
     showStopPicker = false;
   }
@@ -1155,7 +1156,7 @@
 
   <!-- ===== Modals ===== -->
   {#if showStopPicker}
-    <StopPickerModal
+    <TripRoutePicker
       selected={trip.stopIds || []}
       direction={trip.direction || 'northbound'}
       on:save={saveStops}
