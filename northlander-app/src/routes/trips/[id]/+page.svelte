@@ -202,6 +202,19 @@
   /** @type {HTMLInputElement | undefined} */
   let coverFileInput;
 
+  /* Cover-theme popover state. Lives inside the cover banner next to
+     the Upload-cover button so the user has both customization
+     surfaces in one place. Closes on outside click + Escape. */
+  let showThemePopover = false;
+  function handleThemeBgClick(e) {
+    if (!showThemePopover) return;
+    const wrap = document.querySelector('.cover-theme-wrap');
+    if (wrap && !wrap.contains(e.target)) showThemePopover = false;
+  }
+  function handleThemeKey(e) {
+    if (e.key === 'Escape' && showThemePopover) showThemePopover = false;
+  }
+
   $: refreshCoverUrl(trip);
   function refreshCoverUrl(t) {
     if (typeof URL === 'undefined') return;
@@ -556,6 +569,8 @@
   <title>{trip ? trip.name + ' - Northlander' : 'Trip - Northlander'}</title>
 </svelte:head>
 
+<svelte:window on:click={handleThemeBgClick} on:keydown={handleThemeKey} />
+
 {#if loading}
   <p class="status">Standing by at the platform...</p>
 {:else if !trip}
@@ -655,6 +670,83 @@
             title="Use the arriving stop's photo instead"
           >Reset</button>
         {/if}
+
+        <!-- Theme popover toggle. Stays close to the upload button
+             so the cover's two customisation surfaces (photo + colour)
+             live next to each other and the user can find them
+             without digging through the Trip details drawer. -->
+        <div class="cover-theme-wrap">
+          <button
+            type="button"
+            class="cover-photo-btn"
+            class:is-open={showThemePopover}
+            on:click={() => (showThemePopover = !showThemePopover)}
+            aria-haspopup="true"
+            aria-expanded={showThemePopover}
+            aria-label="Change page colors"
+            title="Change page colors"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="8" cy="9" r="1.4" fill="currentColor"/>
+              <circle cx="16" cy="9" r="1.4" fill="currentColor"/>
+              <circle cx="9" cy="15" r="1.4" fill="currentColor"/>
+              <circle cx="15" cy="15" r="1.4" fill="currentColor"/>
+            </svg>
+            <span>Colors</span>
+          </button>
+
+          {#if showThemePopover}
+            <div class="theme-popover" role="dialog" aria-label="Page colors">
+              <div class="theme-popover-head">
+                <span class="kicker">Page colors</span>
+                <button
+                  type="button"
+                  class="theme-popover-close"
+                  on:click={() => (showThemePopover = false)}
+                  aria-label="Close"
+                >&times;</button>
+              </div>
+              <p class="theme-popover-hint">
+                Your suitcase color sets the page by default. Pick your own here, or jump to forest green.
+              </p>
+              <div class="theme-popover-pickers">
+                <label class="theme-popover-pick">
+                  <span class="kicker">Background</span>
+                  <span class="theme-popover-row">
+                    <input
+                      type="color"
+                      value={themeBgDraft}
+                      on:input={(e) => saveTheme('bg', e.currentTarget.value)}
+                      aria-label="Cover background color"
+                    />
+                    <span class="theme-popover-hex">{themeBgDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+                <label class="theme-popover-pick">
+                  <span class="kicker">Button</span>
+                  <span class="theme-popover-row">
+                    <input
+                      type="color"
+                      value={themeAccentDraft}
+                      on:input={(e) => saveTheme('accent', e.currentTarget.value)}
+                      aria-label="Primary button color"
+                    />
+                    <span class="theme-popover-hex">{themeAccentDraft.toUpperCase()}</span>
+                  </span>
+                </label>
+              </div>
+              <div class="theme-popover-presets">
+                <button type="button" class="theme-preset" on:click={applyForestTheme}>
+                  Use forest green
+                </button>
+                <button type="button" class="theme-reset" on:click={resetTheme}>
+                  Reset to suitcase
+                </button>
+              </div>
+            </div>
+          {/if}
+        </div>
       </div>
     {/if}
 
@@ -1327,50 +1419,6 @@
               </div>
             {/if}
 
-            <!-- Cover theme: optional per-trip palette for the banner
-                 gradient + primary button. Defaults to forest + gold;
-                 users can hand-pick or one-tap "Use suitcase colors"
-                 to tint the page with their leather choice. -->
-            <div class="theme-block">
-              <div class="kicker details-kicker">Cover theme</div>
-              <div class="leather-custom-pickers">
-                <label class="leather-custom-pick">
-                  <span class="kicker">Background</span>
-                  <span class="leather-custom-row">
-                    <input
-                      type="color"
-                      value={themeBgDraft}
-                      on:input={(e) => saveTheme('bg', e.currentTarget.value)}
-                      aria-label="Cover background color"
-                    />
-                    <span class="leather-custom-hex">{themeBgDraft.toUpperCase()}</span>
-                  </span>
-                </label>
-                <label class="leather-custom-pick">
-                  <span class="kicker">Button</span>
-                  <span class="leather-custom-row">
-                    <input
-                      type="color"
-                      value={themeAccentDraft}
-                      on:input={(e) => saveTheme('accent', e.currentTarget.value)}
-                      aria-label="Primary button color"
-                    />
-                    <span class="leather-custom-hex">{themeAccentDraft.toUpperCase()}</span>
-                  </span>
-                </label>
-              </div>
-              <p class="theme-hint">
-                By default the banner picks up your suitcase colour. Pick your own here, or jump back to forest green.
-              </p>
-              <div class="theme-presets">
-                <button type="button" class="theme-preset" on:click={applyForestTheme}>
-                  Use forest green
-                </button>
-                <button type="button" class="theme-reset" on:click={resetTheme}>
-                  Reset to suitcase
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </Drawer>
@@ -1665,6 +1713,93 @@
     text-decoration: underline;
   }
   .cover-photo-reset:hover { color: #c9a84c; }
+
+  /* Theme popover - opens beneath the Colors button on the cover.
+     Cream paper card, scallop-free here (it's small + ephemeral),
+     with the same two color inputs and preset shortcuts the user
+     used to find buried in the Trip details drawer. */
+  .cover-theme-wrap {
+    position: relative;
+  }
+  .theme-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 50;
+    width: min(320px, 88vw);
+    background: #fbf6ea;
+    color: #0a2d21;
+    border: 1px solid #8b6a3a;
+    box-shadow: 0 18px 36px rgba(10, 20, 5, 0.45);
+    padding: 14px 16px 16px;
+  }
+  .theme-popover-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .theme-popover-close {
+    background: transparent;
+    border: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #7d3a1e;
+    cursor: pointer;
+  }
+  .theme-popover-close:hover { color: #0a2d21; }
+  .theme-popover-hint {
+    margin: 8px 0 12px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    color: #5a4f3d;
+    line-height: 1.35;
+  }
+  .theme-popover-pickers {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .theme-popover-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 130px;
+    min-width: 0;
+  }
+  .theme-popover-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fffdf6;
+    border: 1px solid #8b6a3a;
+    padding: 4px 8px 4px 4px;
+    border-radius: 3px;
+  }
+  .theme-popover-row input[type='color'] {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #8b6a3a;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .theme-popover-row input[type='color']::-webkit-color-swatch-wrapper { padding: 2px; }
+  .theme-popover-row input[type='color']::-webkit-color-swatch { border: none; border-radius: 2px; }
+  .theme-popover-hex {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 0.78rem;
+    color: #0a2d21;
+    letter-spacing: 0.06em;
+  }
+  .theme-popover-presets {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
   .cover-inner {
     max-width: 1180px;
     margin: 0 auto;
