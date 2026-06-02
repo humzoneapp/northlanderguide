@@ -145,7 +145,18 @@
 
   $: effectiveCoverBg     = (trip && (trip.coverBg     || trip.color)) || FOREST;
   $: effectiveCoverAccent = (trip &&  trip.coverAccent) || DEFAULT_COVER_ACCENT;
+  /* Two darker variants:
+     - Bot (~55% of channels) is for the cover gradient's lower stop -
+       readable on text but still close enough to the theme color to
+       feel like a blend.
+     - Deep (~22% of channels) is for the page-body sections
+       (breadcrumb, scenes, connector, sign-off, photo veils). These
+       were forest #0a2d21 (very dark) before; the deep variant
+       keeps that same near-black weight while tinting with the
+       chosen hue, so the page stays saturated instead of reading
+       washed out. */
   $: effectiveCoverBgDark = darkenHex(effectiveCoverBg, 0.55);
+  $: effectiveCoverBgDeep = darkenHex(effectiveCoverBg, 0.22);
 
   let themeBgDraft     = FOREST;
   let themeAccentDraft = DEFAULT_COVER_ACCENT;
@@ -155,7 +166,7 @@
   }
 
   $: coverThemeStyle = trip
-    ? `--cover-bg-top:${effectiveCoverBg};--cover-bg-bot:${effectiveCoverBgDark};--cover-accent:${effectiveCoverAccent};`
+    ? `--cover-bg-top:${effectiveCoverBg};--cover-bg-bot:${effectiveCoverBgDark};--cover-bg-deep:${effectiveCoverBgDeep};--cover-accent:${effectiveCoverAccent};`
     : '';
 
   async function saveTheme(field, value) {
@@ -1534,7 +1545,7 @@
 
   /* ===== Breadcrumb ===== */
   .crumbs {
-    background: var(--cover-bg-bot, #0a2d21);
+    background: var(--cover-bg-deep, #0a2d21);
     color: #cad7cf;
     padding: 18px 24px 0;
   }
@@ -1591,8 +1602,10 @@
   .cover-bg.has-image { background-color: #0a2d21; }
   /* Editorial overlay over the banner image. Uses color-mix so the
      veil tints the photo with the user's chosen theme color
-     instead of forcing a forest cast - that way the suitcase color
-     reaches the page even when a real photo sits behind it. */
+     instead of forcing a forest cast. The bottom of the veil
+     uses the DEEP variant (much darker) so the cover stays
+     legible and richly saturated rather than reading washed out
+     against a saturated theme color. */
   .cover-veil {
     position: absolute;
     inset: 0;
@@ -1602,18 +1615,18 @@
       linear-gradient(
         180deg,
         color-mix(in srgb, var(--cover-bg-top) 55%, transparent) 0%,
-        color-mix(in srgb, var(--cover-bg-bot) 88%, transparent) 100%
+        color-mix(in srgb, var(--cover-bg-deep) 92%, transparent) 100%
       ),
-      radial-gradient(ellipse at 70% 12%, rgba(196, 134, 15, 0.18), transparent 60%);
+      radial-gradient(ellipse at 70% 12%, rgba(196, 134, 15, 0.16), transparent 60%);
   }
   .cover.has-image .cover-veil {
     background:
       linear-gradient(
         180deg,
         color-mix(in srgb, var(--cover-bg-top) 45%, transparent) 0%,
-        color-mix(in srgb, var(--cover-bg-bot) 92%, transparent) 100%
+        color-mix(in srgb, var(--cover-bg-deep) 95%, transparent) 100%
       ),
-      radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.28), transparent 70%);
+      radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.32), transparent 70%);
   }
 
   /* Boarding-pass ticket header at the top of the cover. Forest
@@ -1624,9 +1637,9 @@
     z-index: 3;
     max-width: 1180px;
     margin: 0 auto 28px;
-    background: color-mix(in srgb, var(--cover-bg-bot) 78%, transparent);
+    background: color-mix(in srgb, var(--cover-bg-deep) 80%, transparent);
     border: 1.5px solid #c9a84c;
-    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cover-bg-bot) 90%, transparent);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cover-bg-deep) 92%, transparent);
     padding: 12px 24px;
     display: flex;
     align-items: center;
@@ -2136,7 +2149,7 @@
 
   /* ===== Stop scenes ===== */
   .scenes {
-    background: var(--cover-bg-bot, #0a2d21);
+    background: var(--cover-bg-deep, #0a2d21);
     padding: 0;
   }
   .scene {
@@ -2161,9 +2174,9 @@
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 85%, transparent) 0%,
-        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 72%, transparent) 40%,
-        color-mix(in srgb, var(--cover-bg-bot, #0a1e14) 92%, transparent) 100%
+        color-mix(in srgb, var(--cover-bg-deep, #0a1e14) 90%, transparent) 0%,
+        color-mix(in srgb, var(--cover-bg-deep, #0a1e14) 78%, transparent) 40%,
+        color-mix(in srgb, var(--cover-bg-deep, #0a1e14) 95%, transparent) 100%
       ),
       radial-gradient(circle at 80% 20%, rgba(196, 134, 15, 0.18), transparent 55%);
   }
@@ -2556,7 +2569,7 @@
 
   /* ===== Connector ===== */
   .connector {
-    background: var(--cover-bg-bot, #0a2d21);
+    background: var(--cover-bg-deep, #0a2d21);
     color: #c4860f;
     padding: 28px 24px;
     display: flex;
@@ -2637,7 +2650,7 @@
 
   /* ===== Sign off ===== */
   .foot {
-    background: linear-gradient(180deg, var(--cover-bg-top, #0e3b2c) 0%, var(--cover-bg-bot, #0a2d21) 100%);
+    background: linear-gradient(180deg, var(--cover-bg-bot, #0e3b2c) 0%, var(--cover-bg-deep, #0a2d21) 100%);
     color: #f5f0e8;
     padding: 56px 24px;
     text-align: center;
