@@ -77,6 +77,27 @@ export function arrivalClock(offsetMinutes, departure, direction = 'northbound')
 }
 
 /**
+ * Arrival as raw minutes since midnight at the given stop. Returned as
+ * a plain number so callers can compare a booking's HH:MM startTime
+ * against it. Mirrors arrivalClock but skips the human formatting.
+ *
+ * @returns {number|null}
+ */
+export function arrivalMinutes(offsetMinutes, departure, direction = 'northbound') {
+  const base = parseClock(departure || departureFor(direction));
+  if (base == null) return null;
+  const tm = travelMinutes(offsetMinutes, direction);
+  if (tm == null) return null;
+  return base + tm;
+}
+
+/** Public version of the internal HH:MM parser. Returns minutes since
+    midnight or null for anything unparseable. */
+export function clockToMinutes(hhmm) {
+  return parseClock(hhmm);
+}
+
+/**
  * "Hh Mm" travel duration for compact display. The 0 case returns
  * "Departure" since the train is leaving from that very stop.
  */

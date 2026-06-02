@@ -10,12 +10,21 @@
     BOOKING_KINDS
   } from '$lib/stores/bookings.js';
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
+  import { arrivalClock, arrivalMinutes, clockToMinutes } from '$lib/data/schedule.js';
+  import BookingKindIcon from './BookingKindIcon.svelte';
 
   /** @type {string} */
   export let tripId;
   /** @type {string[]} - stops on this trip, so the picker only
       offers stops the user has actually added */
   export let stopIds = [];
+  /** @type {'northbound' | 'southbound'} - drives the per-row
+      conflict check below; we flag a booking whose startTime is
+      earlier than the train's projected arrival at its stop. */
+  export let direction = 'northbound';
+  /** @type {string} - HH:MM 24h. Defaults at usage to the canonical
+      direction departure. */
+  export let departureClock = '';
 
   /** @type {import('$lib/stores/bookings.js').Booking[]} */
   let items = [];
@@ -78,6 +87,24 @@
   function stopNameFor(id) {
     const s = id ? getStop(id) : null;
     return s ? s.name : '';
+  }
+
+  /* Per-row mirror of the cinematic scene's conflict check. Bookings
+     pinned to the first stop on the trip are exempt (the train
+     departs there). Returns the formatted arrival clock when in
+     conflict, else ''. */
+  function rowConflictClock(item) {
+    if (!item || !item.startTime || !item.stopId) return '';
+    if (!Array.isArray(stopIds) || stopIds.length === 0) return '';
+    if (stopIds[0] === item.stopId) return '';
+    const s = getStop(item.stopId);
+    if (!s) return '';
+    const arrive = arrivalMinutes(s.offsetMinutes, departureClock, direction);
+    if (arrive == null) return '';
+    const start = clockToMinutes(item.startTime);
+    if (start == null) return '';
+    if (start >= arrive) return '';
+    return arrivalClock(s.offsetMinutes, departureClock, direction);
   }
 
   async function toggle(id) {
@@ -153,44 +180,16 @@
     {:else}
       <ul class="book-list">
         {#each items as item (item.id)}
+          {@const conflictAt = rowConflictClock(item)}
           <li
             class="book-row"
             class:is-booked={item.status === 'booked'}
             class:has-extras={item.kind === 'room'}
             class:is-expanded={item.kind === 'room' && expanded[item.id]}
+            class:is-conflict={!!conflictAt}
           >
             <span class="book-icon" aria-label={kindLabel(item.kind)} title={kindLabel(item.kind)}>
-              {#if item.kind === 'train'}
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="3" width="16" height="14" rx="3"/>
-                  <path d="M4 11 L20 11"/>
-                  <circle cx="8.5" cy="20" r="1.4"/>
-                  <circle cx="15.5" cy="20" r="1.4"/>
-                  <path d="M7 17 L7 19"/>
-                  <path d="M17 17 L17 19"/>
-                </svg>
-              {:else if item.kind === 'room'}
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 18 L3 10 L21 10 L21 18"/>
-                  <path d="M3 18 L21 18"/>
-                  <path d="M7 10 L7 7 L11 7 L11 10"/>
-                </svg>
-              {:else if item.kind === 'meal'}
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M6 3 L6 10 Q6 12 8 12 Q10 12 10 10 L10 3"/>
-                  <path d="M8 12 L8 21"/>
-                  <path d="M17 3 Q14 6 17 11 L17 21"/>
-                </svg>
-              {:else if item.kind === 'activity'}
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-                  <path d="M3 9 L3 11 Q5 11 5 13 Q5 15 3 15 L3 17 L21 17 L21 15 Q19 15 19 13 Q19 11 21 11 L21 9 Z"/>
-                  <path d="M9 9 L9 17 M15 9 L15 17" stroke-dasharray="2 2"/>
-                </svg>
-              {:else}
-                <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-                  <path d="M6 3 L18 3 L18 21 L12 17 L6 21 Z"/>
-                </svg>
-              {/if}
+              <BookingKindIcon kind={item.kind} size="1.25rem" />
             </span>
 
             <!-- Time pill - inline editor for the optional startTime.
@@ -230,6 +229,11 @@
                 >{item.title}</button>
                 {#if item.stopId && stopNameFor(item.stopId)}
                   <span class="book-stop-line">At {stopNameFor(item.stopId)}</span>
+                {/if}
+                {#if conflictAt}
+                  <span class="book-conflict-line" role="note">
+                    Train doesn't arrive until {conflictAt}
+                  </span>
                 {/if}
               </div>
             {/if}
@@ -508,6 +512,30 @@
   }
   .book-row.is-booked .book-stop-line {
     color: #5a4f3d;
+  }
+  .book-conflict-line {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 11.5px;
+    line-height: 1.2;
+    margin-top: 2px;
+    color: #b07614;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .book-conflict-line::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    background: #c9a84c;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    flex: none;
+  }
+  .book-row.is-conflict .book-time.is-set {
+    background: rgba(176, 118, 20, 0.18);
+    border-color: #b07614;
+    color: #7a4f0c;
   }
 
   .book-add {

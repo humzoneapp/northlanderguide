@@ -40,6 +40,8 @@
   } from '$lib/data/stops.js';
   import {
     arrivalClock,
+    arrivalMinutes,
+    clockToMinutes,
     departureFor,
     formatTripDate,
     DIRECTIONS,
@@ -280,6 +282,23 @@
     const h = Math.floor(delta / 60);
     const m = delta % 60;
     return `About ${h}h${m ? ' ' + m + 'm' : ''} before the next train`;
+  }
+
+  /* Soft conflict check. A booking pinned to a non-departure stop with
+     a startTime earlier than the train's projected arrival there is
+     physically impossible on the day of arrival, so we flag it. We
+     skip the first scene (the train departs from there, so any clock
+     could be pre-trip prep) and skip untimed rows. Returns the
+     formatted arrival clock when in conflict, else ''. */
+  function arrivalConflictClock(b, stop, sceneIndex) {
+    if (sceneIndex === 0) return '';
+    if (!b || !b.startTime) return '';
+    const arrive = arrivalMinutes(stop.offsetMinutes, depClock, trip.direction || 'northbound');
+    if (arrive == null) return '';
+    const start = clockToMinutes(b.startTime);
+    if (start == null) return '';
+    if (start >= arrive) return '';
+    return arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound');
   }
 
   function daysUntil(yyyymmdd) {
@@ -699,7 +718,8 @@
                   </div>
                   <ul class="scene-list scene-list-timeline">
                     {#each orderedBookings as b}
-                      <li class:is-booked={b.status === 'booked'} class:is-untimed={!b.startTime}>
+                      {@const conflictAt = arrivalConflictClock(b, stop, i)}
+                      <li class:is-booked={b.status === 'booked'} class:is-untimed={!b.startTime} class:is-conflict={!!conflictAt}>
                         <div class="line-main">
                           <span class="line-time" class:placeholder={!b.startTime}>
                             {b.startTime || 'Open'}
@@ -713,6 +733,16 @@
                             {b.status === 'booked' ? 'Booked' : 'Pending'}
                           </span>
                         </div>
+                        {#if conflictAt}
+                          <div class="line-conflict" role="note">
+                            <svg viewBox="0 0 24 24" class="line-conflict-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M12 2 L22 20 L2 20 Z"/>
+                              <line x1="12" y1="9" x2="12" y2="14"/>
+                              <circle cx="12" cy="17.5" r="0.6" fill="currentColor"/>
+                            </svg>
+                            <span>Train doesn't arrive at {stop.name} until {conflictAt}.</span>
+                          </div>
+                        {/if}
                         {#if b.kind === 'room' && (b.checkIn || b.checkOut || b.address || b.contact || b.confirmation)}
                           <div class="line-room">
                             {#if b.checkIn || b.checkOut}
@@ -885,7 +915,12 @@
             <span>Plan</span>
           </button>
         </svelte:fragment>
-        <BookingChecklist tripId={trip.id} stopIds={trip.stopIds || []} />
+        <BookingChecklist
+          tripId={trip.id}
+          stopIds={trip.stopIds || []}
+          direction={trip.direction || 'northbound'}
+          departureClock={depClock}
+        />
       </Drawer>
 
       <Drawer
@@ -1831,6 +1866,29 @@
     opacity: 0.85;
     margin: 6px 0 0;
     white-space: pre-wrap;
+  }
+  .line-conflict {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+    padding: 4px 10px 4px 8px;
+    background: rgba(110, 46, 23, 0.22);
+    border: 1px dashed rgba(201, 168, 76, 0.6);
+    border-radius: 999px;
+    color: #f0c060;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.25;
+  }
+  .line-conflict-icon {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+  .scene-list-timeline li.is-conflict .line-time {
+    color: #f0c060;
   }
 
   .scene-diary {
