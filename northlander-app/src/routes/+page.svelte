@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
   import { trips } from '$lib/stores/trips.js';
@@ -17,6 +17,12 @@
   onMount(() => {
     const t = setTimeout(() => (onboardingReady = true), 220);
     return () => clearTimeout(t);
+  });
+  onDestroy(() => {
+    if (typeof URL !== 'undefined') {
+      for (const u of coverObjectUrls.values()) URL.revokeObjectURL(u);
+      coverObjectUrls.clear();
+    }
   });
 
   /* Stable per-card rotation so trips always sit at the same angle
@@ -104,13 +110,49 @@
     return Math.round((b.getTime() - a.getTime()) / 86400000);
   }
 
-  /* First stop's hero photo, surfaced as a small tucked polaroid on
-     the suitcase card. Returns null when the trip has no stops yet
-     so the empty-state card can skip the polaroid entirely. */
+  /* Cover thumb for each polaroid on the dashboard.
+       1. If the trip has a custom coverBlob (user-uploaded on the
+          trip page), use that.
+       2. Else fall back to the arriving stop's hero photo - the
+          destination is the part of the trip the user is anticipating.
+       3. Else null (no stops yet).
+     Object URLs created from coverBlobs are cached in coverObjectUrls
+     and revoked when the trips list changes / page unmounts so they
+     don't leak. */
+  let coverObjectUrls = new Map();
+  function rebuildCoverObjectUrls(list) {
+    if (typeof URL === 'undefined') return;
+    const next = new Map();
+    for (const t of list || []) {
+      if (t.coverBlob) {
+        const existing = coverObjectUrls.get(t.id);
+        if (existing) next.set(t.id, existing);
+        else {
+          try { next.set(t.id, URL.createObjectURL(t.coverBlob)); }
+          catch (_) {}
+        }
+      }
+    }
+    for (const [id, u] of coverObjectUrls) {
+      if (!next.has(id)) URL.revokeObjectURL(u);
+    }
+    coverObjectUrls = next;
+  }
+  $: rebuildCoverObjectUrls($trips);
+
   function firstStopThumb(trip) {
     const stops = getStopsByIds(trip.stopIds || []);
+    const custom = coverObjectUrls.get(trip.id);
+    if (custom) {
+      return {
+        name: stops.length ? stops[stops.length - 1].name : trip.name,
+        url: custom
+      };
+    }
     if (stops.length === 0) return null;
-    return { name: stops[0].name, url: stopImageUrl(stops[0]) };
+    /* Arriving stop = last stop in the canonical-order array. */
+    const arriving = stops[stops.length - 1];
+    return { name: arriving.name, url: stopImageUrl(arriving) };
   }
 
   /* Packing progress fraction 0..1, used by the dashed arc on the

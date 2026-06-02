@@ -155,6 +155,59 @@ export async function changeTripColor(id, colorId, { body, strap } = {}) {
   return updateTrip(id, { color: palette.body, strap: palette.strap, colorId: palette.id });
 }
 
+/* ---------- Custom cover photo ---------- */
+/* The user's chosen banner image for a trip. Stored as a JPEG Blob
+   on the trip row under `coverBlob` so it cascades with the rest of
+   the trip data and doesn't need its own table. We resize down to
+   1600px long-edge JPEG at quality 0.85 - same target as the photo
+   album - so the row stays in the 200-500 KB range and the trip
+   detail page can render it at hero size without decoding a
+   12-megapixel original. */
+const COVER_MAX = 1600;
+const COVER_QUALITY = 0.85;
+
+async function fileToBitmap(file) {
+  if (typeof createImageBitmap === 'function') return createImageBitmap(file);
+  return await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+    img.src = url;
+  });
+}
+
+async function resizeImage(file, max) {
+  const bitmap = await fileToBitmap(file);
+  const w = bitmap.width || 0;
+  const h = bitmap.height || 0;
+  if (!w || !h) return null;
+  const scale = Math.min(1, max / Math.max(w, h));
+  const tw = Math.max(1, Math.round(w * scale));
+  const th = Math.max(1, Math.round(h * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = tw;
+  canvas.height = th;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.drawImage(bitmap, 0, 0, tw, th);
+  return await new Promise((resolve) => {
+    canvas.toBlob((b) => resolve(b), 'image/jpeg', COVER_QUALITY);
+  });
+}
+
+export async function setTripCover(id, file) {
+  if (!id || !file) return null;
+  const blob = await resizeImage(file, COVER_MAX);
+  if (!blob) return null;
+  return updateTrip(id, { coverBlob: blob });
+}
+
+export async function clearTripCover(id) {
+  if (!id) return null;
+  return updateTrip(id, { coverBlob: null });
+}
+
 /* Delete a trip plus every row that references it. Wrap in a single
    transaction so a partial failure can't strand orphans. */
 export async function deleteTrip(id) {

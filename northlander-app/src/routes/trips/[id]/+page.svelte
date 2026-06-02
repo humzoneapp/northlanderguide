@@ -24,6 +24,8 @@
     changeTripColor,
     updateTrip,
     deleteTrip,
+    setTripCover,
+    clearTripCover,
     LEATHER_COLORS
   } from '$lib/stores/trips.js';
   import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
@@ -108,6 +110,67 @@
        the picker back to the preset hue. */
     if (trip.color)  customBodyDraft  = trip.color;
     if (trip.strap)  customStrapDraft = trip.strap;
+  }
+
+  /* Custom cover photo for the banner. Built from trip.coverBlob
+     when present; revoked whenever the row swaps out or the page
+     unmounts so we don't leak object URLs across navigations. */
+  let coverObjectUrl = '';
+  let coverUploadBusy = false;
+  /** @type {HTMLInputElement | undefined} */
+  let coverFileInput;
+
+  $: refreshCoverUrl(trip);
+  function refreshCoverUrl(t) {
+    if (typeof URL === 'undefined') return;
+    if (coverObjectUrl) URL.revokeObjectURL(coverObjectUrl);
+    coverObjectUrl = '';
+    if (t && t.coverBlob) {
+      try {
+        coverObjectUrl = URL.createObjectURL(t.coverBlob);
+      } catch (_) {
+        coverObjectUrl = '';
+      }
+    }
+  }
+
+  /* The trip's "cover" stop is the arriving stop (last one in the
+     route). When the user hasn't picked stops yet, fall back to
+     null and the banner uses a quiet cream placeholder. */
+  $: arrivingStop = stops.length > 0 ? stops[stops.length - 1] : null;
+  $: departingStop = stops.length > 0 ? stops[0] : null;
+  /* Banner image precedence: user upload > arriving stop hero >
+     nothing (placeholder gradient). */
+  $: bannerImage = coverObjectUrl
+    ? coverObjectUrl
+    : arrivingStop
+      ? stopImageUrl(arrivingStop)
+      : '';
+
+  async function handleCoverUpload(event) {
+    if (!trip || coverUploadBusy) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
+    coverUploadBusy = true;
+    try {
+      const updated = await setTripCover(trip.id, file);
+      if (updated) trip = updated;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      coverUploadBusy = false;
+      if (coverFileInput) coverFileInput.value = '';
+    }
+  }
+  async function handleCoverReset() {
+    if (!trip || coverUploadBusy) return;
+    coverUploadBusy = true;
+    try {
+      const updated = await clearTripCover(trip.id);
+      if (updated) trip = updated;
+    } finally {
+      coverUploadBusy = false;
+    }
   }
 
   /* Quick-action state for the closed-drawer inline inputs. The
@@ -256,6 +319,7 @@
   onDestroy(() => {
     for (const u of photoUrls.values()) URL.revokeObjectURL(u);
     photoUrls.clear();
+    if (coverObjectUrl) URL.revokeObjectURL(coverObjectUrl);
   });
 
   /* ---------- Derived helpers ---------- */
@@ -430,9 +494,79 @@
     </div>
   </nav>
 
-  <!-- ===== Cinematic cover ===== -->
-  <header class="cover">
-    <div class="cover-noise" aria-hidden="true"></div>
+  <!-- ===== Editorial cover banner =====
+       The arriving stop's hero photo (or the user's custom upload)
+       sits behind a forest gradient overlay. A boarding-pass header
+       runs across the top: FROM Toronto Union -> TO Bracebridge,
+       date and direction. The user's name, countdown and stats sit
+       below in the cream/ivory editorial style. A small "Change
+       cover" button in the corner lets the user swap the banner
+       image at any time. -->
+  <header class="cover" class:has-image={!!bannerImage}>
+    <div
+      class="cover-bg"
+      class:has-image={!!bannerImage}
+      style={bannerImage ? `background-image:url('${bannerImage}')` : ''}
+      aria-hidden="true"
+    ></div>
+    <div class="cover-veil" aria-hidden="true"></div>
+
+    {#if departingStop && arrivingStop}
+      <div class="cover-ticket" aria-label="Route">
+        <span class="cover-ticket-end">
+          <span class="cover-ticket-kicker">From</span>
+          <span class="cover-ticket-name">{departingStop.name}</span>
+        </span>
+        <span class="cover-ticket-arrow" aria-hidden="true">
+          <svg viewBox="0 0 80 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M2 7 H68" stroke-dasharray="3 3"/>
+            <path d="M62 2 L72 7 L62 12"/>
+          </svg>
+        </span>
+        <span class="cover-ticket-end">
+          <span class="cover-ticket-kicker">To</span>
+          <span class="cover-ticket-name">{arrivingStop.name}</span>
+        </span>
+      </div>
+    {/if}
+
+    <input
+      bind:this={coverFileInput}
+      type="file"
+      accept="image/*"
+      class="cover-file-input"
+      on:change={handleCoverUpload}
+      tabindex="-1"
+      aria-hidden="true"
+    />
+    {#if stops.length > 0}
+      <div class="cover-photo-actions">
+        <button
+          type="button"
+          class="cover-photo-btn"
+          on:click={() => coverFileInput?.click()}
+          disabled={coverUploadBusy}
+          aria-label={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
+          title={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14.5 4 H9.5 L7.5 6.5 H4 a1 1 0 0 0 -1 1 V18 a1 1 0 0 0 1 1 H20 a1 1 0 0 0 1 -1 V7.5 a1 1 0 0 0 -1 -1 H16.5 Z"/>
+            <circle cx="12" cy="13" r="3.5"/>
+          </svg>
+          <span>{coverUploadBusy ? 'Uploading...' : (coverObjectUrl ? 'Replace cover' : 'Upload cover')}</span>
+        </button>
+        {#if coverObjectUrl}
+          <button
+            type="button"
+            class="cover-photo-reset"
+            on:click={handleCoverReset}
+            disabled={coverUploadBusy}
+            title="Use the arriving stop's photo instead"
+          >Reset</button>
+        {/if}
+      </div>
+    {/if}
+
     <div class="cover-inner" class:is-empty={stops.length === 0}>
       <div class="cover-text">
         <div class="kicker kicker-light">A Northlander Itinerary</div>
@@ -463,14 +597,8 @@
         {/if}
 
         {#if stops.length > 0}
-          <div class="cover-leg">
-            {#if dirMeta}{dirMeta.from} <span class="leg-soft">to</span> {dirMeta.to}{/if}
-            {#if dirMeta}<span class="dot">&middot;</span>{/if}
-            {dirMeta?.label || 'Northbound'}
-          </div>
-
           {#if tripDateLine}
-            <div class="cover-date">{tripDateLine}</div>
+            <div class="cover-date">{tripDateLine}  ·  {dirMeta?.label || 'Northbound'}</div>
           {/if}
 
           {#if countdown != null}
@@ -1236,23 +1364,141 @@
   }
   .crumbs-now { color: #f5f0e8; }
 
-  /* ===== Cover ===== */
+  /* ===== Cover banner =====
+     The arriving stop's photo (or a user upload) sits behind a
+     forest gradient veil that keeps text legible while leaving
+     enough of the photo visible to set the mood. When there's no
+     image yet (empty trip), the cover falls back to the original
+     forest-gradient look. */
   .cover {
     position: relative;
-    background:
-      radial-gradient(ellipse at 70% 20%, rgba(196, 134, 15, 0.35), transparent 60%),
-      linear-gradient(180deg, #0a2d21 0%, #16543e 100%);
+    background: linear-gradient(180deg, #0a2d21 0%, #16543e 100%);
     color: #f5f0e8;
-    padding: 40px 24px 64px;
+    padding: 56px 24px 64px;
     overflow: hidden;
   }
-  .cover-noise {
+  .cover-bg {
     position: absolute;
     inset: 0;
-    background-image:
-      repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
-    pointer-events: none;
+    background-position: center;
+    background-size: cover;
+    z-index: 0;
   }
+  .cover-bg.has-image { background-color: #0a2d21; }
+  /* Editorial overlay: deeper at the bottom for text legibility,
+     warmer amber at the top for atmosphere. */
+  .cover-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10, 45, 33, 0.55) 0%, rgba(10, 45, 33, 0.85) 100%),
+      radial-gradient(ellipse at 70% 12%, rgba(196, 134, 15, 0.25), transparent 60%);
+  }
+  .cover.has-image .cover-veil {
+    background:
+      linear-gradient(180deg, rgba(10, 45, 33, 0.45) 0%, rgba(10, 45, 33, 0.88) 100%),
+      radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.35), transparent 70%);
+  }
+
+  /* Boarding-pass ticket header at the top of the cover. Forest
+     dark band with gold dashed border and a dashed arrow between
+     the two stop names. */
+  .cover-ticket {
+    position: relative;
+    z-index: 3;
+    max-width: 1180px;
+    margin: 0 auto 28px;
+    background: rgba(10, 45, 33, 0.72);
+    border: 1.5px solid #c9a84c;
+    box-shadow: inset 0 0 0 2px rgba(10, 45, 33, 0.85);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    color: #f5f0e8;
+    flex-wrap: wrap;
+  }
+  .cover-ticket-end {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 120px;
+  }
+  .cover-ticket-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: 10px;
+    font-weight: 800;
+    color: #c9a84c;
+  }
+  .cover-ticket-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    color: #f5f0e8;
+    text-align: center;
+  }
+  .cover-ticket-arrow {
+    color: #c9a84c;
+    width: 80px;
+    flex: none;
+  }
+  .cover-ticket-arrow svg { width: 100%; height: auto; display: block; }
+  @media (max-width: 540px) {
+    .cover-ticket { padding: 10px 14px; gap: 8px; }
+    .cover-ticket-arrow { transform: rotate(90deg); width: 36px; }
+    .cover-ticket-end { min-width: 0; }
+  }
+
+  /* Discreet "Change cover" button in the top-right corner. */
+  .cover-file-input { display: none; }
+  .cover-photo-actions {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    z-index: 4;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .cover-photo-btn {
+    background: rgba(10, 45, 33, 0.62);
+    color: #f5f0e8;
+    border: 1px dashed rgba(201, 168, 76, 0.65);
+    padding: 5px 12px 5px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .cover-photo-btn svg { width: 14px; height: 14px; }
+  .cover-photo-btn:hover:not(:disabled) {
+    background: rgba(10, 45, 33, 0.85);
+    border-color: #c9a84c;
+  }
+  .cover-photo-btn:disabled { opacity: 0.6; cursor: progress; }
+  .cover-photo-reset {
+    background: transparent;
+    border: 0;
+    color: rgba(245, 240, 232, 0.78);
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .cover-photo-reset:hover { color: #c9a84c; }
   .cover-inner {
     max-width: 1180px;
     margin: 0 auto;
