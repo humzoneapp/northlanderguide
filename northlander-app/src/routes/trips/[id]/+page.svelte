@@ -61,6 +61,7 @@
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
+  import RouteMap from '$lib/components/RouteMap.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -468,6 +469,13 @@
     </div>
   </section>
 
+  <!-- ===== Route map (chapter-jump nav) ===== -->
+  <RouteMap
+    {stops}
+    direction={trip.direction || 'northbound'}
+    departureClock={depClock}
+  />
+
   {#if stops.length > 0}
     <!-- ===== Stop scenes ===== -->
     <section class="scenes">
@@ -479,7 +487,7 @@
         {@const isLast = i === stops.length - 1}
         {@const isEmpty = groups.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
 
-        <article class="scene" style="--bg:url('{stopImageUrl(stop)}')">
+        <article id="scene-{i}" class="scene" style="--bg:url('{stopImageUrl(stop)}')">
           <div class="scene-bg" aria-hidden="true"></div>
           <div class="scene-veil" aria-hidden="true"></div>
 
@@ -1257,6 +1265,9 @@
     position: relative;
     color: #f5f0e8;
     overflow: hidden;
+    /* Leave space at the top so RouteMap pin jumps don't land
+       under the sticky topbar (~56px) or hug the connector. */
+    scroll-margin-top: 72px;
   }
   .scene-bg {
     position: absolute;
