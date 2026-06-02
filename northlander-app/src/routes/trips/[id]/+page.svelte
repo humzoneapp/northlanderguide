@@ -35,7 +35,6 @@
   /* ---------- Stop + schedule helpers ---------- */
   import {
     getStopsByIds,
-    stopGuideUrl,
     stopImageUrl
   } from '$lib/data/stops.js';
   import {
@@ -62,7 +61,6 @@
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
-  import RouteMap from '$lib/components/RouteMap.svelte';
   import BookingKindIcon from '$lib/components/BookingKindIcon.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
@@ -721,13 +719,6 @@
       </div>
     </section>
 
-  <!-- ===== Route map (chapter-jump nav) ===== -->
-  <RouteMap
-    {stops}
-    direction={trip.direction || 'northbound'}
-    departureClock={depClock}
-  />
-
     <!-- ===== Stop scenes ===== -->
     <section class="scenes">
       {#each stops as stop, i}
@@ -738,35 +729,21 @@
         {@const isLast = i === stops.length - 1}
         {@const isEmpty = stopBookings.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
 
-        <article id="scene-{i}" class="scene" style="--bg:url('{stopImageUrl(stop)}')">
-          <div class="scene-bg" aria-hidden="true"></div>
-          <div class="scene-veil" aria-hidden="true"></div>
+        <article id="scene-{i}" class="scene">
+          <figure class="scene-postcard" aria-hidden="true">
+            <img src={stopImageUrl(stop)} alt="" loading="lazy" decoding="async" />
+            <figcaption>
+              <span class="scene-postcard-num">{i + 1} of {stops.length}</span>
+              <span class="scene-postcard-clock">{arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}</span>
+              <span class="scene-postcard-kicker">{i === 0 ? 'Departure' : 'Arrival'}</span>
+            </figcaption>
+          </figure>
 
           <div class="scene-inner">
-            <div class="scene-sign">
-              <span class="scene-num">{i + 1} of {stops.length}</span>
-              <div class="scene-clock">{arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}</div>
-              <span class="scene-clock-kicker">{i === 0 ? 'Departure' : 'Arrival'}</span>
-            </div>
-
             <div class="scene-head">
-              <div>
-                <div class="kicker kicker-light">Chapter {i + 1}</div>
-                <h2 class="scene-name">{stop.name}</h2>
-                <div class="scene-region">{stop.region}</div>
-              </div>
-              <a
-                href={stopGuideUrl(stop)}
-                target="_blank"
-                rel="noopener"
-                class="scene-explore"
-              >
-                <span>Open on the Guide</span>
-                <svg viewBox="0 0 24 24" class="scene-explore-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </a>
+              <div class="kicker">Chapter {i + 1}</div>
+              <h2 class="scene-name">{stop.name}</h2>
+              <div class="scene-region">{stop.region}</div>
             </div>
 
             <div class="scene-body">
@@ -1737,196 +1714,203 @@
   }
 
   /* ===== Stop scenes ===== */
+  /* ===== Stop scenes =====
+     Editorial cream paper instead of the dark forest with a photo
+     veil. Each scene reads like a magazine spread: a small tilted
+     postcard photo on one side, a big serif "Chapter N" headline,
+     the three Eat/Sleep/Do prompt cards in cream, and the journey
+     timeline below. Forest is reserved for the banner + sign-off
+     bookends and small kicker chips. */
   .scenes {
-    background: #0a2d21;
+    background: #fbf6ea;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.05) 0, rgba(45, 30, 20, 0.05) 1px, transparent 1px, transparent 9px);
+    color: #0a2d21;
     padding: 0;
   }
   .scene {
     position: relative;
-    color: #f5f0e8;
-    overflow: hidden;
-    /* Leave space at the top so RouteMap pin jumps don't land
-       under the sticky topbar (~56px) or hug the connector. */
+    color: #0a2d21;
+    /* Each scene gets its own scroll anchor + a thin rust top rule
+       so a series of stops reads as separate spreads on the same
+       paper roll. */
     scroll-margin-top: 72px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.25);
   }
-  .scene-bg {
-    position: absolute;
-    inset: 0;
-    background-image: var(--bg);
-    background-size: cover;
-    background-position: center center;
-    transform: scale(1.05);
-  }
-  .scene-veil {
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(10, 30, 20, 0.85) 0%, rgba(10, 30, 20, 0.72) 40%, rgba(10, 30, 20, 0.92) 100%),
-      radial-gradient(circle at 80% 20%, rgba(196, 134, 15, 0.25), transparent 55%);
-  }
+  .scene:first-child { border-top: 0; }
+
   .scene-inner {
     position: relative;
     z-index: 2;
     max-width: 1080px;
     margin: 0 auto;
-    padding: 56px 24px 64px;
+    padding: 48px 24px 56px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  @media (min-width: 880px) {
+    .scene-inner {
+      grid-template-columns: 220px 1fr;
+      align-items: start;
+    }
   }
 
-  .scene-sign {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 14px;
-    padding: 8px 16px;
-    background: rgba(245, 240, 232, 0.12);
-    border: 1px dashed rgba(201, 168, 76, 0.5);
-    border-radius: 3px;
-    margin-bottom: 18px;
+  /* Small postcard image: tilted polaroid feel, doubles as visual
+     anchor for the chapter. The numbered caption sits inside the
+     paper area below the photo so the scene's metadata reads as
+     part of the postcard, not a separate sign. */
+  .scene-postcard {
+    background: #fbf6ea;
+    padding: 8px 8px 14px;
+    margin: 8px 0 0;
+    box-shadow: 0 10px 20px rgba(40, 20, 5, 0.22);
+    transform: rotate(-2.5deg);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 220px;
   }
-  .scene-num {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10.5px;
+  .scene-postcard img {
+    display: block;
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+  }
+  .scene-postcard figcaption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1px;
+    padding: 4px 6px 0;
+  }
+  .scene-postcard-num {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 9.5px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #c4860f;
+    color: #7d3a1e;
     font-weight: 700;
   }
-  .scene-clock {
+  .scene-postcard-clock {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
-    font-size: 22px;
-    color: #f5f0e8;
+    font-size: 17px;
+    color: #0a2d21;
     line-height: 1;
+    letter-spacing: -0.01em;
   }
-  .scene-clock-kicker {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
+  .scene-postcard-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #cad7cf;
+    color: #5a4f3d;
     font-weight: 700;
   }
 
   .scene-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-    border-bottom: 1px dashed rgba(201, 168, 76, 0.35);
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.3);
     padding-bottom: 18px;
-    margin-bottom: 26px;
+    margin-bottom: 20px;
+  }
+  .scene-head .kicker {
+    color: #7d3a1e;
+    font-size: 11px;
+    letter-spacing: 0.24em;
   }
   .scene-name {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
-    font-size: clamp(2.4rem, 7vw, 4.4rem);
-    line-height: 0.92;
-    margin: 8px 0 4px;
+    font-size: clamp(2rem, 5.4vw, 3.4rem);
+    line-height: 0.95;
+    margin: 6px 0 4px;
     letter-spacing: -0.015em;
-    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.5);
+    color: #0a2d21;
   }
   .scene-region {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #c9a84c;
+    color: #7d3a1e;
     font-weight: 700;
   }
-  .scene-explore {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #c4860f;
-    color: #0a2d21;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 10px 16px;
-    border-radius: 3px;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s, transform 0.15s;
-    box-shadow: 0 6px 14px rgba(196, 134, 15, 0.35);
-  }
-  .scene-explore:hover {
-    background: #f5f0e8;
-    color: #0a2d21;
-    transform: translateY(-2px);
-  }
-  .scene-explore-icon { width: 16px; height: 16px; }
 
-  /* Empty state */
-  .scene-empty { margin-top: 8px; }
+  /* Empty state - the headline copy + sub on cream paper */
+  .scene-empty { margin-top: 4px; }
   .scene-empty-line {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
-    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-    color: #c9a84c;
-    margin: 0 0 8px;
-    line-height: 1.05;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: #0a2d21;
+    margin: 0 0 6px;
+    line-height: 1.1;
   }
   .scene-empty-sub {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: clamp(15px, 2vw, 18px);
-    color: #f5f0e8;
-    opacity: 0.88;
-    margin: 0 0 24px;
+    font-size: clamp(14px, 1.8vw, 17px);
+    color: #5a4f3d;
+    margin: 0 0 22px;
     max-width: 56ch;
   }
+
+  /* Eat / Sleep / Do prompt cards - cream paper with dashed rust
+     borders, gold kicker, dark forest label. Hover lifts a touch. */
   .scene-prompts {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
   }
   @media (min-width: 640px) {
-    .scene-prompts {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .scene-prompts { grid-template-columns: repeat(3, 1fr); }
   }
   .prompt {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background: rgba(245, 240, 232, 0.08);
-    border: 1.5px dashed rgba(201, 168, 76, 0.55);
+    background: #fffdf6;
+    border: 1.5px dashed rgba(125, 58, 30, 0.55);
     padding: 16px 18px;
     text-decoration: none;
-    color: #f5f0e8;
+    color: #0a2d21;
     transition: background 0.18s, border-color 0.18s, transform 0.18s;
     font: inherit;
     text-align: left;
     cursor: pointer;
   }
   .prompt:hover {
-    background: rgba(196, 134, 15, 0.18);
-    border-color: #c9a84c;
+    background: rgba(201, 168, 76, 0.15);
+    border-color: #7d3a1e;
     transform: translateY(-2px);
   }
   .prompt-kicker {
-    font-family: 'Spline Sans', sans-serif;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: #c4860f;
+    color: #7d3a1e;
     font-weight: 700;
   }
   .prompt-label {
     font-family: 'Fraunces', Georgia, serif;
-    font-size: 16px;
-    color: #f5f0e8;
+    font-size: 15px;
+    color: #0a2d21;
     line-height: 1.3;
   }
 
   /* Plans groups */
+  /* ===== Schedule rows (existing rendering kept for v1; the full
+     polaroid/listing card redesign lands in the next commit). All
+     text now reads against cream paper instead of dark forest. */
   .scene-when {
-    font-family: 'Spline Sans', sans-serif;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #c4860f;
+    color: #7d3a1e;
     font-weight: 700;
     margin-bottom: 18px;
   }
@@ -1942,26 +1926,22 @@
     font-weight: 700;
     font-style: italic;
     font-size: 18px;
-    color: #c9a84c;
+    color: #7d3a1e;
     flex: 0 0 auto;
   }
   .group-rule {
     flex: 1;
     height: 0;
-    border-top: 1px dashed rgba(201, 168, 76, 0.35);
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
   }
   .scene-list { list-style: none; padding: 0; margin: 0; }
   .scene-list li {
     padding: 12px 0;
-    border-bottom: 1px solid rgba(245, 240, 232, 0.08);
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.18);
   }
   .scene-list li:last-child { border-bottom: 0; }
-  /* Timeline rows lay out time | kind chip | title | status across
-     four tracks. Untimed rows tuck under a thin "Open" placeholder
-     so the column still aligns. */
-  .scene-list-timeline li {
-    display: block;
-  }
+
+  .scene-list-timeline li { display: block; }
   .scene-list-timeline .line-main {
     display: grid;
     grid-template-columns: 64px auto 1fr auto;
@@ -1973,34 +1953,30 @@
     font-weight: 900;
     font-style: italic;
     font-size: clamp(18px, 2vw, 22px);
-    color: #c9a84c;
+    color: #7d3a1e;
     letter-spacing: 0.01em;
     line-height: 1;
     white-space: nowrap;
   }
   .line-time.placeholder {
-    color: rgba(201, 168, 76, 0.45);
+    color: rgba(125, 58, 30, 0.45);
     font-weight: 600;
-    font-style: italic;
   }
   .line-kind {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #c4860f;
-    font-family: 'Spline Sans', sans-serif;
+    color: #7d3a1e;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     white-space: nowrap;
   }
-  .line-kind-label {
-    line-height: 1;
-  }
-  .scene-list-timeline .is-untimed { opacity: 0.85; }
+  .line-kind-label { line-height: 1; }
+  .scene-list-timeline .is-untimed { opacity: 0.78; }
 
-  /* Mobile: stack time + kind above title so things don't crunch. */
   @media (max-width: 640px) {
     .scene-list-timeline .line-main {
       grid-template-columns: 1fr auto;
@@ -2025,28 +2001,28 @@
   .line-title {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 600;
-    font-size: clamp(17px, 2.3vw, 22px);
-    color: #f5f0e8;
+    font-size: clamp(16px, 2.1vw, 20px);
+    color: #0a2d21;
     line-height: 1.2;
     overflow-wrap: anywhere;
   }
   .scene-list li.is-booked .line-title {
     text-decoration: line-through;
-    text-decoration-color: #c9a84c;
+    text-decoration-color: #7d3a1e;
     text-decoration-thickness: 1.5px;
-    color: #cad7cf;
+    color: #5a4f3d;
   }
   .line-status {
-    font-family: 'Spline Sans', sans-serif;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     padding: 3px 10px;
     border-radius: 999px;
-    border: 1.5px dashed #c4860f;
-    color: #c4860f;
-    background: rgba(196, 134, 15, 0.16);
+    border: 1.5px dashed #7d3a1e;
+    color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.08);
     white-space: nowrap;
     flex: 0 0 auto;
   }
@@ -2054,6 +2030,7 @@
     background: #c9a84c;
     color: #0a2d21;
     border-color: #c9a84c;
+    border-style: solid;
   }
   .line-room {
     display: flex;
@@ -2061,21 +2038,20 @@
     gap: 4px 12px;
     margin-top: 6px;
     padding-left: 12px;
-    border-left: 2px solid #c4860f;
-    font-family: 'Spline Sans', sans-serif;
+    border-left: 2px solid #7d3a1e;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 12px;
-    color: #cad7cf;
+    color: #5a4f3d;
   }
   .line-room-dates {
-    color: #c9a84c;
+    color: #7d3a1e;
     font-weight: 700;
     letter-spacing: 0.04em;
   }
   .line-notes {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    color: #f5f0e8;
-    opacity: 0.85;
+    color: #5a4f3d;
     margin: 6px 0 0;
     white-space: pre-wrap;
   }
@@ -2085,23 +2061,17 @@
     gap: 6px;
     margin: 6px 0 0;
     padding: 4px 10px 4px 8px;
-    background: rgba(110, 46, 23, 0.22);
-    border: 1px dashed rgba(201, 168, 76, 0.6);
+    background: rgba(196, 134, 15, 0.15);
+    border: 1px dashed #c4860f;
     border-radius: 999px;
-    color: #f0c060;
+    color: #7d3a1e;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
     line-height: 1.25;
   }
-  .line-conflict-icon {
-    width: 14px;
-    height: 14px;
-    flex: none;
-  }
-  .scene-list-timeline li.is-conflict .line-time {
-    color: #f0c060;
-  }
+  .line-conflict-icon { width: 14px; height: 14px; flex: none; }
+  .scene-list-timeline li.is-conflict .line-time { color: #c4860f; }
 
   .scene-diary {
     list-style: none;
@@ -2115,10 +2085,10 @@
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: clamp(15px, 2vw, 17px);
-    color: #f5f0e8;
+    color: #0a2d21;
     line-height: 1.55;
     padding-left: 14px;
-    border-left: 2px solid #c4860f;
+    border-left: 2px solid #7d3a1e;
     white-space: pre-wrap;
   }
 
@@ -2131,7 +2101,7 @@
   .mini-polaroid {
     background: #fbf6ea;
     padding: 6px 6px 10px;
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 18px rgba(40, 20, 5, 0.28);
     margin: 0;
     transform: rotate(var(--rot, 0deg));
     transition: transform 0.3s ease;
@@ -2147,24 +2117,26 @@
   .scene-photos-more {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    color: #c9a84c;
+    color: #7d3a1e;
     font-size: 14px;
   }
 
-  /* ===== Connector ===== */
+  /* ===== Connector =====
+     Train icon over a dashed gold rail with a travel-time italic.
+     Reads against cream paper now instead of a forest band. */
   .connector {
-    background: #0a2d21;
-    color: #c4860f;
-    padding: 28px 24px;
+    background: #fbf6ea;
+    color: #7d3a1e;
+    padding: 22px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 18px;
     flex-wrap: wrap;
-    border-top: 1px solid rgba(201, 168, 76, 0.25);
-    border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+    border-top: 1px dashed rgba(125, 58, 30, 0.25);
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.25);
   }
-  .connector-train { width: 24px; height: 24px; color: #c4860f; }
+  .connector-train { width: 24px; height: 24px; color: #7d3a1e; }
   .connector-rail {
     width: clamp(40px, 12vw, 120px);
     height: 0;
@@ -2174,7 +2146,7 @@
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: clamp(15px, 2vw, 18px);
-    color: #f5f0e8;
+    color: #5a4f3d;
   }
 
   /* ===== Loose plans ===== */

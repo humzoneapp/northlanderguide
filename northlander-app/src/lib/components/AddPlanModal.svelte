@@ -416,14 +416,6 @@
           {/if}
         </button>
       {/if}
-      {#if openStopForGuide}
-        <a
-          href={listingGuideUrl(openStopForGuide, null)}
-          target="_blank"
-          rel="noopener"
-          class="ap-guide-link"
-        >Open {stopNameFor(openStopForGuide)} on the Guide &rarr;</a>
-      {/if}
     </div>
 
     <!-- Body: listing cards -->
