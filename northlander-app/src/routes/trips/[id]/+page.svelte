@@ -114,47 +114,82 @@
     if (trip.strap)  customStrapDraft = trip.strap;
   }
 
-  /* Cover theme: optional user-picked colors for the banner gradient
-     and the primary CTA. When unset (the default) we rely on CSS to
-     fall back to forest + gold. The drafts mirror the stored values
-     so the color inputs round-trip with persistence. */
-  const DEFAULT_COVER_BG = '#0a2d21';
+  /* Cover theme.
+       Default behavior: the suitcase color the user picked when they
+       tagged the trip becomes the banner background, so the page
+       inherits the leather palette automatically. Forest green and
+       fully-custom colors are explicit overrides via the Cover-theme
+       picker in the Trip details drawer.
+
+       Resolution order:
+         - coverBg:    user-picked  > trip.color (suitcase body) > forest
+         - coverAccent: user-picked > #c9a84c (gentle gold)
+
+       The gradient bottom is a darker shade of the top, computed from
+       coverBg, so the blend stays in one color family rather than
+       fading to an out-of-palette forest. */
+  const FOREST = '#0a2d21';
   const DEFAULT_COVER_ACCENT = '#c9a84c';
-  let themeBgDraft     = DEFAULT_COVER_BG;
+
+  function darkenHex(hex, factor = 0.55) {
+    if (!hex || typeof hex !== 'string') return hex;
+    const h = hex.length === 4
+      ? '#' + [...hex.slice(1)].map((c) => c + c).join('')
+      : hex;
+    if (h.length !== 7) return hex;
+    const r = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(1, 3), 16) * factor)));
+    const g = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(3, 5), 16) * factor)));
+    const b = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(5, 7), 16) * factor)));
+    return '#' + [r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('');
+  }
+
+  $: effectiveCoverBg     = (trip && (trip.coverBg     || trip.color)) || FOREST;
+  $: effectiveCoverAccent = (trip &&  trip.coverAccent) || DEFAULT_COVER_ACCENT;
+  $: effectiveCoverBgDark = darkenHex(effectiveCoverBg, 0.55);
+
+  let themeBgDraft     = FOREST;
   let themeAccentDraft = DEFAULT_COVER_ACCENT;
   $: if (trip) {
-    themeBgDraft     = trip.coverBg     || DEFAULT_COVER_BG;
-    themeAccentDraft = trip.coverAccent || DEFAULT_COVER_ACCENT;
+    themeBgDraft     = effectiveCoverBg;
+    themeAccentDraft = effectiveCoverAccent;
   }
 
   $: coverThemeStyle = trip
-    ? `--cover-bg:${trip.coverBg || DEFAULT_COVER_BG};--cover-accent:${trip.coverAccent || DEFAULT_COVER_ACCENT};`
+    ? `--cover-bg-top:${effectiveCoverBg};--cover-bg-bot:${effectiveCoverBgDark};--cover-accent:${effectiveCoverAccent};`
     : '';
 
   async function saveTheme(field, value) {
     if (!trip) return;
     if (field === 'bg')     themeBgDraft     = value;
     if (field === 'accent') themeAccentDraft = value;
+    /* Persist whatever the user just picked. A coverBg that matches
+       the suitcase color collapses back to null so we don't store
+       redundant data. */
+    const bgNoise     = themeBgDraft     === (trip.color || FOREST);
+    const accentNoise = themeAccentDraft === DEFAULT_COVER_ACCENT;
     const updated = await setTripTheme(trip.id, {
-      coverBg:     themeBgDraft     === DEFAULT_COVER_BG     ? null : themeBgDraft,
-      coverAccent: themeAccentDraft === DEFAULT_COVER_ACCENT ? null : themeAccentDraft
+      coverBg:     bgNoise     ? null : themeBgDraft,
+      coverAccent: accentNoise ? null : themeAccentDraft
     });
     if (updated) trip = updated;
   }
-  async function applySuitcaseTheme() {
+  /* Preset shortcut: explicit forest-green background. The leather
+     stays whatever the user picked - this only touches the cover
+     theme, not the suitcase. */
+  async function applyForestTheme() {
     if (!trip) return;
-    themeBgDraft     = trip.color || DEFAULT_COVER_BG;
-    themeAccentDraft = trip.strap || DEFAULT_COVER_ACCENT;
+    themeBgDraft     = FOREST;
+    themeAccentDraft = DEFAULT_COVER_ACCENT;
     const updated = await setTripTheme(trip.id, {
-      coverBg: themeBgDraft,
-      coverAccent: themeAccentDraft
+      coverBg: FOREST,
+      coverAccent: null
     });
     if (updated) trip = updated;
   }
+  /* Clear any custom overrides so the cover falls back to the
+     trip's suitcase color (the new default). */
   async function resetTheme() {
     if (!trip) return;
-    themeBgDraft     = DEFAULT_COVER_BG;
-    themeAccentDraft = DEFAULT_COVER_ACCENT;
     const updated = await clearTripTheme(trip.id);
     if (updated) trip = updated;
   }
@@ -1315,12 +1350,15 @@
                   </span>
                 </label>
               </div>
+              <p class="theme-hint">
+                By default the banner picks up your suitcase colour. Pick your own here, or jump back to forest green.
+              </p>
               <div class="theme-presets">
-                <button type="button" class="theme-preset" on:click={applySuitcaseTheme}>
-                  Use suitcase colors
+                <button type="button" class="theme-preset" on:click={applyForestTheme}>
+                  Use forest green
                 </button>
                 <button type="button" class="theme-reset" on:click={resetTheme}>
-                  Reset to forest
+                  Reset to suitcase
                 </button>
               </div>
             </div>
@@ -1469,13 +1507,17 @@
      forest-gradient look. */
   .cover {
     position: relative;
-    /* Two CSS custom properties drive the optional per-trip theme.
-       Defaults match the canonical forest + gold; the trip page
-       overrides them via inline style when the user has picked
-       a custom cover background or button color. */
-    --cover-bg: #0a2d21;
+    /* Three CSS custom properties drive the per-trip cover theme.
+       The default values here match the canonical forest + gold;
+       the trip page overrides them via inline style so the banner
+       inherits the user's suitcase color out of the box. The
+       gradient blends from coverBgTop down to coverBgBot - both
+       in the same color family so the result stays editorial
+       rather than muddy. */
+    --cover-bg-top: #0a2d21;
+    --cover-bg-bot: #06231a;
     --cover-accent: #c9a84c;
-    background: linear-gradient(180deg, var(--cover-bg) 0%, #0a2d21 100%);
+    background: linear-gradient(180deg, var(--cover-bg-top) 0%, var(--cover-bg-bot) 100%);
     color: #f5f0e8;
     padding: 56px 24px 64px;
     overflow: hidden;
@@ -2825,6 +2867,15 @@
     margin-top: 22px;
     padding-top: 18px;
     border-top: 1px dashed rgba(125, 58, 30, 0.3);
+  }
+  .theme-hint {
+    margin-top: 12px;
+    text-align: center;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    color: #5a4f3d;
+    line-height: 1.35;
   }
   .theme-presets {
     margin-top: 12px;
