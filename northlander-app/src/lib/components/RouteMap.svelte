@@ -85,7 +85,7 @@
   .map {
     background:
       radial-gradient(circle at 80% 0%, rgba(196, 134, 15, 0.16), transparent 55%),
-      linear-gradient(180deg, var(--cover-bg-bot, #0a2d21) 0%, var(--cover-bg-top, #0e3b2c) 100%);
+      linear-gradient(180deg, #0a2d21 0%, #0e3b2c 100%);
     color: #f5f0e8;
     padding: 40px 24px 44px;
     border-top: 1px solid rgba(201, 168, 76, 0.18);
