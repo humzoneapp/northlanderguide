@@ -730,25 +730,22 @@
         {@const isEmpty = stopBookings.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
 
         <article id="scene-{i}" class="scene">
-          <figure class="scene-postcard" aria-hidden="true">
-            <img src={stopImageUrl(stop)} alt="" loading="lazy" decoding="async" />
-            <figcaption>
-              <span class="scene-postcard-num">{i + 1} of {stops.length}</span>
-              <span class="scene-postcard-clock">{arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}</span>
-              <span class="scene-postcard-kicker">{i === 0 ? 'Departure' : 'Arrival'}</span>
-            </figcaption>
-          </figure>
-
           <div class="scene-inner">
-            <div class="scene-head">
+            <header class="scene-head">
               <div class="kicker">Chapter {i + 1}</div>
               <h2 class="scene-name">{stop.name}</h2>
-              <div class="scene-region">{stop.region}</div>
-            </div>
+              <div class="scene-meta">
+                <span class="scene-meta-region">{stop.region}</span>
+                <span class="scene-meta-sep" aria-hidden="true">·</span>
+                <span class="scene-meta-clock">
+                  {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
+                </span>
+              </div>
+            </header>
 
-            <div class="scene-body">
-              {#if isEmpty}
-                <div class="scene-empty">
+            <div class="scene-grid">
+              <div class="scene-main">
+                {#if isEmpty}
                   <p class="scene-empty-line">
                     {#if i === 0}
                       Your journey starts here.
@@ -762,39 +759,29 @@
                     {#if i === 0}
                       Grab a coffee, check the platform board, and step on.
                     {:else if isLast}
-                      Stay overnight? Wander? Catch the connecting train? It's up to you.
+                      Stay overnight, wander, or catch the connecting train. It's up to you.
                     {:else}
                       Eat something local. Walk to a viewpoint. Sit by the water. Whatever fits in the window.
                     {/if}
                   </p>
-                  <div class="scene-prompts">
+                  <div class="scene-pills">
                     <button
                       type="button"
-                      class="prompt prompt-eat"
+                      class="pill"
                       on:click={() => openAddPlan(stop.id, 'eat')}
-                    >
-                      <span class="prompt-kicker">Eat</span>
-                      <span class="prompt-label">Find a restaurant in {stop.name}</span>
-                    </button>
+                    >+ Eat</button>
                     <button
                       type="button"
-                      class="prompt prompt-sleep"
+                      class="pill"
                       on:click={() => openAddPlan(stop.id, 'stay')}
-                    >
-                      <span class="prompt-kicker">Sleep</span>
-                      <span class="prompt-label">Find a place to stay</span>
-                    </button>
+                    >+ Sleep</button>
                     <button
                       type="button"
-                      class="prompt prompt-do"
+                      class="pill"
                       on:click={() => openAddPlan(stop.id, 'do')}
-                    >
-                      <span class="prompt-kicker">Do</span>
-                      <span class="prompt-label">See what's nearby</span>
-                    </button>
+                    >+ Do</button>
                   </div>
-                </div>
-              {:else}
+                {:else}
                 <div class="scene-when">
                   {#if !isLast}
                     {hereDuration(i)}
@@ -888,26 +875,35 @@
                   </div>
                 {/if}
               {/if}
-            </div>
-          </div>
+              </div><!-- /.scene-main -->
+
+              <aside class="scene-aside">
+                <figure class="scene-postcard">
+                  <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
+                </figure>
+                <p class="scene-aside-hook">{stop.hook}</p>
+              </aside>
+            </div><!-- /.scene-grid -->
+          </div><!-- /.scene-inner -->
         </article>
 
         {#if !isLast}
-          <div class="connector" aria-hidden="true">
-            <svg viewBox="0 0 24 24" class="connector-train" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="14" rx="3"/>
-              <path d="M4 11 L20 11"/>
-              <circle cx="8.5" cy="20" r="1.4"/>
-              <circle cx="15.5" cy="20" r="1.4"/>
-              <path d="M7 17 L7 19"/>
-              <path d="M17 17 L17 19"/>
-            </svg>
-            <div class="connector-rail" aria-hidden="true"></div>
-            <span class="connector-time">
+          <div class="chapter-divider" aria-hidden="true">
+            <div class="chapter-divider-rule"></div>
+            <div class="chapter-divider-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="14" rx="3"/>
+                <path d="M4 11 L20 11"/>
+                <circle cx="8.5" cy="20" r="1.4"/>
+                <circle cx="15.5" cy="20" r="1.4"/>
+                <path d="M7 17 L7 19"/>
+                <path d="M17 17 L17 19"/>
+              </svg>
+            </div>
+            <span class="chapter-divider-time">
               {travelDuration(
                 Math.abs((stops[i + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
-              )}
-              to {stops[i + 1].name}
+              )} to {stops[i + 1].name}
             </span>
           </div>
         {/if}
@@ -1715,190 +1711,165 @@
 
   /* ===== Stop scenes ===== */
   /* ===== Stop scenes =====
-     Editorial cream paper instead of the dark forest with a photo
-     veil. Each scene reads like a magazine spread: a small tilted
-     postcard photo on one side, a big serif "Chapter N" headline,
-     the three Eat/Sleep/Do prompt cards in cream, and the journey
-     timeline below. Forest is reserved for the banner + sign-off
-     bookends and small kicker chips. */
+     Each scene is now an editorial chapter: a publication heading
+     (kicker + display H2 + dashed rule), then a two-column body
+     (65/35) with the timeline on the left and a flat postcard +
+     stop-hook pull-quote on the right. Disciplined spacing, 2px
+     solid rules, no rotation, no shadows inside content. Type
+     and color tokens ported from the Guide's stop-page and /plan
+     editorial pattern. */
   .scenes {
     background: #fbf6ea;
     background-image:
-      repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.05) 0, rgba(45, 30, 20, 0.05) 1px, transparent 1px, transparent 9px);
-    color: #0a2d21;
+      repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.03) 0, rgba(45, 30, 20, 0.03) 1px, transparent 1px, transparent 8px);
+    color: #241f1a;
     padding: 0;
   }
   .scene {
     position: relative;
-    color: #0a2d21;
-    /* Each scene gets its own scroll anchor + a thin rust top rule
-       so a series of stops reads as separate spreads on the same
-       paper roll. */
+    color: #241f1a;
     scroll-margin-top: 72px;
-    border-top: 1px dashed rgba(125, 58, 30, 0.25);
   }
-  .scene:first-child { border-top: 0; }
-
   .scene-inner {
-    position: relative;
-    z-index: 2;
     max-width: 1080px;
     margin: 0 auto;
-    padding: 48px 24px 56px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  @media (min-width: 880px) {
-    .scene-inner {
-      grid-template-columns: 220px 1fr;
-      align-items: start;
-    }
+    padding: 56px 24px;
   }
 
-  /* Small postcard image: tilted polaroid feel, doubles as visual
-     anchor for the chapter. The numbered caption sits inside the
-     paper area below the photo so the scene's metadata reads as
-     part of the postcard, not a separate sign. */
-  .scene-postcard {
-    background: #fbf6ea;
-    padding: 8px 8px 14px;
-    margin: 8px 0 0;
-    box-shadow: 0 10px 20px rgba(40, 20, 5, 0.22);
-    transform: rotate(-2.5deg);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-width: 220px;
-  }
-  .scene-postcard img {
-    display: block;
-    width: 100%;
-    height: 130px;
-    object-fit: cover;
-  }
-  .scene-postcard figcaption {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 1px;
-    padding: 4px 6px 0;
-  }
-  .scene-postcard-num {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 9.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #7d3a1e;
-    font-weight: 700;
-  }
-  .scene-postcard-clock {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 17px;
-    color: #0a2d21;
-    line-height: 1;
-    letter-spacing: -0.01em;
-  }
-  .scene-postcard-kicker {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #5a4f3d;
-    font-weight: 700;
-  }
-
+  /* Editorial section heading. Kicker (rust caps) + display H2 +
+     metadata row (region · arrival) on a single dashed rust rule.
+     Mirrors stop-page.css:29-33 + plan-page.css:163-181. */
   .scene-head {
-    border-bottom: 1px dashed rgba(125, 58, 30, 0.3);
-    padding-bottom: 18px;
-    margin-bottom: 20px;
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.4);
+    padding-bottom: 22px;
+    margin-bottom: 36px;
   }
   .scene-head .kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
     color: #7d3a1e;
     font-size: 11px;
     letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 12px;
   }
   .scene-name {
     font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(2rem, 5.4vw, 3.4rem);
-    line-height: 0.95;
-    margin: 6px 0 4px;
-    letter-spacing: -0.015em;
+    font-weight: 600;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 1.02;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
     color: #0a2d21;
   }
-  .scene-region {
+  .scene-meta {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #7d3a1e;
     font-weight: 700;
   }
+  .scene-meta-region { color: #c4860f; letter-spacing: 0.32em; }
+  .scene-meta-sep { color: rgba(125, 58, 30, 0.4); }
+  .scene-meta-clock { color: #5a4f3d; font-family: 'Spline Sans', system-ui, sans-serif; }
 
-  /* Empty state - the headline copy + sub on cream paper */
-  .scene-empty { margin-top: 4px; }
+  /* Two-column body: 65/35 like stop-page.css:84. Main holds the
+     timeline (or empty state); aside holds a flat postcard and a
+     rust-rule sidebar with the stop's editorial hook. Mobile
+     collapses to a single column with the aside dropping below. */
+  .scene-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (min-width: 880px) {
+    .scene-grid {
+      grid-template-columns: 65% 35%;
+      gap: 48px;
+    }
+  }
+
+  .scene-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .scene-postcard {
+    margin: 0;
+    background: #ede0cc;
+    border: 2px solid #0a2d21;
+  }
+  .scene-postcard img {
+    display: block;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  .scene-aside-hook {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.4;
+    color: #7d3a1e;
+    margin: 0;
+    padding-left: 18px;
+    border-left: 2px solid #7d3a1e;
+  }
+
+  /* Empty-state copy on the left column. Display headline (smaller
+     than the chapter name), italic Fraunces sub, then the tight
+     rust pill row for + Eat / + Sleep / + Do. */
   .scene-empty-line {
     font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 600;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
     color: #0a2d21;
-    margin: 0 0 6px;
-    line-height: 1.1;
+    margin: 0 0 12px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
   }
   .scene-empty-sub {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: clamp(14px, 1.8vw, 17px);
+    font-size: 17px;
     color: #5a4f3d;
-    margin: 0 0 22px;
+    margin: 0 0 28px;
     max-width: 56ch;
+    line-height: 1.55;
   }
 
-  /* Eat / Sleep / Do prompt cards - cream paper with dashed rust
-     borders, gold kicker, dark forest label. Hover lifts a touch. */
-  .scene-prompts {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  @media (min-width: 640px) {
-    .scene-prompts { grid-template-columns: repeat(3, 1fr); }
-  }
-  .prompt {
+  /* Tight rust pills. 2px solid rust border, no border-radius, rust
+     text on cream. Sharp, disciplined, editorial. No big cards, no
+     dashed borders, no kickers - the pill IS the label. Mirrors
+     stop-page.css:77-81. */
+  .scene-pills {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    background: #fffdf6;
-    border: 1.5px dashed rgba(125, 58, 30, 0.55);
-    padding: 16px 18px;
-    text-decoration: none;
-    color: #0a2d21;
-    transition: background 0.18s, border-color 0.18s, transform 0.18s;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  .prompt:hover {
-    background: rgba(201, 168, 76, 0.15);
-    border-color: #7d3a1e;
-    transform: translateY(-2px);
-  }
-  .prompt-kicker {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
+  .pill {
+    background: transparent;
+    border: 2px solid #7d3a1e;
     color: #7d3a1e;
+    padding: 9px 18px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
   }
-  .prompt-label {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 15px;
-    color: #0a2d21;
-    line-height: 1.3;
+  .pill:hover {
+    background: #7d3a1e;
+    color: #f5f0e8;
   }
 
   /* Plans groups */
@@ -2121,32 +2092,56 @@
     font-size: 14px;
   }
 
-  /* ===== Connector =====
-     Train icon over a dashed gold rail with a travel-time italic.
-     Reads against cream paper now instead of a forest band. */
-  .connector {
-    background: #fbf6ea;
-    color: #7d3a1e;
-    padding: 22px 24px;
+  /* ===== Chapter divider =====
+     Direct port of the Guide's pl-divider pattern (plan-page.css
+     405-418). A thin forest rule across the cream page with a
+     42px circular forest badge centered, holding a train icon.
+     Italic Fraunces travel-time floats above the rule. 48px
+     vertical margin keeps section rhythm. */
+  .chapter-divider {
+    position: relative;
+    max-width: 1080px;
+    margin: 48px auto;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    border-top: 1px dashed rgba(125, 58, 30, 0.25);
-    border-bottom: 1px dashed rgba(125, 58, 30, 0.25);
   }
-  .connector-train { width: 24px; height: 24px; color: #7d3a1e; }
-  .connector-rail {
-    width: clamp(40px, 12vw, 120px);
-    height: 0;
-    border-top: 2px dashed #c4860f;
+  .chapter-divider-rule {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 50%;
+    height: 1px;
+    background: rgba(10, 45, 33, 0.35);
   }
-  .connector-time {
+  .chapter-divider-badge {
+    position: relative;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #0a2d21;
+    color: #c9a84c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(40, 30, 20, 0.18);
+  }
+  .chapter-divider-badge svg { width: 20px; height: 20px; }
+  .chapter-divider-time {
+    position: absolute;
+    top: calc(50% - 28px);
+    left: 50%;
+    transform: translateX(-50%);
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 500;
+    font-size: 14px;
     color: #5a4f3d;
+    background: #fbf6ea;
+    padding: 0 12px;
+    white-space: nowrap;
   }
 
   /* ===== Loose plans ===== */
