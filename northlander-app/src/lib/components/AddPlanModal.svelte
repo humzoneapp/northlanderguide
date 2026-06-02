@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher, onMount, tick } from 'svelte';
+  import { DIRECTIONS } from '$lib/data/schedule.js';
   import {
     loadListings,
     flattenListings,
@@ -24,8 +25,16 @@
   export let initialKind = 'all';
   /** @type {{ id: number, stopId: string|null, listingKey: string|null }[]} */
   export let existingBookings = [];
+  /** @type {'northbound' | 'southbound'} - the trip's direction; drives
+      the "Heading north - to Cochrane" badge above the chip row so
+      browsing users don't lose track of which way they're going. */
+  export let direction = 'northbound';
 
   const dispatch = createEventDispatcher();
+
+  $: dirMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0];
+  $: dirHeading = direction === 'southbound' ? 'Heading south' : 'Heading north';
+  $: dirToward = dirMeta ? dirMeta.to : '';
 
   let stopFilter = initialStop || '__all__';
   let kindFilter = KIND_TABS.some((t) => t.id === initialKind) ? initialKind : 'all';
@@ -207,6 +216,24 @@
         >&times;</button>
       </div>
     </header>
+
+    <!-- Direction badge - a thin strip above the chips that reminds
+         the user which way the train is heading. Reads like a vintage
+         ticket header: triangle arrow + "Heading north" + "to
+         Cochrane", with a dashed gold rule trailing off to the right. -->
+    <div class="ap-direction" aria-hidden="true">
+      <span class="ap-direction-arrow" class:is-south={direction === 'southbound'}>
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="12 4 4 18 20 18" />
+        </svg>
+      </span>
+      <span class="ap-direction-text">{dirHeading}</span>
+      {#if dirToward}
+        <span class="ap-direction-dot">&middot;</span>
+        <span class="ap-direction-toward">to {dirToward}</span>
+      {/if}
+      <span class="ap-direction-rule"></span>
+    </div>
 
     <!-- Stop chips. Auto-scrolls to the active chip when stopFilter
          changes and pulses the best stop-name match for the current
@@ -459,6 +486,59 @@
   }
   .ap-close:hover {
     color: #f5f0e8;
+  }
+
+  /* ===== Direction badge =====
+     Thin vintage-ticket strip above the chip row. Triangle arrow
+     points up for northbound, flips on southbound; the dashed gold
+     rule trails off so the strip reads as a stationmaster's sign. */
+  .ap-direction {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 0;
+    background: #fbf6ea;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c4860f;
+    font-weight: 700;
+  }
+  .ap-direction-arrow {
+    flex: 0 0 auto;
+    color: #c4860f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    transition: transform 220ms ease;
+  }
+  .ap-direction-arrow svg { width: 14px; height: 14px; }
+  .ap-direction-arrow.is-south {
+    transform: rotate(180deg);
+  }
+  .ap-direction-text { flex: 0 0 auto; }
+  .ap-direction-dot {
+    flex: 0 0 auto;
+    color: rgba(125, 58, 30, 0.55);
+  }
+  .ap-direction-toward {
+    flex: 0 0 auto;
+    color: #5a4f3d;
+    font-style: italic;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    font-size: 12px;
+  }
+  .ap-direction-rule {
+    flex: 1 1 auto;
+    height: 0;
+    border-top: 1px dashed rgba(196, 134, 15, 0.4);
+    margin-left: 6px;
   }
 
   /* ===== Stop chips ===== */

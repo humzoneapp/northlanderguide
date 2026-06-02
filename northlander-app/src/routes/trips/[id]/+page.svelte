@@ -927,6 +927,7 @@
       initialStop={addPlanStop}
       initialKind={addPlanKind}
       existingBookings={bookings}
+      direction={trip.direction || 'northbound'}
       on:close={closeAddPlan}
     />
   {/if}
