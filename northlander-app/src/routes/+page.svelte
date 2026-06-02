@@ -617,7 +617,7 @@
     background: #fbf6ea;
     background-image:
       repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.05) 0, rgba(45, 30, 20, 0.05) 1px, transparent 1px, transparent 9px);
-    padding: 56px 0 64px;
+    padding: 56px 0 96px;
     border-top: 3px double rgba(125, 58, 30, 0.25);
     border-bottom: 3px double rgba(125, 58, 30, 0.25);
   }
@@ -665,7 +665,7 @@
      doesn't crowd into the line. */
   .desk-signoff {
     text-align: center;
-    margin: 80px auto 0;
+    margin: 140px auto 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
