@@ -551,9 +551,8 @@
 
   /* ===== Chapter heading ===== */
   /* Numbered forest medallion + dashed gold rule + kicker + h2.
-     Mirrors the RouteMap pin and the TripWizard step badges so
-     the chapter rhythm reads as a continuation of the rest of
-     the app's vocabulary. */
+     Mirrors the RouteMap pin so the chapter rhythm reads as a
+     continuation of the rest of the app's vocabulary. */
   .chapter-head {
     display: flex;
     align-items: center;
