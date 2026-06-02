@@ -31,6 +31,23 @@
       <h3 class="drawer-title">{title}</h3>
     </div>
 
+    <!-- Optional inline quick-action UI. We stop click + keyboard
+         propagation so taps on a button or typing in an input
+         inside the slot don't toggle the <details>. Mousedown
+         + pointerdown are also caught because some browsers
+         route the toggle through those before click fires. -->
+    {#if $$slots.quick}
+      <div
+        class="drawer-quick"
+        on:click|stopPropagation
+        on:mousedown|stopPropagation
+        on:pointerdown|stopPropagation
+        on:keydown|stopPropagation
+      >
+        <slot name="quick" />
+      </div>
+    {/if}
+
     {#if count != null}
       <span class="drawer-count" aria-hidden="true">
         <span class="drawer-count-num">{count}</span>
@@ -105,6 +122,14 @@
     margin: 0;
   }
 
+  /* Quick-action region sits between the title and the count badge. */
+  .drawer-quick {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .drawer-count {
     flex: 0 0 auto;
     display: inline-flex;
@@ -143,13 +168,21 @@
     border-top: 1px dashed rgba(125, 58, 30, 0.25);
   }
 
-  /* Small screens - tighter padding so the cards don't dominate. */
+  /* Small screens - tighter padding so the cards don't dominate.
+     Also let the head wrap so the quick-action can drop to its own
+     row beneath the title rather than squeezing it. */
   @media (max-width: 640px) {
     .drawer-head {
       padding: 16px 16px;
+      flex-wrap: wrap;
     }
     .drawer-body {
       padding: 4px 16px 18px;
+    }
+    .drawer-quick {
+      order: 99;
+      flex-basis: 100%;
+      margin-top: 8px;
     }
   }
 </style>

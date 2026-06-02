@@ -29,7 +29,7 @@
   import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listPhotos } from '$lib/stores/photos.js';
-  import { listPackingItems } from '$lib/stores/packing.js';
+  import { listPackingItems, addPackingItem } from '$lib/stores/packing.js';
   import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
 
   /* ---------- Stop + schedule helpers ---------- */
@@ -92,6 +92,27 @@
   let nameInput;
 
   let confirmingDelete = false;
+
+  /* Quick-action state for the closed-drawer inline inputs. The
+     header form for Packing lives outside the drawer body so the
+     user can drop a "toothbrush" without expanding the panel. */
+  let quickPackingDraft = '';
+  let quickPackingBusy = false;
+
+  async function quickAddPacking() {
+    if (!trip || quickPackingBusy) return;
+    const clean = quickPackingDraft.trim();
+    if (!clean) return;
+    quickPackingBusy = true;
+    try {
+      await addPackingItem(trip.id, clean);
+      quickPackingDraft = '';
+      const rows = await listPackingItems(trip.id);
+      packingCount = rows.length;
+    } finally {
+      quickPackingBusy = false;
+    }
+  }
 
   /* Object URLs for the per-stop polaroid strips. Built once on
      load and revoked on destroy so blobs don't leak across nav. */
@@ -732,6 +753,19 @@
         count={packingCount}
         countLabel={packingCount === 1 ? 'item' : 'items'}
       >
+        <svelte:fragment slot="quick">
+          <form class="quick-pack-form" on:submit|preventDefault={quickAddPacking}>
+            <input
+              type="text"
+              bind:value={quickPackingDraft}
+              maxlength="60"
+              placeholder="Add an item..."
+              aria-label="Quick-add packing item"
+              class="quick-pack-input"
+              disabled={quickPackingBusy}
+            />
+          </form>
+        </svelte:fragment>
         <PackingList tripId={trip.id} />
       </Drawer>
 
@@ -741,6 +775,16 @@
         count={bookings.length}
         countLabel={pendingCount > 0 ? `${pendingCount} pending` : 'all booked'}
       >
+        <svelte:fragment slot="quick">
+          <button
+            type="button"
+            class="quick-plan-btn"
+            on:click={() => openAddPlan('', 'all')}
+          >
+            <span class="quick-plus" aria-hidden="true">+</span>
+            <span>Plan</span>
+          </button>
+        </svelte:fragment>
         <BookingChecklist tripId={trip.id} stopIds={trip.stopIds || []} />
       </Drawer>
 
@@ -1784,6 +1828,79 @@
     color: #5a4f3d;
     margin: 0;
     max-width: 60ch;
+  }
+
+  /* Quick-pack inline input in the closed Packing drawer header.
+     Compact dashed pill that mirrors the time pill in
+     BookingChecklist. Submitting (Enter) adds the item and the
+     input stays focused for the next one. */
+  .quick-pack-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+  }
+  .quick-pack-input {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0a2d21;
+    background: transparent;
+    border: 1.5px dashed rgba(125, 58, 30, 0.45);
+    border-radius: 999px;
+    padding: 5px 14px;
+    width: 180px;
+    max-width: 40vw;
+    outline: none;
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+  .quick-pack-input::placeholder {
+    color: rgba(90, 79, 61, 0.65);
+    font-style: italic;
+  }
+  .quick-pack-input:hover,
+  .quick-pack-input:focus-visible {
+    border-color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.06);
+  }
+  .quick-pack-input:disabled {
+    opacity: 0.5;
+  }
+
+  /* Quick-plan button in the closed Plans drawer header. Rust pill
+     so it reads as a primary action without competing with the
+     amber cover button. */
+  .quick-plan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #6e2e17;
+    border: 1.5px solid #6e2e17;
+    color: #f3ece0;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease;
+  }
+  .quick-plan-btn:hover {
+    background: #884023;
+    border-color: #884023;
+  }
+  .quick-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  /* Mobile: tuck the quick-action below the title row so a tight
+     header stays one line. */
+  @media (max-width: 640px) {
+    .quick-pack-input { width: 100%; max-width: none; }
   }
 
   /* Trip details drawer body */
