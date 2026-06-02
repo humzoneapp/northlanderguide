@@ -381,7 +381,7 @@
   <!-- ===== Cinematic cover ===== -->
   <header class="cover">
     <div class="cover-noise" aria-hidden="true"></div>
-    <div class="cover-inner">
+    <div class="cover-inner" class:is-empty={stops.length === 0}>
       <div class="cover-text">
         <div class="kicker kicker-light">A Northlander Itinerary</div>
 
@@ -410,68 +410,100 @@
           </button>
         {/if}
 
-        <div class="cover-leg">
-          {#if dirMeta}{dirMeta.from} <span class="leg-soft">to</span> {dirMeta.to}{/if}
-          {#if dirMeta}<span class="dot">&middot;</span>{/if}
-          {dirMeta?.label || 'Northbound'}
-        </div>
-
-        {#if tripDateLine}
-          <div class="cover-date">{tripDateLine}</div>
-        {/if}
-
-        {#if countdown != null}
-          <div class="cover-countdown">
-            {#if countdown > 1}
-              <strong>{countdown}</strong> days until you board
-            {:else if countdown === 1}
-              <strong>Tomorrow.</strong> Final checks on the platform.
-            {:else if countdown === 0}
-              <strong>Today.</strong> Safe travels.
-            {:else}
-              You've been. This is your record.
-            {/if}
+        {#if stops.length > 0}
+          <div class="cover-leg">
+            {#if dirMeta}{dirMeta.from} <span class="leg-soft">to</span> {dirMeta.to}{/if}
+            {#if dirMeta}<span class="dot">&middot;</span>{/if}
+            {dirMeta?.label || 'Northbound'}
           </div>
+
+          {#if tripDateLine}
+            <div class="cover-date">{tripDateLine}</div>
+          {/if}
+
+          {#if countdown != null}
+            <div class="cover-countdown">
+              {#if countdown > 1}
+                <strong>{countdown}</strong> days until you board
+              {:else if countdown === 1}
+                <strong>Tomorrow.</strong> Final checks on the platform.
+              {:else if countdown === 0}
+                <strong>Today.</strong> Safe travels.
+              {:else}
+                You've been. This is your record.
+              {/if}
+            </div>
+          {:else}
+            <div class="cover-countdown italic-soft">
+              Pick a departure date in your trip kit and we'll count it down.
+            </div>
+          {/if}
+
+          <ul class="cover-stats">
+            <li><b>{stops.length}</b><span>{stops.length === 1 ? 'Stop' : 'Stops'}</span></li>
+            <li><b>{bookings.length}</b><span>Plans</span></li>
+            <li><b>{bookedCount}</b><span>Booked</span></li>
+            <li><b>{photos.length}</b><span>Photos</span></li>
+            <li><b>{diary.length}</b><span>Notes</span></li>
+          </ul>
         {:else}
-          <div class="cover-countdown italic-soft">
-            Pick a departure date in your trip kit and we'll count it down.
+          <!-- Empty trip welcome - replaces the misleading direction
+               leg + row of zeros with a warmer invitation. The
+               narrative band beneath still carries the "Pick your
+               stops" CTA, this block sets the tone above it. -->
+          <div class="cover-welcome">
+            <p class="cover-welcome-lede">
+              An empty suitcase. A route waiting to be drawn.
+            </p>
+            <p class="cover-welcome-sub">
+              Pick a few stops and your itinerary starts to take shape here.
+              Each stop becomes a chapter you can fill with plans, polaroids,
+              and notes from the journey.
+            </p>
           </div>
         {/if}
-
-        <ul class="cover-stats">
-          <li><b>{stops.length}</b><span>{stops.length === 1 ? 'Stop' : 'Stops'}</span></li>
-          <li><b>{bookings.length}</b><span>Plans</span></li>
-          <li><b>{bookedCount}</b><span>Booked</span></li>
-          <li><b>{photos.length}</b><span>Photos</span></li>
-          <li><b>{diary.length}</b><span>Notes</span></li>
-        </ul>
 
         <div class="it-actions">
-          <button
-            type="button"
-            class="btn-primary cover-add"
-            on:click={() => openAddPlan('', 'all')}
-            aria-label="Add a place to your trip from the Guide"
-          >
-            <span class="cover-add-plus">+</span>
-            <span>Add a plan</span>
-          </button>
-          <button
-            type="button"
-            class="btn-primary cover-edit"
-            on:click={() => (showStopPicker = true)}
-            aria-label="Edit the stops on this route"
-          >
-            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="6" cy="6" r="2"/>
-              <circle cx="6" cy="18" r="2"/>
-              <circle cx="18" cy="12" r="2"/>
-              <path d="M6 8 L6 16"/>
-              <path d="M8 6 L16 11"/>
-              <path d="M8 18 L16 13"/>
-            </svg>
-            <span>{stops.length > 0 ? 'Edit route' : 'Pick stops'}</span>
-          </button>
+          {#if stops.length === 0}
+            <!-- Empty trip: lead with the only useful action. Add-a-plan
+                 would open a modal that knows it can't go anywhere
+                 without stops, so we don't show it yet. -->
+            <button
+              type="button"
+              class="btn-primary cover-add"
+              on:click={() => (showStopPicker = true)}
+              aria-label="Pick the stops on this trip"
+            >
+              <span class="cover-add-plus">+</span>
+              <span>Pick your stops</span>
+            </button>
+          {:else}
+            <button
+              type="button"
+              class="btn-primary cover-add"
+              on:click={() => openAddPlan('', 'all')}
+              aria-label="Add a place to your trip from the Guide"
+            >
+              <span class="cover-add-plus">+</span>
+              <span>Add a plan</span>
+            </button>
+            <button
+              type="button"
+              class="btn-primary cover-edit"
+              on:click={() => (showStopPicker = true)}
+              aria-label="Edit the stops on this route"
+            >
+              <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="6" cy="6" r="2"/>
+                <circle cx="6" cy="18" r="2"/>
+                <circle cx="18" cy="12" r="2"/>
+                <path d="M6 8 L6 16"/>
+                <path d="M8 6 L16 11"/>
+                <path d="M8 18 L16 13"/>
+              </svg>
+              <span>Edit route</span>
+            </button>
+          {/if}
           <a
             href={`/trips/${trip.id}/recap`}
             class="btn-primary cover-recap"
@@ -531,33 +563,28 @@
     </div>
   </header>
 
-  <!-- ===== Narrative band ===== -->
-  <section class="narrative">
-    <div class="narrative-inner">
-      <div class="kicker">The Story So Far</div>
-      <h2 class="narrative-line">
-        {#if stops.length === 0}
-          Your suitcase has nothing in it yet. The first move is to choose where you want to go.
-        {:else if bookings.length === 0 && diary.length === 0}
-          Your route is set. Now the fun part: what you'll eat, where you'll sleep, and what you'll do at each stop.
-        {:else}
-          {stops.length} stops between {stops[0].name} and {stops[stops.length - 1].name}, with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
-        {/if}
-      </h2>
-
-      {#if stops.length === 0}
-        <button
-          type="button"
-          class="narrative-cta"
-          on:click={() => (showStopPicker = true)}
-        >Pick your stops &rarr;</button>
-      {:else}
+  <!-- ===== Narrative band =====
+       Hidden entirely when the trip is empty - the cover welcome
+       above already sets the warm tone + the "Pick your stops"
+       amber button is right there in the action row, so a second
+       prompt would just be noise. -->
+  {#if stops.length > 0}
+    <section class="narrative">
+      <div class="narrative-inner">
+        <div class="kicker">The Story So Far</div>
+        <h2 class="narrative-line">
+          {#if bookings.length === 0 && diary.length === 0}
+            Your route is set. Now the fun part: what you'll eat, where you'll sleep, and what you'll do at each stop.
+          {:else}
+            {stops.length} stops between {stops[0].name} and {stops[stops.length - 1].name}, with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
+          {/if}
+        </h2>
         <p class="narrative-hint">
           Tap a prompt at any stop below to drop a plan in, or open a drawer in your trip kit to manage packing, the ledger, your photo album, and more.
         </p>
-      {/if}
-    </div>
-  </section>
+      </div>
+    </section>
+  {/if}
 
   <!-- ===== Route map (chapter-jump nav) ===== -->
   <RouteMap
@@ -1144,6 +1171,40 @@
       grid-template-columns: 1.1fr 1fr;
       align-items: center;
     }
+    /* When the trip is empty there's no polaroid collage in the
+       right column, so we collapse back to a single column to
+       avoid the lopsided "text + blank" look. */
+    .cover-inner.is-empty {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Welcome card that replaces the leg + date + countdown + stats
+     when the trip is empty. Italic Fraunces lede + Spline sub gives
+     the cover a "this is where it begins" feeling rather than a row
+     of zeros. */
+  .cover-welcome {
+    margin: 14px 0 22px;
+    max-width: 60ch;
+    border-top: 1px dashed rgba(201, 168, 76, 0.45);
+    border-bottom: 1px dashed rgba(201, 168, 76, 0.45);
+    padding: 18px 0;
+  }
+  .cover-welcome-lede {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(20px, 3vw, 28px);
+    line-height: 1.2;
+    color: #c9a84c;
+    margin: 0 0 10px;
+  }
+  .cover-welcome-sub {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(245, 240, 232, 0.78);
+    margin: 0;
   }
   .kicker {
     font-family: 'Spline Sans', sans-serif;
