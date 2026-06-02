@@ -62,8 +62,15 @@ export async function listBookings(tripId) {
 
 /** Add a booking with sensible defaults. Title is required;
     everything else falls back. Optional stopId pins the booking to
-    a stop on the trip's route so the itinerary view can group it. */
-export async function addBooking(tripId, { title, kind = 'other', dueDate = null, stopId = null } = {}) {
+    a stop on the trip's route so the itinerary view can group it.
+    Optional listingKey is the AddPlanModal's dedupe handle for a
+    Guide listing - "stopId|listing-name-slug" - so the modal can
+    show an already-added checkmark instead of a + on rows that are
+    already on the trip. */
+export async function addBooking(
+  tripId,
+  { title, kind = 'other', dueDate = null, stopId = null, listingKey = null } = {}
+) {
   const clean = String(title || '').trim();
   if (!clean) return null;
   const now = Date.now();
@@ -74,6 +81,7 @@ export async function addBooking(tripId, { title, kind = 'other', dueDate = null
     status: 'pending',
     dueDate: dueDate || null,
     stopId: stopId || null,
+    listingKey: listingKey || null,
     createdAt: now,
     updatedAt: now
   });

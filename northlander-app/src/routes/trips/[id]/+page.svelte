@@ -13,6 +13,8 @@
   import BudgetTracker from '$lib/components/BudgetTracker.svelte';
   import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
+  import AddPlanModal from '$lib/components/AddPlanModal.svelte';
+  import { listBookings } from '$lib/stores/bookings.js';
   import {
     getTrip,
     renameTrip,
@@ -30,6 +32,16 @@
   let confirmingDelete = false;
   let showStopPicker = false;
   let showShareModal = false;
+  let showAddPlan = false;
+  /** Bookings snapshot passed into AddPlanModal so it can show
+      already-added listings as checkmarks. Reloaded each time the
+      modal opens to stay fresh. */
+  let bookingsSnap = [];
+
+  async function openAddPlan() {
+    bookingsSnap = trip ? await listBookings(trip.id) : [];
+    showAddPlan = true;
+  }
 
   /** @type {HTMLInputElement | undefined} */
   let nameInput;
@@ -173,6 +185,19 @@
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              class="btn-primary flex items-center gap-2"
+              on:click={openAddPlan}
+              aria-label="Add a place to your trip from the Guide"
+              style="background:#6e2e17;border-color:#6e2e17"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Add a plan</span>
+            </button>
             <a
               href={`/trips/${trip.id}/itinerary`}
               class="btn-primary flex items-center gap-2"
@@ -321,6 +346,15 @@
 
   {#if showShareModal}
     <ShareModal {trip} on:close={() => (showShareModal = false)} />
+  {/if}
+
+  {#if showAddPlan}
+    <AddPlanModal
+      tripId={trip.id}
+      stopIds={trip.stopIds || []}
+      existingBookings={bookingsSnap}
+      on:close={() => (showAddPlan = false)}
+    />
   {/if}
 
   <!-- ===== Danger zone ===== -->
