@@ -260,6 +260,15 @@
   $: pendingCount = bookings.length - bookedCount;
   $: tripDateLine = trip && trip.departureDate ? formatTripDate(trip.departureDate) : '';
   $: countdown = daysUntil(trip && trip.departureDate);
+  /* Stamp date: the trip's departure month/year if set, otherwise
+     the month we're in. Powers the "Now Boarding"-style postmark
+     on the sign-off. */
+  $: stampDate = (() => {
+    const d = trip && trip.departureDate
+      ? new Date(trip.departureDate + 'T00:00:00')
+      : new Date();
+    return d.toLocaleDateString('en-CA', { month: 'long', year: 'numeric' }).toUpperCase();
+  })();
   $: budgetTotal = totalOf(budgetEntries);
 
   /* First five stop photos for the cover collage. Tilts vary by
@@ -1110,10 +1119,18 @@
   </section>
 
   <!-- ===== Sign off =====
-       Closes the page with an editorial signature. Same italic
-       Fraunces vocabulary as the home dashboard's "Stay curious"
-       line so the two pages read as one publication. -->
+       Closes the page with an editorial signature - forest band
+       with a small vintage stamp pinned in the top-right corner.
+       Stamp uses the Guide's circular double-border pattern
+       (plan-page.css:1110-1142) at a smaller scale, rotated -8deg
+       so it reads as something pressed onto the page. -->
   <section class="foot">
+    <span class="foot-stamp" aria-hidden="true">
+      <span class="foot-stamp-line foot-stamp-line--top">Northlander</span>
+      <span class="foot-stamp-line foot-stamp-line--big">Bon</span>
+      <span class="foot-stamp-line foot-stamp-line--big">Voyage</span>
+      <span class="foot-stamp-line foot-stamp-line--bot">{stampDate}</span>
+    </span>
     <h2>Bon voyage.</h2>
     <p>Open this on your phone the morning you board.</p>
     <div class="it-actions foot-actions">
@@ -1876,77 +1893,87 @@
   /* ===== Schedule rows (existing rendering kept for v1; the full
      polaroid/listing card redesign lands in the next commit). All
      text now reads against cream paper instead of dark forest. */
+  /* "About 2h 25m before the next train" line above the timeline. */
   .scene-when {
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #7d3a1e;
     font-weight: 700;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
   }
-  .scene-group { margin-top: 22px; }
+
+  /* Editorial group header. The label + dashed rust rule mirror
+     stop-page.css:78-79: italic Fraunces kicker against a dashed
+     line that fills the remainder of the row. */
+  .scene-group { margin-top: 36px; }
+  .scene-group:first-child { margin-top: 0; }
   .group-head {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 10px;
+    margin-bottom: 18px;
   }
   .group-label {
     font-family: 'Fraunces', Georgia, serif;
-    font-weight: 700;
+    font-weight: 500;
     font-style: italic;
-    font-size: 18px;
+    font-size: 20px;
     color: #7d3a1e;
     flex: 0 0 auto;
   }
   .group-rule {
     flex: 1;
     height: 0;
-    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+    border-top: 1px dashed rgba(125, 58, 30, 0.35);
   }
-  .scene-list { list-style: none; padding: 0; margin: 0; }
+
+  /* Timeline rows as editorial cards. Each plan is a flat cream
+     card with a 2px solid rust left rule (stop-page.css:87 sidebar
+     pattern). Time + kind + title on top, status pill on the right,
+     extra details (room, notes, conflict) stack below. */
+  .scene-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
   .scene-list li {
-    padding: 12px 0;
-    border-bottom: 1px dashed rgba(125, 58, 30, 0.18);
+    background: #ede0cc;
+    border-left: 2px solid #7d3a1e;
+    padding: 16px 18px;
   }
-  .scene-list li:last-child { border-bottom: 0; }
 
   .scene-list-timeline li { display: block; }
   .scene-list-timeline .line-main {
     display: grid;
-    grid-template-columns: 64px auto 1fr auto;
-    align-items: baseline;
-    gap: 14px;
+    grid-template-columns: 90px auto 1fr auto;
+    align-items: center;
+    gap: 16px;
   }
   .line-time {
     font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
+    font-weight: 600;
     font-style: italic;
-    font-size: clamp(18px, 2vw, 22px);
+    font-size: 22px;
     color: #7d3a1e;
-    letter-spacing: 0.01em;
     line-height: 1;
     white-space: nowrap;
   }
   .line-time.placeholder {
-    color: rgba(125, 58, 30, 0.45);
-    font-weight: 600;
+    color: rgba(125, 58, 30, 0.4);
+    font-weight: 500;
   }
   .line-kind {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #7d3a1e;
+    color: #c4860f;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     white-space: nowrap;
   }
   .line-kind-label { line-height: 1; }
-  .scene-list-timeline .is-untimed { opacity: 0.78; }
+  .scene-list-timeline .is-untimed { opacity: 0.85; }
 
   @media (max-width: 640px) {
     .scene-list-timeline .line-main {
@@ -1955,11 +1982,11 @@
         "time     status"
         "kind     status"
         "title    title";
-      gap: 4px 12px;
+      gap: 6px 12px;
     }
     .scene-list-timeline .line-time   { grid-area: time; }
     .scene-list-timeline .line-kind   { grid-area: kind; }
-    .scene-list-timeline .line-title  { grid-area: title; margin-top: 2px; }
+    .scene-list-timeline .line-title  { grid-area: title; margin-top: 4px; }
     .scene-list-timeline .line-status { grid-area: status; align-self: start; }
   }
 
@@ -1972,44 +1999,47 @@
   .line-title {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 600;
-    font-size: clamp(16px, 2.1vw, 20px);
+    font-size: 18px;
     color: #0a2d21;
-    line-height: 1.2;
+    line-height: 1.3;
     overflow-wrap: anywhere;
   }
   .scene-list li.is-booked .line-title {
     text-decoration: line-through;
-    text-decoration-color: #7d3a1e;
+    text-decoration-color: rgba(125, 58, 30, 0.5);
     text-decoration-thickness: 1.5px;
     color: #5a4f3d;
   }
+  /* Status pill - 2px solid rust outline, no border-radius, caps
+     micro-type. The booked variant flips to filled gold. */
   .line-status {
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 999px;
-    border: 1.5px dashed #7d3a1e;
+    padding: 5px 10px;
+    border: 2px solid #7d3a1e;
     color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.08);
+    background: transparent;
     white-space: nowrap;
     flex: 0 0 auto;
+    line-height: 1;
   }
   .line-status.is-booked {
     background: #c9a84c;
     color: #0a2d21;
     border-color: #c9a84c;
-    border-style: solid;
   }
+  /* Room-booking details, notes + conflict pill all stack below
+     the main row with consistent 12px top margin. */
   .line-room {
     display: flex;
     flex-wrap: wrap;
     gap: 4px 12px;
-    margin-top: 6px;
-    padding-left: 12px;
-    border-left: 2px solid #7d3a1e;
+    margin-top: 12px;
+    padding-left: 14px;
+    border-left: 2px solid rgba(125, 58, 30, 0.5);
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 12px;
     color: #5a4f3d;
@@ -2023,66 +2053,69 @@
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     color: #5a4f3d;
-    margin: 6px 0 0;
+    margin: 12px 0 0;
     white-space: pre-wrap;
+    font-size: 15px;
+    line-height: 1.5;
   }
   .line-conflict {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin: 6px 0 0;
-    padding: 4px 10px 4px 8px;
-    background: rgba(196, 134, 15, 0.15);
-    border: 1px dashed #c4860f;
-    border-radius: 999px;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding: 6px 10px;
+    background: rgba(196, 134, 15, 0.12);
+    border-left: 2px solid #c4860f;
     color: #7d3a1e;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
-    line-height: 1.25;
+    line-height: 1.3;
   }
   .line-conflict-icon { width: 14px; height: 14px; flex: none; }
   .scene-list-timeline li.is-conflict .line-time { color: #c4860f; }
 
+  /* Diary entries: cream cards with a 2px rust left rule, same as
+     the timeline rows, but body is italic Fraunces with no
+     metadata grid. Read like a clipped journal entry. */
   .scene-diary {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 14px;
   }
   .scene-diary li {
+    background: #ede0cc;
+    border-left: 2px solid #7d3a1e;
+    padding: 16px 20px;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: clamp(15px, 2vw, 17px);
+    font-size: 17px;
     color: #0a2d21;
     line-height: 1.55;
-    padding-left: 14px;
-    border-left: 2px solid #7d3a1e;
     white-space: pre-wrap;
   }
 
+  /* Photos row: flat sharp-cornered images with a 2px forest
+     border, no rotation. Reads like a contact sheet, not a
+     scrapbook. */
   .scene-photos {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
+    gap: 14px;
     align-items: center;
   }
   .mini-polaroid {
-    background: #fbf6ea;
-    padding: 6px 6px 10px;
-    box-shadow: 0 10px 18px rgba(40, 20, 5, 0.28);
     margin: 0;
-    transform: rotate(var(--rot, 0deg));
-    transition: transform 0.3s ease;
-  }
-  .mini-polaroid:hover { transform: rotate(0deg) translateY(-3px); }
-  .mini-polaroid img {
-    width: 88px;
-    height: 88px;
-    object-fit: cover;
+    border: 2px solid #0a2d21;
     background: #ede0cc;
+  }
+  .mini-polaroid img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
     display: block;
   }
   .scene-photos-more {
@@ -2199,12 +2232,18 @@
     border-color: #c4860f;
   }
 
-  /* ===== Sign off ===== */
+  /* ===== Sign off =====
+     Forest band bookend with the Bon voyage signature and a small
+     vintage stamp pinned in the corner. The stamp is a direct port
+     of the Guide's pl-pass-stamp (plan-page.css:1110-1142): circular
+     double-border ring, amber fill, dotted inner ring, rotated. */
   .foot {
+    position: relative;
     background: linear-gradient(180deg, #0e3b2c 0%, #0a2d21 100%);
     color: #f5f0e8;
-    padding: 56px 24px;
+    padding: 64px 24px;
     text-align: center;
+    overflow: hidden;
   }
   .foot h2 {
     font-family: 'Fraunces', Georgia, serif;
@@ -2212,10 +2251,10 @@
     font-weight: 500;
     font-size: clamp(1.8rem, 5vw, 2.6rem);
     color: #c9a84c;
-    margin: 0 0 6px;
+    margin: 0 0 8px;
   }
   .foot p {
-    font-family: 'Spline Sans', sans-serif;
+    font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 12px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -2223,6 +2262,76 @@
     margin: 0 0 28px;
   }
   .foot-actions { justify-content: center; margin-top: 0; }
+
+  .foot-stamp {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 3px double #c9a84c;
+    background: radial-gradient(circle, rgba(196, 134, 15, 0.08) 0%, transparent 65%);
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 6px transparent,
+      inset 0 0 0 7px rgba(201, 168, 76, 0.35);
+    color: #c9a84c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transform: rotate(-8deg);
+    font-family: 'Fraunces', Georgia, serif;
+    line-height: 1;
+    text-align: center;
+    user-select: none;
+  }
+  .foot-stamp::before,
+  .foot-stamp::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 26px;
+    height: 1px;
+    background: #c9a84c;
+    opacity: 0.7;
+    transform: translateX(-50%);
+  }
+  .foot-stamp::before { top: 18px; }
+  .foot-stamp::after  { bottom: 18px; }
+  .foot-stamp-line {
+    display: block;
+  }
+  .foot-stamp-line--top {
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .foot-stamp-line--big {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .foot-stamp-line--bot {
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  @media (max-width: 720px) {
+    .foot-stamp {
+      width: 78px; height: 78px;
+      top: 14px; right: 14px;
+    }
+    .foot-stamp-line--big { font-size: 14px; }
+  }
 
   /* ===== Trip kit ===== */
   .kit {
