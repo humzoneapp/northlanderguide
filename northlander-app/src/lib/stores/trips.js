@@ -208,25 +208,6 @@ export async function clearTripCover(id) {
   return updateTrip(id, { coverBlob: null });
 }
 
-/* Optional per-trip cover theme. When set, the trip page's banner
-   gradient starts at `coverBg` and fades to the canonical forest
-   bottom, and the primary cover CTA renders in `coverAccent`. Both
-   are plain hex strings; null on either falls back to the forest
-   + gold defaults baked into CSS. */
-export async function setTripTheme(id, { coverBg, coverAccent } = {}) {
-  if (!id) return null;
-  const patch = {};
-  if (coverBg !== undefined)    patch.coverBg    = coverBg || null;
-  if (coverAccent !== undefined) patch.coverAccent = coverAccent || null;
-  if (Object.keys(patch).length === 0) return null;
-  return updateTrip(id, patch);
-}
-
-export async function clearTripTheme(id) {
-  if (!id) return null;
-  return updateTrip(id, { coverBg: null, coverAccent: null });
-}
-
 /* Delete a trip plus every row that references it. Wrap in a single
    transaction so a partial failure can't strand orphans. */
 export async function deleteTrip(id) {
