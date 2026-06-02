@@ -1,12 +1,23 @@
 <script>
+  import { onMount } from 'svelte';
   import Suitcase from '$lib/components/Suitcase.svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
+  import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
   import { trips } from '$lib/stores/trips.js';
   import { STOPS, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
   import { todayLocalISO } from '$lib/data/schedule.js';
 
   let showNewModal = false;
+  /* The trips store populates from Dexie on first paint. We wait
+     a short beat before deciding whether to mount the onboarding
+     overlay so returning users (who have trips but the store
+     hasn't filled yet) don't see it flash up and then disappear. */
+  let onboardingReady = false;
+  onMount(() => {
+    const t = setTimeout(() => (onboardingReady = true), 220);
+    return () => clearTimeout(t);
+  });
 
   /* Stable per-card rotation so trips always sit at the same angle
      regardless of how many other trips share the platform. Cycle
@@ -309,6 +320,19 @@
 
 {#if showNewModal}
   <NewTripModal on:close={() => (showNewModal = false)} />
+{/if}
+
+<!-- First-launch onboarding. Renders only when the persisted
+     dismiss flag is unset; the component manages its own
+     localStorage check + early-return. We also gate the mount on
+     onboardingReady + $trips.length === 0 so returning users
+     (whose Dexie load is still in flight on first paint) don't
+     see the overlay flash up. 'start' fires when the user taps
+     "Tag my first suitcase" on the last card, which we hand
+     straight off to NewTripModal so they land in their first
+     trip without seeing the empty platform. -->
+{#if onboardingReady && $trips.length === 0}
+  <OnboardingOverlay on:start={() => (showNewModal = true)} />
 {/if}
 
 <style>
