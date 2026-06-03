@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
-  import { trips } from '$lib/stores/trips.js';
+  import { trips, deleteTrip } from '$lib/stores/trips.js';
   import { STOPS, getStop, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
   import { listPackingItems } from '$lib/stores/packing.js';
@@ -30,6 +30,24 @@
      through six values keyed by index. */
   const tilts = [-3, 0, 4, -2, 3, -4];
   const offsets = [8, -6, 10, 4, -4, 6];
+
+  /* Quick-delete from the dashboard. Native confirm keeps the
+     two-step safety without us shipping an in-page modal for the
+     polaroid corner. Works on iPad Safari out of the box. */
+  async function handleDeleteTrip(trip, ev) {
+    /* The polaroid wrapper holds the <a> link AND this button as
+       siblings; the button is positioned absolute. preventDefault
+       + stopPropagation are belt-and-braces so any future
+       restructure that nests them again still won't navigate. */
+    ev?.preventDefault?.();
+    ev?.stopPropagation?.();
+    if (!trip) return;
+    const ok = typeof window !== 'undefined' && window.confirm
+      ? window.confirm(`Delete "${trip.name}"? This can't be undone.`)
+      : true;
+    if (!ok) return;
+    await deleteTrip(trip.id);
+  }
 
   /* Tag line shown on each trip card's luggage tag. With stops:
      "Toronto Union to Cochrane (4 stops)". Without: a small nudge. */
@@ -310,7 +328,7 @@
           <div class="polaroid-paper polaroid-paper--centered">
             <h3 class="polaroid-name">A blank page.</h3>
             <p class="polaroid-meta">Where to first?</p>
-            <p class="polaroid-next">Pick a name, pick a colour, pack the rest later.</p>
+            <p class="polaroid-next">Pick a name, pick your route, pack the rest later.</p>
           </div>
         </button>
       </div>
@@ -323,54 +341,65 @@
           {@const isWrapped = days != null && days < 0}
           {@const prog = packFraction(trip)}
           {@const initial = (trip.name || '?').trim().charAt(0).toUpperCase()}
-          <a
-            href={`/trips/${trip.id}`}
-            class="polaroid"
-            class:is-wrapped={isWrapped}
-            class:is-today={isToday}
+          <div
+            class="polaroid-wrap"
             style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px"
           >
-            <span class="polaroid-tape" aria-hidden="true"></span>
-            {#if isToday}
-              <span class="polaroid-ribbon" aria-hidden="true">Now Boarding</span>
-            {/if}
-            {#if isWrapped}
-              <span class="polaroid-stamp" aria-hidden="true">Wrapped</span>
-            {/if}
-
-            <div class="polaroid-photo">
-              {#if thumb}
-                <img src={thumb.url} alt="" loading="lazy" decoding="async" />
-              {:else}
-                <div class="polaroid-photo-empty" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4 L20 4 L20 20 L4 20 Z" />
-                    <path d="M9 9 L15 9 M9 12 L15 12 M9 15 L13 15" stroke-dasharray="2 2" />
-                  </svg>
-                </div>
+            <a
+              href={`/trips/${trip.id}`}
+              class="polaroid"
+              class:is-wrapped={isWrapped}
+              class:is-today={isToday}
+            >
+              <span class="polaroid-tape" aria-hidden="true"></span>
+              {#if isToday}
+                <span class="polaroid-ribbon" aria-hidden="true">Now Boarding</span>
+              {/if}
+              {#if isWrapped}
+                <span class="polaroid-stamp" aria-hidden="true">Wrapped</span>
               {/if}
 
-              <span class="polaroid-seal" aria-hidden="true">
-                <span>{initial}</span>
-              </span>
-            </div>
-
-            <div class="polaroid-paper">
-              <h3 class="polaroid-name">{trip.name}</h3>
-              <p class="polaroid-meta">
-                {#if thumb}{thumb.name}{:else}No stops yet{/if}
-                {#if trip.departureDate}
-                  &nbsp;&middot;&nbsp; {countdownLabel(trip.departureDate)}
+              <div class="polaroid-photo">
+                {#if thumb}
+                  <img src={thumb.url} alt="" loading="lazy" decoding="async" />
+                {:else}
+                  <div class="polaroid-photo-empty" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4 L20 4 L20 20 L4 20 Z" />
+                      <path d="M9 9 L15 9 M9 12 L15 12 M9 15 L13 15" stroke-dasharray="2 2" />
+                    </svg>
+                  </div>
                 {/if}
-              </p>
-              {#if prog != null}
-                <span class="polaroid-prog">
-                  {tripStats[trip.id]?.packDone || 0} of {tripStats[trip.id]?.packTotal || 0} packed
+
+                <span class="polaroid-seal" aria-hidden="true">
+                  <span>{initial}</span>
                 </span>
-              {/if}
-              <p class="polaroid-next">{nextMove(trip)}</p>
-            </div>
-          </a>
+              </div>
+
+              <div class="polaroid-paper">
+                <h3 class="polaroid-name">{trip.name}</h3>
+                <p class="polaroid-meta">
+                  {#if thumb}{thumb.name}{:else}No stops yet{/if}
+                  {#if trip.departureDate}
+                    &nbsp;&middot;&nbsp; {countdownLabel(trip.departureDate)}
+                  {/if}
+                </p>
+                {#if prog != null}
+                  <span class="polaroid-prog">
+                    {tripStats[trip.id]?.packDone || 0} of {tripStats[trip.id]?.packTotal || 0} packed
+                  </span>
+                {/if}
+                <p class="polaroid-next">{nextMove(trip)}</p>
+              </div>
+            </a>
+            <button
+              type="button"
+              class="polaroid-delete"
+              on:click={(ev) => handleDeleteTrip(trip, ev)}
+              aria-label={`Delete ${trip.name}`}
+              title="Delete this trip"
+            >&times;</button>
+          </div>
         {/each}
 
         <button
@@ -736,14 +765,32 @@
      under it. The user's leather color shows as a wax-seal stamp
      in the corner of the photo - the suitcase metaphor without
      the suitcase. */
+  /* Outer wrapper that carries the rotation + translate so the
+     <a> stays a plain link element (we can't nest a button inside
+     an anchor for the corner delete). The .polaroid itself drops
+     its tilt onto the wrapper and only handles the lift on hover. */
+  .polaroid-wrap {
+    position: relative;
+    transform: rotate(var(--rot, 0deg)) translateY(var(--y, 0px));
+    transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+  }
+  .polaroid-wrap:hover {
+    transform: rotate(0deg) translateY(-8px);
+    z-index: 2;
+  }
+  /* Hover-reveal the delete corner on devices that support hover. */
+  .polaroid-wrap:hover .polaroid-delete,
+  .polaroid-wrap:focus-within .polaroid-delete {
+    opacity: 1;
+  }
+
   .polaroid {
     position: relative;
     display: block;
     background: #fbf6ea;
     padding: 12px 12px 18px;
     box-shadow: 0 14px 28px rgba(20, 14, 6, 0.28);
-    transform: rotate(var(--rot, 0deg)) translateY(var(--y, 0px));
-    transition: transform 0.35s cubic-bezier(.2,.7,.3,1), box-shadow 0.35s ease;
+    transition: box-shadow 0.35s ease;
     text-decoration: none;
     color: inherit;
     text-align: left;
@@ -752,10 +799,44 @@
     font-family: inherit;
     width: 100%;
   }
-  .polaroid:hover {
-    transform: rotate(0deg) translateY(-8px);
+  .polaroid-wrap:hover .polaroid {
     box-shadow: 0 26px 42px rgba(20, 14, 6, 0.34);
-    z-index: 2;
+  }
+
+  /* Corner delete button. Pinned to the polaroid's top-right with
+     a small offset so it overhangs the paper edge. Hidden by
+     default on hover-capable devices and revealed on hover;
+     always visible on touch (no hover state) so iPad users can
+     find it. Two-step safety via window.confirm. */
+  .polaroid-delete {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #6e2e17;
+    background: #fffdf6;
+    color: #6e2e17;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(20, 14, 6, 0.25);
+    opacity: 0;
+    transition: opacity 140ms ease, background 140ms ease, color 140ms ease;
+    z-index: 3;
+  }
+  .polaroid-delete:hover {
+    background: #6e2e17;
+    color: #fffdf6;
+  }
+  /* Touch devices have no hover state, so the button stays
+     visible. matches the pattern Safari on iPad uses for "no
+     hover" detection. */
+  @media (hover: none) {
+    .polaroid-delete { opacity: 1; }
   }
 
   /* Single piece of masking tape over the top-left edge. Cream-on-
