@@ -59,33 +59,39 @@ function firstWord(s) {
 
 /**
  * Filter the DF data down to items relevant to a given set of trip
- * stops. Includes every "All Stops" / "Always Include" item plus
- * any "Stop Specific" row whose stop name matches one of ours.
+ * stops, scoped to actual packable things.
+ *
+ * The Guide's DF data carries two flavours of "before you board"
+ * row: stuff you put in a bag ("bug spray", "headlamp", "layers")
+ * and stuff you remember to do/book ("Walk to Bracebridge Falls
+ * from the station", "Book the Kidd Mine tour in advance"). On
+ * a stop page both fit under the same "Before You Board" header,
+ * but the App's PackingList is specifically a bag list, so we
+ * drop the `Stop Specific` trigger (which is where the
+ * activity-style rows live in Airtable). Universal rows
+ * (`All Stops` / `Always Include`) and seasonal rows still pass.
  *
  * @param {Array} data
- * @param {string[]} stopNames - display names from STOPS[].name
+ * @param {string[]} stopNames - display names from STOPS[].name (unused
+ *   for now since we no longer surface stop-specific rows; kept in the
+ *   signature so callers don't have to change when we re-introduce
+ *   per-stop suggestions)
  * @returns {Array}
  */
 export function packingForStops(data, stopNames) {
   if (!Array.isArray(data)) return [];
-  const names = Array.isArray(stopNames)
-    ? stopNames.map(firstWord).filter(Boolean)
-    : [];
   const out = [];
   for (const row of data) {
     if (!row || !row.item) continue;
     const stop = row.stop || '';
     const trigger = row.triggerType || '';
+    if (trigger === 'Stop Specific') continue;
     const isUniversal =
       stop === 'All Stops' ||
       !stop ||
-      trigger === 'Always Include';
+      trigger === 'Always Include' ||
+      /^Season:/i.test(trigger);
     if (isUniversal) {
-      out.push(row);
-      continue;
-    }
-    /* Stop-specific row: keep when one of the trip stops matches. */
-    if (names.includes(firstWord(stop))) {
       out.push(row);
     }
   }

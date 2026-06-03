@@ -177,7 +177,13 @@
             </div>
             <ul class="pp-list">
               {#each rows as it (itemKey(it))}
-                {@const already = isAlready(it)}
+                <!-- Inline the reactivity here so Svelte sees the
+                     direct refs to existingNames + addedKeys (a
+                     function call from {@const} doesn't track its
+                     internal deps and the checkmark would stay
+                     empty after a tap). -->
+                {@const k = itemKey(it)}
+                {@const already = existingNames.has(k) || addedKeys.has(k)}
                 <li class="pp-row" class:is-on={already}>
                   <button
                     type="button"
