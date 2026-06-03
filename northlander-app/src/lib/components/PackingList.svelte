@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import {
     listPackingItems,
     addPackingItem,
@@ -14,6 +14,8 @@
   /** @type {string[]} - trip's stop ids. Threads into the picker so
       it can surface stop-specific suggestions from the Guide. */
   export let stopIds = [];
+
+  const dispatch = createEventDispatcher();
 
   let showPicker = false;
 
@@ -52,6 +54,7 @@
       await addPackingItem(tripId, clean);
       newName = '';
       await refresh();
+      dispatch('change');
     } finally {
       busy = false;
     }
@@ -60,6 +63,7 @@
   async function toggle(id) {
     await togglePackingItem(id);
     await refresh();
+    dispatch('change');
   }
 
   function startRename(item) {
@@ -76,6 +80,7 @@
     if (draft.trim()) {
       await renamePackingItem(id, draft);
       await refresh();
+      dispatch('change');
     }
   }
 
@@ -87,6 +92,7 @@
   async function remove(id) {
     await deletePackingItem(id);
     await refresh();
+    dispatch('change');
   }
 </script>
 
@@ -194,8 +200,8 @@
   <PackingPickerModal
     {tripId}
     {stopIds}
-    on:change={refresh}
-    on:close={() => { showPicker = false; refresh(); }}
+    on:change={() => { refresh(); dispatch('change'); }}
+    on:close={() => { showPicker = false; refresh(); dispatch('change'); }}
   />
 {/if}
 

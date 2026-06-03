@@ -58,6 +58,7 @@
   import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
+  import Drawer from '$lib/components/Drawer.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -667,18 +668,26 @@
          One trip-wide section between the narrative and the chapters.
          Dates + direction now live in the route picker (cover Edit
          action). All that stays here is the one bag the user packs
-         for the whole journey. -->
+         for the whole journey, tucked into a Drawer accordion so
+         the section stays scannable as the list grows. -->
     <section class="before-board">
       <div class="before-board-inner">
         <div class="before-board-head">
           <div class="kicker">Before You Board</div>
           <h2>One bag for the whole journey.</h2>
         </div>
-        <div class="group-head">
-          <span class="group-label">Packing list</span>
-          <span class="group-rule" aria-hidden="true"></span>
-        </div>
-        <PackingList tripId={trip.id} stopIds={trip.stopIds || []} />
+        <Drawer
+          kicker="Pack the bag"
+          title="Packing list"
+          count={packingCount}
+          countLabel={packingCount === 1 ? 'item' : 'items'}
+        >
+          <PackingList
+            tripId={trip.id}
+            stopIds={trip.stopIds || []}
+            on:change={load}
+          />
+        </Drawer>
       </div>
     </section>
 
