@@ -10,10 +10,30 @@ import Dexie from 'dexie';
 import { writable } from 'svelte/store';
 
 /**
+ * @typedef {{ stopId: string, date: string }} StopVisit
+ * One visit on a trip: a stop and the date the user arrives there.
+ * The stay at that stop runs from `date` until the next visit's date
+ * (or `returnDate` for the last visit).
+ */
+
+/**
  * @typedef {Object} Trip
  * @property {string} id           - slug, stable across edits
  * @property {string} name         - what the user calls this trip
- * @property {string[]} stopIds    - ordered list of stop ids (e.g. 'huntsville')
+ * @property {string[]} stopIds    - ordered list of stop ids; derived
+ *                                   from `stops` when present, kept for
+ *                                   back-compat with older code paths
+ * @property {StopVisit[]} [stops] - new authoritative route: each entry
+ *                                   has a stopId + date; rendered as a
+ *                                   chapter in date order
+ * @property {string} [returnDate] - date the user is back at the
+ *                                   departing station (closes the trip
+ *                                   window for events on the last stop)
+ * @property {string} [returnStopId] - station the user ends at on the
+ *                                   return; defaults to stops[0].stopId
+ * @property {string} [departureDate] - mirror of stops[0].date so any
+ *                                   legacy reader (cover stat, recap,
+ *                                   poster) still finds the trip start
  * @property {string} color        - leather color for the SVG suitcase
  * @property {string} strap        - strap color for the SVG suitcase
  * @property {number} createdAt    - epoch ms
@@ -137,6 +157,44 @@ export async function updateTrip(id, patch) {
    stable and only update the human-facing name. */
 export async function renameTrip(id, name) {
   return updateTrip(id, { name: String(name || '').trim() || 'Untitled trip' });
+}
+
+/* Write the new dated-route shape on a trip. Mirrors `stopIds` and
+   `departureDate` from `stops` so any code still reading the old
+   shape keeps working. `direction` is derived from the first vs
+   last picked stop's canonical route index. */
+export async function setTripRoute(id, { stops, returnDate, returnStopId } = {}) {
+  if (!id) return null;
+  const safeStops = Array.isArray(stops)
+    ? stops.filter((s) => s && s.stopId).map((s) => ({
+        stopId: String(s.stopId),
+        date: typeof s.date === 'string' ? s.date : ''
+      }))
+    : [];
+  const stopIds = safeStops.map((s) => s.stopId);
+  const departureDate = safeStops[0]?.date || null;
+  /* Direction: northbound when the trip's farthest stop sits later
+     in the south-to-north canonical order than the departing stop.
+     We import routeIndex lazily to avoid a circular dependency
+     between the store and the data module. */
+  let direction = 'northbound';
+  try {
+    const { routeIndex } = await import('$lib/data/stops.js');
+    if (stopIds.length >= 2) {
+      const a = routeIndex(stopIds[0]);
+      const b = routeIndex(stopIds[stopIds.length - 1]);
+      if (a != null && b != null && b < a) direction = 'southbound';
+    }
+  } catch (_) { /* keep default */ }
+  const patch = {
+    stops: safeStops,
+    stopIds,
+    departureDate,
+    returnDate: returnDate || null,
+    returnStopId: returnStopId || stopIds[0] || null,
+    direction
+  };
+  return updateTrip(id, patch);
 }
 
 export async function changeTripColor(id, colorId, { body, strap } = {}) {

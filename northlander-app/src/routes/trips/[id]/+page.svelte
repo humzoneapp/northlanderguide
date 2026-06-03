@@ -22,6 +22,7 @@
     getTrip,
     renameTrip,
     updateTrip,
+    setTripRoute,
     deleteTrip,
     setTripCover,
     clearTripCover
@@ -48,7 +49,6 @@
   } from '$lib/data/schedule.js';
 
   /* ---------- Components ---------- */
-  import ScheduleStrip from '$lib/components/ScheduleStrip.svelte';
   import TripRoutePicker from '$lib/components/TripRoutePicker.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
@@ -199,9 +199,26 @@
 
   /* ---------- Derived helpers ---------- */
 
+  /* Build the chapter list. When the trip has the dated `stops`
+     shape, use it (each chapter knows its arrival date + stay window
+     to the next chapter / return date). Older trips fall back to
+     `stopIds` with direction applied. */
   function deriveStops(t) {
+    if (Array.isArray(t.stops) && t.stops.length > 0) {
+      return t.stops
+        .map((entry, i, arr) => {
+          const stop = getStopsByIds([entry.stopId])[0];
+          if (!stop) return null;
+          const stayStart = entry.date || '';
+          const next = arr[i + 1];
+          const stayEnd = next ? (next.date || '') : (t.returnDate || '');
+          return { ...stop, date: stayStart, stayStart, stayEnd };
+        })
+        .filter(Boolean);
+    }
     const forward = getStopsByIds(t.stopIds || []);
-    return (t.direction === 'southbound') ? forward.slice().reverse() : forward;
+    const oriented = (t.direction === 'southbound') ? forward.slice().reverse() : forward;
+    return oriented.map((s) => ({ ...s, date: '', stayStart: '', stayEnd: '' }));
   }
 
   /* Window between this stop's arrival and the next stop's
@@ -216,6 +233,27 @@
     const h = Math.floor(delta / 60);
     const m = delta % 60;
     return `About ${h}h${m ? ' ' + m + 'm' : ''} before the next train`;
+  }
+
+  /* "Mon, May 15" or "Mon, May 15 to Tue, May 16" for a multi-day
+     stay. Falls back to '' so the header can drop the date row when
+     a legacy trip has no per-stop date. */
+  function formatStayLabel(stop) {
+    if (!stop || !stop.stayStart) return '';
+    const fmt = (s) => {
+      try {
+        return new Date(s + 'T00:00:00').toLocaleDateString('en-CA', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (_) {
+        return s;
+      }
+    };
+    const start = fmt(stop.stayStart);
+    if (!stop.stayEnd || stop.stayEnd === stop.stayStart) return start;
+    return `${start} to ${fmt(stop.stayEnd)}`;
   }
 
   function daysUntil(yyyymmdd) {
@@ -255,9 +293,12 @@
 
   async function saveStops(event) {
     if (!trip) return;
-    const stopIds = event.detail.stopIds || [];
-    const dir = event.detail.direction || trip.direction || 'northbound';
-    const updated = await updateTrip(trip.id, { stopIds, direction: dir });
+    const detail = event.detail || {};
+    const updated = await setTripRoute(trip.id, {
+      stops: detail.stops || [],
+      returnDate: detail.returnDate || '',
+      returnStopId: detail.returnStopId || ''
+    });
     if (updated) trip = updated;
     showStopPicker = false;
   }
@@ -581,31 +622,21 @@
     </section>
 
     <!-- ===== Before you board =====
-         The single trip-wide section: date + direction picker and
-         the one packing list that travels with the whole trip.
-         Everything else now lives inside each chapter. -->
+         One trip-wide section between the narrative and the chapters.
+         Dates + direction now live in the route picker (cover Edit
+         action). All that stays here is the one bag the user packs
+         for the whole journey. -->
     <section class="before-board">
       <div class="before-board-inner">
         <div class="before-board-head">
           <div class="kicker">Before You Board</div>
-          <h2>One bag. One date. One direction.</h2>
+          <h2>One bag for the whole journey.</h2>
         </div>
-        <div class="before-board-grid">
-          <div class="before-board-col">
-            <div class="group-head">
-              <span class="group-label">Date &amp; direction</span>
-              <span class="group-rule" aria-hidden="true"></span>
-            </div>
-            <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
-          </div>
-          <div class="before-board-col">
-            <div class="group-head">
-              <span class="group-label">Packing list</span>
-              <span class="group-rule" aria-hidden="true"></span>
-            </div>
-            <PackingList tripId={trip.id} />
-          </div>
+        <div class="group-head">
+          <span class="group-label">Packing list</span>
+          <span class="group-rule" aria-hidden="true"></span>
         </div>
+        <PackingList tripId={trip.id} />
       </div>
     </section>
 
@@ -621,10 +652,15 @@
               <h2 class="scene-name">{stop.name}</h2>
               <div class="scene-meta">
                 <span class="scene-meta-region">{stop.region}</span>
-                <span class="scene-meta-sep" aria-hidden="true">·</span>
-                <span class="scene-meta-clock">
-                  {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
-                </span>
+                {#if stop.stayStart}
+                  <span class="scene-meta-sep" aria-hidden="true">·</span>
+                  <span class="scene-meta-date">{formatStayLabel(stop)}</span>
+                {:else}
+                  <span class="scene-meta-sep" aria-hidden="true">·</span>
+                  <span class="scene-meta-clock">
+                    {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
+                  </span>
+                {/if}
               </div>
             </header>
 
@@ -647,6 +683,14 @@
                     departureClock={depClock}
                     on:change={load}
                   />
+                  <button
+                    type="button"
+                    class="browse-guide-btn"
+                    on:click={() => openAddPlan(stop.id, 'all')}
+                  >
+                    <span class="browse-guide-plus" aria-hidden="true">+</span>
+                    Browse the Guide for {stop.name}
+                  </button>
                 </section>
 
                 <section class="self-section">
@@ -695,7 +739,8 @@
                   <EventsAlongRoute
                     tripId={trip.id}
                     stopIds={[stop.id]}
-                    departureDate={trip.departureDate || null}
+                    departureDate={stop.stayStart || trip.departureDate || null}
+                    endDate={stop.stayEnd || trip.returnDate || null}
                   />
                 </section>
               </div>
@@ -822,8 +867,8 @@
   <!-- ===== Modals ===== -->
   {#if showStopPicker}
     <TripRoutePicker
-      selected={trip.stopIds || []}
-      direction={trip.direction || 'northbound'}
+      stops={trip.stops || (trip.stopIds || []).map((id) => ({ stopId: id, date: '' }))}
+      returnDate={trip.returnDate || ''}
       on:save={saveStops}
       on:close={() => (showStopPicker = false)}
     />
@@ -1117,7 +1162,8 @@
     color: #f5f0e8;
     transition: color 160ms ease;
   }
-  .cover-name-btn:hover h1 { color: #c4860f; }
+  /* Cover trip-name stays white on hover; the underline below the
+     title is the only affordance that the H1 is editable. */
   .cover-name-hint {
     display: block;
     font-family: 'Spline Sans', sans-serif;
@@ -1437,6 +1483,15 @@
   .scene-meta-region { color: #c4860f; letter-spacing: 0.32em; }
   .scene-meta-sep { color: rgba(125, 58, 30, 0.4); }
   .scene-meta-clock { color: #5a4f3d; font-family: 'Spline Sans', system-ui, sans-serif; }
+  .scene-meta-date {
+    color: #7d3a1e;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 14.5px;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 600;
+  }
 
   /* Two-column body: 65/35 like stop-page.css:84. Main holds the
      timeline (or empty state); aside holds a flat postcard and a
@@ -1496,6 +1551,39 @@
   }
   .scene-aside-guide:hover { color: #0a2d21; border-color: #0a2d21; }
 
+  /* Browse-the-Guide pill under each Schedule list. Opens the
+     AddPlanModal pre-scoped to this stop with the category tabs
+     (All / Eat / Sleep / Do / Shop) so the user can drop a Guide
+     listing straight into the chapter. */
+  .browse-guide-btn {
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px dashed #7d3a1e;
+    color: #7d3a1e;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .browse-guide-btn:hover {
+    background: #7d3a1e;
+    color: #fffdf6;
+  }
+  .browse-guide-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 16px;
+    line-height: 1;
+  }
+
   /* ===== Self-contained chapter sections =====
      Each chapter renders five sections inline (Schedule / Notes /
      Polaroids / Spending / Happening). Sections sit on cream paper
@@ -1548,8 +1636,8 @@
 
   /* ===== Before You Board =====
      One trip-wide section between the narrative and the chapters.
-     Holds ScheduleStrip (date + direction) and PackingList. Cream
-     paper, two-column on desktop, stacked on mobile. */
+     Dates live in the route picker now, so this section is just the
+     trip-wide PackingList. */
   .before-board {
     background: #fbf6ea;
     padding: 56px 24px;
@@ -1572,17 +1660,8 @@
     margin: 6px 0 0;
     line-height: 1.2;
   }
-  .before-board-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 40px;
-    align-items: start;
-  }
-  @media (min-width: 880px) {
-    .before-board-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-    }
+  .before-board-inner > .group-head {
+    max-width: 760px;
   }
 
   /* ===== Chapter divider =====

@@ -42,7 +42,6 @@
   }
   .topbar-link:hover {
     opacity: 1;
-    color: #c9a84c;
   }
 </style>
 

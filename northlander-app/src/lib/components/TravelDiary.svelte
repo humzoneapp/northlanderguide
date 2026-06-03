@@ -26,14 +26,26 @@
   let loaded = false;
   let saving = false;
 
+  /* Today as YYYY-MM-DD in local time. Used to default the entry
+     date input so quick notes still feel instant. */
+  function todayLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   /* Add-entry form state. */
   let draft = '';
   let draftStopId = '';
+  let draftDate = todayLocal();
 
   /* Inline edit state. */
   let editingId = null;
   let editText = '';
   let editStopId = '';
+  let editDate = '';
 
   /** @type {HTMLTextAreaElement | undefined} */
   let editTextarea;
@@ -62,10 +74,12 @@
     try {
       await addDiaryEntry(tripId, {
         text,
-        stopId: stopFilter || draftStopId || null
+        stopId: stopFilter || draftStopId || null,
+        entryDate: draftDate || null
       });
       draft = '';
       draftStopId = '';
+      draftDate = todayLocal();
       await refresh();
       dispatch('change');
     } finally {
@@ -77,6 +91,7 @@
     editingId = entry.id;
     editText = entry.text;
     editStopId = entry.stopId || '';
+    editDate = entry.entryDate || '';
     await tick();
     editTextarea?.focus();
   }
@@ -86,11 +101,13 @@
     const id = editingId;
     const text = editText;
     const stopId = stopFilter || editStopId || null;
+    const entryDate = editDate || null;
     editingId = null;
     editText = '';
     editStopId = '';
+    editDate = '';
     if (text.trim()) {
-      await updateDiaryEntry(id, { text, stopId });
+      await updateDiaryEntry(id, { text, stopId, entryDate });
       await refresh();
       dispatch('change');
     }
@@ -100,6 +117,7 @@
     editingId = null;
     editText = '';
     editStopId = '';
+    editDate = '';
   }
 
   async function remove(id) {
@@ -116,6 +134,13 @@
   /* "Today" / "Yesterday" / "Sep 5" / "Aug 15 2024" relative to the
      viewer's local timezone. Keeps the feed readable without
      overwhelming each entry with the year for recent notes. */
+  function formatEntryDate(entry) {
+    if (!entry) return '';
+    if (typeof entry.entryDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(entry.entryDate)) {
+      return formatDate(new Date(entry.entryDate + 'T12:00:00').getTime());
+    }
+    return formatDate(entry.createdAt);
+  }
   function formatDate(ms) {
     if (!ms) return '';
     const dt = new Date(ms);
@@ -162,6 +187,15 @@
         class="diary-textarea"
       ></textarea>
       <div class="diary-add-row">
+        <label class="diary-date-pick">
+          <span class="sr-only">Note date</span>
+          <input
+            type="date"
+            class="diary-date-input"
+            bind:value={draftDate}
+            aria-label="Date of this note"
+          />
+        </label>
         {#if !stopFilter && tripStops.length > 0}
           <label class="diary-stop-pick">
             <span class="sr-only">Pin to a stop</span>
@@ -213,7 +247,16 @@
                 }}
               ></textarea>
               <div class="diary-add-row">
-                {#if tripStops.length > 0}
+                <label class="diary-date-pick">
+                  <span class="sr-only">Note date</span>
+                  <input
+                    type="date"
+                    class="diary-date-input"
+                    bind:value={editDate}
+                    aria-label="Date of this note"
+                  />
+                </label>
+                {#if !stopFilter && tripStops.length > 0}
                   <select bind:value={editStopId} class="diary-select">
                     <option value="">Anywhere on the trip</option>
                     {#each tripStops as s}
@@ -228,7 +271,7 @@
               </div>
             {:else}
               <div class="diary-meta">
-                <span class="diary-date">{formatDate(entry.createdAt)}</span>
+                <span class="diary-date">{formatEntryDate(entry)}</span>
                 {#if entry.stopId && stopNameOrNull(entry.stopId)}
                   <span class="diary-stop-pill">{stopNameOrNull(entry.stopId)}</span>
                 {/if}
@@ -284,6 +327,20 @@
     flex: 1;
     min-width: 0;
   }
+  .diary-date-pick {
+    flex: 0 0 auto;
+  }
+  .diary-date-input {
+    background: #fffdf6;
+    border: 1px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
+    color: #0a2d21;
+    outline: none;
+  }
+  .diary-date-input:focus { border-color: #7d3a1e; }
   .diary-select {
     background: #fffdf6;
     border: 1px solid #8b6a3a;

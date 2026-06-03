@@ -121,6 +121,33 @@ export function eventsInDateWindow(events, departureDate, windowDays = 7) {
 }
 
 /**
+ * Filter events to those that overlap an explicit [startDate, endDate]
+ * window (YYYY-MM-DD, both inclusive). Recurring events are always
+ * kept. When `endDate` is missing the window collapses to the single
+ * day; when neither is set we keep every upcoming event. Used by the
+ * per-chapter event strip so each stop only surfaces events on the
+ * days the user is actually there.
+ */
+export function eventsInRange(events, startDate, endDate) {
+  if (!Array.isArray(events)) return [];
+  if (!startDate) return eventsInDateWindow(events, null);
+  const start = parseLocalDate(startDate);
+  if (!start) return events;
+  const endStr = endDate || startDate;
+  const end = parseLocalDate(endStr) || start;
+  const startMs = start.getTime();
+  const endMs = end.getTime();
+  return events.filter((ev) => {
+    if (ev.recurring) return true;
+    const evStart = parseLocalDate(ev.startDate);
+    const evEnd = parseLocalDate(ev.endDate || ev.startDate);
+    if (!evStart) return true;
+    const evEndMs = (evEnd || evStart).getTime();
+    return evEndMs >= startMs && evStart.getTime() <= endMs;
+  });
+}
+
+/**
  * "Sat, Sep 14" / "Sep 14 to Sep 18" / "Sep 14 · 7:00 PM" type label.
  * Time gets folded in for single-day dated events.
  */

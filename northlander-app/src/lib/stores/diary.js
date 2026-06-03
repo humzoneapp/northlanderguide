@@ -14,20 +14,39 @@ import { db } from './trips.js';
  * @property {string} tripId
  * @property {string|null} stopId
  * @property {string} text
+ * @property {string|null} [entryDate]  YYYY-MM-DD when the user says
+ *   the note "happened" - may differ from createdAt for backdated
+ *   notes (you write the entry on the train but date it for the
+ *   day before). Optional; legacy rows fall back to createdAt.
  * @property {number} createdAt
  * @property {number} updatedAt
  */
+
+/* Sort key: the user-supplied entryDate when present, else the
+   createdAt timestamp. Both are descending so the most recent note
+   lands on top. */
+function entrySortKey(row) {
+  if (row && typeof row.entryDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(row.entryDate)) {
+    try {
+      return new Date(row.entryDate + 'T12:00:00').getTime();
+    } catch (_) {
+      /* fall through to createdAt */
+    }
+  }
+  return row && row.createdAt ? row.createdAt : 0;
+}
 
 /** Newest-first feed for the trip detail panel. */
 export async function listDiaryEntries(tripId) {
   if (!tripId) return [];
   const rows = await db.diaryEntries.where({ tripId }).toArray();
-  return rows.sort((a, b) => b.createdAt - a.createdAt);
+  return rows.sort((a, b) => entrySortKey(b) - entrySortKey(a));
 }
 
 /** Returns the auto-assigned id of the new entry, or null when the
-    body is empty. */
-export async function addDiaryEntry(tripId, { text, stopId = null } = {}) {
+    body is empty. `entryDate` is optional; the UI defaults it to
+    today so quick notes still feel instant. */
+export async function addDiaryEntry(tripId, { text, stopId = null, entryDate = null } = {}) {
   const clean = String(text || '').trim();
   if (!clean) return null;
   const now = Date.now();
@@ -35,6 +54,7 @@ export async function addDiaryEntry(tripId, { text, stopId = null } = {}) {
     tripId,
     stopId: stopId || null,
     text: clean,
+    entryDate: typeof entryDate === 'string' && entryDate ? entryDate : null,
     createdAt: now,
     updatedAt: now
   });
@@ -51,6 +71,7 @@ export async function updateDiaryEntry(id, patch) {
     next.text = clean;
   }
   if (patch.stopId !== undefined) next.stopId = patch.stopId || null;
+  if (patch.entryDate !== undefined) next.entryDate = patch.entryDate || null;
   if (Object.keys(next).length === 0) return row;
   next.updatedAt = Date.now();
   await db.diaryEntries.update(id, next);

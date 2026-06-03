@@ -4,6 +4,7 @@
     loadEvents,
     eventsForStops,
     eventsInDateWindow,
+    eventsInRange,
     sortEvents,
     formatEventDate,
     priceLabel
@@ -17,6 +18,9 @@
   export let stopIds = [];
   /** @type {string|null} */
   export let departureDate = null;
+  /** @type {string|null} - end of the per-stop stay window. When set
+      alongside departureDate, only events between the two dates show. */
+  export let endDate = null;
 
   /** @type {Array} */
   let events = [];
@@ -25,7 +29,7 @@
   /* Saved tracker so the same event can't be added twice in a row. */
   let savedIds = {};
 
-  $: tripId, stopIds, departureDate, refresh();
+  $: tripId, stopIds, departureDate, endDate, refresh();
 
   onMount(refresh);
 
@@ -40,7 +44,9 @@
     try {
       const data = await loadEvents();
       const forStops = eventsForStops(data, stopIds);
-      const inWindow = eventsInDateWindow(forStops, departureDate, 7);
+      const inWindow = (departureDate && endDate)
+        ? eventsInRange(forStops, departureDate, endDate)
+        : eventsInDateWindow(forStops, departureDate, 7);
       events = sortEvents(inWindow);
     } catch (err) {
       error = "We couldn't fetch events from the Guide right now. Check your connection?";
@@ -78,7 +84,7 @@
 
   {#if !departureDate}
     <p class="font-serif italic text-muted text-sm mb-3">
-      Set a departure date on the schedule strip above to narrow events to your trip window.
+      Set dates in your route to narrow events to the days you're at this stop.
     </p>
   {/if}
 

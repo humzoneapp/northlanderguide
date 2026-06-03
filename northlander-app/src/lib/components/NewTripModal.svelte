@@ -57,7 +57,7 @@
 <svelte:window on:keydown={onKey} />
 
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center px-4"
+  class="fixed inset-0 z-[200] flex items-center justify-center px-4"
   role="dialog"
   aria-modal="true"
   aria-labelledby="new-trip-title"
