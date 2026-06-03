@@ -709,9 +709,9 @@
     background: transparent;
     border: 1.5px dashed #8b6a3a;
     border-radius: 999px;
-    padding: 5px 12px;
+    padding: 6px 14px;
     font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #5a4f3d;
     cursor: pointer;
@@ -752,8 +752,8 @@
   /* ===== Kind tabs ===== */
   .ap-tabs {
     display: flex;
-    gap: 6px;
-    padding: 8px 16px 10px;
+    gap: 8px;
+    padding: 12px 16px 14px;
     background: #fbf6ea;
     border-bottom: 1px solid rgba(139, 106, 58, 0.25);
     overflow-x: auto;
@@ -762,11 +762,11 @@
     flex: 0 0 auto;
     background: transparent;
     border: 0;
-    padding: 6px 10px;
+    padding: 8px 12px;
     font-family: 'Spline Sans', sans-serif;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #5a4f3d;
     cursor: pointer;
@@ -787,7 +787,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 16px;
     background: #fbf6ea;
     border-bottom: 1px solid rgba(139, 106, 58, 0.25);
     flex-wrap: wrap;

@@ -110,7 +110,7 @@
         <span
           id="route-picker-title"
           class="block font-serif uppercase tracking-[0.18em]"
-          style="color:#f5f0e8;font-weight:900;font-size:clamp(20px,2.6vw,26px);line-height:1.05;"
+          style="color:#f5f0e8;font-weight:900;font-size:20px;line-height:1.1;"
         >
           {step === 1 ? 'Departing From' : 'Arriving To'}
         </span>
