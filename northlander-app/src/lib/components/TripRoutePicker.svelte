@@ -57,14 +57,29 @@
     activeDate = '';
   });
 
+  /* Today's date in the viewer's local timezone, YYYY-MM-DD. Used as
+     the floor for every date input so the user can only pick today
+     or future days when planning a trip. Existing trips with past
+     dates aren't disturbed - the value still displays - they just
+     can't pick a new past date. */
+  function todayLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  const TODAY_ISO = todayLocal();
+
   $: stepNumber = entries.length + 1;
   $: minDate = (() => {
-    if (entries.length === 0) return '';
-    return entries[entries.length - 1].date || '';
+    const prev = entries.length > 0 ? entries[entries.length - 1].date || '' : '';
+    return prev && prev > TODAY_ISO ? prev : TODAY_ISO;
   })();
-  $: canCommit = !!activeStopId && !!activeDate && (!minDate || activeDate >= minDate);
+  $: canCommit = !!activeStopId && !!activeDate && activeDate >= minDate;
   $: lastEntryDate = entries.length > 0 ? entries[entries.length - 1].date : '';
-  $: canSaveReturn = !!returnDateDraft && (!lastEntryDate || returnDateDraft >= lastEntryDate);
+  $: returnMinDate = lastEntryDate && lastEntryDate > TODAY_ISO ? lastEntryDate : TODAY_ISO;
+  $: canSaveReturn = !!returnDateDraft && returnDateDraft >= returnMinDate;
   /* The trip needs at least the boarding station and one place to
      get off before it can be saved or have a return date. We check
      the post-commit count: if the active step is filled in, that
@@ -245,7 +260,7 @@
             type="date"
             class="rp-date-input rp-date-input--big"
             bind:value={returnDateDraft}
-            min={lastEntryDate || undefined}
+            min={returnMinDate}
           />
         </label>
         <p class="rp-return-note">
@@ -265,9 +280,9 @@
             type="date"
             class="rp-date-input"
             bind:value={activeDate}
-            min={minDate || undefined}
+            min={minDate}
           />
-          {#if minDate && activeDate && activeDate < minDate}
+          {#if activeDate && activeDate < minDate}
             <span class="rp-date-error">Must be on or after {formatDate(minDate)}.</span>
           {/if}
         </label>
