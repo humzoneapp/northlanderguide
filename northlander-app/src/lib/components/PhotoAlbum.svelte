@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy, tick } from 'svelte';
+  import { onMount, onDestroy, tick, createEventDispatcher } from 'svelte';
   import {
     listPhotos,
     addPhoto,
@@ -14,6 +14,13 @@
   export let tripId;
   /** @type {string[]} - stops on the trip, available for tagging */
   export let stopIds = [];
+  /** @type {string} - When set, the grid narrows to photos pinned to
+      this stop and new uploads auto-tag here. The per-tile stop chip
+      and the lightbox tag dropdown hide since the surrounding scene
+      already names the stop. */
+  export let stopFilter = '';
+
+  const dispatch = createEventDispatcher();
 
   /** @type {import('$lib/stores/photos.js').Photo[]} */
   let photos = [];
@@ -42,7 +49,8 @@
 
   $: tripId, refresh();
   $: tripStops = getStopsByIds(stopIds);
-  $: openPhoto = lightboxIndex >= 0 && lightboxIndex < photos.length ? photos[lightboxIndex] : null;
+  $: visiblePhotos = stopFilter ? photos.filter((p) => p.stopId === stopFilter) : photos;
+  $: openPhoto = lightboxIndex >= 0 && lightboxIndex < visiblePhotos.length ? visiblePhotos[lightboxIndex] : null;
 
   onMount(refresh);
 
@@ -109,9 +117,10 @@
     uploadDone = 0;
     uploadTotal = files.length;
     uploadError = '';
+    const meta = stopFilter ? { stopId: stopFilter } : {};
     for (const f of files) {
       try {
-        const id = await addPhoto(tripId, f);
+        const id = await addPhoto(tripId, f, meta);
         if (id == null) uploadError = 'Some photos could not be decoded.';
       } catch (err) {
         uploadError = 'Photo upload failed. Try fewer at a time?';
@@ -120,14 +129,15 @@
     }
     await refresh();
     uploadActive = false;
+    dispatch('change');
   }
 
   async function openLightbox(i) {
-    if (i < 0 || i >= photos.length) return;
+    if (i < 0 || i >= visiblePhotos.length) return;
     lightboxIndex = i;
-    const p = photos[i];
+    const p = visiblePhotos[i];
     captionDraft = p.caption || '';
-    tagDraft = p.stopId || '';
+    tagDraft = p.stopId || stopFilter || '';
     await tick();
     /* No focus call here - the close X is the natural first focusable. */
   }
@@ -139,7 +149,7 @@
   }
 
   function next() {
-    if (lightboxIndex < photos.length - 1) {
+    if (lightboxIndex < visiblePhotos.length - 1) {
       openLightbox(lightboxIndex + 1);
     }
   }
@@ -169,6 +179,7 @@
         photos[idx] = updated;
         photos = [...photos];
       }
+      dispatch('change');
     }
   }
 
@@ -179,10 +190,11 @@
     closeLightbox();
     await deletePhoto(id);
     await refresh();
+    dispatch('change');
     /* Reopen the neighbour if there is one so the user can keep flipping. */
-    if (photos.length > 0) {
-      const next = Math.min(i, photos.length - 1);
-      openLightbox(next);
+    if (visiblePhotos.length > 0) {
+      const nextIdx = Math.min(i, visiblePhotos.length - 1);
+      openLightbox(nextIdx);
     }
   }
 
@@ -201,12 +213,14 @@
       <h3 class="font-serif font-bold text-forest text-xl">Trip photos</h3>
     </div>
     <div class="header-meta">
-      {#if loaded && photos.length > 0}
+      {#if loaded && visiblePhotos.length > 0}
         <span class="meta-pill">
-          <strong>{photos.length}</strong>
-          {photos.length === 1 ? 'photo' : 'photos'}
+          <strong>{visiblePhotos.length}</strong>
+          {visiblePhotos.length === 1 ? 'photo' : 'photos'}
         </span>
-        <span class="meta-pill">{formatBytes(bytes)}</span>
+        {#if !stopFilter}
+          <span class="meta-pill">{formatBytes(bytes)}</span>
+        {/if}
       {/if}
       <button
         type="button"
@@ -233,13 +247,17 @@
   {/if}
 
   {#if loaded}
-    {#if photos.length === 0}
+    {#if visiblePhotos.length === 0}
       <p class="empty">
-        Your album is empty. Drop a few photos in and they'll travel with the trip - we resize on the way in so your suitcase doesn't fill up.
+        {#if stopFilter}
+          No photos here yet. Tap Add photos to drop a few from this stop.
+        {:else}
+          Your album is empty. Drop a few photos in and they'll travel with the trip - we resize on the way in so your suitcase doesn't fill up.
+        {/if}
       </p>
     {:else}
       <ul class="grid">
-        {#each photos as p, i (p.id)}
+        {#each visiblePhotos as p, i (p.id)}
           <li>
             <button
               type="button"
@@ -251,7 +269,7 @@
               {#if p.caption}
                 <span class="caption-overlay">{p.caption}</span>
               {/if}
-              {#if stopNameFor(p.stopId)}
+              {#if !stopFilter && stopNameFor(p.stopId)}
                 <span class="tile-stop">{stopNameFor(p.stopId)}</span>
               {/if}
             </button>
@@ -288,14 +306,14 @@
         <button
           class="nav-btn nav-next"
           on:click={next}
-          disabled={lightboxIndex === photos.length - 1}
+          disabled={lightboxIndex === visiblePhotos.length - 1}
           aria-label="Next photo"
         >&rarr;</button>
       </div>
 
       <div class="lightbox-meta">
         <span class="lightbox-counter">
-          Photo {lightboxIndex + 1} of {photos.length}
+          Photo {lightboxIndex + 1} of {visiblePhotos.length}
         </span>
         <textarea
           bind:value={captionDraft}
@@ -306,7 +324,7 @@
           class="caption-input"
         ></textarea>
         <div class="lightbox-actions">
-          {#if tripStops.length > 0}
+          {#if !stopFilter && tripStops.length > 0}
             <select
               bind:value={tagDraft}
               on:change={saveOpenMeta}

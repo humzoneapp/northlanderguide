@@ -1,5 +1,5 @@
 <script>
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, createEventDispatcher } from 'svelte';
   import {
     listDiaryEntries,
     addDiaryEntry,
@@ -13,6 +13,13 @@
   /** @type {string[]} - the trip's currently selected stops, so the
       "associate with stop" dropdown only offers stops in the suitcase */
   export let stopIds = [];
+  /** @type {string} - When set, the feed narrows to notes pinned to
+      this stop and new notes auto-pin here. The composer drops its
+      stop dropdown and per-entry stop pills since the surrounding
+      scene already names the stop. */
+  export let stopFilter = '';
+
+  const dispatch = createEventDispatcher();
 
   /** @type {import('$lib/stores/diary.js').DiaryEntry[]} */
   let entries = [];
@@ -33,6 +40,7 @@
 
   $: tripId, refresh();
   $: tripStops = getStopsByIds(stopIds);
+  $: visibleEntries = stopFilter ? entries.filter((e) => e.stopId === stopFilter) : entries;
 
   onMount(refresh);
 
@@ -54,11 +62,12 @@
     try {
       await addDiaryEntry(tripId, {
         text,
-        stopId: draftStopId || null
+        stopId: stopFilter || draftStopId || null
       });
       draft = '';
       draftStopId = '';
       await refresh();
+      dispatch('change');
     } finally {
       saving = false;
     }
@@ -76,13 +85,14 @@
     if (editingId == null) return;
     const id = editingId;
     const text = editText;
-    const stopId = editStopId || null;
+    const stopId = stopFilter || editStopId || null;
     editingId = null;
     editText = '';
     editStopId = '';
     if (text.trim()) {
       await updateDiaryEntry(id, { text, stopId });
       await refresh();
+      dispatch('change');
     }
   }
 
@@ -95,6 +105,7 @@
   async function remove(id) {
     await deleteDiaryEntry(id);
     await refresh();
+    dispatch('change');
   }
 
   function stopNameOrNull(id) {
@@ -133,9 +144,9 @@
       <div class="kicker">Journey</div>
       <h3 class="font-serif font-bold text-forest text-xl">Travel diary</h3>
     </div>
-    {#if loaded && entries.length > 0}
+    {#if loaded && visibleEntries.length > 0}
       <span class="font-serif italic text-rust text-sm flex-none">
-        {entries.length} {entries.length === 1 ? 'note' : 'notes'}
+        {visibleEntries.length} {visibleEntries.length === 1 ? 'note' : 'notes'}
       </span>
     {/if}
   </div>
@@ -151,7 +162,7 @@
         class="diary-textarea"
       ></textarea>
       <div class="diary-add-row">
-        {#if tripStops.length > 0}
+        {#if !stopFilter && tripStops.length > 0}
           <label class="diary-stop-pick">
             <span class="sr-only">Pin to a stop</span>
             <select bind:value={draftStopId} class="diary-select">
@@ -161,8 +172,10 @@
               {/each}
             </select>
           </label>
-        {:else}
+        {:else if !stopFilter}
           <span class="font-serif italic text-muted text-sm">Add stops to your trip to pin notes to a place.</span>
+        {:else}
+          <span class="font-serif italic text-muted text-sm">Pinned to this stop.</span>
         {/if}
         <button
           type="submit"
@@ -175,13 +188,17 @@
     </form>
 
     <!-- Entries feed -->
-    {#if entries.length === 0}
+    {#if visibleEntries.length === 0}
       <p class="font-serif italic text-muted mt-4">
-        No notes yet. The first one is always the hardest. Try: "Toronto Union, finally."
+        {#if stopFilter}
+          Nothing here yet. Drop a thought in the composer above.
+        {:else}
+          No notes yet. The first one is always the hardest. Try: "Toronto Union, finally."
+        {/if}
       </p>
     {:else}
       <ol class="diary-feed">
-        {#each entries as entry (entry.id)}
+        {#each visibleEntries as entry (entry.id)}
           <li class="diary-entry" class:is-editing={editingId === entry.id}>
             {#if editingId === entry.id}
               <textarea

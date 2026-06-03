@@ -723,7 +723,7 @@
           {/if}
         </h2>
         <p class="narrative-hint">
-          Tap a prompt at any stop below to drop a plan in, or open a drawer in your trip kit to manage packing, the ledger, your photo album, and more.
+          Chapter 1 below uses the new self-contained style: every plan, note, photo, and event for that stop lives right inside the chapter. Scroll past it to compare with the older chapters and the Trip Kit drawers underneath.
         </p>
       </div>
     </section>
@@ -737,8 +737,9 @@
         {@const orderedBookings = sortByStartTime(stopBookings)}
         {@const isLast = i === stops.length - 1}
         {@const isEmpty = stopBookings.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
+        {@const isPreviewScene = i === 0}
 
-        <article id="scene-{i}" class="scene">
+        <article id="scene-{i}" class="scene" class:is-preview-scene={isPreviewScene}>
           <div class="scene-inner">
             <header class="scene-head">
               <div class="kicker">Chapter {i + 1}</div>
@@ -750,8 +751,89 @@
                   {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
                 </span>
               </div>
+              {#if isPreviewScene}
+                <div class="preview-banner" role="note">
+                  <span class="preview-tag">Preview</span>
+                  <span class="preview-text">New chapter style: every plan, note, photo, and event for {stop.name} lives right here. Other chapters below still use the old preview style for comparison.</span>
+                </div>
+              {/if}
             </header>
 
+            {#if isPreviewScene}
+              <div class="scene-grid">
+                <div class="scene-main">
+                  <div class="scene-when">
+                    {#if !isLast}{hereDuration(i)}{:else}End of the line{/if}
+                  </div>
+
+                  <section class="self-section">
+                    <div class="group-head">
+                      <span class="group-label">Schedule for {stop.name}</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <BookingChecklist
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      direction={trip.direction || 'northbound'}
+                      departureClock={depClock}
+                      on:change={load}
+                    />
+                  </section>
+
+                  <section class="self-section">
+                    <div class="group-head">
+                      <span class="group-label">Notes from {stop.name}</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <TravelDiary
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      on:change={load}
+                    />
+                  </section>
+
+                  <section class="self-section">
+                    <div class="group-head">
+                      <span class="group-label">Polaroids from {stop.name}</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <PhotoAlbum
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      on:change={load}
+                    />
+                  </section>
+
+                  <section class="self-section">
+                    <div class="group-head">
+                      <span class="group-label">Happening at {stop.name}</span>
+                      <span class="group-rule" aria-hidden="true"></span>
+                    </div>
+                    <EventsAlongRoute
+                      tripId={trip.id}
+                      stopIds={[stop.id]}
+                      departureDate={trip.departureDate || null}
+                    />
+                  </section>
+                </div>
+
+                <aside class="scene-aside">
+                  <figure class="scene-postcard">
+                    <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
+                  </figure>
+                  <p class="scene-aside-hook">{stop.hook}</p>
+                  <a
+                    class="scene-aside-guide"
+                    href={`https://northlanderguide.com/stops/${stop.id}/`}
+                    target="_blank"
+                    rel="noopener"
+                  >Open {stop.name} on the Guide  &rarr;</a>
+                </aside>
+              </div>
+            {:else}
             <div class="scene-grid">
               <div class="scene-main">
                 {#if isEmpty}
@@ -893,6 +975,7 @@
                 <p class="scene-aside-hook">{stop.hook}</p>
               </aside>
             </div><!-- /.scene-grid -->
+            {/if}
           </div><!-- /.scene-inner -->
         </article>
 
@@ -1837,6 +1920,66 @@
     margin: 0;
     padding-left: 18px;
     border-left: 2px solid #7d3a1e;
+  }
+  .scene-aside-guide {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6e2e17;
+    text-decoration: none;
+    border-bottom: 1.5px dashed #c4860f;
+    padding-bottom: 2px;
+    align-self: flex-start;
+  }
+  .scene-aside-guide:hover { color: #0a2d21; border-color: #0a2d21; }
+
+  /* ===== Preview scene (scene 1 only) =====
+     Per-stop editing inline. Sections share the same group-head/
+     group-rule vocabulary as the older preview scenes but each
+     section now hosts a full editable component (BookingChecklist,
+     TravelDiary, PhotoAlbum, EventsAlongRoute), filtered to this
+     stop via stopFilter. Trip Kit stays in place as a safety net
+     while we evaluate the pattern. */
+  .preview-banner {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: #fffdf6;
+    border: 1.5px dashed #c4860f;
+    border-radius: 3px;
+    max-width: 100%;
+  }
+  .preview-tag {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6e2e17;
+    background: #f3ece0;
+    padding: 3px 8px;
+    border-radius: 2px;
+    flex: none;
+  }
+  .preview-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #5a4f3d;
+  }
+  .scene.is-preview-scene .self-section {
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px dashed rgba(196, 134, 15, 0.45);
+  }
+  .scene.is-preview-scene .self-section:first-of-type {
+    margin-top: 28px;
+    padding-top: 22px;
   }
 
   /* Empty-state copy on the left column. Display headline (smaller

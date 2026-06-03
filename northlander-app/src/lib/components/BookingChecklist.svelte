@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import {
     listBookings,
     addBooking,
@@ -25,6 +25,13 @@
   /** @type {string} - HH:MM 24h. Defaults at usage to the canonical
       direction departure. */
   export let departureClock = '';
+  /** @type {string} - When set, the list narrows to bookings pinned
+      to this stop and the quick-add row auto-pins new bookings here
+      (hides the stop dropdown + "At {stop}" line on each row since
+      the surrounding scene already names the stop). */
+  export let stopFilter = '';
+
+  const dispatch = createEventDispatcher();
 
   /** @type {import('$lib/stores/bookings.js').Booking[]} */
   let items = [];
@@ -49,8 +56,9 @@
   }
 
   $: tripId, refresh();
-  $: total = items.length;
-  $: bookedCount = items.filter((i) => i.status === 'booked').length;
+  $: visibleItems = stopFilter ? items.filter((i) => i.stopId === stopFilter) : items;
+  $: total = visibleItems.length;
+  $: bookedCount = visibleItems.filter((i) => i.status === 'booked').length;
 
   onMount(refresh);
 
@@ -73,12 +81,13 @@
       await addBooking(tripId, {
         title: clean,
         kind: newKind,
-        stopId: newStop || null
+        stopId: stopFilter || newStop || null
       });
       newTitle = '';
       newKind = 'other';
       newStop = '';
       await refresh();
+      dispatch('change');
     } finally {
       busy = false;
     }
@@ -110,6 +119,7 @@
   async function toggle(id) {
     await toggleBooking(id);
     await refresh();
+    dispatch('change');
   }
 
   function startRename(item) {
@@ -126,6 +136,7 @@
     if (draft.trim()) {
       await renameBooking(id, draft);
       await refresh();
+      dispatch('change');
     }
   }
 
@@ -137,6 +148,7 @@
   async function remove(id) {
     await deleteBooking(id);
     await refresh();
+    dispatch('change');
   }
 
   /* Save handler for the room-detail fields. Fires on blur per
@@ -151,6 +163,7 @@
         items[idx] = updated;
         items = items;
       }
+      dispatch('change');
     }
   }
 
@@ -173,13 +186,17 @@
   </div>
 
   {#if loaded}
-    {#if items.length === 0}
+    {#if visibleItems.length === 0}
       <p class="font-serif italic text-muted mb-3">
-        Train tickets, rooms, restaurants. Nothing booked yet.
+        {#if stopFilter}
+          Nothing pinned to this stop yet. Add a plan below.
+        {:else}
+          Train tickets, rooms, restaurants. Nothing booked yet.
+        {/if}
       </p>
     {:else}
       <ul class="book-list">
-        {#each items as item (item.id)}
+        {#each visibleItems as item (item.id)}
           {@const conflictAt = rowConflictClock(item)}
           <li
             class="book-row"
@@ -227,7 +244,7 @@
                   class="book-title"
                   on:click={() => startRename(item)}
                 >{item.title}</button>
-                {#if item.stopId && stopNameFor(item.stopId)}
+                {#if !stopFilter && item.stopId && stopNameFor(item.stopId)}
                   <span class="book-stop-line">At {stopNameFor(item.stopId)}</span>
                 {/if}
                 {#if conflictAt}
@@ -358,7 +375,7 @@
     <form
       on:submit|preventDefault={handleAdd}
       class="book-add"
-      class:has-stops={tripStops.length > 0}
+      class:has-stops={!stopFilter && tripStops.length > 0}
     >
       <select
         bind:value={newKind}
@@ -369,7 +386,7 @@
           <option value={k.id}>{k.label}</option>
         {/each}
       </select>
-      {#if tripStops.length > 0}
+      {#if !stopFilter && tripStops.length > 0}
         <select bind:value={newStop} class="book-stop" aria-label="Pin to stop">
           <option value="">Anywhere</option>
           {#each tripStops as s}
