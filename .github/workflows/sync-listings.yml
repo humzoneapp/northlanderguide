@@ -78,7 +78,19 @@ jobs:
           git add site/listings-data.js site/stop-pages-data.js
           if git diff --staged --quiet; then
             echo "No changes to commit"
-          else
-            git commit -m "Sync listings data from Airtable"
-            git push
+            exit 0
           fi
+          git commit -m "Sync listings data from Airtable"
+          # The job can race with hand-typed pushes to main. If the
+          # remote moved while the script was running, rebase the
+          # sync commit on top and retry. Three attempts is plenty.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "Push rejected on attempt $attempt; rebasing on origin/main"
+            git pull --rebase origin main || { echo "Rebase failed"; exit 1; }
+          done
+          echo "Push still rejected after 3 attempts"
+          exit 1
