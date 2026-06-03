@@ -100,7 +100,7 @@
   {#if loaded}
     {#if items.length === 0}
       <p class="font-serif italic text-muted mb-3">
-        Your suitcase is empty. Toothbrush, train ticket, your better book...
+        Your bag is empty. Toothbrush, train ticket, your better book...
       </p>
     {:else}
       <ul class="pack-list">

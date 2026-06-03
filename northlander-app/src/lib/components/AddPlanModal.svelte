@@ -427,7 +427,7 @@
       {:else if !data}
         <p class="ap-status">No data.</p>
       {:else if (tripStops.length === 0)}
-        <p class="ap-status">Add stops to your trip first. The picker pulls listings from the stops in your suitcase.</p>
+        <p class="ap-status">Add stops to your trip first. The picker pulls listings from the stops on your route.</p>
       {:else if rows.length === 0}
         <p class="ap-status">
           {#if query}

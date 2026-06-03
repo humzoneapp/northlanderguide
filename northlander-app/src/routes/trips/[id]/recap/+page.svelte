@@ -14,7 +14,6 @@
     DIRECTIONS,
     travelDuration
   } from '$lib/data/schedule.js';
-  import Suitcase from '$lib/components/Suitcase.svelte';
 
   let trip = null;
   let photos = [];
@@ -82,6 +81,28 @@
     return [];
   }
   $: frames = buildFrames(photos, stops, photoUrls);
+
+  /* Hero polaroid for the cover. Prefers the user's first photo so
+     the recap reads as their record; falls back to the arriving
+     stop's hero photo when the album is empty so even
+     un-photographed trips get a real image. */
+  $: coverHeroSrc = (() => {
+    if (Array.isArray(photos) && photos.length > 0) {
+      const first = photos[0];
+      const urls = photoUrls.get(first.id);
+      if (urls && urls.full) return urls.full;
+    }
+    const arriving = stops.length > 0 ? stops[stops.length - 1] : null;
+    return arriving ? stopImageUrl(arriving) : '';
+  })();
+  $: coverHeroCaption = (() => {
+    if (Array.isArray(photos) && photos.length > 0) {
+      const first = photos[0];
+      if (first && first.caption) return first.caption;
+    }
+    const arriving = stops.length > 0 ? stops[stops.length - 1] : null;
+    return arriving ? arriving.name : (trip ? trip.name : '');
+  })();
 
   function relDate(ms) {
     if (!ms) return '';
@@ -183,9 +204,14 @@
           {/if}
         </ul>
       </div>
-      <div class="cover-suitcase">
-        <Suitcase color={trip.color} strap={trip.strap} label="" />
-      </div>
+      <figure class="cover-polaroid" aria-hidden="true">
+        {#if coverHeroSrc}
+          <img src={coverHeroSrc} alt="" loading="eager" />
+        {:else}
+          <div class="cover-polaroid-blank"></div>
+        {/if}
+        <figcaption>{coverHeroCaption}</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -403,7 +429,7 @@
     .cover-inner {
       grid-template-columns: 1fr;
     }
-    .cover-suitcase {
+    .cover-polaroid {
       margin: 0 auto;
       max-width: 200px;
     }
@@ -467,9 +493,35 @@
     font-weight: 700;
     color: #cad7cf;
   }
-  .cover-suitcase {
+  .cover-polaroid {
+    margin: 0;
+    background: #fffdf6;
+    padding: 14px 14px 22px;
     max-width: 220px;
+    width: 100%;
     justify-self: center;
+    box-shadow:
+      0 22px 36px rgba(8, 22, 14, 0.5),
+      0 4px 10px rgba(8, 22, 14, 0.3);
+    transform: rotate(-3deg);
+  }
+  .cover-polaroid img,
+  .cover-polaroid-blank {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: #ede0cc;
+  }
+  .cover-polaroid figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 14px;
+    color: #0a2d21;
+    text-align: center;
+    padding-top: 12px;
+    letter-spacing: 0.02em;
   }
 
   /* ===== Five frames band ===== */

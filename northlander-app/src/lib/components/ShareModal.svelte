@@ -146,7 +146,7 @@
         <span id="share-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
           Share Your Trip
         </span>
-        <span class="text-gold font-serif italic text-[12px]">A keepsake poster for your suitcase</span>
+        <span class="text-gold font-serif italic text-[12px]">A keepsake poster for your trip</span>
       </div>
       <button
         type="button"

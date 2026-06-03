@@ -20,7 +20,6 @@
 
   import { createEventDispatcher, onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import Suitcase from './Suitcase.svelte';
   import { STOPS, stopImageUrl } from '$lib/data/stops.js';
 
   const KEY = 'northlander.onboarded';
@@ -46,27 +45,27 @@
   const cards = [
     {
       kicker: 'Welcome aboard',
-      title: 'Pack a Northern Ontario train trip.',
-      body: "The Northlander runs north from Toronto Union to Cochrane through some of the prettiest country in the province. This app is how you carry your trip, your plans, and your photos in one suitcase.",
+      title: 'Plan a Northern Ontario train trip.',
+      body: "The Northlander runs north from Toronto Union to Cochrane through some of the prettiest country in the province. This app is how you carry your route, your plans, and your photos for the whole journey.",
       cta: 'Show me how'
     },
     {
       kicker: 'Step one',
-      title: 'Tag a suitcase.',
-      body: "Every trip lives in its own tinted suitcase. Pick a name, pick a leather, and the suitcase sits on your platform until you're ready to open it.",
+      title: 'Name your trip.',
+      body: "Pick a name and a leather colour. The trip sits on your platform until you're ready to open it again.",
       cta: 'Next'
     },
     {
       kicker: 'Step two',
       title: 'Pick your stops.',
-      body: "Choose the train stations you'll step off at along the route. Each stop becomes a chapter you can fill with plans, polaroids, and notes from the journey.",
+      body: "Choose the train stations you'll step off at along the route, and the day you'll arrive at each. Every stop becomes a chapter you can fill with plans, polaroids, and notes from the journey.",
       cta: 'Next'
     },
     {
       kicker: 'Step three',
       title: 'Open it anywhere.',
       body: "Everything you save lives on this device. No accounts, no servers, no internet needed once your trip is packed. Open it on your phone the morning you board.",
-      cta: 'Tag my first suitcase'
+      cta: 'Start my first trip'
     }
   ];
 
@@ -158,10 +157,12 @@
             {/each}
           </div>
         {:else if step === 1}
-          <!-- Tinted suitcase preview -->
-          <div class="ob-suitcase">
-            <Suitcase color="#7d3a1e" strap="#c4860f" label="" />
-          </div>
+          <!-- Sample polaroid: a stop photo with a "Your trip" caption.
+               Replaces the old tinted suitcase metaphor. -->
+          <figure class="ob-trip-card" aria-hidden="true">
+            <img src={collagePhotos[0]?.src} alt="" loading="lazy" />
+            <figcaption>Your trip</figcaption>
+          </figure>
         {:else if step === 2}
           <!-- Mini numbered route rail (RouteMap echo) -->
           <div class="ob-route">
@@ -357,10 +358,36 @@
     padding-top: 4px;
   }
 
-  /* Step 2: suitcase preview */
-  .ob-suitcase {
-    width: 200px;
-    max-width: 60%;
+  /* Step 2: sample polaroid. Cream paper card with a stop photo,
+     "Your trip" caption on the white border, tilted slightly to
+     echo the dashboard scrapbook. */
+  .ob-trip-card {
+    width: 220px;
+    max-width: 70%;
+    background: #fffdf6;
+    padding: 12px 12px 18px;
+    margin: 0;
+    box-shadow:
+      0 18px 30px rgba(40, 25, 10, 0.28),
+      0 2px 6px rgba(40, 25, 10, 0.18);
+    transform: rotate(-3deg);
+  }
+  .ob-trip-card img {
+    display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background: #ede0cc;
+  }
+  .ob-trip-card figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 14px;
+    color: #0a2d21;
+    text-align: center;
+    padding-top: 10px;
+    letter-spacing: 0.02em;
   }
 
   /* Step 3: mini route rail (echoes the dashboard tag mini-rail) */

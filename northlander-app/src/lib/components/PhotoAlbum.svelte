@@ -252,7 +252,7 @@
         {#if stopFilter}
           No photos here yet. Tap Add photos to drop a few from this stop.
         {:else}
-          Your album is empty. Drop a few photos in and they'll travel with the trip - we resize on the way in so your suitcase doesn't fill up.
+          Your album is empty. Drop a few photos in and they'll travel with the trip - we resize on the way in so storage stays light.
         {/if}
       </p>
     {:else}

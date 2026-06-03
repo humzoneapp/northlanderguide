@@ -212,7 +212,7 @@
   <title>Northlander.app: Pack your Northern Ontario train trip</title>
   <meta
     name="description"
-    content="Pack your Northlander train trip into one suitcase. Route, stops, packing list, bookings and itinerary, available offline."
+    content="Plan your Northlander train trip in one place. Route, stops, packing list, bookings and itinerary, available offline."
   />
 </svelte:head>
 
@@ -228,11 +228,11 @@
       </h1>
       <p class="dash-lede">
         {#if $trips.length === 0}
-          The Northlander runs north from Toronto Union to Cochrane through some of the prettiest country in Ontario. Tag a suitcase, choose a few stops, and start planning where you'll eat, sleep, and watch the lakes appear.
+          The Northlander runs north from Toronto Union to Cochrane through some of the prettiest country in Ontario. Name a trip, pick a few stops, and start planning where you'll eat, sleep, and watch the lakes appear.
         {:else if $trips.length === 1}
-          One suitcase already packed and waiting. Open it to keep building, or start another adventure.
+          One trip already started. Open it to keep building, or begin another adventure.
         {:else}
-          {$trips.length} suitcases on the platform. Tap one to keep building, or tag a fresh trip from Toronto Union.
+          {$trips.length} trips on the platform. Tap one to keep building, or start a fresh one from Toronto Union.
         {/if}
       </p>
       <div class="dash-actions">
@@ -388,8 +388,8 @@
             </svg>
           </div>
           <div class="polaroid-paper polaroid-paper--cta">
-            <h3 class="polaroid-name">A fresh suitcase</h3>
-            <p class="polaroid-meta">Tag a new trip</p>
+            <h3 class="polaroid-name">A fresh trip</h3>
+            <p class="polaroid-meta">Start a new one</p>
             <p class="polaroid-next">Free, no credit card.</p>
           </div>
         </button>
@@ -655,7 +655,7 @@
     background: #fbf6ea;
     background-image:
       repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.05) 0, rgba(45, 30, 20, 0.05) 1px, transparent 1px, transparent 9px);
-    padding: 56px 0 96px;
+    padding: 56px 0 40px;
     border-top: 3px double rgba(125, 58, 30, 0.25);
     border-bottom: 3px double rgba(125, 58, 30, 0.25);
   }
@@ -703,7 +703,7 @@
      doesn't crowd into the line. */
   .desk-signoff {
     text-align: center;
-    margin: 140px auto 0;
+    margin: 96px auto 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;

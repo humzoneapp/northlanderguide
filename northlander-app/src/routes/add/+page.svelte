@@ -125,7 +125,7 @@
 <section class="max-w-[640px] mx-auto px-6 pt-10 pb-20">
   <div class="kicker mb-1">From the Guide</div>
   <h1 class="font-serif font-black text-forest text-[clamp(2rem,5vw,2.8rem)] leading-[1.05]">
-    Drop this into a suitcase
+    Drop this into a trip
   </h1>
   <p class="font-serif italic text-rust mt-2">
     NorthlanderGuide.com handed you this place. Pick the trip you want it in.
@@ -156,7 +156,7 @@
 
     <!-- Trip picker -->
     <section class="mt-8">
-      <span class="kicker block mb-3">Add to which suitcase?</span>
+      <span class="kicker block mb-3">Add to which trip?</span>
 
       {#if existingTrips.length > 0}
         <div class="picker-options">
@@ -206,14 +206,14 @@
                   class="picker-new-input mt-1"
                 />
               {:else}
-                <div class="kicker text-muted mt-0.5">A fresh suitcase for this place</div>
+                <div class="kicker text-muted mt-0.5">A fresh trip for this place</div>
               {/if}
             </div>
           </label>
         </div>
       {:else}
         <p class="font-serif italic text-muted mb-3">
-          No suitcases yet. We'll tag one for you.
+          No trips yet. We'll start one for you.
         </p>
         <label class="block">
           <span class="kicker block mb-1">Trip name</span>
@@ -256,11 +256,11 @@
           disabled={saving || saved || savedBucket || (pickerMode === 'new' && !(newTripName || '').trim())}
         >
           {#if saved}
-            Stowed
+            Added
           {:else if saving}
-            Stowing...
+            Adding...
           {:else}
-            Stow in suitcase
+            Add to trip
           {/if}
         </button>
       </div>
