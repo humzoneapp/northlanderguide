@@ -38,6 +38,16 @@ const { walkMinsBetween } = require('./walk');
 })();
 
 const API_KEY = process.env.AIRTABLE_API_KEY;
+/* Common headers for every Airtable request. Setting Accept + a real
+   User-Agent stops Airtable's Cloudflare layer from returning a
+   406 "blocked" page when the request looks too anonymous from a
+   GitHub Actions IP. The CI run that triggered this was #20. */
+const AIRTABLE_HEADERS = {
+  Authorization: 'Bearer ' + process.env.AIRTABLE_API_KEY,
+  Accept: 'application/json',
+  'User-Agent': 'NorthlanderGuide-Sync/1.0 (+https://northlanderguide.com)'
+};
+const AIRTABLE_HEADERS_JSON = { ...AIRTABLE_HEADERS, 'Content-Type': 'application/json' };
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_ID = 'tblfVQcLjEv0a4sCJ';
 /* GOOGLE_PLACES_KEY is no longer read by this script. Walking-time
@@ -197,7 +207,7 @@ async function fetchAllActive() {
        auto-enriched content never ships to the live site. */
     url.searchParams.set('filterByFormula', 'AND({Active}=TRUE(), NOT({Needs Review}))');
     if (offset) url.searchParams.set('offset', offset);
-    const res = await fetchWithRetry(() => fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } }));
+    const res = await fetchWithRetry(() => fetch(url, { headers: AIRTABLE_HEADERS }));
     if (!res.ok) {
       const t = await res.text().catch(() => '');
       throw new Error(`Airtable fetch failed: ${res.status} ${t}`);
@@ -220,7 +230,7 @@ async function fetchTable(tableId, filter) {
     url.searchParams.set('pageSize', '100');
     if (filter) url.searchParams.set('filterByFormula', filter);
     if (offset) url.searchParams.set('offset', offset);
-    const res = await fetchWithRetry(() => fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } }));
+    const res = await fetchWithRetry(() => fetch(url, { headers: AIRTABLE_HEADERS }));
     if (!res.ok) {
       const t = await res.text().catch(() => '');
       throw new Error(`Airtable fetch failed (${tableId}): ${res.status} ${t}`);
@@ -252,7 +262,7 @@ async function updateRecord(id, fields) {
   while (true) {
     const res = await fetchWithRetry(() => fetch(url, {
       method: 'PATCH',
-      headers: { Authorization: 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
+      headers: AIRTABLE_HEADERS_JSON,
       body: JSON.stringify({ fields })
     }));
     if (res.status === 429 && tries < 5) { tries++; await sleep(1500); continue; }

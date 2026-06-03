@@ -30,7 +30,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       # Safety net: keep a copy of the live data before the script runs
       # so a partial failure can be restored without losing listings.
