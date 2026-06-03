@@ -301,20 +301,33 @@
           disabled={submitting}
         >Cancel</button>
         <div class="rp-foot-right">
-          <button
-            type="button"
-            class="rp-add-stop disabled:opacity-50"
-            on:click={addAnotherStop}
-            disabled={!canCommit}
-            title="Pin this stop and add another"
-          >+ Add another stop</button>
-          <button
-            type="button"
-            class="btn-primary disabled:opacity-50"
-            on:click={setReturn}
-            disabled={!canCommit && !hasMinimumRoute}
-            title="Move on to the return date"
-          >Set return date  &rarr;</button>
+          {#if entries.length === 0}
+            <!-- First step: there's nothing to return to yet, so the
+                 only path forward is to pin this stop and move on
+                 to the next one. -->
+            <button
+              type="button"
+              class="btn-primary disabled:opacity-50"
+              on:click={addAnotherStop}
+              disabled={!canCommit}
+              title="Pin this stop and pick the next one"
+            >+ Add stop</button>
+          {:else}
+            <button
+              type="button"
+              class="rp-add-stop disabled:opacity-50"
+              on:click={addAnotherStop}
+              disabled={!canCommit}
+              title="Pin this stop and add another"
+            >+ Add another stop</button>
+            <button
+              type="button"
+              class="btn-primary disabled:opacity-50"
+              on:click={setReturn}
+              disabled={!canCommit && !hasMinimumRoute}
+              title="Move on to the return date"
+            >Set return date  &rarr;</button>
+          {/if}
         </div>
       {/if}
     </footer>
@@ -597,22 +610,24 @@
     font-size: 14px;
   }
   .rp-text-btn:hover { color: #7d3a1e; }
+  /* Secondary button. Matches .btn-primary's square 4px radius +
+     padding so the two footer buttons read as a pair. The dashed
+     rust outline keeps it secondary (vs. the filled rust primary). */
   .rp-add-stop {
     background: transparent;
-    border: 1.5px dashed #7d3a1e;
+    border: 2px dashed #7d3a1e;
     color: #7d3a1e;
-    padding: 8px 14px;
-    border-radius: 999px;
+    padding: 0.85rem 1.5rem;
+    border-radius: 4px;
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 140ms ease, color 140ms ease;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
   }
   .rp-add-stop:hover:not(:disabled) {
     background: #7d3a1e;
+    border-color: #7d3a1e;
     color: #fffdf6;
   }
   .rp-add-stop:disabled { cursor: not-allowed; }
