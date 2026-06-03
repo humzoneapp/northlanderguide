@@ -235,6 +235,21 @@
     return `About ${h}h${m ? ' ' + m + 'm' : ''} before the next train`;
   }
 
+  /* Short date for the cover ticket chip: "May 15". Empty string
+     when the YYYY-MM-DD isn't well-formed so the chip drops the
+     date row instead of showing "Invalid Date". */
+  function formatDateShort(yyyymmdd) {
+    if (!yyyymmdd || !/^\d{4}-\d{2}-\d{2}$/.test(yyyymmdd)) return '';
+    try {
+      return new Date(yyyymmdd + 'T12:00:00').toLocaleDateString('en-CA', {
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (_) {
+      return '';
+    }
+  }
+
   /* "Mon, May 15" or "Mon, May 15 to Tue, May 16" for a multi-day
      stay. Falls back to '' so the header can drop the date row when
      a legacy trip has no per-stop date. */
@@ -367,22 +382,40 @@
     ></div>
     <div class="cover-veil" aria-hidden="true"></div>
 
-    {#if departingStop && arrivingStop}
+    {#if stops.length > 0}
       <div class="cover-ticket" aria-label="Route">
-        <span class="cover-ticket-end">
-          <span class="cover-ticket-kicker">From</span>
-          <span class="cover-ticket-name">{departingStop.name}</span>
-        </span>
-        <span class="cover-ticket-arrow" aria-hidden="true">
-          <svg viewBox="0 0 80 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M2 7 H68" stroke-dasharray="3 3"/>
-            <path d="M62 2 L72 7 L62 12"/>
-          </svg>
-        </span>
-        <span class="cover-ticket-end">
-          <span class="cover-ticket-kicker">To</span>
-          <span class="cover-ticket-name">{arrivingStop.name}</span>
-        </span>
+        {#each stops as s, i}
+          <span class="cover-ticket-end">
+            <span class="cover-ticket-kicker">
+              {#if i === 0}
+                Depart
+              {:else if i === stops.length - 1 && !trip.returnDate}
+                Arrive
+              {:else}
+                Stop {i + 1}
+              {/if}
+            </span>
+            <span class="cover-ticket-name">{s.name}</span>
+            {#if s.stayStart}
+              <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
+            {/if}
+          </span>
+          {#if i < stops.length - 1 || trip.returnDate}
+            <span class="cover-ticket-arrow" aria-hidden="true">
+              <svg viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <path d="M2 7 H48" stroke-dasharray="3 3"/>
+                <path d="M42 2 L52 7 L42 12"/>
+              </svg>
+            </span>
+          {/if}
+        {/each}
+        {#if trip.returnDate && departingStop}
+          <span class="cover-ticket-end">
+            <span class="cover-ticket-kicker">Return</span>
+            <span class="cover-ticket-name">{departingStop.name}</span>
+            <span class="cover-ticket-date">{formatDateShort(trip.returnDate)}</span>
+          </span>
+        {/if}
       </div>
     {/if}
 
@@ -1021,20 +1054,28 @@
   .cover-ticket-name {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
-    font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+    font-size: clamp(1rem, 1.9vw, 1.3rem);
     color: #f5f0e8;
     text-align: center;
+    line-height: 1.15;
+  }
+  .cover-ticket-date {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #ede0cc;
+    margin-top: 2px;
   }
   .cover-ticket-arrow {
     color: #c9a84c;
-    width: 80px;
+    width: 60px;
     flex: none;
   }
   .cover-ticket-arrow svg { width: 100%; height: auto; display: block; }
-  @media (max-width: 540px) {
-    .cover-ticket { padding: 10px 14px; gap: 8px; }
-    .cover-ticket-arrow { transform: rotate(90deg); width: 36px; }
-    .cover-ticket-end { min-width: 0; }
+  @media (max-width: 720px) {
+    .cover-ticket { padding: 12px 14px; gap: 10px 12px; }
+    .cover-ticket-arrow { transform: rotate(90deg); width: 30px; }
+    .cover-ticket-end { min-width: 0; flex-basis: 100%; }
   }
 
   /* Discreet "Change cover" button in the top-right corner. */
