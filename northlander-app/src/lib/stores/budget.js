@@ -40,9 +40,12 @@ export async function listBudgetEntries(tripId) {
 }
 
 /** Trim, validate, persist. Amount is coerced into a Number;
-    negatives are clamped to 0 to avoid weird subtotals. Returns the
-    new row's auto id, or null when inputs don't survive validation. */
-export async function addBudgetEntry(tripId, { label, amount, category = 'other' } = {}) {
+    negatives are clamped to 0 to avoid weird subtotals. `stopId` is
+    optional (unindexed) so per-chapter ledger sections can pin a
+    spend to a stop while the cover total stays trip-wide. Returns
+    the new row's auto id, or null when inputs don't survive
+    validation. */
+export async function addBudgetEntry(tripId, { label, amount, category = 'other', stopId = null } = {}) {
   const cleanLabel = String(label || '').trim();
   const amt = Number(amount);
   if (!cleanLabel) return null;
@@ -53,6 +56,7 @@ export async function addBudgetEntry(tripId, { label, amount, category = 'other'
     label: cleanLabel,
     amount: Math.max(0, Math.round(amt * 100) / 100),
     category: isCategory(category) ? category : 'other',
+    stopId: stopId || null,
     createdAt: now,
     updatedAt: now
   });
@@ -75,6 +79,9 @@ export async function updateBudgetEntry(id, patch = {}) {
   }
   if (patch.category !== undefined && isCategory(patch.category)) {
     next.category = patch.category;
+  }
+  if (patch.stopId !== undefined) {
+    next.stopId = patch.stopId || null;
   }
   if (Object.keys(next).length === 0) return row;
   next.updatedAt = Date.now();

@@ -26,11 +26,11 @@
     setTripCover,
     clearTripCover
   } from '$lib/stores/trips.js';
-  import { listBookings, BOOKING_KINDS, sortByStartTime } from '$lib/stores/bookings.js';
-  import { listDiaryEntries, addDiaryEntry } from '$lib/stores/diary.js';
-  import { listPhotos, addPhoto } from '$lib/stores/photos.js';
-  import { listPackingItems, addPackingItem } from '$lib/stores/packing.js';
-  import { listBudgetEntries, addBudgetEntry, totalOf, formatAmount } from '$lib/stores/budget.js';
+  import { listBookings, BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import { listDiaryEntries } from '$lib/stores/diary.js';
+  import { listPhotos } from '$lib/stores/photos.js';
+  import { listPackingItems } from '$lib/stores/packing.js';
+  import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
 
   /* ---------- Stop + schedule helpers ---------- */
   import {
@@ -39,8 +39,6 @@
   } from '$lib/data/stops.js';
   import {
     arrivalClock,
-    arrivalMinutes,
-    clockToMinutes,
     departureFor,
     formatTripDate,
     DIRECTIONS,
@@ -60,17 +58,14 @@
   import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
-  import Drawer from '$lib/components/Drawer.svelte';
-  import BookingKindIcon from '$lib/components/BookingKindIcon.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
   let loading = true;
 
-  /* The five row collections we read up here so the cinematic
-     scenes can render them; the drawer components mount their own
-     copies for editing. Counts here drive the cover stats and the
-     drawer badges. */
+  /* Trip-level snapshots that drive the cover stats. The per-chapter
+     components mount their own copies and edit through the stores;
+     they fire on:change to call load() back so these stay in sync. */
   let bookings = [];
   let diary = [];
   let photos = [];
@@ -153,104 +148,6 @@
     }
   }
 
-  /* Quick-action state for the closed-drawer inline inputs. The
-     header form for Packing lives outside the drawer body so the
-     user can drop a "toothbrush" without expanding the panel. */
-  let quickPackingDraft = '';
-  let quickPackingBusy = false;
-
-  async function quickAddPacking() {
-    if (!trip || quickPackingBusy) return;
-    const clean = quickPackingDraft.trim();
-    if (!clean) return;
-    quickPackingBusy = true;
-    try {
-      await addPackingItem(trip.id, clean);
-      quickPackingDraft = '';
-      const rows = await listPackingItems(trip.id);
-      packingCount = rows.length;
-    } finally {
-      quickPackingBusy = false;
-    }
-  }
-
-  /* Ledger quick-add: label + amount in two compact inputs.
-     Category defaults to 'other' so the user can drop quick
-     receipts; they can refine the category inside the drawer. */
-  let quickLedgerLabel = '';
-  let quickLedgerAmount = '';
-  let quickLedgerBusy = false;
-  async function quickAddLedger() {
-    if (!trip || quickLedgerBusy) return;
-    const label = quickLedgerLabel.trim();
-    const amount = Number(quickLedgerAmount);
-    if (!label || !Number.isFinite(amount) || amount <= 0) return;
-    quickLedgerBusy = true;
-    try {
-      await addBudgetEntry(trip.id, { label, amount, category: 'other' });
-      quickLedgerLabel = '';
-      quickLedgerAmount = '';
-      budgetEntries = await listBudgetEntries(trip.id);
-    } finally {
-      quickLedgerBusy = false;
-    }
-  }
-
-  /* Diary quick-add: a single line input that creates an unpinned
-     entry. The user can pin it to a stop later inside the drawer. */
-  let quickDiaryDraft = '';
-  let quickDiaryBusy = false;
-  async function quickAddDiary() {
-    if (!trip || quickDiaryBusy) return;
-    const clean = quickDiaryDraft.trim();
-    if (!clean) return;
-    quickDiaryBusy = true;
-    try {
-      await addDiaryEntry(trip.id, { text: clean, stopId: null });
-      quickDiaryDraft = '';
-      diary = await listDiaryEntries(trip.id);
-    } finally {
-      quickDiaryBusy = false;
-    }
-  }
-
-  /* Photos quick-add: file picker wrapped in a styled label so the
-     button itself triggers the native picker. addPhoto handles
-     the resize + thumb pipeline inside the photos store, so the
-     quick path here is just "fire and forget per file". Photos
-     count + photoUrls refresh after so the cover stats and any
-     pinned scene strips stay current. */
-  let quickPhotoBusy = false;
-  async function quickAddPhotos(event) {
-    const input = event.currentTarget;
-    if (!trip || quickPhotoBusy || !input || !input.files) return;
-    const files = Array.from(input.files).slice(0, 12);
-    if (files.length === 0) return;
-    quickPhotoBusy = true;
-    try {
-      for (const f of files) {
-        try { await addPhoto(trip.id, f, {}); } catch (e) { /* skip one bad file */ }
-      }
-      const next = await listPhotos(trip.id);
-      photos = next;
-      /* Refresh object URLs for any stop-pinned new photos so they
-         show up in scene strips on the next render. */
-      const nextUrls = new Map();
-      for (const p of next) {
-        if (p.stopId) nextUrls.set(p.id, URL.createObjectURL(p.thumb));
-      }
-      for (const u of photoUrls.values()) URL.revokeObjectURL(u);
-      photoUrls = nextUrls;
-    } finally {
-      quickPhotoBusy = false;
-      input.value = '';
-    }
-  }
-
-  /* Object URLs for the per-stop polaroid strips. Built once on
-     load and revoked on destroy so blobs don't leak across nav. */
-  let photoUrls = new Map();
-
   $: tripId = $page.params.id;
   $: stops = trip ? deriveStops(trip) : [];
   $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
@@ -294,20 +191,9 @@
       listPackingItems(trip.id).then((rows) => rows.length),
       listBudgetEntries(trip.id)
     ]);
-
-    /* Per-stop polaroid thumbnails. We only need ones pinned to
-       a stop for the scene strips - loose photos don't appear
-       in the cinematic view. */
-    const next = new Map();
-    for (const p of photos) {
-      if (p.stopId) next.set(p.id, URL.createObjectURL(p.thumb));
-    }
-    photoUrls = next;
   }
 
   onDestroy(() => {
-    for (const u of photoUrls.values()) URL.revokeObjectURL(u);
-    photoUrls.clear();
     if (coverObjectUrl) URL.revokeObjectURL(coverObjectUrl);
   });
 
@@ -318,29 +204,9 @@
     return (t.direction === 'southbound') ? forward.slice().reverse() : forward;
   }
 
-  function bookingsAt(stopId) { return bookings.filter((b) => b.stopId === stopId); }
-  function diaryAt(stopId)    { return diary.filter((d) => d.stopId === stopId); }
-  function photosAt(stopId)   { return photos.filter((p) => p.stopId === stopId); }
-  function thumbUrl(p)        { return photoUrls.get(p.id) || ''; }
-
-  /* Friendly kind label for the chip beside each chronological
-     scene line. Mirrors the AddPlanModal vocabulary so a user
-     who picked "Eat" in the modal sees "Eat" beside the
-     restaurant in the scene. */
-  const KIND_CHIPS = {
-    train:    'Travel',
-    room:     'Sleep',
-    meal:     'Eat',
-    activity: 'Do',
-    other:    'Other'
-  };
-  function kindChip(kind) {
-    return KIND_CHIPS[kind] || 'Other';
-  }
-
   /* Window between this stop's arrival and the next stop's
      departure. Drives the "About 2h 25m before the next train"
-     copy in empty-state scenes. */
+     copy in chapter heads. */
   function hereDuration(i) {
     if (i >= stops.length - 1) return 'End of the line';
     const a = travelMinutes(stops[i].offsetMinutes, trip.direction || 'northbound');
@@ -350,23 +216,6 @@
     const h = Math.floor(delta / 60);
     const m = delta % 60;
     return `About ${h}h${m ? ' ' + m + 'm' : ''} before the next train`;
-  }
-
-  /* Soft conflict check. A booking pinned to a non-departure stop with
-     a startTime earlier than the train's projected arrival there is
-     physically impossible on the day of arrival, so we flag it. We
-     skip the first scene (the train departs from there, so any clock
-     could be pre-trip prep) and skip untimed rows. Returns the
-     formatted arrival clock when in conflict, else ''. */
-  function arrivalConflictClock(b, stop, sceneIndex) {
-    if (sceneIndex === 0) return '';
-    if (!b || !b.startTime) return '';
-    const arrive = arrivalMinutes(stop.offsetMinutes, depClock, trip.direction || 'northbound');
-    if (arrive == null) return '';
-    const start = clockToMinutes(b.startTime);
-    if (start == null) return '';
-    if (start >= arrive) return '';
-    return arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound');
   }
 
   function daysUntil(yyyymmdd) {
@@ -581,7 +430,7 @@
             </div>
           {:else}
             <div class="cover-countdown italic-soft">
-              Pick a departure date in your trip kit and we'll count it down.
+              Pick a departure date in Before You Board below and we'll count it down.
             </div>
           {/if}
 
@@ -591,6 +440,9 @@
             <li><b>{bookedCount}</b><span>Booked</span></li>
             <li><b>{photos.length}</b><span>Photos</span></li>
             <li><b>{diary.length}</b><span>Notes</span></li>
+            {#if budgetEntries.length > 0}
+              <li><b>{formatAmount(budgetTotal)}</b><span>Spent</span></li>
+            {/if}
           </ul>
         {:else}
           <!-- Empty-trip welcome. This is the entire page until
@@ -723,23 +575,46 @@
           {/if}
         </h2>
         <p class="narrative-hint">
-          Chapter 1 below uses the new self-contained style: every plan, note, photo, and event for that stop lives right inside the chapter. Scroll past it to compare with the older chapters and the Trip Kit drawers underneath.
+          Every chapter below holds its own plans, notes, photos, spend, and events. Pack once for the whole trip in the section just below, then write each chapter as you go.
         </p>
+      </div>
+    </section>
+
+    <!-- ===== Before you board =====
+         The single trip-wide section: date + direction picker and
+         the one packing list that travels with the whole trip.
+         Everything else now lives inside each chapter. -->
+    <section class="before-board">
+      <div class="before-board-inner">
+        <div class="before-board-head">
+          <div class="kicker">Before You Board</div>
+          <h2>One bag. One date. One direction.</h2>
+        </div>
+        <div class="before-board-grid">
+          <div class="before-board-col">
+            <div class="group-head">
+              <span class="group-label">Date &amp; direction</span>
+              <span class="group-rule" aria-hidden="true"></span>
+            </div>
+            <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
+          </div>
+          <div class="before-board-col">
+            <div class="group-head">
+              <span class="group-label">Packing list</span>
+              <span class="group-rule" aria-hidden="true"></span>
+            </div>
+            <PackingList tripId={trip.id} />
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- ===== Stop scenes ===== -->
     <section class="scenes">
       {#each stops as stop, i}
-        {@const stopBookings = bookingsAt(stop.id)}
-        {@const stopDiary = diaryAt(stop.id)}
-        {@const stopPhotos = photosAt(stop.id)}
-        {@const orderedBookings = sortByStartTime(stopBookings)}
         {@const isLast = i === stops.length - 1}
-        {@const isEmpty = stopBookings.length === 0 && stopDiary.length === 0 && stopPhotos.length === 0}
-        {@const isPreviewScene = i === 0}
 
-        <article id="scene-{i}" class="scene" class:is-preview-scene={isPreviewScene}>
+        <article id="scene-{i}" class="scene">
           <div class="scene-inner">
             <header class="scene-head">
               <div class="kicker">Chapter {i + 1}</div>
@@ -751,232 +626,94 @@
                   {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
                 </span>
               </div>
-              {#if isPreviewScene}
-                <div class="preview-banner" role="note">
-                  <span class="preview-tag">Preview</span>
-                  <span class="preview-text">New chapter style: every plan, note, photo, and event for {stop.name} lives right here. Other chapters below still use the old preview style for comparison.</span>
-                </div>
-              {/if}
             </header>
 
-            {#if isPreviewScene}
-              <div class="scene-grid">
-                <div class="scene-main">
-                  <div class="scene-when">
-                    {#if !isLast}{hereDuration(i)}{:else}End of the line{/if}
-                  </div>
-
-                  <section class="self-section">
-                    <div class="group-head">
-                      <span class="group-label">Schedule for {stop.name}</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <BookingChecklist
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      direction={trip.direction || 'northbound'}
-                      departureClock={depClock}
-                      on:change={load}
-                    />
-                  </section>
-
-                  <section class="self-section">
-                    <div class="group-head">
-                      <span class="group-label">Notes from {stop.name}</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <TravelDiary
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      on:change={load}
-                    />
-                  </section>
-
-                  <section class="self-section">
-                    <div class="group-head">
-                      <span class="group-label">Polaroids from {stop.name}</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <PhotoAlbum
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      on:change={load}
-                    />
-                  </section>
-
-                  <section class="self-section">
-                    <div class="group-head">
-                      <span class="group-label">Happening at {stop.name}</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <EventsAlongRoute
-                      tripId={trip.id}
-                      stopIds={[stop.id]}
-                      departureDate={trip.departureDate || null}
-                    />
-                  </section>
-                </div>
-
-                <aside class="scene-aside">
-                  <figure class="scene-postcard">
-                    <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
-                  </figure>
-                  <p class="scene-aside-hook">{stop.hook}</p>
-                  <a
-                    class="scene-aside-guide"
-                    href={`https://northlanderguide.com/stops/${stop.id}/`}
-                    target="_blank"
-                    rel="noopener"
-                  >Open {stop.name} on the Guide  &rarr;</a>
-                </aside>
-              </div>
-            {:else}
             <div class="scene-grid">
               <div class="scene-main">
-                {#if isEmpty}
-                  <p class="scene-empty-line">
-                    {#if i === 0}
-                      Your journey starts here.
-                    {:else if isLast}
-                      Last stop. Make it count.
-                    {:else}
-                      {hereDuration(i)}.
-                    {/if}
-                  </p>
-                  <p class="scene-empty-sub">
-                    {#if i === 0}
-                      Grab a coffee, check the platform board, and step on.
-                    {:else if isLast}
-                      Stay overnight, wander, or catch the connecting train. It's up to you.
-                    {:else}
-                      Eat something local. Walk to a viewpoint. Sit by the water. Whatever fits in the window.
-                    {/if}
-                  </p>
-                  <div class="scene-pills">
-                    <button
-                      type="button"
-                      class="pill"
-                      on:click={() => openAddPlan(stop.id, 'eat')}
-                    >+ Eat</button>
-                    <button
-                      type="button"
-                      class="pill"
-                      on:click={() => openAddPlan(stop.id, 'stay')}
-                    >+ Sleep</button>
-                    <button
-                      type="button"
-                      class="pill"
-                      on:click={() => openAddPlan(stop.id, 'do')}
-                    >+ Do</button>
-                  </div>
-                {:else}
                 <div class="scene-when">
-                  {#if !isLast}
-                    {hereDuration(i)}
-                  {:else}
-                    End of the line
-                  {/if}
+                  {#if !isLast}{hereDuration(i)}{:else}End of the line{/if}
                 </div>
 
-                <div class="scene-group">
+                <section class="self-section">
                   <div class="group-head">
                     <span class="group-label">Schedule for {stop.name}</span>
                     <span class="group-rule" aria-hidden="true"></span>
                   </div>
-                  <ul class="scene-list scene-list-timeline">
-                    {#each orderedBookings as b}
-                      {@const conflictAt = arrivalConflictClock(b, stop, i)}
-                      <li class:is-booked={b.status === 'booked'} class:is-untimed={!b.startTime} class:is-conflict={!!conflictAt}>
-                        <div class="line-main">
-                          <span class="line-time" class:placeholder={!b.startTime}>
-                            {b.startTime || 'Open'}
-                          </span>
-                          <span class="line-kind">
-                            <BookingKindIcon kind={b.kind} size="1em" />
-                            <span class="line-kind-label">{kindChip(b.kind)}</span>
-                          </span>
-                          <span class="line-title">{b.title}</span>
-                          <span class="line-status" class:is-booked={b.status === 'booked'}>
-                            {b.status === 'booked' ? 'Booked' : 'Pending'}
-                          </span>
-                        </div>
-                        {#if conflictAt}
-                          <div class="line-conflict" role="note">
-                            <svg viewBox="0 0 24 24" class="line-conflict-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                              <path d="M12 2 L22 20 L2 20 Z"/>
-                              <line x1="12" y1="9" x2="12" y2="14"/>
-                              <circle cx="12" cy="17.5" r="0.6" fill="currentColor"/>
-                            </svg>
-                            <span>Train doesn't arrive at {stop.name} until {conflictAt}.</span>
-                          </div>
-                        {/if}
-                        {#if b.kind === 'room' && (b.checkIn || b.checkOut || b.address || b.contact || b.confirmation)}
-                          <div class="line-room">
-                            {#if b.checkIn || b.checkOut}
-                              <span class="line-room-dates">
-                                {b.checkIn ? 'In ' + b.checkIn : ''}{b.checkIn && b.checkOut ? '  ·  ' : ''}{b.checkOut ? 'Out ' + b.checkOut : ''}
-                              </span>
-                            {/if}
-                            {#if b.address}<span>{b.address}</span>{/if}
-                            {#if b.contact}<span>{b.contact}</span>{/if}
-                            {#if b.confirmation}<span>Conf. {b.confirmation}</span>{/if}
-                          </div>
-                        {/if}
-                        {#if b.notes}
-                          <p class="line-notes">{b.notes}</p>
-                        {/if}
-                      </li>
-                    {/each}
-                  </ul>
-                </div>
+                  <BookingChecklist
+                    tripId={trip.id}
+                    stopIds={trip.stopIds || []}
+                    stopFilter={stop.id}
+                    direction={trip.direction || 'northbound'}
+                    departureClock={depClock}
+                    on:change={load}
+                  />
+                </section>
 
-                {#if stopDiary.length > 0}
-                  <div class="scene-group">
-                    <div class="group-head">
-                      <span class="group-label">Notes from the journey</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <ul class="scene-diary">
-                      {#each stopDiary as d}
-                        <li>{d.text}</li>
-                      {/each}
-                    </ul>
+                <section class="self-section">
+                  <div class="group-head">
+                    <span class="group-label">Notes from {stop.name}</span>
+                    <span class="group-rule" aria-hidden="true"></span>
                   </div>
-                {/if}
+                  <TravelDiary
+                    tripId={trip.id}
+                    stopIds={trip.stopIds || []}
+                    stopFilter={stop.id}
+                    on:change={load}
+                  />
+                </section>
 
-                {#if stopPhotos.length > 0}
-                  <div class="scene-group">
-                    <div class="group-head">
-                      <span class="group-label">Polaroids</span>
-                      <span class="group-rule" aria-hidden="true"></span>
-                    </div>
-                    <div class="scene-photos">
-                      {#each stopPhotos.slice(0, 6) as p, idx}
-                        <figure class="mini-polaroid" style="--rot:{((idx % 5) - 2) * 3}deg">
-                          <img src={thumbUrl(p)} alt={p.caption || stop.name} loading="lazy" />
-                        </figure>
-                      {/each}
-                      {#if stopPhotos.length > 6}
-                        <span class="scene-photos-more">+{stopPhotos.length - 6} in your album</span>
-                      {/if}
-                    </div>
+                <section class="self-section">
+                  <div class="group-head">
+                    <span class="group-label">Polaroids from {stop.name}</span>
+                    <span class="group-rule" aria-hidden="true"></span>
                   </div>
-                {/if}
-              {/if}
-              </div><!-- /.scene-main -->
+                  <PhotoAlbum
+                    tripId={trip.id}
+                    stopIds={trip.stopIds || []}
+                    stopFilter={stop.id}
+                    on:change={load}
+                  />
+                </section>
+
+                <section class="self-section">
+                  <div class="group-head">
+                    <span class="group-label">Spending at {stop.name}</span>
+                    <span class="group-rule" aria-hidden="true"></span>
+                  </div>
+                  <BudgetTracker
+                    tripId={trip.id}
+                    stopFilter={stop.id}
+                    on:change={load}
+                  />
+                </section>
+
+                <section class="self-section">
+                  <div class="group-head">
+                    <span class="group-label">Happening at {stop.name}</span>
+                    <span class="group-rule" aria-hidden="true"></span>
+                  </div>
+                  <EventsAlongRoute
+                    tripId={trip.id}
+                    stopIds={[stop.id]}
+                    departureDate={trip.departureDate || null}
+                  />
+                </section>
+              </div>
 
               <aside class="scene-aside">
                 <figure class="scene-postcard">
                   <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
                 </figure>
                 <p class="scene-aside-hook">{stop.hook}</p>
+                <a
+                  class="scene-aside-guide"
+                  href={`https://northlanderguide.com/stops/${stop.id}/`}
+                  target="_blank"
+                  rel="noopener"
+                >Open {stop.name} on the Guide  &rarr;</a>
               </aside>
-            </div><!-- /.scene-grid -->
-            {/if}
-          </div><!-- /.scene-inner -->
+            </div>
+          </div>
         </article>
 
         {#if !isLast}
@@ -1024,182 +761,6 @@
       </div>
     </section>
   {/if}
-
-  <!-- ===== Trip kit (drawers) ===== -->
-  <section class="kit">
-    <div class="kit-inner">
-      <div class="kit-head">
-        <div class="kicker">Your trip kit</div>
-        <h2>Everything else that travels with you.</h2>
-        <p>Tap any drawer to open it. These are the working surfaces - lists you tick off, ledgers you balance, photos you drop in along the way.</p>
-      </div>
-
-      <Drawer
-        title="Pack the suitcase"
-        kicker="What's going in"
-        count={packingCount}
-        countLabel={packingCount === 1 ? 'item' : 'items'}
-      >
-        <svelte:fragment slot="quick">
-          <form class="quick-pack-form" on:submit|preventDefault={quickAddPacking}>
-            <input
-              type="text"
-              bind:value={quickPackingDraft}
-              maxlength="60"
-              placeholder="Add an item..."
-              aria-label="Quick-add packing item"
-              class="quick-pack-input"
-              disabled={quickPackingBusy}
-            />
-          </form>
-        </svelte:fragment>
-        <PackingList tripId={trip.id} />
-      </Drawer>
-
-      <Drawer
-        title="Plans &amp; reservations"
-        kicker="Tickets, rooms, tables"
-        count={bookings.length}
-        countLabel={pendingCount > 0 ? `${pendingCount} pending` : 'all booked'}
-      >
-        <svelte:fragment slot="quick">
-          <button
-            type="button"
-            class="quick-plan-btn"
-            on:click={() => openAddPlan('', 'all')}
-          >
-            <span class="quick-plus" aria-hidden="true">+</span>
-            <span>Plan</span>
-          </button>
-        </svelte:fragment>
-        <BookingChecklist
-          tripId={trip.id}
-          stopIds={trip.stopIds || []}
-          direction={trip.direction || 'northbound'}
-          departureClock={depClock}
-        />
-      </Drawer>
-
-      <Drawer
-        title="The ledger"
-        kicker="What it costs"
-        count={budgetEntries.length}
-        countLabel={budgetEntries.length > 0 ? formatAmount(budgetTotal) : ''}
-      >
-        <svelte:fragment slot="quick">
-          <form class="quick-ledger-form" on:submit|preventDefault={quickAddLedger}>
-            <input
-              type="text"
-              bind:value={quickLedgerLabel}
-              maxlength="80"
-              placeholder="Log a cost..."
-              aria-label="Quick-log label"
-              class="quick-ledger-label"
-              disabled={quickLedgerBusy}
-            />
-            <input
-              type="number"
-              inputmode="decimal"
-              step="0.01"
-              min="0"
-              bind:value={quickLedgerAmount}
-              placeholder="$"
-              aria-label="Quick-log amount"
-              class="quick-ledger-amount"
-              disabled={quickLedgerBusy}
-            />
-          </form>
-        </svelte:fragment>
-        <BudgetTracker tripId={trip.id} />
-      </Drawer>
-
-      <Drawer
-        title="Polaroids"
-        kicker="What you saw"
-        count={photos.length}
-        countLabel={photos.length === 1 ? 'photo' : 'photos'}
-      >
-        <svelte:fragment slot="quick">
-          <label class="quick-photo-btn" class:is-busy={quickPhotoBusy}>
-            <span class="quick-plus" aria-hidden="true">+</span>
-            <span>{quickPhotoBusy ? 'Uploading...' : 'Photo'}</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              class="quick-photo-input"
-              aria-label="Quick-add photos"
-              on:change={quickAddPhotos}
-              disabled={quickPhotoBusy}
-            />
-          </label>
-        </svelte:fragment>
-        <PhotoAlbum tripId={trip.id} stopIds={trip.stopIds || []} />
-      </Drawer>
-
-      <Drawer
-        title="Travel diary"
-        kicker="What you wrote"
-        count={diary.length}
-        countLabel={diary.length === 1 ? 'note' : 'notes'}
-      >
-        <svelte:fragment slot="quick">
-          <form class="quick-diary-form" on:submit|preventDefault={quickAddDiary}>
-            <input
-              type="text"
-              bind:value={quickDiaryDraft}
-              maxlength="280"
-              placeholder="Jot a note..."
-              aria-label="Quick-add diary note"
-              class="quick-diary-input"
-              disabled={quickDiaryBusy}
-            />
-          </form>
-        </svelte:fragment>
-        <TravelDiary tripId={trip.id} stopIds={trip.stopIds || []} />
-      </Drawer>
-
-      <Drawer
-        title="Happening nearby"
-        kicker="Events on your dates"
-      >
-        <EventsAlongRoute
-          tripId={trip.id}
-          stopIds={trip.stopIds || []}
-          departureDate={trip.departureDate || null}
-        />
-      </Drawer>
-
-      <Drawer
-        title="Trip details"
-        kicker="Dates, route, leather"
-      >
-        <div class="details-grid">
-          <div class="details-col">
-            <div class="kicker details-kicker">Schedule</div>
-            <ScheduleStrip {trip} on:update={(e) => (trip = e.detail)} />
-          </div>
-
-          <div class="details-col">
-            <div class="kicker details-kicker">Route</div>
-            <p class="details-meta">
-              {#if trip.stopIds && trip.stopIds.length > 0}
-                {trip.stopIds.length} {trip.stopIds.length === 1 ? 'stop' : 'stops'} chosen.
-              {:else}
-                No stops chosen yet.
-              {/if}
-            </p>
-            <button
-              type="button"
-              class="details-btn"
-              on:click={() => (showStopPicker = true)}
-            >{trip.stopIds && trip.stopIds.length > 0 ? 'Change stops' : 'Pick stops'}</button>
-          </div>
-
-        </div>
-      </Drawer>
-    </div>
-  </section>
 
   <!-- ===== Sign off =====
        Closes the page with an editorial signature - forest band
@@ -1935,108 +1496,23 @@
   }
   .scene-aside-guide:hover { color: #0a2d21; border-color: #0a2d21; }
 
-  /* ===== Preview scene (scene 1 only) =====
-     Per-stop editing inline. Sections share the same group-head/
-     group-rule vocabulary as the older preview scenes but each
-     section now hosts a full editable component (BookingChecklist,
-     TravelDiary, PhotoAlbum, EventsAlongRoute), filtered to this
-     stop via stopFilter. Trip Kit stays in place as a safety net
-     while we evaluate the pattern. */
-  .preview-banner {
-    margin-top: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    background: #fffdf6;
-    border: 1.5px dashed #c4860f;
-    border-radius: 3px;
-    max-width: 100%;
-  }
-  .preview-tag {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #6e2e17;
-    background: #f3ece0;
-    padding: 3px 8px;
-    border-radius: 2px;
-    flex: none;
-  }
-  .preview-text {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #5a4f3d;
-  }
-  .scene.is-preview-scene .self-section {
+  /* ===== Self-contained chapter sections =====
+     Each chapter renders five sections inline (Schedule / Notes /
+     Polaroids / Spending / Happening). Sections sit on cream paper
+     and are separated by a soft dashed gold rule, mirroring the
+     stop-page.css editorial rhythm. */
+  .self-section {
     margin-top: 36px;
     padding-top: 22px;
     border-top: 1px dashed rgba(196, 134, 15, 0.45);
   }
-  .scene.is-preview-scene .self-section:first-of-type {
+  .self-section:first-of-type {
     margin-top: 28px;
     padding-top: 22px;
   }
 
-  /* Empty-state copy on the left column. Display headline (smaller
-     than the chapter name), italic Fraunces sub, then the tight
-     rust pill row for + Eat / + Sleep / + Do. */
-  .scene-empty-line {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    font-size: clamp(1.4rem, 3vw, 1.9rem);
-    color: #0a2d21;
-    margin: 0 0 12px;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-  }
-  .scene-empty-sub {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 17px;
-    color: #5a4f3d;
-    margin: 0 0 28px;
-    max-width: 56ch;
-    line-height: 1.55;
-  }
-
-  /* Tight rust pills. 2px solid rust border, no border-radius, rust
-     text on cream. Sharp, disciplined, editorial. No big cards, no
-     dashed borders, no kickers - the pill IS the label. Mirrors
-     stop-page.css:77-81. */
-  .scene-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .pill {
-    background: transparent;
-    border: 2px solid #7d3a1e;
-    color: #7d3a1e;
-    padding: 9px 18px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    line-height: 1;
-  }
-  .pill:hover {
-    background: #7d3a1e;
-    color: #f5f0e8;
-  }
-
-  /* Plans groups */
-  /* ===== Schedule rows (existing rendering kept for v1; the full
-     polaroid/listing card redesign lands in the next commit). All
-     text now reads against cream paper instead of dark forest. */
-  /* "About 2h 25m before the next train" line above the timeline. */
+  /* "About 2h 25m before the next train" line above the first
+     section in each chapter. */
   .scene-when {
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
@@ -2050,8 +1526,6 @@
   /* Editorial group header. The label + dashed rust rule mirror
      stop-page.css:78-79: italic Fraunces kicker against a dashed
      line that fills the remainder of the row. */
-  .scene-group { margin-top: 36px; }
-  .scene-group:first-child { margin-top: 0; }
   .group-head {
     display: flex;
     align-items: center;
@@ -2072,200 +1546,43 @@
     border-top: 1px dashed rgba(125, 58, 30, 0.35);
   }
 
-  /* Timeline rows as editorial cards. Each plan is a flat cream
-     card with a 2px solid rust left rule (stop-page.css:87 sidebar
-     pattern). Time + kind + title on top, status pill on the right,
-     extra details (room, notes, conflict) stack below. */
-  .scene-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
-  .scene-list li {
-    background: #ede0cc;
-    border-left: 2px solid #7d3a1e;
-    padding: 16px 18px;
+  /* ===== Before You Board =====
+     One trip-wide section between the narrative and the chapters.
+     Holds ScheduleStrip (date + direction) and PackingList. Cream
+     paper, two-column on desktop, stacked on mobile. */
+  .before-board {
+    background: #fbf6ea;
+    padding: 56px 24px;
   }
-
-  .scene-list-timeline li { display: block; }
-  .scene-list-timeline .line-main {
+  @media (min-width: 880px) {
+    .before-board { padding: 72px 32px; }
+  }
+  .before-board-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .before-board-head {
+    margin-bottom: 32px;
+  }
+  .before-board-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+    color: #0a2d21;
+    margin: 6px 0 0;
+    line-height: 1.2;
+  }
+  .before-board-grid {
     display: grid;
-    grid-template-columns: 90px auto 1fr auto;
-    align-items: center;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: start;
   }
-  .line-time {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    font-style: italic;
-    font-size: 22px;
-    color: #7d3a1e;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .line-time.placeholder {
-    color: rgba(125, 58, 30, 0.4);
-    font-weight: 500;
-  }
-  .line-kind {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #c4860f;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .line-kind-label { line-height: 1; }
-  .scene-list-timeline .is-untimed { opacity: 0.85; }
-
-  @media (max-width: 640px) {
-    .scene-list-timeline .line-main {
-      grid-template-columns: 1fr auto;
-      grid-template-areas:
-        "time     status"
-        "kind     status"
-        "title    title";
-      gap: 6px 12px;
+  @media (min-width: 880px) {
+    .before-board-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
     }
-    .scene-list-timeline .line-time   { grid-area: time; }
-    .scene-list-timeline .line-kind   { grid-area: kind; }
-    .scene-list-timeline .line-title  { grid-area: title; margin-top: 4px; }
-    .scene-list-timeline .line-status { grid-area: status; align-self: start; }
-  }
-
-  .line-main {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 14px;
-  }
-  .line-title {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    font-size: 18px;
-    color: #0a2d21;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-  .scene-list li.is-booked .line-title {
-    text-decoration: line-through;
-    text-decoration-color: rgba(125, 58, 30, 0.5);
-    text-decoration-thickness: 1.5px;
-    color: #5a4f3d;
-  }
-  /* Status pill - 2px solid rust outline, no border-radius, caps
-     micro-type. The booked variant flips to filled gold. */
-  .line-status {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    border: 2px solid #7d3a1e;
-    color: #7d3a1e;
-    background: transparent;
-    white-space: nowrap;
-    flex: 0 0 auto;
-    line-height: 1;
-  }
-  .line-status.is-booked {
-    background: #c9a84c;
-    color: #0a2d21;
-    border-color: #c9a84c;
-  }
-  /* Room-booking details, notes + conflict pill all stack below
-     the main row with consistent 12px top margin. */
-  .line-room {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-    margin-top: 12px;
-    padding-left: 14px;
-    border-left: 2px solid rgba(125, 58, 30, 0.5);
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
-    color: #5a4f3d;
-  }
-  .line-room-dates {
-    color: #7d3a1e;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-  .line-notes {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 12px 0 0;
-    white-space: pre-wrap;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-  .line-conflict {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 12px 0 0;
-    padding: 6px 10px;
-    background: rgba(196, 134, 15, 0.12);
-    border-left: 2px solid #c4860f;
-    color: #7d3a1e;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 13px;
-    line-height: 1.3;
-  }
-  .line-conflict-icon { width: 14px; height: 14px; flex: none; }
-  .scene-list-timeline li.is-conflict .line-time { color: #c4860f; }
-
-  /* Diary entries: cream cards with a 2px rust left rule, same as
-     the timeline rows, but body is italic Fraunces with no
-     metadata grid. Read like a clipped journal entry. */
-  .scene-diary {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .scene-diary li {
-    background: #ede0cc;
-    border-left: 2px solid #7d3a1e;
-    padding: 16px 20px;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 17px;
-    color: #0a2d21;
-    line-height: 1.55;
-    white-space: pre-wrap;
-  }
-
-  /* Photos row: flat sharp-cornered images with a 2px forest
-     border, no rotation. Reads like a contact sheet, not a
-     scrapbook. */
-  .scene-photos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: center;
-  }
-  .mini-polaroid {
-    margin: 0;
-    border: 2px solid #0a2d21;
-    background: #ede0cc;
-  }
-  .mini-polaroid img {
-    width: 96px;
-    height: 96px;
-    object-fit: cover;
-    display: block;
-  }
-  .scene-photos-more {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #7d3a1e;
-    font-size: 14px;
   }
 
   /* ===== Chapter divider =====
@@ -2473,366 +1790,6 @@
       top: 14px; right: 14px;
     }
     .foot-stamp-line--big { font-size: 14px; }
-  }
-
-  /* ===== Trip kit ===== */
-  .kit {
-    background:
-      radial-gradient(circle at 20% 0%, rgba(196, 134, 15, 0.06), transparent 55%),
-      #f3ece0;
-    padding: 56px 24px 32px;
-  }
-  .kit-inner {
-    max-width: 920px;
-    margin: 0 auto;
-  }
-  .kit-head {
-    margin-bottom: 24px;
-  }
-  .kit-head h2 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    color: #0a2d21;
-    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
-    margin: 6px 0 8px;
-    line-height: 1.15;
-  }
-  .kit-head p {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 0;
-    max-width: 60ch;
-  }
-
-  /* Quick-pack inline input in the closed Packing drawer header.
-     Compact dashed pill that mirrors the time pill in
-     BookingChecklist. Submitting (Enter) adds the item and the
-     input stays focused for the next one. */
-  .quick-pack-form {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-  }
-  .quick-pack-input {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #0a2d21;
-    background: transparent;
-    border: 1.5px dashed rgba(125, 58, 30, 0.45);
-    border-radius: 999px;
-    padding: 5px 14px;
-    width: 180px;
-    max-width: 40vw;
-    outline: none;
-    transition: border-color 140ms ease, background 140ms ease;
-  }
-  .quick-pack-input::placeholder {
-    color: rgba(90, 79, 61, 0.65);
-    font-style: italic;
-  }
-  .quick-pack-input:hover,
-  .quick-pack-input:focus-visible {
-    border-color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.06);
-  }
-  .quick-pack-input:disabled {
-    opacity: 0.5;
-  }
-
-  /* Quick-plan button in the closed Plans drawer header. Rust pill
-     so it reads as a primary action without competing with the
-     amber cover button. */
-  .quick-plan-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #6e2e17;
-    border: 1.5px solid #6e2e17;
-    color: #f3ece0;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease;
-  }
-  .quick-plan-btn:hover {
-    background: #884023;
-    border-color: #884023;
-  }
-  .quick-plus {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 15px;
-    line-height: 1;
-  }
-
-  /* Ledger quick-action: two compact inputs side by side. The label
-     takes the long lane, the amount sits in a tight 80px lane with
-     a $ placeholder. Same dashed pill aesthetic as the packing
-     input so the rail of quick-actions reads as one family. */
-  .quick-ledger-form {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-  }
-  .quick-ledger-label,
-  .quick-ledger-amount {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #0a2d21;
-    background: transparent;
-    border: 1.5px dashed rgba(125, 58, 30, 0.45);
-    border-radius: 999px;
-    padding: 5px 12px;
-    outline: none;
-    transition: border-color 140ms ease, background 140ms ease;
-  }
-  .quick-ledger-label { width: 160px; max-width: 36vw; }
-  .quick-ledger-amount {
-    width: 78px;
-    text-align: right;
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 700;
-  }
-  .quick-ledger-label::placeholder,
-  .quick-ledger-amount::placeholder {
-    color: rgba(90, 79, 61, 0.65);
-    font-style: italic;
-  }
-  .quick-ledger-label:hover,
-  .quick-ledger-label:focus-visible,
-  .quick-ledger-amount:hover,
-  .quick-ledger-amount:focus-visible {
-    border-color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.06);
-  }
-  /* Hide native number spinner for the slim pill look. */
-  .quick-ledger-amount::-webkit-outer-spin-button,
-  .quick-ledger-amount::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .quick-ledger-amount { -moz-appearance: textfield; }
-
-  /* Diary quick-action: single text input, wider lane than packing
-     because a thought tends to run longer than an item name. */
-  .quick-diary-form {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-  }
-  .quick-diary-input {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 14px;
-    color: #0a2d21;
-    background: transparent;
-    border: 1.5px dashed rgba(125, 58, 30, 0.45);
-    border-radius: 999px;
-    padding: 5px 14px;
-    width: 240px;
-    max-width: 50vw;
-    outline: none;
-    transition: border-color 140ms ease, background 140ms ease;
-  }
-  .quick-diary-input::placeholder {
-    color: rgba(90, 79, 61, 0.65);
-  }
-  .quick-diary-input:hover,
-  .quick-diary-input:focus-visible {
-    border-color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.06);
-  }
-
-  /* Photos quick-action: styled file-picker label. Wraps the hidden
-     file input so tapping the label opens the native picker, and
-     the same rust-pill identity as the Plans quick-action signals
-     "primary action" without competing with the cover. */
-  .quick-photo-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #6e2e17;
-    border: 1.5px solid #6e2e17;
-    color: #f3ece0;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
-  }
-  .quick-photo-btn:hover {
-    background: #884023;
-    border-color: #884023;
-  }
-  .quick-photo-btn.is-busy {
-    opacity: 0.6;
-    cursor: progress;
-  }
-  .quick-photo-input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* Mobile: tuck the quick-action below the title row so a tight
-     header stays one line. */
-  @media (max-width: 640px) {
-    .quick-pack-input { width: 100%; max-width: none; }
-    .quick-ledger-form { flex-wrap: wrap; }
-    .quick-ledger-label { width: 100%; max-width: none; }
-    .quick-ledger-amount { flex: 1 1 auto; text-align: left; }
-    .quick-diary-input { width: 100%; max-width: none; }
-  }
-
-  /* Trip details drawer body */
-  .details-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 22px;
-    padding-top: 8px;
-  }
-  @media (min-width: 720px) {
-    .details-grid {
-      grid-template-columns: 1.2fr 1fr 1fr;
-    }
-  }
-  .details-col {
-    min-width: 0;
-  }
-  .details-col-leather {
-    text-align: center;
-  }
-  .details-kicker {
-    margin-bottom: 8px;
-    color: #7d3a1e;
-  }
-  .details-meta {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 0 0 10px;
-  }
-  .details-btn {
-    background: #6e2e17;
-    color: #f3ece0;
-    border: 2px solid #6e2e17;
-    padding: 0.55rem 1rem;
-    border-radius: 4px;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .details-btn:hover {
-    background: #884023;
-    border-color: #884023;
-  }
-  .details-suitcase {
-    max-width: 140px;
-    margin: 0 auto 10px;
-  }
-  .leather-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-  }
-  .pl-swatch {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border-width: 2px;
-    border-style: solid;
-    cursor: pointer;
-    transition: transform 160ms ease, box-shadow 160ms ease;
-  }
-  .pl-swatch:hover { transform: translateY(-2px); }
-  .pl-swatch.is-selected {
-    box-shadow: 0 0 0 3px #c9a84c, 0 6px 12px rgba(40, 20, 5, 0.25);
-  }
-  .pl-swatch-custom {
-    background: #fbf6ea;
-    border-style: dashed;
-    border-color: #7d3a1e;
-    color: #7d3a1e;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .pl-swatch-custom.is-selected {
-    border-style: solid;
-    border-color: #5e2a14;
-  }
-  .pl-swatch-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Body + strap inputs revealed when the trip's leather is custom. */
-  .leather-custom-pickers {
-    margin-top: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-  }
-  .leather-custom-pick {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1 1 130px;
-    min-width: 0;
-    max-width: 180px;
-  }
-  .leather-custom-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #fbf6ea;
-    border: 1px solid #8b6a3a;
-    padding: 4px 8px 4px 4px;
-    border-radius: 3px;
-  }
-  .leather-custom-row input[type='color'] {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #8b6a3a;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 2px;
-  }
-  .leather-custom-row input[type='color']::-webkit-color-swatch-wrapper {
-    padding: 2px;
-  }
-  .leather-custom-row input[type='color']::-webkit-color-swatch {
-    border: none;
-    border-radius: 2px;
-  }
-  .leather-custom-hex {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 0.78rem;
-    color: #0a2d21;
-    letter-spacing: 0.06em;
   }
 
   /* ===== Danger zone ===== */

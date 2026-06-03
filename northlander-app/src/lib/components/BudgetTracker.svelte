@@ -1,5 +1,5 @@
 <script>
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, createEventDispatcher } from 'svelte';
   import {
     listBudgetEntries,
     addBudgetEntry,
@@ -13,6 +13,12 @@
 
   /** @type {string} */
   export let tripId;
+  /** @type {string} - When set, the list narrows to entries pinned to
+      this stop and new lines auto-pin here. The surrounding scene
+      already names the stop, so no extra label is shown per row. */
+  export let stopFilter = '';
+
+  const dispatch = createEventDispatcher();
 
   /** @type {import('$lib/stores/budget.js').BudgetEntry[]} */
   let entries = [];
@@ -33,8 +39,9 @@
   let editLabelInput;
 
   $: tripId, refresh();
-  $: total = totalOf(entries);
-  $: breakdown = breakdownByCategory(entries);
+  $: visibleEntries = stopFilter ? entries.filter((e) => e.stopId === stopFilter) : entries;
+  $: total = totalOf(visibleEntries);
+  $: breakdown = breakdownByCategory(visibleEntries);
 
   onMount(refresh);
 
@@ -58,12 +65,14 @@
       await addBudgetEntry(tripId, {
         label,
         amount: amt,
-        category: newCategory
+        category: newCategory,
+        stopId: stopFilter || null
       });
       newLabel = '';
       newAmount = '';
       newCategory = 'other';
       await refresh();
+      dispatch('change');
     } finally {
       saving = false;
     }
@@ -93,6 +102,7 @@
     if (patch.label.trim() && !Number.isNaN(Number(patch.amount))) {
       await updateBudgetEntry(id, patch);
       await refresh();
+      dispatch('change');
     }
   }
 
@@ -106,6 +116,7 @@
   async function remove(id) {
     await deleteBudgetEntry(id);
     await refresh();
+    dispatch('change');
   }
 
   function catLabel(id) {
@@ -128,7 +139,7 @@
     </div>
   </div>
 
-  {#if loaded && entries.length > 0}
+  {#if loaded && visibleEntries.length > 0}
     <!-- Per-category breakdown chips. Hidden when nothing's logged. -->
     <div class="breakdown">
       {#each BUDGET_CATEGORIES as c}
@@ -143,13 +154,17 @@
   {/if}
 
   {#if loaded}
-    {#if entries.length === 0}
+    {#if visibleEntries.length === 0}
       <p class="empty">
-        No spend logged yet. Train fare, that pasty in Huntsville, the cabin deposit. Drop a line below.
+        {#if stopFilter}
+          No spend logged here yet. Drop a line below.
+        {:else}
+          No spend logged yet. Train fare, that pasty in Huntsville, the cabin deposit. Drop a line below.
+        {/if}
       </p>
     {:else}
       <ul class="ledger">
-        {#each entries as entry (entry.id)}
+        {#each visibleEntries as entry (entry.id)}
           <li class="row" class:is-editing={editingId === entry.id}>
             {#if editingId === entry.id}
               <input
