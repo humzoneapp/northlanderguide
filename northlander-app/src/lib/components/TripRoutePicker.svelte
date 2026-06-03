@@ -65,7 +65,12 @@
   $: canCommit = !!activeStopId && !!activeDate && (!minDate || activeDate >= minDate);
   $: lastEntryDate = entries.length > 0 ? entries[entries.length - 1].date : '';
   $: canSaveReturn = !!returnDateDraft && (!lastEntryDate || returnDateDraft >= lastEntryDate);
-  $: hasMinimumRoute = entries.length >= 1;
+  /* The trip needs at least the boarding station and one place to
+     get off before it can be saved or have a return date. We check
+     the post-commit count: if the active step is filled in, that
+     entry will join the route on commit. */
+  $: postCommitCount = entries.length + (canCommit ? 1 : 0);
+  $: canFinish = postCommitCount >= 2;
 
   function pick(id) {
     activeStopId = id;
@@ -84,10 +89,25 @@
 
   function setReturn() {
     /* If the user filled in the active step, commit it first so the
-       return date sits after the last visit. */
+       return date sits after the last visit. Need at least
+       departure + one stop before a return makes sense. */
     if (canCommit) commitActive();
-    if (!hasMinimumRoute) return;
+    if (entries.length < 2) return;
     mode = 'return';
+  }
+
+  /* One-way save: commit the active step and dispatch immediately
+     with no return date. The user is telling us they're not coming
+     back this way - the trip ends at the last stop they picked. */
+  async function finishOneWay() {
+    if (submitting) return;
+    if (canCommit) commitActive();
+    if (entries.length < 2) return;
+    submitting = true;
+    dispatch('save', {
+      stops: entries,
+      returnDate: ''
+    });
   }
 
   function backFromReturn() {
@@ -121,7 +141,7 @@
 
   async function handleSave() {
     if (submitting) return;
-    if (!hasMinimumRoute) return;
+    if (entries.length < 2) return;
     if (!canSaveReturn) return;
     submitting = true;
     dispatch('save', {
@@ -317,6 +337,9 @@
               title="Pin this stop and pick the next one"
             >+ Add stop</button>
           {:else}
+            <!-- Step 2+: user has picked at least one place to get off.
+                 They can keep adding stops, finish as a one-way trip,
+                 or close the loop with a return date. -->
             <button
               type="button"
               class="rp-add-stop disabled:opacity-50"
@@ -326,9 +349,16 @@
             >+ Add another stop</button>
             <button
               type="button"
+              class="rp-add-stop disabled:opacity-50"
+              on:click={finishOneWay}
+              disabled={!canFinish || submitting}
+              title="Save the trip with no return"
+            >One-way</button>
+            <button
+              type="button"
               class="btn-primary disabled:opacity-50"
               on:click={setReturn}
-              disabled={!canCommit && !hasMinimumRoute}
+              disabled={!canFinish}
               title="Move on to the return date"
             >Set return date  &rarr;</button>
           {/if}
