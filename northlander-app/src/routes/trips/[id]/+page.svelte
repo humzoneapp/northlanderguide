@@ -389,10 +389,8 @@
             <span class="cover-ticket-kicker">
               {#if i === 0}
                 Depart
-              {:else if i === stops.length - 1 && !trip.returnDate}
-                Arrive
               {:else}
-                Stop {i + 1}
+                Stop {i}
               {/if}
             </span>
             <span class="cover-ticket-name">{s.name}</span>
@@ -509,7 +507,10 @@
           {/if}
 
           <ul class="cover-stats">
-            <li><b>{stops.length}</b><span>{stops.length === 1 ? 'Stop' : 'Stops'}</span></li>
+            <li>
+              <b>{Math.max(0, stops.length - 1)}</b>
+              <span>{stops.length - 1 === 1 ? 'Stop' : 'Stops'}</span>
+            </li>
             <li><b>{bookings.length}</b><span>Plans</span></li>
             <li><b>{bookedCount}</b><span>Booked</span></li>
             <li><b>{photos.length}</b><span>Photos</span></li>
@@ -644,8 +645,10 @@
         <h2 class="narrative-line">
           {#if bookings.length === 0 && diary.length === 0}
             Your route is set. Now the fun part: what you'll eat, where you'll sleep, and what you'll do at each stop.
+          {:else if stops.length === 1}
+            Departing {stops[0].name} with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
           {:else}
-            {stops.length} stops between {stops[0].name} and {stops[stops.length - 1].name}, with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
+            {stops.length - 1} {stops.length - 1 === 1 ? 'stop' : 'stops'} after {stops[0].name}, with {bookings.length} {bookings.length === 1 ? 'plan' : 'plans'} stitched in.
           {/if}
         </h2>
         <p class="narrative-hint">
@@ -681,7 +684,7 @@
         <article id="scene-{i}" class="scene">
           <div class="scene-inner">
             <header class="scene-head">
-              <div class="kicker">Chapter {i + 1}</div>
+              <div class="kicker">{i === 0 ? 'Departure' : `Stop ${i}`}</div>
               <h2 class="scene-name">{stop.name}</h2>
               <div class="scene-meta">
                 <span class="scene-meta-region">{stop.region}</span>

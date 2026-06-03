@@ -174,14 +174,16 @@
           {:else if entries.length === 0}
             Departing From
           {:else}
-            Next Stop
+            Stop {entries.length}
           {/if}
         </span>
         <span class="rp-step">
           {#if mode === 'return'}
-            Final step &middot; When are you back at {stopName(entries[0]?.stopId)}?
+            Last step &middot; When are you back at {stopName(entries[0]?.stopId)}?
+          {:else if entries.length === 0}
+            Where you board the train, and the day you leave.
           {:else}
-            Step {stepNumber} &middot; Pick a station + the date you arrive
+            Pick where you'll get off, and the day you arrive there.
           {/if}
         </span>
       </div>
@@ -202,7 +204,9 @@
             on:click={() => editEntry(i)}
             title="Edit this stop"
           >
-            <span class="rp-chip-n">{i + 1}</span>
+            <span class="rp-chip-label">
+              {i === 0 ? 'Depart' : `Stop ${i}`}
+            </span>
             <span class="rp-chip-name">{stopName(e.stopId)}</span>
             <span class="rp-chip-date">{formatDate(e.date)}</span>
           </button>
@@ -416,9 +420,12 @@
     border-color: #7d3a1e;
     background: rgba(125, 58, 30, 0.06);
   }
-  .rp-chip-n {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
+  .rp-chip-label {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: #7d3a1e;
     margin-right: 2px;
   }
