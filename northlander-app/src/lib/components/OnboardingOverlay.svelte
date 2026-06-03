@@ -52,7 +52,7 @@
     {
       kicker: 'Step one',
       title: 'Name your trip.',
-      body: "Pick a name and a leather colour. The trip sits on your platform until you're ready to open it again.",
+      body: "Pick a name. The trip sits on your platform until you're ready to open it again.",
       cta: 'Next'
     },
     {
@@ -438,7 +438,7 @@
     gap: 12px;
     color: #7d3a1e;
   }
-  .ob-offline svg { width: 88px; height: 88px; }
+  .ob-offline svg { width: 156px; height: 156px; }
   .ob-offline-tag {
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
