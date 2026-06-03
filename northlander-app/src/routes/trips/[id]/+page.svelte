@@ -114,6 +114,12 @@
      null and the banner uses a quiet cream placeholder. */
   $: arrivingStop = stops.length > 0 ? stops[stops.length - 1] : null;
   $: departingStop = stops.length > 0 ? stops[0] : null;
+  /* Station the user ends at on the return leg. Defaults to the
+     departing stop when the user didn't pick a different one in
+     the route picker. */
+  $: returningStop = trip && trip.returnStopId
+    ? (getStopsByIds([trip.returnStopId])[0] || departingStop)
+    : departingStop;
   /* Banner image precedence: user upload > arriving stop hero >
      nothing (placeholder gradient). */
   $: bannerImage = coverObjectUrl
@@ -407,10 +413,10 @@
             </span>
           {/if}
         {/each}
-        {#if trip.returnDate && departingStop}
+        {#if trip.returnDate && returningStop}
           <span class="cover-ticket-end">
             <span class="cover-ticket-kicker">Return</span>
-            <span class="cover-ticket-name">{departingStop.name}</span>
+            <span class="cover-ticket-name">{returningStop.name}</span>
             <span class="cover-ticket-date">{formatDateShort(trip.returnDate)}</span>
           </span>
         {/if}
@@ -905,6 +911,7 @@
     <TripRoutePicker
       stops={trip.stops || (trip.stopIds || []).map((id) => ({ stopId: id, date: '' }))}
       returnDate={trip.returnDate || ''}
+      returnStopId={trip.returnStopId || ''}
       on:save={saveStops}
       on:close={() => (showStopPicker = false)}
     />

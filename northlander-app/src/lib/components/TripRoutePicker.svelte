@@ -22,6 +22,11 @@
   export let stops = [];
   /** @type {string} */
   export let returnDate = '';
+  /** @type {string} - station the user ends at on the return leg.
+      Defaults to the departing station, but on mount we honour an
+      explicit value so editing an existing trip with a different
+      return location keeps it. */
+  export let returnStopId = '';
 
   const dispatch = createEventDispatcher();
 
@@ -41,6 +46,7 @@
 
   /* Return-step state. */
   let returnDateDraft = '';
+  let returnStopIdDraft = '';
 
   let submitting = false;
 
@@ -51,6 +57,10 @@
         .map((s) => ({ stopId: s.stopId, date: s.date || '' }));
     }
     returnDateDraft = returnDate || '';
+    /* Default the return station to whatever was saved before;
+       fall back to the departing station so the most common
+       round-trip case is one tap from Done. */
+    returnStopIdDraft = returnStopId || entries[0]?.stopId || '';
     /* Start a fresh active step so the user can append, or open the
        return step if they already had a return date set. */
     activeStopId = '';
@@ -108,7 +118,15 @@
        departure + one stop before a return makes sense. */
     if (canCommit) commitActive();
     if (entries.length < 2) return;
+    /* Re-seed the default if the user hasn't touched it yet
+       (e.g. they just added their first stop after opening). */
+    if (!returnStopIdDraft) {
+      returnStopIdDraft = entries[0]?.stopId || '';
+    }
     mode = 'return';
+  }
+  function pickReturnStop(id) {
+    returnStopIdDraft = id;
   }
 
   /* One-way save: commit the active step and dispatch immediately
@@ -154,15 +172,17 @@
     if (e.key === 'Escape') close();
   }
 
+  $: canSaveReturnFull = canSaveReturn && !!returnStopIdDraft;
+
   async function handleSave() {
     if (submitting) return;
     if (entries.length < 2) return;
-    if (!canSaveReturn) return;
+    if (!canSaveReturnFull) return;
     submitting = true;
     dispatch('save', {
       stops: entries,
       returnDate: returnDateDraft,
-      returnStopId: entries[0]?.stopId || ''
+      returnStopId: returnStopIdDraft || entries[0]?.stopId || ''
     });
   }
 
@@ -214,7 +234,7 @@
         </span>
         <span class="rp-step">
           {#if mode === 'return'}
-            Last step &middot; When are you back at {stopName(entries[0]?.stopId)}?
+            Last step &middot; Pick the date you're back, and the station you end at.
           {:else if entries.length === 0}
             Where you board the train, and the day you leave.
           {:else}
@@ -253,7 +273,7 @@
     {/if}
 
     {#if mode === 'return'}
-      <div class="rp-body rp-return-body">
+      <div class="rp-body">
         <label class="rp-date-label">
           <span class="rp-date-kicker">Return date</span>
           <input
@@ -263,12 +283,37 @@
             min={returnMinDate}
           />
         </label>
-        <p class="rp-return-note">
-          You'll be back at <strong>{stopName(entries[0]?.stopId)}</strong> on this date.
-          {#if lastEntryDate}
-            Last stop was on {formatDate(lastEntryDate)}.
-          {/if}
+
+        <div class="rp-station-kicker">Return station</div>
+        <p class="rp-return-hint">
+          Defaults to <strong>{stopName(entries[0]?.stopId)}</strong> (where you boarded).
+          Pick a different stop if you're ending the trip somewhere else.
         </p>
+        <ol class="rp-list">
+          {#each STOPS as stop}
+            <li>
+              <button
+                type="button"
+                class="rp-row"
+                class:is-on={stop.id === returnStopIdDraft}
+                on:click={() => pickReturnStop(stop.id)}
+              >
+                <span class="rp-dot" aria-hidden="true">
+                  {#if stop.id === returnStopIdDraft}
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 8 7 12 13 4"></polyline>
+                    </svg>
+                  {/if}
+                </span>
+                <div class="rp-row-body">
+                  <span class="rp-row-name">{stop.name}</span>
+                  <span class="rp-row-region">{stop.region}</span>
+                  <p class="rp-row-hook">{stop.hook}</p>
+                </div>
+              </button>
+            </li>
+          {/each}
+        </ol>
       </div>
     {:else}
       <div class="rp-body">
@@ -329,7 +374,7 @@
             type="button"
             class="btn-primary disabled:opacity-50"
             on:click={handleSave}
-            disabled={!canSaveReturn || submitting}
+            disabled={!canSaveReturnFull || submitting}
           >Save trip</button>
         </div>
       {:else}
@@ -615,18 +660,20 @@
     line-height: 1.3;
   }
 
-  /* ===== Return body (just a date) ===== */
-  .rp-return-body {
-    padding: 32px 24px;
-  }
-  .rp-return-note {
+  /* ===== Return body =====
+     Date input on top + a station picker reusing the same row
+     pattern as the regular steps so the modal feels consistent.
+     The station list defaults the selection to the departing
+     stop, so most round-trips are a single tap from Done. */
+  .rp-return-hint {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     color: #5a4f3d;
-    margin: 14px 0 0;
-    font-size: 14px;
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
   }
-  .rp-return-note strong {
+  .rp-return-hint strong {
     font-weight: 700;
     font-style: normal;
     color: #0a2d21;
