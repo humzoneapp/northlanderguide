@@ -672,7 +672,7 @@
           <span class="group-label">Packing list</span>
           <span class="group-rule" aria-hidden="true"></span>
         </div>
-        <PackingList tripId={trip.id} />
+        <PackingList tripId={trip.id} stopIds={trip.stopIds || []} />
       </div>
     </section>
 

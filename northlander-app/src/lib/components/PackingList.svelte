@@ -7,9 +7,15 @@
     renamePackingItem,
     deletePackingItem
   } from '$lib/stores/packing.js';
+  import PackingPickerModal from './PackingPickerModal.svelte';
 
   /** @type {string} */
   export let tripId;
+  /** @type {string[]} - trip's stop ids. Threads into the picker so
+      it can surface stop-specific suggestions from the Guide. */
+  export let stopIds = [];
+
+  let showPicker = false;
 
   /** @type {import('$lib/stores/packing.js').PackingItem[]} */
   let items = [];
@@ -154,9 +160,19 @@
       </ul>
     {/if}
 
-    <!-- Quick add input - always available at the bottom -->
+    <!-- Quick add input - always available at the bottom. The + is
+         a real button now: tapping it opens the picker modal so
+         users can pull curated items from the Guide's Pack List
+         (one tap per item) without leaving the trip. The plain
+         text input next to it still handles "type your own". -->
     <form on:submit|preventDefault={handleAdd} class="pack-add">
-      <span class="pack-add-bullet" aria-hidden="true">+</span>
+      <button
+        type="button"
+        class="pack-add-bullet pack-add-bullet-btn"
+        on:click={() => (showPicker = true)}
+        aria-label="Browse packing suggestions"
+        title="Browse packing suggestions from the Guide"
+      >+</button>
       <input
         type="text"
         bind:value={newName}
@@ -173,6 +189,15 @@
     </form>
   {/if}
 </div>
+
+{#if showPicker}
+  <PackingPickerModal
+    {tripId}
+    {stopIds}
+    on:change={refresh}
+    on:close={() => { showPicker = false; refresh(); }}
+  />
+{/if}
 
 <style>
   .pack-list {
@@ -271,17 +296,34 @@
   }
   .pack-add-bullet {
     flex: none;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 2px dashed #7d3a1e;
     color: #7d3a1e;
+    background: transparent;
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    padding: 0;
+  }
+  .pack-add-bullet-btn {
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 140ms ease;
+  }
+  .pack-add-bullet-btn:hover {
+    background: #7d3a1e;
+    color: #fffdf6;
+    border-style: solid;
+    transform: scale(1.06);
+  }
+  .pack-add-bullet-btn:focus-visible {
+    outline: 2px solid #c9a84c;
+    outline-offset: 2px;
   }
   .pack-add-input {
     flex: 1;
