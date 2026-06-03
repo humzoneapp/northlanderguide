@@ -732,7 +732,7 @@
      doesn't crowd into the line. */
   .desk-signoff {
     text-align: center;
-    margin: 96px auto 0;
+    margin: 48px auto 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
