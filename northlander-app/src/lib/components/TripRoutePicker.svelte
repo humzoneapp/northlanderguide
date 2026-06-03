@@ -86,7 +86,11 @@
     const prev = entries.length > 0 ? entries[entries.length - 1].date || '' : '';
     return prev && prev > TODAY_ISO ? prev : TODAY_ISO;
   })();
-  $: canCommit = !!activeStopId && !!activeDate && activeDate >= minDate;
+  /* The stop the user just boarded at / arrived at. The next pick
+     can't be the same place - you're already there, you can't get
+     off the train at the same station you just got on. */
+  $: prevStopId = entries.length > 0 ? entries[entries.length - 1].stopId : '';
+  $: canCommit = !!activeStopId && activeStopId !== prevStopId && !!activeDate && activeDate >= minDate;
   $: lastEntryDate = entries.length > 0 ? entries[entries.length - 1].date : '';
   $: returnMinDate = lastEntryDate && lastEntryDate > TODAY_ISO ? lastEntryDate : TODAY_ISO;
   $: canSaveReturn = !!returnDateDraft && returnDateDraft >= returnMinDate;
@@ -98,6 +102,7 @@
   $: canFinish = postCommitCount >= 2;
 
   function pick(id) {
+    if (id && id === prevStopId) return;
     activeStopId = id;
   }
 
@@ -335,12 +340,16 @@
         <div class="rp-station-kicker">Station</div>
         <ol class="rp-list">
           {#each STOPS as stop}
+            {@const isPrev = stop.id === prevStopId}
             <li>
               <button
                 type="button"
                 class="rp-row"
                 class:is-on={stop.id === activeStopId}
+                class:is-disabled={isPrev}
                 on:click={() => pick(stop.id)}
+                disabled={isPrev}
+                aria-disabled={isPrev}
               >
                 <span class="rp-dot" aria-hidden="true">
                   {#if stop.id === activeStopId}
@@ -350,7 +359,10 @@
                   {/if}
                 </span>
                 <div class="rp-row-body">
-                  <span class="rp-row-name">{stop.name}</span>
+                  <span class="rp-row-name">
+                    {stop.name}
+                    {#if isPrev}<span class="rp-row-mark">You're already here</span>{/if}
+                  </span>
                   <span class="rp-row-region">{stop.region}</span>
                   <p class="rp-row-hook">{stop.hook}</p>
                 </div>
@@ -612,8 +624,30 @@
     color: inherit;
     transition: background 140ms ease;
   }
-  .rp-row:hover { background: rgba(125, 58, 30, 0.05); }
+  .rp-row:hover:not(:disabled) { background: rgba(125, 58, 30, 0.05); }
   .rp-row.is-on { background: rgba(201, 168, 76, 0.14); }
+  /* Disabled row = the station the user is at right now (just
+     boarded or just arrived). Greyed so it reads as not-pickable
+     while staying readable for context. */
+  .rp-row.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .rp-row.is-disabled .rp-row-name,
+  .rp-row.is-disabled .rp-row-hook {
+    color: #5a4f3d;
+  }
+  .rp-row-mark {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c4860f;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
   .rp-dot {
     margin-top: 3px;
     flex: none;
