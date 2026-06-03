@@ -22,7 +22,7 @@
     triggerLabel
   } from '$lib/data/packing.js';
   import { getStop } from '$lib/data/stops.js';
-  import { addPackingItem, listPackingItems } from '$lib/stores/packing.js';
+  import { addPackingItem, deletePackingItem, listPackingItems } from '$lib/stores/packing.js';
 
   /** @type {string} */
   export let tripId;
@@ -39,13 +39,14 @@
   /** Map<group label, items[]> */
   let groups = new Map();
 
-  /* Names already on the user's packing list. Lowercased so a row
-     whose Guide name varies only by casing is still treated as
-     "already added". */
-  let existingNames = new Set();
-  /* Items just added in this session, so the row flips to a
-     checkmark without a full refetch race. */
-  let addedKeys = new Set();
+  /* Lowercased item name -> packing item id. Drives both the
+     row's checked state AND the lookup we need to delete the row
+     when the user unchecks it. Mounted from listPackingItems and
+     mutated on every tap. */
+  let existingItemIds = new Map();
+  /* Per-row in-flight flag so a fast double-tap doesn't fire two
+     simultaneous adds or deletes against the same name. */
+  let pendingKeys = new Set();
 
   let customName = '';
   let customBusy = false;
@@ -61,7 +62,12 @@
         loadPackingItems(),
         listPackingItems(tripId)
       ]);
-      existingNames = new Set((existing || []).map((p) => String(p.name || '').toLowerCase()));
+      const map = new Map();
+      for (const p of existing || []) {
+        const k = String(p.name || '').trim().toLowerCase();
+        if (k) map.set(k, p.id);
+      }
+      existingItemIds = map;
       const filtered = sortPackingItems(packingForStops(data, stopNames));
       items = filtered;
       groups = groupPackingItems(filtered);
@@ -76,25 +82,42 @@
     return String(it.item || '').trim().toLowerCase();
   }
 
-  function isAlready(it) {
-    const k = itemKey(it);
-    return existingNames.has(k) || addedKeys.has(k);
-  }
-
-  async function addItem(it) {
+  /* Toggle: tap adds, tap again removes. Tracks pendingKeys so a
+     fast double-tap on the same row doesn't race two writes. The
+     existingItemIds Map is reassigned with the spread trick on
+     every mutation so Svelte's reactivity catches it. */
+  async function toggleItem(it) {
     if (!tripId || !it || !it.item) return;
-    if (isAlready(it)) return;
     const k = itemKey(it);
-    /* Optimistic: flip the row to "added" before the write completes
-       so the tap feels instant. The write is fast, but on iPad
-       Safari we've seen perceptible delay on busy DB. */
-    addedKeys = new Set([...addedKeys, k]);
+    if (pendingKeys.has(k)) return;
+    pendingKeys = new Set([...pendingKeys, k]);
     try {
-      await addPackingItem(tripId, it.item);
-    } catch (_) {
-      /* Roll back the optimistic mark on failure. */
-      addedKeys.delete(k);
-      addedKeys = new Set([...addedKeys]);
+      if (existingItemIds.has(k)) {
+        const id = existingItemIds.get(k);
+        /* Optimistic remove. Roll back the Map entry on failure. */
+        const prevId = id;
+        const next = new Map(existingItemIds);
+        next.delete(k);
+        existingItemIds = next;
+        try {
+          await deletePackingItem(id);
+        } catch (_) {
+          const rb = new Map(existingItemIds);
+          rb.set(k, prevId);
+          existingItemIds = rb;
+        }
+      } else {
+        const newId = await addPackingItem(tripId, it.item);
+        if (newId != null) {
+          const next = new Map(existingItemIds);
+          next.set(k, newId);
+          existingItemIds = next;
+        }
+      }
+    } finally {
+      const np = new Set(pendingKeys);
+      np.delete(k);
+      pendingKeys = np;
     }
   }
 
@@ -104,10 +127,13 @@
     if (!clean) return;
     customBusy = true;
     try {
-      await addPackingItem(tripId, clean);
-      const k = clean.toLowerCase();
-      existingNames = new Set([...existingNames, k]);
-      addedKeys = new Set([...addedKeys, k]);
+      const newId = await addPackingItem(tripId, clean);
+      if (newId != null) {
+        const k = clean.toLowerCase();
+        const next = new Map(existingItemIds);
+        next.set(k, newId);
+        existingItemIds = next;
+      }
       customName = '';
     } finally {
       customBusy = false;
@@ -178,20 +204,21 @@
             <ul class="pp-list">
               {#each rows as it (itemKey(it))}
                 <!-- Inline the reactivity here so Svelte sees the
-                     direct refs to existingNames + addedKeys (a
-                     function call from {@const} doesn't track its
-                     internal deps and the checkmark would stay
-                     empty after a tap). -->
+                     direct refs to existingItemIds + pendingKeys
+                     (a function call from {@const} doesn't track
+                     its internal deps and the checkmark would
+                     stay stale after a tap). -->
                 {@const k = itemKey(it)}
-                {@const already = existingNames.has(k) || addedKeys.has(k)}
+                {@const already = existingItemIds.has(k)}
+                {@const pending = pendingKeys.has(k)}
                 <li class="pp-row" class:is-on={already}>
                   <button
                     type="button"
                     class="pp-check"
-                    on:click={() => addItem(it)}
+                    on:click={() => toggleItem(it)}
                     aria-pressed={already}
-                    aria-label={already ? `${it.item} already on your list` : `Add ${it.item}`}
-                    disabled={already}
+                    aria-label={already ? `Remove ${it.item} from your list` : `Add ${it.item} to your list`}
+                    disabled={pending}
                   >
                     {#if already}
                       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -402,8 +429,15 @@
     border-color: #0a2d21;
     background: #c9a84c;
     color: #0a2d21;
-    cursor: default;
   }
+  /* Soft hint that a checked token is still tappable: nudge to
+     rust on hover so the user knows tapping uncheckes. */
+  .pp-row.is-on .pp-check:hover:not(:disabled) {
+    border-color: #6e2e17;
+    background: #7d3a1e;
+    color: #f5f0e8;
+  }
+  .pp-check:disabled { opacity: 0.6; }
   .pp-check svg { width: 13px; height: 13px; }
 
   .pp-text {
