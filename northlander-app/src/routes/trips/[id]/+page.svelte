@@ -698,16 +698,17 @@
           {/if}
           {#if stops.length > 0}
           <a
-            href={`/trips/${trip.id}/recap`}
+            href={`/trips/${trip.id}/logbook`}
             class="btn-primary cover-recap"
-            aria-label="See a recap of this trip"
+            aria-label="Open this trip's logbook"
           >
             <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 4 H20 V20 H4 Z"/>
-              <path d="M4 9 L20 9"/>
-              <path d="M9 4 L9 9"/>
+              <path d="M5 4 H17 a2 2 0 0 1 2 2 V20 H7 a2 2 0 0 1 -2 -2 Z"/>
+              <path d="M5 18 V4"/>
+              <path d="M9 8 L15 8"/>
+              <path d="M9 12 L15 12"/>
             </svg>
-            <span>Recap</span>
+            <span>Logbook</span>
           </a>
           <a
             href={`/trips/${trip.id}/print`}
