@@ -35,24 +35,14 @@
   let loaded = false;
   let saving = false;
 
-  /* Today as YYYY-MM-DD in local time. Used to default the entry
-     date input so quick notes still feel instant. */
-  function todayLocal() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  /* Add-entry form state. */
+  /* Add-entry form state. The manual date input was retired
+     2026-06-06; createdAt (set by the diary store on save) is the
+     timestamp on every note now. */
   let draftStopId = '';
-  let draftDate = todayLocal();
 
   /* Inline edit state. */
   let editingId = null;
   let editStopId = '';
-  let editDate = '';
 
   /* Rich-text editors are contenteditable divs the user types into.
      We read innerHTML on save, sanitize via sanitizeDiaryHtml, and
@@ -148,13 +138,11 @@
     try {
       await addDiaryEntry(tripId, {
         text: sanitized,
-        stopId: stopFilter || draftStopId || null,
-        entryDate: draftDate || null
+        stopId: stopFilter || draftStopId || null
       });
       composerEl.innerHTML = '';
       composerHasContent = false;
       draftStopId = '';
-      draftDate = todayLocal();
       composerPickerOpen = false;
       await refresh();
       dispatch('change');
@@ -166,7 +154,6 @@
   async function startEdit(entry) {
     editingId = entry.id;
     editStopId = entry.stopId || '';
-    editDate = entry.entryDate || '';
     await tick();
     if (editEl) {
       /* Seed the editor with the existing content. Legacy plain-text
@@ -186,15 +173,13 @@
     const sanitized = sanitizeDiaryHtml(editEl.innerHTML);
     const hasText = !!editEl.innerText.trim();
     const stopId = stopFilter || editStopId || null;
-    const entryDate = editDate || null;
     editingId = null;
     editEl.innerHTML = '';
     editHasContent = false;
     editStopId = '';
-    editDate = '';
     editPickerOpen = false;
     if (sanitized && hasText) {
-      await updateDiaryEntry(id, { text: sanitized, stopId, entryDate });
+      await updateDiaryEntry(id, { text: sanitized, stopId });
       await refresh();
       dispatch('change');
     }
@@ -205,7 +190,6 @@
     if (editEl) editEl.innerHTML = '';
     editHasContent = false;
     editStopId = '';
-    editDate = '';
     editPickerOpen = false;
   }
 
@@ -220,35 +204,29 @@
     return s ? s.name : null;
   }
 
-  /* "Today" / "Yesterday" / "Sep 5" / "Aug 15 2024" relative to the
-     viewer's local timezone. Keeps the feed readable without
-     overwhelming each entry with the year for recent notes. */
+  /* Always show date + time stamped on the note when it was saved.
+     The date input on the composer was retired 2026-06-06; the
+     timestamp is whatever moment the user tapped Add note. The
+     short kicker reads e.g. "Sat, Jun 12 . 10:30 AM". For same-day
+     entries we still tag with Today / Yesterday for warmth. */
   function formatEntryDate(entry) {
-    if (!entry) return '';
-    if (typeof entry.entryDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(entry.entryDate)) {
-      return formatDate(new Date(entry.entryDate + 'T12:00:00').getTime());
-    }
-    return formatDate(entry.createdAt);
-  }
-  function formatDate(ms) {
-    if (!ms) return '';
-    const dt = new Date(ms);
+    if (!entry || !entry.createdAt) return '';
+    const dt = new Date(entry.createdAt);
     const now = new Date();
+    const time = dt.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' });
     const sameDay = dt.toDateString() === now.toDateString();
-    if (sameDay) {
-      return dt.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' }) + '  ·  Today';
-    }
+    if (sameDay) return `Today  .  ${time}`;
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
-    if (dt.toDateString() === yesterday.toDateString()) {
-      return dt.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' }) + '  ·  Yesterday';
-    }
+    if (dt.toDateString() === yesterday.toDateString()) return `Yesterday  .  ${time}`;
     const sameYear = dt.getFullYear() === now.getFullYear();
-    return dt.toLocaleDateString('en-CA', {
+    const date = dt.toLocaleDateString('en-CA', {
+      weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: sameYear ? undefined : 'numeric'
     });
+    return `${date}  .  ${time}`;
   }
 </script>
 
@@ -257,7 +235,7 @@
   <div class="flex items-baseline justify-between mb-3">
     <div>
       <div class="kicker">Journey</div>
-      <h3 class="font-serif font-bold text-forest text-xl">Travel diary</h3>
+      <h3 class="font-serif font-bold text-forest text-xl">Travel Diary</h3>
     </div>
     {#if loaded && visibleEntries.length > 0}
       <span class="font-serif italic text-rust text-sm flex-none">
@@ -345,15 +323,6 @@
         }}
       ></div>
       <div class="diary-add-row">
-        <label class="diary-date-pick">
-          <span class="sr-only">Note date</span>
-          <input
-            type="date"
-            class="diary-date-input"
-            bind:value={draftDate}
-            aria-label="Date of this note"
-          />
-        </label>
         {#if !stopFilter && tripStops.length > 0}
           <label class="diary-stop-pick">
             <span class="sr-only">Pin to a stop</span>
@@ -461,15 +430,6 @@
                 }}
               ></div>
               <div class="diary-add-row">
-                <label class="diary-date-pick">
-                  <span class="sr-only">Note date</span>
-                  <input
-                    type="date"
-                    class="diary-date-input"
-                    bind:value={editDate}
-                    aria-label="Date of this note"
-                  />
-                </label>
                 {#if !stopFilter && tripStops.length > 0}
                   <select bind:value={editStopId} class="diary-select">
                     <option value="">Anywhere on the trip</option>
@@ -613,20 +573,6 @@
     flex: 1;
     min-width: 0;
   }
-  .diary-date-pick {
-    flex: 0 0 auto;
-  }
-  .diary-date-input {
-    background: #fffdf6;
-    border: 1px solid #8b6a3a;
-    border-radius: 3px;
-    padding: 6px 10px;
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 13px;
-    color: #0a2d21;
-    outline: none;
-  }
-  .diary-date-input:focus { border-color: #7d3a1e; }
   .diary-select {
     background: #fffdf6;
     border: 1px solid #8b6a3a;

@@ -974,7 +974,7 @@
 
                 <Drawer
                   kicker="Journey"
-                  title="Travel notes"
+                  title="Travel Diary"
                   count={diary.filter((d) => d.stopId === stop.id).length}
                   countLabel={diary.filter((d) => d.stopId === stop.id).length === 1 ? 'note' : 'notes'}
                 >

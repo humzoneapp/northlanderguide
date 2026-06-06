@@ -28,6 +28,9 @@
 
   let tab = 'stickers';
 
+  /** @type {HTMLDivElement | undefined} */
+  let popEl;
+
   function pickSticker(s) {
     /* Wrap each sticker in span.sticker contenteditable="false" so the
        contenteditable treats it as a single atom (cursor skips over
@@ -44,13 +47,32 @@
   function onKey(e) {
     if (e.key === 'Escape') close();
   }
+  /* Click anywhere outside the popover dismisses. Pointerdown so we
+     catch the touch BEFORE the contenteditable steals focus back. */
+  function onDocPointerDown(e) {
+    if (!open || !popEl) return;
+    if (popEl.contains(e.target)) return;
+    /* Ignore taps on the toolbar emoji button itself - the parent
+       toggle would re-open the picker on the same click. */
+    const tgt = e.target;
+    if (tgt && typeof tgt.closest === 'function' && tgt.closest('.diary-tool-emoji-wrap')) return;
+    close();
+  }
 </script>
 
-<svelte:window on:keydown={onKey} />
+<svelte:window on:keydown={onKey} on:pointerdown={onDocPointerDown} />
 
 {#if open}
-  <div class="ep-pop" role="dialog" aria-label="Pick a sticker or emoji">
+  <div class="ep-pop" role="dialog" aria-label="Pick a sticker or emoji" bind:this={popEl}>
     <div class="ep-tabs" role="tablist">
+      <button
+        type="button"
+        class="ep-close"
+        on:mousedown|preventDefault={close}
+        on:click={close}
+        aria-label="Close picker"
+        title="Close"
+      >&times;</button>
       <button
         type="button"
         class="ep-tab"
@@ -124,6 +146,32 @@
     display: flex;
     background: #f3ece0;
     border-bottom: 1px solid rgba(139, 106, 58, 0.4);
+    position: relative;
+    padding-right: 32px;
+  }
+  .ep-close {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    width: 24px;
+    height: 24px;
+    color: #5a4f3d;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .ep-close:hover {
+    background: rgba(125, 58, 30, 0.12);
+    color: #5e2a14;
   }
   .ep-tab {
     flex: 1;
