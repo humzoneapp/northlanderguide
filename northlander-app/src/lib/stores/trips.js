@@ -177,6 +177,62 @@ export async function addTripPackingList(id, name) {
   return updateTrip(id, { extraPackingLists: [...lists, clean] });
 }
 
+/* Rename a packing list. Pass `currentName=''` (or null) to rename
+   the default list - that just patches `defaultPackingListName`
+   on the trip row, since items in the default list have no
+   listName to migrate. For named lists we update both
+   `extraPackingLists` and every packing item whose listName
+   matches, in one transaction. Refuses a name collision against
+   any other list (case-insensitive). */
+export async function renameTripPackingList(id, currentName, newName) {
+  if (!id) return null;
+  const next = String(newName || '').trim();
+  if (!next) return null;
+  const cur = String(currentName || '').trim();
+  const row = await db.trips.get(id);
+  if (!row) return null;
+  const lists = Array.isArray(row.extraPackingLists) ? row.extraPackingLists : [];
+  const defaultName = String(row.defaultPackingListName || '').trim();
+  const nextLower = next.toLowerCase();
+  /* Collision: another list (default or extra) already uses this
+     name. The list being renamed itself doesn't count. */
+  const otherLists = [
+    ...(cur && cur.toLowerCase() === defaultName.toLowerCase() ? [] : [defaultName]),
+    ...lists.filter((n) => String(n).toLowerCase() !== cur.toLowerCase())
+  ].filter(Boolean);
+  if (otherLists.some((n) => String(n).toLowerCase() === nextLower)) {
+    return row;
+  }
+  if (!cur) {
+    /* Default list: just patches the display name on the trip. */
+    return updateTrip(id, { defaultPackingListName: next });
+  }
+  /* Named list: rename in the trip row AND on every owned item. */
+  await db.transaction(
+    'rw',
+    db.trips,
+    db.packingItems,
+    async () => {
+      const t = await db.trips.get(id);
+      if (t) {
+        const updatedLists = (t.extraPackingLists || []).map((n) =>
+          String(n).toLowerCase() === cur.toLowerCase() ? next : n
+        );
+        await db.trips.put({ ...t, extraPackingLists: updatedLists, updatedAt: Date.now() });
+      }
+      const matching = await db.packingItems
+        .where({ tripId: id })
+        .filter((it) => String(it.listName || '').toLowerCase() === cur.toLowerCase())
+        .toArray();
+      for (const it of matching) {
+        await db.packingItems.update(it.id, { listName: next, updatedAt: Date.now() });
+      }
+    }
+  );
+  trips.set(await listTrips());
+  return db.trips.get(id);
+}
+
 /* Remove a named list and every packing item it owns in one
    transaction. The default (unnamed) list and its items are
    intentionally untouched. */

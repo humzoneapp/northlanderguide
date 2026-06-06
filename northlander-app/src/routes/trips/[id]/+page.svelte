@@ -24,6 +24,7 @@
     updateTrip,
     setTripRoute,
     addTripPackingList,
+    renameTripPackingList,
     deleteTripPackingList,
     deleteTrip,
     setTripCover,
@@ -174,9 +175,39 @@
       : packingRows.filter((p) => !p.listName).length;
   }
 
+  /* Display name for the default (unnamed) packing list. Falls
+     back to "Packing list" when the user hasn't renamed it yet. */
+  $: defaultPackingListLabel = (trip && trip.defaultPackingListName) || 'Packing list';
+
   /* Inline "Add another packing list" form on the trip page. */
   let addingPackingList = false;
   let newPackingListName = '';
+
+  /* Inline rename: the key being edited (''=default list, name=
+     extra list), plus the current input draft. */
+  let renamingListKey = null;
+  let renameListDraft = '';
+  function startRenameList(currentName) {
+    renamingListKey = currentName || '';
+    renameListDraft = currentName || defaultPackingListLabel;
+  }
+  function cancelRenameList() {
+    renamingListKey = null;
+    renameListDraft = '';
+  }
+  async function commitRenameList() {
+    if (renamingListKey === null) return;
+    const cur = renamingListKey;
+    const next = renameListDraft.trim();
+    renamingListKey = null;
+    renameListDraft = '';
+    if (!trip || !next) return;
+    if (cur && next === cur) return;
+    if (!cur && next === defaultPackingListLabel) return;
+    const updated = await renameTripPackingList(trip.id, cur, next);
+    if (updated) trip = updated;
+    packingRows = await listPackingItems(trip.id);
+  }
   async function commitNewPackingList() {
     if (!trip) return;
     const clean = newPackingListName.trim();
@@ -234,7 +265,12 @@
   onMount(load);
 
   async function load() {
-    loading = true;
+    /* Only show the platform-loading state on the very first load.
+       Subsequent calls (the on:change refresh path from PackingList,
+       BookingChecklist, etc.) skip the loading flip so the page
+       doesn't yank to the top while the user is mid-scroll editing
+       a packing item or a budget line. */
+    if (!trip) loading = true;
     trip = (await getTrip(tripId)) || null;
     loading = false;
     if (!trip) return;
@@ -725,10 +761,11 @@
           <h2>One bag for the whole journey.</h2>
         </div>
         <!-- Default (unnamed) packing list. Always present, can't
-             be deleted - it's the bag every trip starts with. -->
+             be deleted - it's the bag every trip starts with. The
+             user can give it a name from the body link. -->
         <Drawer
           kicker="Pack the bag"
-          title="Packing list"
+          title={defaultPackingListLabel}
           count={defaultPackingCount}
           countLabel={defaultPackingCount === 1 ? 'item' : 'items'}
         >
@@ -737,6 +774,27 @@
             stopIds={trip.stopIds || []}
             on:change={load}
           />
+          <div class="bb-list-foot">
+            {#if renamingListKey === ''}
+              <form class="bb-rename-form" on:submit|preventDefault={commitRenameList}>
+                <input
+                  type="text"
+                  bind:value={renameListDraft}
+                  maxlength="40"
+                  placeholder="Name this list"
+                  class="bb-add-list-input"
+                  on:blur={commitRenameList}
+                  on:keydown={(e) => { if (e.key === 'Escape') cancelRenameList(); }}
+                />
+              </form>
+            {:else}
+              <button
+                type="button"
+                class="bb-list-delete"
+                on:click={() => startRenameList('')}
+              >Rename this list</button>
+            {/if}
+          </div>
         </Drawer>
 
         <!-- Extra named lists (Mom / Kids / Camera bag etc.). Each
@@ -757,11 +815,30 @@
               on:change={load}
             />
             <div class="bb-list-foot">
-              <button
-                type="button"
-                class="bb-list-delete"
-                on:click={() => removePackingList(name)}
-              >Delete this list</button>
+              {#if renamingListKey === name}
+                <form class="bb-rename-form" on:submit|preventDefault={commitRenameList}>
+                  <input
+                    type="text"
+                    bind:value={renameListDraft}
+                    maxlength="40"
+                    placeholder="Rename this list"
+                    class="bb-add-list-input"
+                    on:blur={commitRenameList}
+                    on:keydown={(e) => { if (e.key === 'Escape') cancelRenameList(); }}
+                  />
+                </form>
+              {:else}
+                <button
+                  type="button"
+                  class="bb-list-delete"
+                  on:click={() => startRenameList(name)}
+                >Rename</button>
+                <button
+                  type="button"
+                  class="bb-list-delete"
+                  on:click={() => removePackingList(name)}
+                >Delete this list</button>
+              {/if}
             </div>
           </Drawer>
         {/each}
@@ -1886,6 +1963,10 @@
     padding-top: 12px;
     border-top: 1px dashed rgba(125, 58, 30, 0.3);
     text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
   }
   .bb-list-delete {
     background: transparent;
@@ -1898,6 +1979,13 @@
     padding: 4px 6px;
   }
   .bb-list-delete:hover { color: #6e2e17; text-decoration: underline; }
+  .bb-rename-form {
+    flex: 1;
+    margin: 0;
+  }
+  .bb-rename-form .bb-add-list-input {
+    max-width: none;
+  }
 
   /* ===== Chapter divider =====
      Direct port of the Guide's pl-divider pattern (plan-page.css
