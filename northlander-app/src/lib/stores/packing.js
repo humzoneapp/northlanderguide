@@ -24,13 +24,14 @@ export async function listPackingItems(tripId) {
 }
 
 /** Add a new packing item to a trip. Returns the created row id. */
-export async function addPackingItem(tripId, name) {
+export async function addPackingItem(tripId, name, listName = null) {
   const clean = String(name || '').trim();
   if (!clean) return null;
   const now = Date.now();
   return db.packingItems.add({
     tripId,
     name: clean,
+    listName: typeof listName === 'string' && listName.trim() ? listName.trim() : null,
     packed: false,
     createdAt: now,
     updatedAt: now

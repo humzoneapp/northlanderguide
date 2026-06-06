@@ -29,6 +29,10 @@
   /** @type {string[]} - stop ids on the trip, used to filter
       suggestions to the user's actual route. */
   export let stopIds = [];
+  /** @type {string} - when set, the modal scopes its existing-item
+      check + new additions to this named packing list (Mom / Kids /
+      Camera bag etc.). Empty = the default unnamed list. */
+  export let listName = '';
 
   const dispatch = createEventDispatcher();
 
@@ -62,8 +66,14 @@
         loadPackingItems(),
         listPackingItems(tripId)
       ]);
+      /* Scope the dedup to this list only. An item on Mom's list
+         shouldn't pre-check it on Kids's picker - each list gets
+         its own copy of suggestions like "Bug spray". */
+      const scoped = (existing || []).filter((p) =>
+        listName ? p.listName === listName : !p.listName
+      );
       const map = new Map();
-      for (const p of existing || []) {
+      for (const p of scoped) {
         const k = String(p.name || '').trim().toLowerCase();
         if (k) map.set(k, p.id);
       }
@@ -107,7 +117,7 @@
           existingItemIds = rb;
         }
       } else {
-        const newId = await addPackingItem(tripId, it.item);
+        const newId = await addPackingItem(tripId, it.item, listName || null);
         if (newId != null) {
           const next = new Map(existingItemIds);
           next.set(k, newId);
@@ -127,7 +137,7 @@
     if (!clean) return;
     customBusy = true;
     try {
-      const newId = await addPackingItem(tripId, clean);
+      const newId = await addPackingItem(tripId, clean, listName || null);
       if (newId != null) {
         const k = clean.toLowerCase();
         const next = new Map(existingItemIds);
@@ -170,10 +180,13 @@
     <header class="pp-head">
       <div>
         <span class="pp-kicker">Before you board</span>
-        <h2 id="pp-title" class="pp-title">Pack the bag</h2>
+        <h2 id="pp-title" class="pp-title">
+          {listName ? `Pack for ${listName}` : 'Pack the bag'}
+        </h2>
         <p class="pp-sub">
-          Tap an item to drop it on your packing list. Already-added
-          items are marked.
+          Tap an item to drop it on
+          {listName ? `${listName}'s list` : 'your packing list'}.
+          Already-added items are marked.
         </p>
       </div>
       <button

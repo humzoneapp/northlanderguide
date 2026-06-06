@@ -23,6 +23,8 @@
     renameTrip,
     updateTrip,
     setTripRoute,
+    addTripPackingList,
+    deleteTripPackingList,
     deleteTrip,
     setTripCover,
     clearTripCover
@@ -70,7 +72,8 @@
   let bookings = [];
   let diary = [];
   let photos = [];
-  let packingCount = 0;
+  /** @type {Array<{ id: number, name: string, listName?: string|null, packed: boolean }>} */
+  let packingRows = [];
   let budgetEntries = [];
 
   /* Modal flags */
@@ -157,6 +160,51 @@
 
   $: tripId = $page.params.id;
   $: stops = trip ? deriveStops(trip) : [];
+  /* Cover stat aggregates across every list. Per-list counts for
+     the Drawer badges are derived inline where they're rendered. */
+  $: packingCount = packingRows.length;
+  $: defaultPackingCount = packingRows.filter((p) => !p.listName).length;
+  $: extraPackingLists = (trip && Array.isArray(trip.extraPackingLists))
+    ? trip.extraPackingLists
+    : [];
+  function packingCountFor(listName) {
+    if (!Array.isArray(packingRows)) return 0;
+    return listName
+      ? packingRows.filter((p) => p.listName === listName).length
+      : packingRows.filter((p) => !p.listName).length;
+  }
+
+  /* Inline "Add another packing list" form on the trip page. */
+  let addingPackingList = false;
+  let newPackingListName = '';
+  async function commitNewPackingList() {
+    if (!trip) return;
+    const clean = newPackingListName.trim();
+    if (!clean) {
+      addingPackingList = false;
+      return;
+    }
+    const updated = await addTripPackingList(trip.id, clean);
+    if (updated) trip = updated;
+    newPackingListName = '';
+    addingPackingList = false;
+  }
+  async function removePackingList(name) {
+    if (!trip) return;
+    const count = packingCountFor(name);
+    const msg = count > 0
+      ? `Delete the "${name}" list and its ${count} ${count === 1 ? 'item' : 'items'}? This can't be undone.`
+      : `Delete the "${name}" list?`;
+    const ok = typeof window !== 'undefined' && window.confirm
+      ? window.confirm(msg)
+      : true;
+    if (!ok) return;
+    const updated = await deleteTripPackingList(trip.id, name);
+    if (updated) trip = updated;
+    /* Refresh packing rows so the cover stat + remaining drawer
+       counts reflect the deletion. */
+    packingRows = await listPackingItems(trip.id);
+  }
   $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
   $: depClock = trip ? departureFor(trip.direction || 'northbound') : '09:00';
   $: unassigned = bookings.filter((b) => !b.stopId);
@@ -191,11 +239,11 @@
     loading = false;
     if (!trip) return;
 
-    [bookings, diary, photos, packingCount, budgetEntries] = await Promise.all([
+    [bookings, diary, photos, packingRows, budgetEntries] = await Promise.all([
       listBookings(trip.id),
       listDiaryEntries(trip.id),
       listPhotos(trip.id),
-      listPackingItems(trip.id).then((rows) => rows.length),
+      listPackingItems(trip.id),
       listBudgetEntries(trip.id)
     ]);
   }
@@ -336,10 +384,10 @@
     if (trip) {
       const [b, p] = await Promise.all([
         listBookings(trip.id),
-        listPackingItems(trip.id).then((r) => r.length)
+        listPackingItems(trip.id)
       ]);
       bookings = b;
-      packingCount = p;
+      packingRows = p;
     }
   }
 
@@ -676,11 +724,13 @@
           <div class="kicker">Before You Board</div>
           <h2>One bag for the whole journey.</h2>
         </div>
+        <!-- Default (unnamed) packing list. Always present, can't
+             be deleted - it's the bag every trip starts with. -->
         <Drawer
           kicker="Pack the bag"
           title="Packing list"
-          count={packingCount}
-          countLabel={packingCount === 1 ? 'item' : 'items'}
+          count={defaultPackingCount}
+          countLabel={defaultPackingCount === 1 ? 'item' : 'items'}
         >
           <PackingList
             tripId={trip.id}
@@ -688,6 +738,62 @@
             on:change={load}
           />
         </Drawer>
+
+        <!-- Extra named lists (Mom / Kids / Camera bag etc.). Each
+             gets its own accordion + a small Delete-list link inside
+             the body for the two-step confirm. -->
+        {#each extraPackingLists as name (name)}
+          {@const listCount = packingCountFor(name)}
+          <Drawer
+            kicker="Another bag"
+            title={name}
+            count={listCount}
+            countLabel={listCount === 1 ? 'item' : 'items'}
+          >
+            <PackingList
+              tripId={trip.id}
+              stopIds={trip.stopIds || []}
+              listName={name}
+              on:change={load}
+            />
+            <div class="bb-list-foot">
+              <button
+                type="button"
+                class="bb-list-delete"
+                on:click={() => removePackingList(name)}
+              >Delete this list</button>
+            </div>
+          </Drawer>
+        {/each}
+
+        <!-- Add another packing list. Inline name input keeps the
+             flow lightweight (no second modal); pressing Enter or
+             blurring commits. -->
+        <div class="bb-add-list">
+          {#if addingPackingList}
+            <form on:submit|preventDefault={commitNewPackingList}>
+              <input
+                type="text"
+                bind:value={newPackingListName}
+                maxlength="40"
+                placeholder="Name this list (Mom, Kids, Camera bag...)"
+                class="bb-add-list-input"
+                on:blur={commitNewPackingList}
+                on:keydown={(e) => { if (e.key === 'Escape') { addingPackingList = false; newPackingListName = ''; } }}
+                autofocus
+              />
+            </form>
+          {:else}
+            <button
+              type="button"
+              class="bb-add-list-btn"
+              on:click={() => (addingPackingList = true)}
+            >
+              <span class="bb-add-list-plus" aria-hidden="true">+</span>
+              <span>Add another packing list</span>
+            </button>
+          {/if}
+        </div>
       </div>
     </section>
 
@@ -1723,6 +1829,75 @@
   .before-board-inner > .group-head {
     max-width: 760px;
   }
+
+  /* ===== Add another packing list =====
+     Dashed-rust pill that mirrors the route picker's secondary
+     button. Tap reveals an inline name input so the user names
+     the list without a second modal. Pressing Enter or blurring
+     commits via commitNewPackingList. */
+  .bb-add-list {
+    margin-top: 14px;
+  }
+  .bb-add-list-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1.5px dashed #7d3a1e;
+    color: #7d3a1e;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .bb-add-list-btn:hover {
+    background: #7d3a1e;
+    color: #fffdf6;
+  }
+  .bb-add-list-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .bb-add-list-input {
+    width: 100%;
+    max-width: 380px;
+    background: #fffdf6;
+    border: 1.5px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 9px 12px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    color: #0a2d21;
+    outline: none;
+  }
+  .bb-add-list-input:focus { border-color: #7d3a1e; }
+
+  /* "Delete this list" link inside a named accordion's body. Quiet
+     italic so it doesn't compete with the items themselves. */
+  .bb-list-foot {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+    text-align: right;
+  }
+  .bb-list-delete {
+    background: transparent;
+    border: 0;
+    color: #7d3a1e;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+  .bb-list-delete:hover { color: #6e2e17; text-decoration: underline; }
 
   /* ===== Chapter divider =====
      Direct port of the Guide's pl-divider pattern (plan-page.css

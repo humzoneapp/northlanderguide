@@ -159,6 +159,54 @@ export async function renameTrip(id, name) {
   return updateTrip(id, { name: String(name || '').trim() || 'Untitled trip' });
 }
 
+/* Append a named packing list to the trip. The default (unnamed)
+   list is always implicit, so this only records the EXTRA lists
+   the user wants to maintain alongside it (Mom / Kids / Camera
+   bag etc.). Names are deduped case-insensitively. Returns the
+   patched row, or the existing row when the name was already
+   present. */
+export async function addTripPackingList(id, name) {
+  if (!id) return null;
+  const clean = String(name || '').trim();
+  if (!clean) return null;
+  const existing = await db.trips.get(id);
+  if (!existing) return null;
+  const lists = Array.isArray(existing.extraPackingLists) ? existing.extraPackingLists : [];
+  const lower = clean.toLowerCase();
+  if (lists.some((n) => String(n).toLowerCase() === lower)) return existing;
+  return updateTrip(id, { extraPackingLists: [...lists, clean] });
+}
+
+/* Remove a named list and every packing item it owns in one
+   transaction. The default (unnamed) list and its items are
+   intentionally untouched. */
+export async function deleteTripPackingList(id, name) {
+  if (!id) return null;
+  const clean = String(name || '').trim();
+  if (!clean) return null;
+  const lower = clean.toLowerCase();
+  await db.transaction(
+    'rw',
+    db.trips,
+    db.packingItems,
+    async () => {
+      const row = await db.trips.get(id);
+      if (row) {
+        const next = (row.extraPackingLists || []).filter(
+          (n) => String(n).toLowerCase() !== lower
+        );
+        await db.trips.put({ ...row, extraPackingLists: next, updatedAt: Date.now() });
+      }
+      await db.packingItems
+        .where({ tripId: id })
+        .filter((it) => String(it.listName || '').toLowerCase() === lower)
+        .delete();
+    }
+  );
+  trips.set(await listTrips());
+  return db.trips.get(id);
+}
+
 /* Write the new dated-route shape on a trip. Mirrors `stopIds` and
    `departureDate` from `stops` so any code still reading the old
    shape keeps working. `direction` is derived from the first vs

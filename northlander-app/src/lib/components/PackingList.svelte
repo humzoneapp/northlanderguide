@@ -14,6 +14,10 @@
   /** @type {string[]} - trip's stop ids. Threads into the picker so
       it can surface stop-specific suggestions from the Guide. */
   export let stopIds = [];
+  /** @type {string} - when set, this list filters to items whose
+      `listName` matches; new items + picker additions auto-tag
+      with the same name. Empty / unset = the default unnamed list. */
+  export let listName = '';
 
   const dispatch = createEventDispatcher();
 
@@ -30,8 +34,13 @@
   let editingDraft = '';
 
   $: tripId, refresh();
-  $: total = items.length;
-  $: packedCount = items.filter((i) => i.packed).length;
+  /* Visible slice = items belonging to this list. Default list
+     (no listName prop) catches items with no listName set. */
+  $: visibleItems = listName
+    ? items.filter((i) => i.listName === listName)
+    : items.filter((i) => !i.listName);
+  $: total = visibleItems.length;
+  $: packedCount = visibleItems.filter((i) => i.packed).length;
 
   onMount(refresh);
 
@@ -51,7 +60,7 @@
     if (!clean) return;
     busy = true;
     try {
-      await addPackingItem(tripId, clean);
+      await addPackingItem(tripId, clean, listName || null);
       newName = '';
       await refresh();
       dispatch('change');
@@ -110,13 +119,13 @@
   </div>
 
   {#if loaded}
-    {#if items.length === 0}
+    {#if visibleItems.length === 0}
       <p class="font-serif italic text-muted mb-3">
         Your bag is empty. Toothbrush, train ticket, your better book...
       </p>
     {:else}
       <ul class="pack-list">
-        {#each items as item (item.id)}
+        {#each visibleItems as item (item.id)}
           <li class="pack-row" class:is-packed={item.packed}>
             <button
               type="button"
@@ -200,6 +209,7 @@
   <PackingPickerModal
     {tripId}
     {stopIds}
+    {listName}
     on:change={() => { refresh(); dispatch('change'); }}
     on:close={() => { showPicker = false; refresh(); dispatch('change'); }}
   />
