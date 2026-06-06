@@ -21,6 +21,10 @@
       an outside surface has mutated the ledger while this view is
       mounted. */
   export let refreshKey = 0;
+  /** @type {boolean} - When true, suppress only the in-component
+      kicker + title; the running Total on the right stays so the
+      user can read it without expanding. */
+  export let hideHeader = false;
 
   const dispatch = createEventDispatcher();
 
@@ -133,10 +137,12 @@
 
 <div>
   <div class="header-row">
-    <div>
-      <div class="kicker">Ledger</div>
-      <h3 class="font-serif font-bold text-forest text-xl">Budget tracker</h3>
-    </div>
+    {#if !hideHeader}
+      <div>
+        <div class="kicker">Ledger</div>
+        <h3 class="font-serif font-bold text-forest text-xl">Budget tracker</h3>
+      </div>
+    {/if}
     <div class="total">
       <span class="kicker total-kicker">Total</span>
       <span class="total-amount">{formatAmount(total)}</span>

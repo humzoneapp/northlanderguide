@@ -22,6 +22,9 @@
       an outside surface has mutated the diary while this view is
       mounted. See BookingChecklist for the same pattern. */
   export let refreshKey = 0;
+  /** @type {boolean} - Suppress the in-component header when the
+      parent already prints its own (e.g. inside a Drawer). */
+  export let hideHeader = false;
 
   const dispatch = createEventDispatcher();
 
@@ -168,6 +171,7 @@
 </script>
 
 <div>
+  {#if !hideHeader}
   <div class="flex items-baseline justify-between mb-3">
     <div>
       <div class="kicker">Journey</div>
@@ -179,6 +183,7 @@
       </span>
     {/if}
   </div>
+  {/if}
 
   {#if loaded}
     <!-- Add-entry composer -->

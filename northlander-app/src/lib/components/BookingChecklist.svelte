@@ -35,6 +35,10 @@
       bookings while this checklist is mounted but unmounted-paint;
       Svelte's reactive `$:` on this value triggers refresh(). */
   export let refreshKey = 0;
+  /** @type {boolean} - When wrapped in a parent Drawer that already
+      prints "Bookings / Booking checklist" in its summary row,
+      suppress the in-component header so it doesn't duplicate. */
+  export let hideHeader = false;
 
   const dispatch = createEventDispatcher();
 
@@ -44,6 +48,7 @@
   let newTitle = '';
   let newKind = 'other';
   let newStop = '';
+  let newTime = '';
   let busy = false;
 
   $: tripStops = getStopsByIds(stopIds || []);
@@ -99,11 +104,13 @@
       await addBooking(tripId, {
         title: clean,
         kind: newKind,
-        stopId: stopFilter || newStop || null
+        stopId: stopFilter || newStop || null,
+        startTime: newTime || null
       });
       newTitle = '';
       newKind = 'other';
       newStop = '';
+      newTime = '';
       await refresh();
       dispatch('change');
     } finally {
@@ -185,6 +192,7 @@
 </script>
 
 <div>
+  {#if !hideHeader}
   <div class="flex items-baseline justify-between mb-2">
     <div>
       <div class="kicker">Bookings</div>
@@ -196,6 +204,7 @@
       </span>
     {/if}
   </div>
+  {/if}
 
   {#if loaded}
     {#if visibleItems.length === 0}
@@ -388,23 +397,37 @@
       </ul>
     {/if}
 
-    <!-- Quick add row. When the trip has stops, an At-stop dropdown
-         appears between Kind and Title so new bookings can be pinned
-         to a stop at creation time. -->
+    <!-- Quick add row. Five small kind buttons replace the old
+         dropdown so the user can pick eat/sleep/do/train/other
+         with a single tap (and read the choice at a glance), plus
+         a time pill so users can set HH:MM at creation time. -->
     <form
       on:submit|preventDefault={handleAdd}
       class="book-add"
-      class:has-stops={!stopFilter && tripStops.length > 0}
     >
-      <select
-        bind:value={newKind}
-        class="book-kind"
-        aria-label="Booking kind"
-      >
+      <div class="book-add-kinds" role="radiogroup" aria-label="Booking kind">
         {#each BOOKING_KINDS as k}
-          <option value={k.id}>{k.label}</option>
+          <button
+            type="button"
+            class="book-add-kind"
+            class:is-active={newKind === k.id}
+            on:click={() => (newKind = k.id)}
+            aria-label={k.label}
+            aria-pressed={newKind === k.id}
+            title={k.label}
+          >
+            <BookingKindIcon kind={k.id} size="1.1rem" />
+          </button>
         {/each}
-      </select>
+      </div>
+      <input
+        type="time"
+        bind:value={newTime}
+        class="book-add-time"
+        class:is-set={!!newTime}
+        aria-label="Time"
+        title="Optional start time"
+      />
       {#if !stopFilter && tripStops.length > 0}
         <select bind:value={newStop} class="book-stop" aria-label="Pin to stop">
           <option value="">Anywhere</option>
@@ -539,17 +562,78 @@
     color: #7a4f0c;
   }
 
+  /* The add row uses flex-wrap so the kind buttons + time pill +
+     title input + Add button reflow onto two lines on narrow
+     screens instead of squeezing into one. */
   .book-add {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 2px dashed rgba(139, 106, 58, 0.45);
   }
-  .book-add.has-stops {
-    grid-template-columns: auto auto 1fr auto;
+  /* Five small icon buttons for kind: train / room / meal /
+     activity / other. Tap to select; the active one fills with
+     forest. Replaces the old <select> Other dropdown. */
+  .book-add-kinds {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+  }
+  .book-add-kind {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(139, 106, 58, 0.55);
+    background: transparent;
+    color: #7d3a1e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .book-add-kind:hover {
+    border-color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.08);
+  }
+  .book-add-kind.is-active {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #c9a84c;
+  }
+  /* Time pill: same dashed-gold vocabulary as the row time pills
+     so the add row reads as part of the same family. */
+  .book-add-time {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #6e2e17;
+    background: transparent;
+    border: 1.5px dashed rgba(196, 134, 15, 0.55);
+    border-radius: 999px;
+    padding: 4px 10px;
+    width: 90px;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .book-add-time:hover,
+  .book-add-time:focus-visible {
+    border-color: #c4860f;
+    background: rgba(196, 134, 15, 0.08);
+  }
+  .book-add-time.is-set {
+    background: rgba(196, 134, 15, 0.18);
+    border-color: #c4860f;
+    border-style: solid;
+    color: #0a2d21;
   }
   .book-stop {
     background: #fbf6ea;
@@ -567,26 +651,9 @@
     border-color: #7d3a1e;
   }
   @media (max-width: 540px) {
-    .book-add,
-    .book-add.has-stops {
-      grid-template-columns: 1fr;
+    .book-add {
       gap: 8px;
     }
-  }
-  .book-kind {
-    background: #fbf6ea;
-    border: 1px solid #8b6a3a;
-    border-radius: 3px;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #0a2d21;
-    padding: 6px 8px;
-    cursor: pointer;
-    outline: none;
-  }
-  .book-kind:focus {
-    border-color: #7d3a1e;
   }
   .book-add-input {
     background: transparent;
@@ -597,6 +664,7 @@
     color: #241f1a;
     outline: none;
     min-width: 0;
+    flex: 1 1 200px;
   }
   .book-add-input::placeholder {
     color: rgba(90, 79, 61, 0.55);

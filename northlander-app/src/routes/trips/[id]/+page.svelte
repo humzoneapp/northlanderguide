@@ -961,6 +961,7 @@
                     direction={trip.direction || 'northbound'}
                     departureClock={depClock}
                     refreshKey={dataVersion}
+                    hideHeader={true}
                     on:change={load}
                   />
                   <button
@@ -984,6 +985,7 @@
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
                     refreshKey={dataVersion}
+                    hideHeader={true}
                     on:change={load}
                   />
                 </Drawer>
@@ -999,6 +1001,7 @@
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
                     refreshKey={dataVersion}
+                    hideHeader={true}
                     on:change={load}
                   />
                 </Drawer>
@@ -1013,6 +1016,7 @@
                     tripId={trip.id}
                     stopFilter={stop.id}
                     refreshKey={dataVersion}
+                    hideHeader={true}
                     on:change={load}
                   />
                 </Drawer>

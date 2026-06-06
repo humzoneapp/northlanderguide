@@ -23,6 +23,11 @@
       an outside surface has mutated the album while this view is
       mounted. */
   export let refreshKey = 0;
+  /** @type {boolean} - When true, suppress only the in-component
+      kicker + title (the Drawer parent owns that text). The right
+      side of the header row (photo count + Add photos button)
+      stays visible so the upload affordance isn't lost. */
+  export let hideHeader = false;
 
   const dispatch = createEventDispatcher();
 
@@ -212,10 +217,12 @@
 
 <div>
   <div class="header-row">
-    <div>
-      <div class="kicker">Album</div>
-      <h3 class="font-serif font-bold text-forest text-xl">Trip photos</h3>
-    </div>
+    {#if !hideHeader}
+      <div>
+        <div class="kicker">Album</div>
+        <h3 class="font-serif font-bold text-forest text-xl">Trip photos</h3>
+      </div>
+    {/if}
     <div class="header-meta">
       {#if loaded && visiblePhotos.length > 0}
         <span class="meta-pill">
