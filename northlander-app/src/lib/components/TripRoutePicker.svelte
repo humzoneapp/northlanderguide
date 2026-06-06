@@ -455,7 +455,7 @@
      gold double-rule beneath that ties into the cover banner. The
      close X is ivory so it reads on any state. */
   .rp-head {
-    background: #6e2e17;
+    background: #5e2a14;
     padding: 18px 24px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
     display: flex;
@@ -715,8 +715,8 @@
 
   /* ===== Footer ===== */
   .rp-foot {
-    background: #fffdf6;
-    border-top: 3px double rgba(201, 168, 76, 0.4);
+    background: #5e2a14;
+    border-top: 3px double rgba(201, 168, 76, 0.55);
     padding: 12px 20px;
     display: flex;
     flex-wrap: wrap;
@@ -724,6 +724,36 @@
     justify-content: space-between;
     gap: 10px 14px;
     flex: none;
+    color: #ede0cc;
+  }
+  /* Cancel / Back text buttons stay ivory on the rust band. */
+  .rp-foot :global(.rp-text-btn) {
+    color: #ede0cc;
+  }
+  .rp-foot :global(.rp-text-btn:hover) {
+    color: #f5f0e8;
+  }
+  /* Add-stop dashed pill: lighten the border + label so it reads
+     against the rust footer. */
+  .rp-foot :global(.rp-add-stop) {
+    color: #ede0cc;
+    border-color: #ede0cc;
+  }
+  .rp-foot :global(.rp-add-stop:hover:not(:disabled)) {
+    background: #ede0cc;
+    color: #5e2a14;
+    border-color: #ede0cc;
+  }
+  /* Primary button flips to forest so it reads against the rust
+     band; gold border keeps the boarding-pass feel. */
+  .rp-foot :global(.btn-primary) {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #f5f0e8;
+  }
+  .rp-foot :global(.btn-primary:hover) {
+    background: #1f3d2d;
+    border-color: #1f3d2d;
   }
   .rp-foot-right {
     display: flex;

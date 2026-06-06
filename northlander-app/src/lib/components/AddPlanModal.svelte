@@ -343,10 +343,6 @@
         </svg>
       </span>
       <span class="ap-direction-text">{dirHeading}</span>
-      {#if dirToward}
-        <span class="ap-direction-dot">&middot;</span>
-        <span class="ap-direction-toward">to {dirToward}</span>
-      {/if}
       <span class="ap-direction-rule"></span>
     </div>
 
@@ -589,7 +585,7 @@
 
   /* ===== Header ===== */
   .ap-head {
-    background: #6e2e17;
+    background: #5e2a14;
     color: #f5f0e8;
     display: flex;
     align-items: center;
@@ -680,20 +676,6 @@
     transform: rotate(180deg);
   }
   .ap-direction-text { flex: 0 0 auto; }
-  .ap-direction-dot {
-    flex: 0 0 auto;
-    color: rgba(125, 58, 30, 0.55);
-  }
-  .ap-direction-toward {
-    flex: 0 0 auto;
-    color: #5a4f3d;
-    font-style: italic;
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: none;
-    font-size: 12px;
-  }
   .ap-direction-rule {
     flex: 1 1 auto;
     height: 0;
@@ -1088,7 +1070,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: #6e2e17;
+    background: #5e2a14;
     color: #f3ece0;
     border: 2px solid #6e2e17;
     padding: 8px 14px;
@@ -1129,8 +1111,8 @@
 
   /* ===== Foot ===== */
   .ap-foot {
-    background: #0a2d21;
-    color: #cad7cf;
+    background: #5e2a14;
+    color: #ede0cc;
     padding: 12px 20px;
     display: flex;
     align-items: center;
@@ -1138,6 +1120,18 @@
     gap: 16px;
     border-top: 3px double #c9a84c;
     flex-wrap: wrap;
+  }
+  /* Footer-scoped button flip: the primary button reads against
+     the rust band by swapping to forest green. Same boarding-pass
+     identity as the rest of the app (rust band, green punch). */
+  .ap-foot :global(.btn-primary) {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #f5f0e8;
+  }
+  .ap-foot :global(.btn-primary:hover) {
+    background: #1f3d2d;
+    border-color: #1f3d2d;
   }
   .ap-foot-hint {
     font-family: 'Fraunces', Georgia, serif;

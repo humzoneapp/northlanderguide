@@ -85,7 +85,11 @@ export async function addBooking(
     tripId,
     title: clean,
     kind: isKind(kind) ? kind : 'other',
-    status: 'pending',
+    /* New bookings default to 'booked' since the App no longer
+       exposes a Pending state. The status field is still useful
+       on the print view (Booked stamp) and stays in the schema
+       for any older rows that were left Pending under the old UI. */
+    status: 'booked',
     dueDate: dueDate || null,
     stopId: stopId || null,
     listingKey: listingKey || null,

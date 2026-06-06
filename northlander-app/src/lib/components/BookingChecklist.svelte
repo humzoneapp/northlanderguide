@@ -3,7 +3,6 @@
   import {
     listBookings,
     addBooking,
-    toggleBooking,
     renameBooking,
     updateBooking,
     deleteBooking,
@@ -51,6 +50,19 @@
 
   let editingId = null;
   let editingDraft = '';
+
+  /* Tracks which row's <input type="time"> is currently focused.
+     When a row is in this state we show a small Done button next
+     to the pill; tapping Done blurs the input so iOS / iPad
+     Safari closes the native time popover without the user
+     having to tap outside. Cleared on blur. */
+  let timeFocusFor = null;
+  /** @type {Object<number, HTMLInputElement>} */
+  let timeInputs = {};
+  function doneEditingTime(id) {
+    const el = timeInputs[id];
+    if (el && typeof el.blur === 'function') el.blur();
+  }
 
   /* Tracks which room-kind rows have their accommodation panel
      open. Keys are booking ids; truthy means open. Plain object
@@ -120,12 +132,6 @@
     if (start == null) return '';
     if (start >= arrive) return '';
     return arrivalClock(s.offsetMinutes, departureClock, direction);
-  }
-
-  async function toggle(id) {
-    await toggleBooking(id);
-    await refresh();
-    dispatch('change');
   }
 
   function startRename(item) {
@@ -206,7 +212,6 @@
           {@const conflictAt = rowConflictClock(item)}
           <li
             class="book-row"
-            class:is-booked={item.status === 'booked'}
             class:has-extras={item.kind === 'room'}
             class:is-expanded={item.kind === 'room' && expanded[item.id]}
             class:is-conflict={!!conflictAt}
@@ -215,19 +220,36 @@
               <BookingKindIcon kind={item.kind} size="1.25rem" />
             </span>
 
-            <!-- Time pill - inline editor for the optional startTime.
-                 Empty by default; users tap to enter HH:MM and the
-                 cinematic scenes pick the value up to order plans
-                 chronologically. -->
-            <input
-              type="time"
-              class="book-time"
-              class:is-set={!!item.startTime}
-              value={item.startTime || ''}
-              aria-label={`Time for ${item.title}`}
-              title={item.startTime ? 'Tap to change time' : 'Tap to add a time'}
-              on:change={(e) => saveRoomField(item.id, 'startTime', e.currentTarget.value)}
-            />
+            <!-- Time pill + Done button. The native <input
+                 type="time"> on iOS / iPad opens a popover wheel
+                 that the user otherwise has to tap outside to
+                 close; the small Done pill that appears while the
+                 input is focused calls .blur() so the popover
+                 dismisses with one tap. Desktop browsers ignore
+                 the Done button since the native picker is
+                 already in place when the input has focus. -->
+            <span class="book-time-wrap">
+              <input
+                type="time"
+                class="book-time"
+                class:is-set={!!item.startTime}
+                value={item.startTime || ''}
+                bind:this={timeInputs[item.id]}
+                aria-label={`Time for ${item.title}`}
+                title={item.startTime ? 'Tap to change time' : 'Tap to add a time'}
+                on:focus={() => (timeFocusFor = item.id)}
+                on:blur={() => { if (timeFocusFor === item.id) timeFocusFor = null; }}
+                on:change={(e) => saveRoomField(item.id, 'startTime', e.currentTarget.value)}
+              />
+              {#if timeFocusFor === item.id}
+                <button
+                  type="button"
+                  class="book-time-done"
+                  on:mousedown|preventDefault={() => doneEditingTime(item.id)}
+                  on:click={() => doneEditingTime(item.id)}
+                >Done</button>
+              {/if}
+            </span>
 
             {#if editingId === item.id}
               <!-- svelte-ignore a11y-autofocus -->
@@ -260,15 +282,6 @@
                 {/if}
               </div>
             {/if}
-
-            <button
-              type="button"
-              class="status-pill"
-              on:click={() => toggle(item.id)}
-              aria-label={`Mark as ${item.status === 'booked' ? 'pending' : 'booked'}`}
-            >
-              {item.status === 'booked' ? 'Booked' : 'Pending'}
-            </button>
 
             {#if item.kind === 'room'}
               <button
@@ -446,9 +459,6 @@
     width: 28px;
     height: 28px;
   }
-  .book-row.is-booked .book-icon {
-    color: #0a2d21;
-  }
   .book-title {
     text-align: left;
     background: transparent;
@@ -465,12 +475,6 @@
   .book-title:hover {
     color: #7d3a1e;
   }
-  .book-row.is-booked .book-title {
-    text-decoration: line-through;
-    text-decoration-color: #c9a84c;
-    text-decoration-thickness: 2px;
-    color: #5a4f3d;
-  }
   .book-input {
     background: #fffdf6;
     border: 0;
@@ -481,29 +485,6 @@
     color: #241f1a;
     outline: none;
     min-width: 0;
-  }
-  .status-pill {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
-    white-space: nowrap;
-    background: rgba(196, 134, 15, 0.18);
-    color: #6e2e17;
-    border: 1.5px dashed #c4860f;
-  }
-  .status-pill:hover {
-    transform: translateY(-1px);
-  }
-  .book-row.is-booked .status-pill {
-    background: #0a2d21;
-    color: #f3ece0;
-    border: 1.5px solid #0a2d21;
   }
   .book-remove {
     background: transparent;
@@ -532,9 +513,6 @@
     color: #7d3a1e;
     line-height: 1.2;
     margin-top: 1px;
-  }
-  .book-row.is-booked .book-stop-line {
-    color: #5a4f3d;
   }
   .book-conflict-line {
     font-family: 'Fraunces', Georgia, serif;
@@ -703,9 +681,31 @@
     border-style: solid;
     color: #0a2d21;
   }
-  .book-row.is-booked .book-time {
-    opacity: 0.65;
+  /* Wrap is inline-flex so the Done pill sits flush next to the
+     time input without affecting other row cells. */
+  .book-time-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
+  /* Done pill - only visible while the input is focused (Svelte
+     mounts it conditionally). mousedown|preventDefault on the
+     button keeps the input from blurring before the click
+     handler reads, so the explicit .blur() call fires. */
+  .book-time-done {
+    background: #0a2d21;
+    color: #f5f0e8;
+    border: 1.5px solid #0a2d21;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .book-time-done:hover { background: #1f3d2d; border-color: #1f3d2d; }
   /* Webkit shows the up/down spinner by default - hide it to match
      the slim pill look. */
   .book-time::-webkit-calendar-picker-indicator {

@@ -207,11 +207,11 @@
       </div>
     </div>
 
-    <footer class="bg-cream border-t-[3px] border-double border-gold/40 px-6 py-3 flex items-center justify-between gap-3 flex-none">
+    <footer class="bg-[#5e2a14] border-t-[3px] border-double border-gold/55 px-6 py-3 flex items-center justify-between gap-3 flex-none">
       <button
         type="button"
         on:click={close}
-        class="font-serif italic text-muted hover:text-rust text-sm"
+        class="font-serif italic text-[#ede0cc] hover:text-ivory text-sm"
         disabled={busy}
       >Close</button>
 
@@ -230,7 +230,7 @@
         </button>
         <button
           type="button"
-          class="btn-primary disabled:opacity-50"
+          class="btn-primary disabled:opacity-50 share-cta"
           on:click={handleShare}
           disabled={busy || !posterBlob}
         >
@@ -320,5 +320,17 @@
   }
   .copy-link:disabled {
     cursor: not-allowed;
+  }
+  /* Rust footer band needs a green primary so the share CTA is
+     readable; matches the boarding-pass identity used by the
+     route + packing pickers. */
+  .share-cta {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #f5f0e8;
+  }
+  .share-cta:hover:not(:disabled) {
+    background: #1f3d2d;
+    border-color: #1f3d2d;
   }
 </style>

@@ -323,7 +323,7 @@
   }
 
   .pp-head {
-    background: #6e2e17;
+    background: #5e2a14;
     color: #f5f0e8;
     padding: 18px 22px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
@@ -537,11 +537,22 @@
   .pp-custom-input:focus { border-color: #7d3a1e; }
 
   .pp-foot {
-    background: #fffdf6;
-    border-top: 3px double rgba(201, 168, 76, 0.4);
+    background: #5e2a14;
+    border-top: 3px double rgba(201, 168, 76, 0.55);
     padding: 12px 22px;
     display: flex;
     justify-content: flex-end;
     flex: none;
+  }
+  /* Footer-scoped primary button flip: forest punch on the rust
+     band, matching the route picker pattern. */
+  .pp-foot :global(.btn-primary) {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    color: #f5f0e8;
+  }
+  .pp-foot :global(.btn-primary:hover) {
+    background: #1f3d2d;
+    border-color: #1f3d2d;
   }
 </style>
