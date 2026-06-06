@@ -78,6 +78,12 @@
   let photos = [];
   /** @type {Array<{ id: number, name: string, listName?: string|null, packed: boolean }>} */
   let packingRows = [];
+  /* Monotonic counter the chapter accordions watch as `refreshKey`.
+     load() bumps it after every refetch so BookingChecklist /
+     TravelDiary / PhotoAlbum / BudgetTracker instances pull from
+     IndexedDB even when their tripId hasn't changed (e.g. after
+     AddPlanModal writes a new booking without closing). */
+  let dataVersion = 0;
   let budgetEntries = [];
 
   /* Modal flags */
@@ -293,6 +299,7 @@
       listPackingItems(trip.id),
       listBudgetEntries(trip.id)
     ]);
+    dataVersion += 1;
   }
 
   onDestroy(() => {
@@ -953,6 +960,7 @@
                     stopFilter={stop.id}
                     direction={trip.direction || 'northbound'}
                     departureClock={depClock}
+                    refreshKey={dataVersion}
                     on:change={load}
                   />
                   <button
@@ -975,6 +983,7 @@
                     tripId={trip.id}
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
+                    refreshKey={dataVersion}
                     on:change={load}
                   />
                 </Drawer>
@@ -989,6 +998,7 @@
                     tripId={trip.id}
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
+                    refreshKey={dataVersion}
                     on:change={load}
                   />
                 </Drawer>
@@ -1002,6 +1012,7 @@
                   <BudgetTracker
                     tripId={trip.id}
                     stopFilter={stop.id}
+                    refreshKey={dataVersion}
                     on:change={load}
                   />
                 </Drawer>
@@ -1161,6 +1172,7 @@
       initialKind={addPlanKind}
       existingBookings={bookings}
       direction={trip.direction || 'northbound'}
+      on:change={load}
       on:close={closeAddPlan}
     />
   {/if}

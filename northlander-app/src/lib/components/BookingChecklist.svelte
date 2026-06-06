@@ -30,6 +30,12 @@
       (hides the stop dropdown + "At {stop}" line on each row since
       the surrounding scene already names the stop). */
   export let stopFilter = '';
+  /** @type {number} - Bump from the parent (via the trip page's
+      dataVersion counter) to force this checklist to re-pull from
+      IndexedDB. Used when an outside surface (AddPlanModal) mutates
+      bookings while this checklist is mounted but unmounted-paint;
+      Svelte's reactive `$:` on this value triggers refresh(). */
+  export let refreshKey = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -55,7 +61,7 @@
     expanded = { ...expanded, [id]: !expanded[id] };
   }
 
-  $: tripId, refresh();
+  $: tripId, refreshKey, refresh();
   $: visibleItems = stopFilter ? items.filter((i) => i.stopId === stopFilter) : items;
   $: total = visibleItems.length;
   $: bookedCount = visibleItems.filter((i) => i.status === 'booked').length;

@@ -455,7 +455,7 @@
      gold double-rule beneath that ties into the cover banner. The
      close X is ivory so it reads on any state. */
   .rp-head {
-    background: #0a2d21;
+    background: #6e2e17;
     padding: 18px 24px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
     display: flex;

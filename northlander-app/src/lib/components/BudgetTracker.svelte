@@ -17,6 +17,10 @@
       this stop and new lines auto-pin here. The surrounding scene
       already names the stop, so no extra label is shown per row. */
   export let stopFilter = '';
+  /** @type {number} - Bump from the parent to force a refetch when
+      an outside surface has mutated the ledger while this view is
+      mounted. */
+  export let refreshKey = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -38,7 +42,7 @@
   /** @type {HTMLInputElement | undefined} */
   let editLabelInput;
 
-  $: tripId, refresh();
+  $: tripId, refreshKey, refresh();
   $: visibleEntries = stopFilter ? entries.filter((e) => e.stopId === stopFilter) : entries;
   $: total = totalOf(visibleEntries);
   $: breakdown = breakdownByCategory(visibleEntries);

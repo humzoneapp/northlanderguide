@@ -141,7 +141,7 @@
   ></button>
 
   <div class="relative z-10 w-full max-w-[560px] max-h-full bg-cream shadow-ticket pl-card flex flex-col">
-    <header class="bg-forest text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
+    <header class="bg-[#6e2e17] text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
       <div>
         <span id="share-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
           Share Your Trip

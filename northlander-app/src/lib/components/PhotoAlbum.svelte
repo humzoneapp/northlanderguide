@@ -19,6 +19,10 @@
       and the lightbox tag dropdown hide since the surrounding scene
       already names the stop. */
   export let stopFilter = '';
+  /** @type {number} - Bump from the parent to force a refetch when
+      an outside surface has mutated the album while this view is
+      mounted. */
+  export let refreshKey = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -47,7 +51,7 @@
   /** @type {HTMLInputElement | undefined} */
   let fileInput;
 
-  $: tripId, refresh();
+  $: tripId, refreshKey, refresh();
   $: tripStops = getStopsByIds(stopIds);
   $: visiblePhotos = stopFilter ? photos.filter((p) => p.stopId === stopFilter) : photos;
   $: openPhoto = lightboxIndex >= 0 && lightboxIndex < visiblePhotos.length ? visiblePhotos[lightboxIndex] : null;

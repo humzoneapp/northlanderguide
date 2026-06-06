@@ -264,6 +264,12 @@
     addedKeys = new Set([...addedKeys, key]);
     sessionAdded = new Set([...sessionAdded, key]);
     justAdded = new Set([...justAdded, key]);
+    /* Tell the parent that the trip's bookings have changed so any
+       per-chapter BookingChecklist instance mounted on the trip
+       page can refetch. Without this the user adds from here,
+       closes the modal, and the new row only shows up after a
+       page reload. */
+    dispatch('change');
     /* The toast highlight clears itself after ~1.5s so a burst of
        adds keeps each card lighting up briefly. */
     setTimeout(() => {
@@ -583,7 +589,7 @@
 
   /* ===== Header ===== */
   .ap-head {
-    background: #0a2d21;
+    background: #6e2e17;
     color: #f5f0e8;
     display: flex;
     align-items: center;
@@ -591,6 +597,7 @@
     gap: 14px;
     padding: 14px 20px;
     border-bottom: 3px double #c9a84c;
+    flex: 0 0 auto;
   }
   .ap-title {
     display: block;
@@ -648,8 +655,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px 0;
+    padding: 12px 16px 6px;
     background: #fbf6ea;
+    flex: 0 0 auto;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10.5px;
     letter-spacing: 0.2em;
@@ -698,11 +706,13 @@
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
+    overflow-y: visible;
     gap: 6px;
-    padding: 12px 16px 6px;
+    padding: 12px 16px 12px;
     background: #fbf6ea;
     border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
     scrollbar-width: thin;
+    flex: 0 0 auto;
   }
   .ap-chip {
     flex: 0 0 auto;
@@ -757,6 +767,8 @@
     background: #fbf6ea;
     border-bottom: 1px solid rgba(139, 106, 58, 0.25);
     overflow-x: auto;
+    overflow-y: visible;
+    flex: 0 0 auto;
   }
   .ap-tab {
     flex: 0 0 auto;
@@ -791,6 +803,7 @@
     background: #fbf6ea;
     border-bottom: 1px solid rgba(139, 106, 58, 0.25);
     flex-wrap: wrap;
+    flex: 0 0 auto;
   }
   .ap-search input {
     flex: 1;

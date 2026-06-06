@@ -18,6 +18,10 @@
       stop dropdown and per-entry stop pills since the surrounding
       scene already names the stop. */
   export let stopFilter = '';
+  /** @type {number} - Bump from the parent to force a refetch when
+      an outside surface has mutated the diary while this view is
+      mounted. See BookingChecklist for the same pattern. */
+  export let refreshKey = 0;
 
   const dispatch = createEventDispatcher();
 
@@ -50,7 +54,7 @@
   /** @type {HTMLTextAreaElement | undefined} */
   let editTextarea;
 
-  $: tripId, refresh();
+  $: tripId, refreshKey, refresh();
   $: tripStops = getStopsByIds(stopIds);
   $: visibleEntries = stopFilter ? entries.filter((e) => e.stopId === stopFilter) : entries;
 

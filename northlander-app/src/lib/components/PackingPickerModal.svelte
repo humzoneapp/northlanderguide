@@ -323,7 +323,7 @@
   }
 
   .pp-head {
-    background: #0a2d21;
+    background: #6e2e17;
     color: #f5f0e8;
     padding: 18px 22px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
