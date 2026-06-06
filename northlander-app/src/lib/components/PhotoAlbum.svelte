@@ -211,6 +211,70 @@
     const s = id ? getStop(id) : null;
     return s ? s.name : null;
   }
+
+  /* Quick-delete from a grid tile without opening the lightbox.
+     Native confirm gives the two-step safety; same UX as the
+     dashboard polaroid corner delete. */
+  async function deleteFromTile(p, ev) {
+    ev?.preventDefault?.();
+    ev?.stopPropagation?.();
+    if (!p) return;
+    const ok = typeof window !== 'undefined' && window.confirm
+      ? window.confirm('Remove this photo from the album?')
+      : true;
+    if (!ok) return;
+    await deletePhoto(p.id);
+    await refresh();
+    dispatch('change');
+  }
+
+  /* Share: prefer navigator.share with the photo as a file so the
+     native sheet covers Instagram, WhatsApp, Messages, Mail etc.
+     in one tap on mobile. Fall back to download on desktop +
+     browsers without file-share support. */
+  let shareBusy = false;
+  async function shareOpen() {
+    if (shareBusy || !openPhoto) return;
+    shareBusy = true;
+    try {
+      const p = openPhoto;
+      const filename = p.caption
+        ? `${p.caption.replace(/[^a-z0-9-]+/gi, '-').slice(0, 40)}.jpg`
+        : `northlander-${p.id}.jpg`;
+      const file = new File([p.blob], filename, { type: 'image/jpeg' });
+      const canFile = typeof navigator !== 'undefined' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
+      if (canFile && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({
+            files: [file],
+            title: p.caption || 'A polaroid from the Northlander',
+            text: p.caption || ''
+          });
+          return;
+        } catch (_) {
+          /* User cancelled or sheet failed; fall through to download. */
+        }
+      }
+      downloadOpen();
+    } finally {
+      shareBusy = false;
+    }
+  }
+
+  function downloadOpen() {
+    if (!openPhoto) return;
+    const url = fullUrlFor(openPhoto);
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    const caption = openPhoto.caption || '';
+    a.download = caption
+      ? `${caption.replace(/[^a-z0-9-]+/gi, '-').slice(0, 40)}.jpg`
+      : `northlander-${openPhoto.id}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 </script>
 
 <svelte:window on:keydown={onKey} />
@@ -267,23 +331,33 @@
         {/if}
       </p>
     {:else}
+      <p class="tip-line">Tap a polaroid to add a caption or share it. The X removes one quickly.</p>
       <ul class="grid">
         {#each visiblePhotos as p, i (p.id)}
           <li>
-            <button
-              type="button"
-              class="tile"
-              on:click={() => openLightbox(i)}
-              aria-label={p.caption || `Open photo ${i + 1}`}
-            >
-              <img src={thumbUrlFor(p)} alt={p.caption || ''} loading="lazy" />
-              {#if p.caption}
-                <span class="caption-overlay">{p.caption}</span>
-              {/if}
-              {#if !stopFilter && stopNameFor(p.stopId)}
-                <span class="tile-stop">{stopNameFor(p.stopId)}</span>
-              {/if}
-            </button>
+            <div class="tile-wrap">
+              <button
+                type="button"
+                class="tile"
+                on:click={() => openLightbox(i)}
+                aria-label={p.caption || `Open photo ${i + 1}`}
+              >
+                <img src={thumbUrlFor(p)} alt={p.caption || ''} loading="lazy" />
+                {#if p.caption}
+                  <span class="caption-overlay">{p.caption}</span>
+                {/if}
+                {#if !stopFilter && stopNameFor(p.stopId)}
+                  <span class="tile-stop">{stopNameFor(p.stopId)}</span>
+                {/if}
+              </button>
+              <button
+                type="button"
+                class="tile-delete"
+                on:click={(ev) => deleteFromTile(p, ev)}
+                aria-label={`Remove photo ${i + 1} from album`}
+                title="Remove from album"
+              >&times;</button>
+            </div>
           </li>
         {/each}
       </ul>
@@ -326,14 +400,17 @@
         <span class="lightbox-counter">
           Photo {lightboxIndex + 1} of {visiblePhotos.length}
         </span>
-        <textarea
-          bind:value={captionDraft}
-          on:blur={saveOpenMeta}
-          maxlength="240"
-          placeholder="Add a caption..."
-          rows="2"
-          class="caption-input"
-        ></textarea>
+        <label class="caption-label">
+          <span class="caption-label-text">Caption or note</span>
+          <textarea
+            bind:value={captionDraft}
+            on:blur={saveOpenMeta}
+            maxlength="500"
+            placeholder="What was this moment? A meal, a view, a thought..."
+            rows="3"
+            class="caption-input"
+          ></textarea>
+        </label>
         <div class="lightbox-actions">
           {#if !stopFilter && tripStops.length > 0}
             <select
@@ -348,6 +425,35 @@
               {/each}
             </select>
           {/if}
+          <button
+            type="button"
+            class="lightbox-share"
+            on:click={shareOpen}
+            disabled={shareBusy}
+            title="Share to Instagram, Messages, Mail..."
+            aria-label="Share photo"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            <span>{shareBusy ? 'Sharing...' : 'Share'}</span>
+          </button>
+          <button
+            type="button"
+            class="lightbox-download"
+            on:click={downloadOpen}
+            title="Save a copy to your device"
+            aria-label="Download photo"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+              <polyline points="8 12 12 16 16 12"/>
+              <line x1="12" y1="3" x2="12" y2="16"/>
+            </svg>
+            <span>Download</span>
+          </button>
           <button
             type="button"
             class="lightbox-remove"
@@ -430,6 +536,19 @@
     gap: 8px;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
+  /* Hint line above the grid pointing at the lightbox + corner X. */
+  .tip-line {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: 12.5px;
+    margin: 4px 0 12px;
+  }
+  /* Wrap holds the tile button + the corner X as siblings so we
+     can position the X without nesting button-in-button. */
+  .tile-wrap {
+    position: relative;
+  }
   .tile {
     position: relative;
     aspect-ratio: 1 / 1;
@@ -439,10 +558,45 @@
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
+    width: 100%;
   }
-  .tile:hover {
+  .tile-wrap:hover .tile {
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(40, 30, 20, 0.16);
+  }
+  /* Corner delete - hover-revealed on devices that support hover;
+     always visible on touch (@media hover: none) so iPad users
+     can find it without a long-press. */
+  .tile-delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid #6e2e17;
+    background: #fffdf6;
+    color: #6e2e17;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(20, 14, 6, 0.2);
+    opacity: 0;
+    transition: opacity 140ms ease, background 140ms ease, color 140ms ease;
+    z-index: 2;
+  }
+  .tile-wrap:hover .tile-delete,
+  .tile-wrap:focus-within .tile-delete {
+    opacity: 1;
+  }
+  .tile-delete:hover {
+    background: #6e2e17;
+    color: #fffdf6;
+  }
+  @media (hover: none) {
+    .tile-delete { opacity: 1; }
   }
   .tile img {
     width: 100%;
@@ -589,18 +743,36 @@
     font-weight: 700;
     color: #7d3a1e;
   }
+  .caption-label {
+    display: block;
+    margin: 6px 0;
+  }
+  .caption-label-text {
+    display: block;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #c4860f;
+    margin-bottom: 6px;
+  }
   .caption-input {
     width: 100%;
     background: transparent;
-    border: 0;
+    border: 1px dashed rgba(201, 168, 76, 0.45);
+    border-radius: 4px;
+    padding: 8px 10px;
     outline: none;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 16px;
     color: #241f1a;
     resize: vertical;
-    min-height: 48px;
+    min-height: 72px;
+    transition: border-color 140ms ease;
   }
+  .caption-input:focus { border-color: #c9a84c; }
   .caption-input::placeholder {
     color: rgba(90, 79, 61, 0.55);
   }
@@ -626,16 +798,56 @@
   .tag-select:focus {
     border-color: #7d3a1e;
   }
+  /* Share + Download buttons. Same pill aesthetic so they read as
+     a pair; share is rust-filled (primary action), download is
+     dashed outline (secondary). On mobile navigator.share opens
+     the native sheet covering Instagram / Messages / WhatsApp /
+     Mail; on desktop both paths fall through to download. */
+  .lightbox-share,
+  .lightbox-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .lightbox-share {
+    background: #6e2e17;
+    color: #fffdf6;
+    border: 1.5px solid #6e2e17;
+  }
+  .lightbox-share:hover:not(:disabled) {
+    background: #884023;
+    border-color: #884023;
+  }
+  .lightbox-share:disabled { opacity: 0.6; cursor: not-allowed; }
+  .lightbox-download {
+    background: transparent;
+    color: #c9a84c;
+    border: 1.5px dashed rgba(201, 168, 76, 0.65);
+  }
+  .lightbox-download:hover {
+    background: rgba(201, 168, 76, 0.12);
+    color: #f5f0e8;
+    border-color: #c9a84c;
+  }
   .lightbox-remove {
     background: transparent;
     border: 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    color: #7d3a1e;
+    color: #c4860f;
     cursor: pointer;
     padding: 4px 6px;
   }
   .lightbox-remove:hover {
-    color: #5e2a14;
+    color: #f5f0e8;
   }
 </style>
