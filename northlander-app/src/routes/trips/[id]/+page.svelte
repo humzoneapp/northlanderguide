@@ -44,8 +44,11 @@
   import {
     arrivalClock,
     departureFor,
+    departTimeAt,
+    trainTimeFor,
     formatTripDate,
     DIRECTIONS,
+    OFFICIAL_SCHEDULE_URL,
     travelDuration,
     travelMinutes,
     todayLocalISO
@@ -476,6 +479,8 @@
     {#if stops.length > 0}
       <div class="cover-ticket" aria-label="Route">
         {#each stops as s, i}
+          {@const tripDir = trip.direction || 'northbound'}
+          {@const stopTime = trainTimeFor(s.id, tripDir)}
           <span class="cover-ticket-end">
             <span class="cover-ticket-kicker">
               {#if i === 0}
@@ -485,6 +490,11 @@
               {/if}
             </span>
             <span class="cover-ticket-name">{s.name}</span>
+            {#if i === 0 && stopTime?.depart}
+              <span class="cover-ticket-time">{stopTime.depart}</span>
+            {:else if i > 0 && stopTime?.arrive}
+              <span class="cover-ticket-time">{stopTime.arrive}</span>
+            {/if}
             {#if s.stayStart}
               <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
             {/if}
@@ -499,13 +509,28 @@
           {/if}
         {/each}
         {#if trip.returnDate && returningStop}
+          {@const returnDir = (trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound'}
+          {@const returnTime = trainTimeFor(returningStop.id, returnDir)}
           <span class="cover-ticket-end">
             <span class="cover-ticket-kicker">Return</span>
             <span class="cover-ticket-name">{returningStop.name}</span>
+            {#if returnTime?.arrive}
+              <span class="cover-ticket-time">{returnTime.arrive}</span>
+            {/if}
             <span class="cover-ticket-date">{formatDateShort(trip.returnDate)}</span>
           </span>
         {/if}
       </div>
+      <!-- Schedule reference. The Proposed Service Schedule on
+           ontarionorthland.ca is the source of truth; we surface a
+           small confirm-on-the-Guide link directly under the route
+           so users see it the same time they see the times. -->
+      <p class="cover-ticket-note">
+        Schedule subject to change.
+        <a href={OFFICIAL_SCHEDULE_URL} target="_blank" rel="noopener">
+          Confirm on ontarionorthland.ca &rarr;
+        </a>
+      </p>
     {/if}
 
     <input
@@ -1261,6 +1286,18 @@
     text-align: center;
     line-height: 1.15;
   }
+  /* Same large font as the station name so the train time reads as
+     part of the boarding-pass identity, not as metadata. */
+  .cover-ticket-time {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: clamp(1rem, 1.9vw, 1.3rem);
+    color: #c9a84c;
+    text-align: center;
+    line-height: 1.15;
+    margin-top: 2px;
+  }
   .cover-ticket-date {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
@@ -1268,6 +1305,27 @@
     color: #ede0cc;
     margin-top: 2px;
   }
+  /* Schedule reference line beneath the cover ticket. Quiet italic
+     so it doesn't compete with the route summary; the link uses
+     gold to match the ticket frame. */
+  .cover-ticket-note {
+    position: relative;
+    z-index: 3;
+    max-width: 1180px;
+    margin: 8px auto 28px;
+    text-align: center;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #ede0cc;
+    opacity: 0.85;
+  }
+  .cover-ticket-note a {
+    color: #c9a84c;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cover-ticket-note a:hover { color: #f5f0e8; }
   .cover-ticket-arrow {
     color: #c9a84c;
     width: 60px;
