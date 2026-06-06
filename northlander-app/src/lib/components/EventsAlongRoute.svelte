@@ -61,6 +61,17 @@
     return s ? s.name : '';
   }
 
+  /* Universal Google Maps search URL. Works on iOS (deep-links to
+     Apple Maps via the OS handler), Android (Google Maps), and
+     desktop (opens in a tab). Falls back to '' when neither venue
+     nor address is present so the icon can hide. */
+  function mapUrlFor(ev) {
+    const parts = [ev.venue, ev.address].filter((s) => s && String(s).trim());
+    if (parts.length === 0) return '';
+    const q = encodeURIComponent(parts.join(', '));
+    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }
+
   async function saveToTrip(ev) {
     if (savedIds[ev.id]) return;
     const title = ev.venue ? `${ev.name} - ${ev.venue}` : ev.name;
@@ -125,7 +136,25 @@
             <div class="event-when">{formatEventDate(ev)}</div>
             <h4 class="event-name">{ev.name}</h4>
             {#if ev.venue}
-              <div class="event-venue">{ev.venue}</div>
+              {@const mapUrl = mapUrlFor(ev)}
+              <div class="event-venue">
+                <span>{ev.venue}</span>
+                {#if mapUrl}
+                  <a
+                    class="event-map-btn"
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`Open ${ev.venue} on a map`}
+                    title="Open on a map"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 21 C7 14 4 11 4 8 a8 8 0 0 1 16 0 c0 3 -3 6 -8 13 Z" />
+                      <circle cx="12" cy="8" r="2.5" />
+                    </svg>
+                  </a>
+                {/if}
+              </div>
             {/if}
 
             <div class="event-pills">
@@ -270,6 +299,31 @@
     font-family: 'Spline Sans', sans-serif;
     font-size: 13px;
     color: #5a4f3d;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  /* Small pin glyph next to the venue. Tap opens the venue in a
+     map (Google Maps universal URL works on iOS, Android, desktop).
+     Sits next to the venue text so the affordance is obvious. */
+  .event-map-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid rgba(125, 58, 30, 0.55);
+    border-radius: 50%;
+    color: #7d3a1e;
+    background: transparent;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    text-decoration: none;
+  }
+  .event-map-btn:hover {
+    background: #7d3a1e;
+    border-color: #7d3a1e;
+    color: #fffdf6;
   }
 
   .event-pills {

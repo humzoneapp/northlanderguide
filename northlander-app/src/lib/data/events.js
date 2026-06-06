@@ -120,13 +120,56 @@ export function eventsInDateWindow(events, departureDate, windowDays = 7) {
   });
 }
 
+/* Detect day-of-week mentions in a recurrence pattern string. Returns
+   a list of 0-6 indices (Sunday=0). "Every Friday" -> [5]. "Tuesday
+   and Thursday" -> [2,4]. Empty when we can't pull a recognized day
+   out of the pattern, in which case the per-chapter filter treats
+   the recurring event as un-checkable and drops it. */
+const DAY_LOOKUP = {
+  sunday: 0, sun: 0,
+  monday: 1, mon: 1,
+  tuesday: 2, tue: 2, tues: 2,
+  wednesday: 3, wed: 3,
+  thursday: 4, thu: 4, thurs: 4,
+  friday: 5, fri: 5,
+  saturday: 6, sat: 6
+};
+const DAY_REGEX = /\b(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thu|friday|fri|saturday|sat)\b/gi;
+function recurrenceDows(pattern) {
+  if (!pattern) return [];
+  const matches = String(pattern).toLowerCase().match(DAY_REGEX);
+  if (!matches) return [];
+  const set = new Set();
+  for (const m of matches) {
+    const idx = DAY_LOOKUP[m];
+    if (idx != null) set.add(idx);
+  }
+  return [...set];
+}
+function windowOverlapsDows(start, end, dows) {
+  if (dows.length === 0) return false;
+  const dayMs = 86400000;
+  for (let t = start.getTime(); t <= end.getTime(); t += dayMs) {
+    if (dows.includes(new Date(t).getDay())) return true;
+  }
+  return false;
+}
+
 /**
  * Filter events to those that overlap an explicit [startDate, endDate]
- * window (YYYY-MM-DD, both inclusive). Recurring events are always
- * kept. When `endDate` is missing the window collapses to the single
- * day; when neither is set we keep every upcoming event. Used by the
- * per-chapter event strip so each stop only surfaces events on the
- * days the user is actually there.
+ * window (YYYY-MM-DD, both inclusive). Strict: an event only passes
+ * when we can confirm it lands inside the window.
+ *
+ * - Non-recurring events: their date range must intersect the window.
+ *   Events with no startDate are dropped (we can't verify).
+ * - Recurring events: we parse day-of-week mentions from
+ *   `recurrencePattern` and check whether any of those days fall in
+ *   the window. When the pattern has no recognizable day name (e.g.
+ *   "First Sunday of each month"), the event is dropped because we
+ *   can't be sure it happens during the stay.
+ *
+ * Used by the per-chapter event strip so each stop only surfaces
+ * events the user could actually attend on the days they're there.
  */
 export function eventsInRange(events, startDate, endDate) {
   if (!Array.isArray(events)) return [];
@@ -138,12 +181,15 @@ export function eventsInRange(events, startDate, endDate) {
   const startMs = start.getTime();
   const endMs = end.getTime();
   return events.filter((ev) => {
-    if (ev.recurring) return true;
+    if (ev.recurring) {
+      const dows = recurrenceDows(ev.recurrencePattern);
+      if (dows.length === 0) return false;
+      return windowOverlapsDows(start, end, dows);
+    }
     const evStart = parseLocalDate(ev.startDate);
-    const evEnd = parseLocalDate(ev.endDate || ev.startDate);
-    if (!evStart) return true;
-    const evEndMs = (evEnd || evStart).getTime();
-    return evEndMs >= startMs && evStart.getTime() <= endMs;
+    if (!evStart) return false;
+    const evEnd = parseLocalDate(ev.endDate || ev.startDate) || evStart;
+    return evEnd.getTime() >= startMs && evStart.getTime() <= endMs;
   });
 }
 
