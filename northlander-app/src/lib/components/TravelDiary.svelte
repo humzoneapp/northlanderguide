@@ -7,6 +7,8 @@
     deleteDiaryEntry
   } from '$lib/stores/diary.js';
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
+  import { sanitizeDiaryHtml, renderDiaryText } from '$lib/utils/diary-html.js';
+  import EmojiPicker from './EmojiPicker.svelte';
 
   /** @type {string} */
   export let tripId;
@@ -44,18 +46,80 @@
   }
 
   /* Add-entry form state. */
-  let draft = '';
   let draftStopId = '';
   let draftDate = todayLocal();
 
   /* Inline edit state. */
   let editingId = null;
-  let editText = '';
   let editStopId = '';
   let editDate = '';
 
-  /** @type {HTMLTextAreaElement | undefined} */
-  let editTextarea;
+  /* Rich-text editors are contenteditable divs the user types into.
+     We read innerHTML on save, sanitize via sanitizeDiaryHtml, and
+     persist that. Each editor remembers the last selection range so
+     toolbar buttons + the EmojiPicker can insert at the caret even
+     after focus has moved to a toolbar button. */
+  /** @type {HTMLDivElement | undefined} */
+  let composerEl;
+  /** @type {HTMLDivElement | undefined} */
+  let editEl;
+  /** @type {Range | null} */
+  let savedRange = null;
+  /** @type {HTMLDivElement | undefined} */
+  let activeEditor = null;
+  /** Picker visibility flags - one per editor since composer + edit
+      share the same picker component but never both at once. */
+  let composerHasContent = false;
+  let editHasContent = false;
+  let composerPickerOpen = false;
+  let editPickerOpen = false;
+
+  function rememberSelection(targetEl) {
+    if (typeof window === 'undefined') return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    /* Only remember selections that live inside the editor. */
+    if (targetEl && (targetEl === range.commonAncestorContainer || targetEl.contains(range.commonAncestorContainer))) {
+      savedRange = range.cloneRange();
+      activeEditor = targetEl;
+    }
+  }
+
+  function restoreSelection() {
+    if (!savedRange || typeof window === 'undefined') return;
+    const sel = window.getSelection();
+    if (!sel) return;
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
+  }
+
+  function runCmd(cmd) {
+    if (activeEditor) activeEditor.focus();
+    restoreSelection();
+    /* execCommand is deprecated but still ships everywhere; for a
+       three-button toolbar (bold / italic / unordered list) it's the
+       least-friction option. */
+    try { document.execCommand(cmd, false); } catch (_) {}
+    if (activeEditor === composerEl) composerHasContent = !!composerEl?.innerText.trim();
+    if (activeEditor === editEl) editHasContent = !!editEl?.innerText.trim();
+  }
+
+  function insertAtCaret(html) {
+    if (activeEditor) activeEditor.focus();
+    restoreSelection();
+    try { document.execCommand('insertHTML', false, html); } catch (_) {}
+    if (activeEditor === composerEl) composerHasContent = !!composerEl?.innerText.trim();
+    if (activeEditor === editEl) editHasContent = !!editEl?.innerText.trim();
+  }
+
+  function onPickerPick(e) {
+    const { html } = e.detail || {};
+    if (!html) return;
+    insertAtCaret(html);
+    composerPickerOpen = false;
+    editPickerOpen = false;
+  }
 
   $: tripId, refreshKey, refresh();
   $: tripStops = getStopsByIds(stopIds);
@@ -75,18 +139,23 @@
 
   async function handleAdd() {
     if (saving) return;
-    const text = draft.trim();
-    if (!text) return;
+    if (!composerEl) return;
+    const sanitized = sanitizeDiaryHtml(composerEl.innerHTML);
+    /* Sanitized content can still be empty (e.g. paragraph tags
+       with no text). innerText catches that case too. */
+    if (!sanitized || !composerEl.innerText.trim()) return;
     saving = true;
     try {
       await addDiaryEntry(tripId, {
-        text,
+        text: sanitized,
         stopId: stopFilter || draftStopId || null,
         entryDate: draftDate || null
       });
-      draft = '';
+      composerEl.innerHTML = '';
+      composerHasContent = false;
       draftStopId = '';
       draftDate = todayLocal();
+      composerPickerOpen = false;
       await refresh();
       dispatch('change');
     } finally {
@@ -96,25 +165,36 @@
 
   async function startEdit(entry) {
     editingId = entry.id;
-    editText = entry.text;
     editStopId = entry.stopId || '';
     editDate = entry.entryDate || '';
     await tick();
-    editTextarea?.focus();
+    if (editEl) {
+      /* Seed the editor with the existing content. Legacy plain-text
+         entries get their newlines converted to <br> via the same
+         renderer the feed uses. */
+      editEl.innerHTML = renderDiaryText(entry.text);
+      editEl.focus();
+      activeEditor = editEl;
+      editHasContent = !!editEl.innerText.trim();
+    }
   }
 
   async function commitEdit() {
     if (editingId == null) return;
+    if (!editEl) return;
     const id = editingId;
-    const text = editText;
+    const sanitized = sanitizeDiaryHtml(editEl.innerHTML);
+    const hasText = !!editEl.innerText.trim();
     const stopId = stopFilter || editStopId || null;
     const entryDate = editDate || null;
     editingId = null;
-    editText = '';
+    editEl.innerHTML = '';
+    editHasContent = false;
     editStopId = '';
     editDate = '';
-    if (text.trim()) {
-      await updateDiaryEntry(id, { text, stopId, entryDate });
+    editPickerOpen = false;
+    if (sanitized && hasText) {
+      await updateDiaryEntry(id, { text: sanitized, stopId, entryDate });
       await refresh();
       dispatch('change');
     }
@@ -122,9 +202,11 @@
 
   function cancelEdit() {
     editingId = null;
-    editText = '';
+    if (editEl) editEl.innerHTML = '';
+    editHasContent = false;
     editStopId = '';
     editDate = '';
+    editPickerOpen = false;
   }
 
   async function remove(id) {
@@ -186,15 +268,82 @@
   {/if}
 
   {#if loaded}
-    <!-- Add-entry composer -->
+    <!-- Add-entry composer. The textarea was retired 2026-06-06 in
+         favour of a contenteditable div + tiny toolbar (B / I /
+         bullet / emoji-sticker) so users can add the lightest touch
+         of formatting and drop in Northlander stickers without
+         leaving the diary. Sanitization on save (see
+         diary-html.js) keeps the stored HTML safe to {@html}. -->
     <form on:submit|preventDefault={handleAdd} class="diary-add">
-      <textarea
-        bind:value={draft}
-        rows="3"
-        maxlength="2000"
-        placeholder="Pin a thought, a meal, a view from the window..."
-        class="diary-textarea"
-      ></textarea>
+      <div class="diary-toolbar" aria-label="Format">
+        <button
+          type="button"
+          class="diary-tool"
+          on:mousedown|preventDefault={() => { rememberSelection(composerEl); runCmd('bold'); }}
+          aria-label="Bold"
+          title="Bold (Cmd/Ctrl+B)"
+        ><strong>B</strong></button>
+        <button
+          type="button"
+          class="diary-tool"
+          on:mousedown|preventDefault={() => { rememberSelection(composerEl); runCmd('italic'); }}
+          aria-label="Italic"
+          title="Italic (Cmd/Ctrl+I)"
+        ><em>I</em></button>
+        <button
+          type="button"
+          class="diary-tool"
+          on:mousedown|preventDefault={() => { rememberSelection(composerEl); runCmd('insertUnorderedList'); }}
+          aria-label="Bullet list"
+          title="Bullet list"
+        >
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="5" cy="6" r="1" fill="currentColor"/>
+            <circle cx="5" cy="12" r="1" fill="currentColor"/>
+            <circle cx="5" cy="18" r="1" fill="currentColor"/>
+            <line x1="9" y1="6" x2="20" y2="6"/>
+            <line x1="9" y1="12" x2="20" y2="12"/>
+            <line x1="9" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+        <span class="diary-tool-sep" aria-hidden="true"></span>
+        <div class="diary-tool-emoji-wrap">
+          <button
+            type="button"
+            class="diary-tool"
+            class:is-active={composerPickerOpen}
+            on:mousedown|preventDefault={() => { rememberSelection(composerEl); composerPickerOpen = !composerPickerOpen; }}
+            aria-label="Sticker or emoji"
+            aria-expanded={composerPickerOpen}
+            title="Stickers + emoji"
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <circle cx="9" cy="10" r="0.8" fill="currentColor"/>
+              <circle cx="15" cy="10" r="0.8" fill="currentColor"/>
+              <path d="M8.5 14 q3.5 3 7 0"/>
+            </svg>
+          </button>
+          <EmojiPicker open={composerPickerOpen} on:pick={onPickerPick} on:close={() => (composerPickerOpen = false)} />
+        </div>
+      </div>
+      <div
+        bind:this={composerEl}
+        contenteditable="true"
+        class="diary-rich"
+        class:is-empty={!composerHasContent}
+        data-placeholder="Pin a thought, a meal, a view from the window..."
+        role="textbox"
+        aria-multiline="true"
+        on:focus={() => { activeEditor = composerEl; rememberSelection(composerEl); }}
+        on:input={() => { composerHasContent = !!composerEl?.innerText.trim(); rememberSelection(composerEl); }}
+        on:keyup={() => rememberSelection(composerEl)}
+        on:mouseup={() => rememberSelection(composerEl)}
+        on:keydown={(e) => {
+          if ((e.metaKey || e.ctrlKey) && (e.key === 'b' || e.key === 'B')) { e.preventDefault(); rememberSelection(composerEl); runCmd('bold'); }
+          if ((e.metaKey || e.ctrlKey) && (e.key === 'i' || e.key === 'I')) { e.preventDefault(); rememberSelection(composerEl); runCmd('italic'); }
+        }}
+      ></div>
       <div class="diary-add-row">
         <label class="diary-date-pick">
           <span class="sr-only">Note date</span>
@@ -223,7 +372,7 @@
         <button
           type="submit"
           class="btn-primary disabled:opacity-50"
-          disabled={saving || !draft.trim()}
+          disabled={saving || !composerHasContent}
         >
           {saving ? 'Pinning...' : 'Add note'}
         </button>
@@ -244,17 +393,73 @@
         {#each visibleEntries as entry (entry.id)}
           <li class="diary-entry" class:is-editing={editingId === entry.id}>
             {#if editingId === entry.id}
-              <textarea
-                bind:this={editTextarea}
-                bind:value={editText}
-                rows="3"
-                maxlength="2000"
-                class="diary-textarea"
+              <div class="diary-toolbar" aria-label="Format">
+                <button
+                  type="button"
+                  class="diary-tool"
+                  on:mousedown|preventDefault={() => { rememberSelection(editEl); runCmd('bold'); }}
+                  aria-label="Bold"
+                ><strong>B</strong></button>
+                <button
+                  type="button"
+                  class="diary-tool"
+                  on:mousedown|preventDefault={() => { rememberSelection(editEl); runCmd('italic'); }}
+                  aria-label="Italic"
+                ><em>I</em></button>
+                <button
+                  type="button"
+                  class="diary-tool"
+                  on:mousedown|preventDefault={() => { rememberSelection(editEl); runCmd('insertUnorderedList'); }}
+                  aria-label="Bullet list"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="5" cy="6" r="1" fill="currentColor"/>
+                    <circle cx="5" cy="12" r="1" fill="currentColor"/>
+                    <circle cx="5" cy="18" r="1" fill="currentColor"/>
+                    <line x1="9" y1="6" x2="20" y2="6"/>
+                    <line x1="9" y1="12" x2="20" y2="12"/>
+                    <line x1="9" y1="18" x2="20" y2="18"/>
+                  </svg>
+                </button>
+                <span class="diary-tool-sep" aria-hidden="true"></span>
+                <div class="diary-tool-emoji-wrap">
+                  <button
+                    type="button"
+                    class="diary-tool"
+                    class:is-active={editPickerOpen}
+                    on:mousedown|preventDefault={() => { rememberSelection(editEl); editPickerOpen = !editPickerOpen; }}
+                    aria-label="Sticker or emoji"
+                    aria-expanded={editPickerOpen}
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9"/>
+                      <circle cx="9" cy="10" r="0.8" fill="currentColor"/>
+                      <circle cx="15" cy="10" r="0.8" fill="currentColor"/>
+                      <path d="M8.5 14 q3.5 3 7 0"/>
+                    </svg>
+                  </button>
+                  <EmojiPicker open={editPickerOpen} on:pick={onPickerPick} on:close={() => (editPickerOpen = false)} />
+                </div>
+              </div>
+              <div
+                bind:this={editEl}
+                contenteditable="true"
+                class="diary-rich"
+                class:is-empty={!editHasContent}
+                data-placeholder="Edit your note..."
+                role="textbox"
+                aria-multiline="true"
+                on:focus={() => { activeEditor = editEl; rememberSelection(editEl); }}
+                on:input={() => { editHasContent = !!editEl?.innerText.trim(); rememberSelection(editEl); }}
+                on:keyup={() => rememberSelection(editEl)}
+                on:mouseup={() => rememberSelection(editEl)}
                 on:keydown={(e) => {
                   if (e.key === 'Escape') cancelEdit();
+                  if ((e.metaKey || e.ctrlKey) && (e.key === 'b' || e.key === 'B')) { e.preventDefault(); rememberSelection(editEl); runCmd('bold'); }
+                  if ((e.metaKey || e.ctrlKey) && (e.key === 'i' || e.key === 'I')) { e.preventDefault(); rememberSelection(editEl); runCmd('italic'); }
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); commitEdit(); }
                 }}
-              ></textarea>
+              ></div>
               <div class="diary-add-row">
                 <label class="diary-date-pick">
                   <span class="sr-only">Note date</span>
@@ -275,7 +480,7 @@
                 {/if}
                 <div class="ml-auto flex items-center gap-3">
                   <button type="button" class="font-serif italic text-muted hover:text-rust text-sm" on:click={cancelEdit}>Cancel</button>
-                  <button type="button" class="btn-primary" on:click={commitEdit} disabled={!editText.trim()}>Save note</button>
+                  <button type="button" class="btn-primary" on:click={commitEdit} disabled={!editHasContent}>Save note</button>
                 </div>
               </div>
             {:else}
@@ -288,7 +493,7 @@
                   <span class="diary-edited">edited</span>
                 {/if}
               </div>
-              <p class="diary-text">{entry.text}</p>
+              <div class="diary-text">{@html renderDiaryText(entry.text)}</div>
               <div class="diary-actions">
                 <button type="button" class="diary-action" on:click={() => startEdit(entry)}>Edit</button>
                 <button type="button" class="diary-action" on:click={() => remove(entry.id)}>Delete</button>
@@ -309,21 +514,93 @@
     padding: 14px 16px;
     margin-bottom: 18px;
   }
-  .diary-textarea {
-    width: 100%;
+  /* ===== Toolbar =====
+     Sits above the contenteditable composer + edit form. Small rust
+     buttons that don't fight the editorial type below. */
+  .diary-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .diary-tool {
     background: transparent;
-    border: 0;
+    border: 1px solid rgba(139, 106, 58, 0.45);
+    border-radius: 4px;
+    color: #5a4f3d;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .diary-tool strong { font-weight: 900; }
+  .diary-tool em { font-style: italic; font-weight: 600; }
+  .diary-tool:hover {
+    background: rgba(125, 58, 30, 0.08);
+    border-color: #7d3a1e;
+    color: #5e2a14;
+  }
+  .diary-tool.is-active {
+    background: #5e2a14;
+    border-color: #5e2a14;
+    color: #fffdf6;
+  }
+  .diary-tool-sep {
+    width: 1px;
+    height: 16px;
+    background: rgba(139, 106, 58, 0.45);
+    margin: 0 4px;
+  }
+  .diary-tool-emoji-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* ===== Rich-text composer =====
+     contenteditable div styled to feel like the previous textarea
+     while giving us a place to render the inline-SVG stickers and
+     bold/italic/list formatting. */
+  .diary-rich {
+    width: 100%;
+    min-height: 72px;
+    background: transparent;
     outline: none;
     font-family: 'Fraunces', Georgia, serif;
     font-size: 16px;
     line-height: 1.55;
     color: #241f1a;
-    resize: vertical;
-    min-height: 72px;
   }
-  .diary-textarea::placeholder {
+  /* Placeholder via :empty + data-placeholder; contenteditable
+     doesn't support the native placeholder attribute. */
+  .diary-rich.is-empty:before {
+    content: attr(data-placeholder);
     color: rgba(90, 79, 61, 0.55);
     font-style: italic;
+    pointer-events: none;
+  }
+  .diary-rich :global(ul),
+  .diary-rich :global(ol) {
+    padding-left: 1.4em;
+    margin: 4px 0;
+  }
+  .diary-rich :global(li) {
+    margin: 2px 0;
+  }
+  .diary-rich :global(.sticker) {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: -3px;
+    margin: 0 2px;
+    color: #7d3a1e;
+    user-select: none;
   }
   .diary-add-row {
     display: flex;
@@ -423,8 +700,20 @@
     font-size: 16px;
     line-height: 1.6;
     color: #241f1a;
-    white-space: pre-wrap;
     margin: 0 0 8px;
+  }
+  .diary-text :global(ul),
+  .diary-text :global(ol) {
+    padding-left: 1.4em;
+    margin: 4px 0;
+  }
+  .diary-text :global(li) { margin: 2px 0; }
+  .diary-text :global(.sticker) {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: -3px;
+    margin: 0 2px;
+    color: #7d3a1e;
   }
   .diary-actions {
     display: flex;
