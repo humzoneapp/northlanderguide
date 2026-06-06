@@ -26,6 +26,7 @@
     addTripPackingList,
     renameTripPackingList,
     deleteTripPackingList,
+    setTripBudgetTarget,
     deleteTrip,
     setTripCover,
     clearTripCover
@@ -191,6 +192,39 @@
   /* Display name for the default (unnamed) packing list. Falls
      back to "Packing list" when the user hasn't renamed it yet. */
   $: defaultPackingListLabel = (trip && trip.defaultPackingListName) || 'Packing list';
+
+  /* Trip-wide budget target lives on the trip row. Empty / null
+     means "no target set". budgetSpent comes from the live
+     budgetEntries array; budgetRemaining is target - spent and
+     can go negative when the user blows through it. */
+  $: tripBudgetTarget = trip && Number.isFinite(trip.budgetTarget) ? Number(trip.budgetTarget) : null;
+  $: budgetSpent = totalOf(budgetEntries);
+  $: budgetRemaining = tripBudgetTarget != null ? Math.round((tripBudgetTarget - budgetSpent) * 100) / 100 : null;
+  $: budgetOverspent = budgetRemaining != null && budgetRemaining < 0;
+  $: budgetPercent = (tripBudgetTarget && tripBudgetTarget > 0)
+    ? Math.min(100, Math.max(0, (budgetSpent / tripBudgetTarget) * 100))
+    : 0;
+
+  /* Inline-edit state for the trip budget target. */
+  let editingBudgetTarget = false;
+  let budgetTargetDraft = '';
+  function startEditBudgetTarget() {
+    budgetTargetDraft = tripBudgetTarget != null ? String(tripBudgetTarget) : '';
+    editingBudgetTarget = true;
+  }
+  async function commitBudgetTarget() {
+    if (!trip) return;
+    editingBudgetTarget = false;
+    const raw = budgetTargetDraft.trim();
+    const v = raw === '' ? null : Number(raw);
+    const updated = await setTripBudgetTarget(trip.id, raw === '' ? null : v);
+    if (updated) trip = updated;
+    budgetTargetDraft = '';
+  }
+  function cancelBudgetTarget() {
+    editingBudgetTarget = false;
+    budgetTargetDraft = '';
+  }
 
   /* Inline "Add another packing list" form on the trip page. */
   let addingPackingList = false;
@@ -908,6 +942,76 @@
             </button>
           {/if}
         </div>
+
+        <!-- ===== Trip budget =====
+             Trip-wide target the user sets here; per-chapter ledger
+             rows roll up into the Spent stat and subtract from
+             Remaining live. budgetRemaining can go negative when
+             the user blows through, in which case the badge + the
+             progress bar flip to amber. -->
+        <Drawer
+          kicker="Trip budget"
+          title="Budget"
+          count={tripBudgetTarget != null
+            ? (budgetOverspent ? `Over by ${formatAmount(-budgetRemaining)}` : `${formatAmount(budgetRemaining)} left`)
+            : 'Set a target'}
+          countLabel={tripBudgetTarget != null ? '' : ''}
+        >
+          <div class="bb-budget">
+            {#if editingBudgetTarget}
+              <form class="bb-budget-edit" on:submit|preventDefault={commitBudgetTarget}>
+                <span class="bb-budget-edit-prefix" aria-hidden="true">$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  inputmode="decimal"
+                  bind:value={budgetTargetDraft}
+                  class="bb-budget-input"
+                  placeholder="2000"
+                  on:blur={commitBudgetTarget}
+                  on:keydown={(e) => { if (e.key === 'Escape') cancelBudgetTarget(); }}
+                  autofocus
+                />
+                <span class="bb-budget-edit-hint">Press Enter to save. Leave blank to clear.</span>
+              </form>
+            {:else if tripBudgetTarget == null}
+              <button type="button" class="bb-budget-set" on:click={startEditBudgetTarget}>
+                Set a trip budget
+              </button>
+              <p class="bb-budget-hint">
+                Drop in a target and every spend you log in a chapter ledger
+                subtracts from it. Useful for "I have $2,000 for this trip."
+              </p>
+            {:else}
+              <div class="bb-budget-stats" class:is-over={budgetOverspent}>
+                <div class="bb-budget-stat">
+                  <span class="bb-budget-stat-kicker">Target</span>
+                  <button type="button" class="bb-budget-stat-num bb-budget-target-btn" on:click={startEditBudgetTarget} title="Edit target">
+                    {formatAmount(tripBudgetTarget)}
+                  </button>
+                </div>
+                <div class="bb-budget-stat">
+                  <span class="bb-budget-stat-kicker">Spent</span>
+                  <span class="bb-budget-stat-num bb-budget-stat-spent">{formatAmount(budgetSpent)}</span>
+                </div>
+                <div class="bb-budget-stat">
+                  <span class="bb-budget-stat-kicker">{budgetOverspent ? 'Over by' : 'Left'}</span>
+                  <span class="bb-budget-stat-num bb-budget-stat-left" class:is-over={budgetOverspent}>
+                    {formatAmount(budgetOverspent ? -budgetRemaining : budgetRemaining)}
+                  </span>
+                </div>
+              </div>
+              <div class="bb-budget-bar" aria-hidden="true">
+                <span class="bb-budget-bar-fill" style="width: {budgetPercent}%;" class:is-over={budgetOverspent}></span>
+              </div>
+              <p class="bb-budget-hint">
+                Logged from each chapter's <em>Spending</em> drawer. Tap the
+                target above to change it.
+              </p>
+            {/if}
+          </div>
+        </Drawer>
       </div>
     </section>
 
@@ -2047,6 +2151,130 @@
   }
   .bb-rename-form .bb-add-list-input {
     max-width: none;
+  }
+
+  /* ===== Trip budget panel =====
+     Sits inside the Budget Drawer in Before You Board. Three big
+     numbers (target / spent / left) with a progress bar, plus an
+     inline-edit affordance on the target. */
+  .bb-budget {
+    padding: 4px 2px 6px;
+  }
+  .bb-budget-set {
+    background: #6e2e17;
+    color: #fffdf6;
+    border: 1.5px solid #6e2e17;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease;
+  }
+  .bb-budget-set:hover { background: #884023; border-color: #884023; }
+  .bb-budget-hint {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 10px 0 0;
+    max-width: 60ch;
+  }
+  .bb-budget-hint em {
+    font-style: italic;
+    color: #7d3a1e;
+  }
+  .bb-budget-edit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bb-budget-edit-prefix {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: #7d3a1e;
+  }
+  .bb-budget-input {
+    background: #fffdf6;
+    border: 1.5px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #0a2d21;
+    outline: none;
+    width: 140px;
+  }
+  .bb-budget-input:focus { border-color: #7d3a1e; }
+  .bb-budget-edit-hint {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #5a4f3d;
+  }
+  .bb-budget-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    padding-bottom: 12px;
+  }
+  .bb-budget-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .bb-budget-stat-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #7d3a1e;
+  }
+  .bb-budget-stat-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(20px, 3vw, 26px);
+    color: #0a2d21;
+    line-height: 1.05;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    text-align: left;
+  }
+  .bb-budget-target-btn {
+    cursor: pointer;
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.4);
+    transition: color 140ms ease, border-color 140ms ease;
+  }
+  .bb-budget-target-btn:hover { color: #7d3a1e; border-color: #7d3a1e; }
+  .bb-budget-stat-spent { color: #c4860f; }
+  .bb-budget-stat-left { color: #0a2d21; }
+  .bb-budget-stat-left.is-over { color: #c4860f; }
+  /* Progress bar below the stats. Forest fill normally; flips to
+     amber when the user has burned past 100%. */
+  .bb-budget-bar {
+    height: 8px;
+    background: rgba(125, 58, 30, 0.12);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bb-budget-bar-fill {
+    display: block;
+    height: 100%;
+    background: #0a2d21;
+    border-radius: 4px;
+    transition: width 240ms ease, background 240ms ease;
+  }
+  .bb-budget-bar-fill.is-over {
+    background: #c4860f;
   }
 
   /* ===== Chapter divider =====

@@ -8,8 +8,20 @@
     totalOf,
     breakdownByCategory,
     formatAmount,
+    bookingKindFor,
     BUDGET_CATEGORIES
   } from '$lib/stores/budget.js';
+  import BookingKindIcon from './BookingKindIcon.svelte';
+
+  /* Today as YYYY-MM-DD in local time. Used to default the date
+     input on the add row so a quick spend log lands on today. */
+  function todayLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 
   /** @type {string} */
   export let tripId;
@@ -37,12 +49,14 @@
   let newLabel = '';
   let newAmount = '';
   let newCategory = 'other';
+  let newDate = todayLocal();
 
   /* Inline-edit state. */
   let editingId = null;
   let editLabel = '';
   let editAmount = '';
   let editCategory = 'other';
+  let editDate = '';
   /** @type {HTMLInputElement | undefined} */
   let editLabelInput;
 
@@ -74,11 +88,13 @@
         label,
         amount: amt,
         category: newCategory,
-        stopId: stopFilter || null
+        stopId: stopFilter || null,
+        spentDate: newDate || null
       });
       newLabel = '';
       newAmount = '';
       newCategory = 'other';
+      newDate = todayLocal();
       await refresh();
       dispatch('change');
     } finally {
@@ -91,6 +107,7 @@
     editLabel = entry.label;
     editAmount = String(entry.amount);
     editCategory = entry.category;
+    editDate = entry.spentDate || '';
     await tick();
     editLabelInput?.focus();
   }
@@ -101,12 +118,14 @@
     const patch = {
       label: editLabel,
       amount: editAmount,
-      category: editCategory
+      category: editCategory,
+      spentDate: editDate || null
     };
     editingId = null;
     editLabel = '';
     editAmount = '';
     editCategory = 'other';
+    editDate = '';
     if (patch.label.trim() && !Number.isNaN(Number(patch.amount))) {
       await updateBudgetEntry(id, patch);
       await refresh();
@@ -119,6 +138,35 @@
     editLabel = '';
     editAmount = '';
     editCategory = 'other';
+    editDate = '';
+  }
+
+  /* "Jun 12" or "Jun 12, 2025" relative to the viewer's year. Used
+     on each row so the user can see when each spend landed. */
+  function formatEntryDate(e) {
+    const iso = (e && typeof e.spentDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(e.spentDate))
+      ? e.spentDate
+      : null;
+    if (iso) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const now = new Date();
+      return dt.toLocaleDateString('en-CA', {
+        month: 'short',
+        day: 'numeric',
+        year: dt.getFullYear() === now.getFullYear() ? undefined : 'numeric'
+      });
+    }
+    if (e && e.createdAt) {
+      const dt = new Date(e.createdAt);
+      const now = new Date();
+      return dt.toLocaleDateString('en-CA', {
+        month: 'short',
+        day: 'numeric',
+        year: dt.getFullYear() === now.getFullYear() ? undefined : 'numeric'
+      });
+    }
+    return '';
   }
 
   async function remove(id) {
@@ -177,6 +225,27 @@
         {#each visibleEntries as entry (entry.id)}
           <li class="row" class:is-editing={editingId === entry.id}>
             {#if editingId === entry.id}
+              <div class="ledger-edit-kinds" role="radiogroup" aria-label="Category">
+                {#each BUDGET_CATEGORIES as c}
+                  <button
+                    type="button"
+                    class="ledger-kind"
+                    class:is-active={editCategory === c.id}
+                    on:click={() => (editCategory = c.id)}
+                    aria-label={c.label}
+                    title={c.label}
+                  >
+                    <BookingKindIcon kind={bookingKindFor(c.id)} size="1.1rem" />
+                  </button>
+                {/each}
+              </div>
+              <input
+                bind:value={editDate}
+                type="date"
+                class="ledger-date"
+                aria-label="Date of this spend"
+                title="Date"
+              />
               <input
                 bind:this={editLabelInput}
                 bind:value={editLabel}
@@ -188,11 +257,6 @@
                   if (e.key === 'Escape') cancelEdit();
                 }}
               />
-              <select bind:value={editCategory} class="edit-cat">
-                {#each BUDGET_CATEGORIES as c}
-                  <option value={c.id}>{c.label}</option>
-                {/each}
-              </select>
               <input
                 bind:value={editAmount}
                 type="number"
@@ -210,10 +274,18 @@
                 <button type="button" class="row-save" on:click={commitEdit}>Save</button>
               </div>
             {:else}
+              <span
+                class="row-kind-glyph"
+                style="--cat:{catColor(entry.category)}"
+                aria-label={catLabel(entry.category)}
+                title={catLabel(entry.category)}
+              >
+                <BookingKindIcon kind={bookingKindFor(entry.category)} size="1.1rem" />
+              </span>
               <button type="button" class="row-label" on:click={() => startEdit(entry)}>
                 {entry.label}
               </button>
-              <span class="row-cat" style="--cat:{catColor(entry.category)}">{catLabel(entry.category)}</span>
+              <span class="row-date">{formatEntryDate(entry)}</span>
               <span class="row-amount">{formatAmount(entry.amount)}</span>
               <button
                 type="button"
@@ -227,8 +299,33 @@
       </ul>
     {/if}
 
-    <!-- Quick-add row. Same pattern as the other checklists. -->
+    <!-- Quick-add row. Category dropdown was replaced 2026-06-06
+         with a row of five icon buttons matching BookingChecklist's
+         add row vocabulary. Date input next to it captures when
+         the spend actually happened (defaults to today). -->
     <form on:submit|preventDefault={handleAdd} class="add-row">
+      <div class="ledger-add-kinds" role="radiogroup" aria-label="Category">
+        {#each BUDGET_CATEGORIES as c}
+          <button
+            type="button"
+            class="ledger-kind"
+            class:is-active={newCategory === c.id}
+            on:click={() => (newCategory = c.id)}
+            aria-label={c.label}
+            aria-pressed={newCategory === c.id}
+            title={c.label}
+          >
+            <BookingKindIcon kind={bookingKindFor(c.id)} size="1.1rem" />
+          </button>
+        {/each}
+      </div>
+      <input
+        bind:value={newDate}
+        type="date"
+        class="ledger-date"
+        aria-label="Date of this spend"
+        title="Date"
+      />
       <input
         bind:value={newLabel}
         type="text"
@@ -236,11 +333,6 @@
         placeholder="What did you spend on?"
         class="add-label"
       />
-      <select bind:value={newCategory} class="add-cat" aria-label="Category">
-        {#each BUDGET_CATEGORIES as c}
-          <option value={c.id}>{c.label}</option>
-        {/each}
-      </select>
       <input
         bind:value={newAmount}
         type="number"
@@ -328,15 +420,31 @@
   }
   .row {
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: auto 1fr auto auto auto;
     align-items: center;
     gap: 12px;
     padding: 10px 0;
     border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
   }
   .row.is-editing {
-    grid-template-columns: 1fr auto auto auto;
+    display: flex;
+    flex-wrap: wrap;
     background: #fffdf6;
+    padding: 12px 8px;
+  }
+  /* Category glyph on a row - small circular badge in the row's
+     category colour so the user can read the ledger at a glance. */
+  .row-kind-glyph {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--cat, #5a4f3d);
+    background: rgba(255, 253, 246, 0.4);
+    color: var(--cat, #5a4f3d);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
   }
   .row-label {
     text-align: left;
@@ -354,13 +462,11 @@
   .row-label:hover {
     color: #7d3a1e;
   }
-  .row-cat {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--cat, #5a4f3d);
+  .row-date {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #5a4f3d;
     white-space: nowrap;
   }
   .row-amount {
@@ -387,7 +493,7 @@
 
   .edit-label,
   .edit-amount,
-  .edit-cat {
+  .ledger-date {
     background: #fffdf6;
     border: 1px solid #8b6a3a;
     border-radius: 3px;
@@ -400,17 +506,57 @@
   }
   .edit-label:focus,
   .edit-amount:focus,
-  .edit-cat:focus {
+  .ledger-date:focus {
     border-color: #7d3a1e;
   }
+  .edit-label { flex: 1 1 160px; }
   .edit-amount {
     width: 110px;
     text-align: right;
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
   }
-  .edit-cat {
-    width: 130px;
+  /* Category icon row used by both the add form and the edit
+     state - five small circular buttons (one per BUDGET_CATEGORY,
+     drawn with BookingKindIcon) replace the old <select> dropdown
+     so the user picks with one tap and reads the choice at a
+     glance. */
+  .ledger-add-kinds,
+  .ledger-edit-kinds {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+  }
+  .ledger-kind {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(139, 106, 58, 0.55);
+    background: transparent;
+    color: #7d3a1e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .ledger-kind:hover {
+    border-color: #7d3a1e;
+    background: rgba(125, 58, 30, 0.08);
+  }
+  .ledger-kind.is-active {
+    background: #0a2d21;
+    border-color: #0a2d21;
+    border-style: solid;
+    color: #c9a84c;
+  }
+  /* Date pill on the add + edit rows. Dashed gold matches the
+     time pills used by BookingChecklist. */
+  .ledger-date {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
   }
   .edit-actions {
     display: flex;
@@ -442,14 +588,15 @@
   }
 
   .add-row {
-    display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     padding-top: 12px;
     border-top: 2px dashed rgba(139, 106, 58, 0.45);
   }
   .add-label {
+    flex: 1 1 160px;
     background: transparent;
     border: 0;
     padding: 4px 0;
@@ -462,18 +609,6 @@
   .add-label::placeholder {
     color: rgba(90, 79, 61, 0.55);
     font-style: italic;
-  }
-  .add-cat {
-    background: #fbf6ea;
-    border: 1px solid #8b6a3a;
-    border-radius: 3px;
-    padding: 6px 8px;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #0a2d21;
-    cursor: pointer;
-    outline: none;
   }
   .add-amount {
     width: 110px;
@@ -488,8 +623,7 @@
     text-align: right;
     outline: none;
   }
-  .add-amount:focus,
-  .add-cat:focus {
+  .add-amount:focus {
     border-color: #7d3a1e;
   }
   .add-btn {
@@ -512,28 +646,13 @@
   }
 
   @media (max-width: 540px) {
-    .row,
-    .add-row {
-      grid-template-columns: 1fr auto;
-      grid-template-rows: auto auto;
+    .row {
+      grid-template-columns: auto 1fr auto;
       row-gap: 6px;
     }
-    .row-label,
-    .add-label {
-      grid-column: 1 / -1;
-    }
-    .row-cat,
-    .add-cat {
-      grid-column: 1;
-    }
-    .row-amount,
-    .add-amount {
-      grid-column: 2;
-    }
-    .row-remove,
-    .add-btn {
-      grid-column: 1 / -1;
-      justify-self: end;
-    }
+    .row-label { grid-column: 2 / -1; }
+    .row-date  { grid-column: 1 / -1; justify-self: start; }
+    .row-amount { grid-column: 2; }
+    .row-remove { grid-column: 3; justify-self: end; }
   }
 </style>

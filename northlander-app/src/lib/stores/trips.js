@@ -233,6 +233,19 @@ export async function renameTripPackingList(id, currentName, newName) {
   return db.trips.get(id);
 }
 
+/* Set the trip-wide budget target. Empty / null / a non-finite
+   number stores as null (no target set). Accepts a number or a
+   string; the latter is coerced. */
+export async function setTripBudgetTarget(id, target) {
+  if (!id) return null;
+  let next = null;
+  const v = typeof target === 'string' ? Number(target) : target;
+  if (Number.isFinite(v) && v >= 0) {
+    next = Math.round(v * 100) / 100;
+  }
+  return updateTrip(id, { budgetTarget: next });
+}
+
 /* Remove a named list and every packing item it owns in one
    transaction. The default (unnamed) list and its items are
    intentionally untouched. */
