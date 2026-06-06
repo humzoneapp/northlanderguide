@@ -758,7 +758,7 @@
       <div class="before-board-inner">
         <div class="before-board-head">
           <div class="kicker">Before You Board</div>
-          <h2>The journey starts before the train does.</h2>
+          <h2>Pack the whole trip in one place.</h2>
         </div>
         <!-- Default (unnamed) packing list. Always present, can't
              be deleted - it's the bag every trip starts with. The
