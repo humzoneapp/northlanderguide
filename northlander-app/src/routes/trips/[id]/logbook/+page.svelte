@@ -50,29 +50,33 @@
   $: totalSpent = totalOf(budget);
   $: stopCount = Math.max(0, stops.length - 1);
 
-  /* Combine every mutation event into one chronological feed. The
-     trip's createdAt is the bottom anchor ("Trip started"). Stops
-     don't have per-entry timestamps yet, so the route is summarized
-     in the cover band instead of being event-rendered.
+  /* Combine every mutation event into one chronological feed. Each
+     event uses `createdAt` (the exact moment the row was written
+     to IndexedDB) as its timestamp - the Logbook is a record of
+     when the user PICKED / added a thing, not when the planned
+     event occurs. Diary entries used to carry a manual entryDate
+     that overrode this; we ignore it now since the composer no
+     longer offers a date input.
 
-     Diary entries with a custom `entryDate` still sort by their
-     stored entryDate so backdated reflections land on the right
-     day. Everything else sorts on `createdAt`. */
+     Sort ascending so the first action of the trip sits at the
+     top, latest at the bottom - mirrors how a paper logbook /
+     ship's log reads. Stops don't have per-entry timestamps yet,
+     so the route is summarized in the cover band instead of being
+     event-rendered. */
   $: events = buildEvents(trip, bookings, diary, photos, budget);
   $: groups = groupByDay(events);
 
   function eventTime(ev) {
-    if (ev.type === 'diary' && ev.row && typeof ev.row.entryDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(ev.row.entryDate)) {
-      try {
-        return new Date(ev.row.entryDate + 'T12:00:00').getTime();
-      } catch (_) { /* fall through */ }
-    }
     return ev.row?.createdAt || 0;
   }
 
   function buildEvents(t, bks, dy, ph, bg) {
     const out = [];
     if (!t) return out;
+    /* Synthesize a "trip started" anchor first so it sorts to the
+       very top of the feed - the logbook begins the day the trip
+       was opened. */
+    if (t.createdAt) out.push({ type: 'start', row: { createdAt: t.createdAt } });
     if (Array.isArray(bks)) {
       for (const b of bks) out.push({ type: 'booking', row: b });
     }
@@ -85,10 +89,7 @@
     if (Array.isArray(bg)) {
       for (const e of bg) out.push({ type: 'spend', row: e });
     }
-    /* Synthesize a "trip started" anchor at the bottom of the feed
-       so the user can see when the journey was first planned. */
-    if (t.createdAt) out.push({ type: 'start', row: { createdAt: t.createdAt } });
-    return out.sort((a, b) => eventTime(b) - eventTime(a));
+    return out.sort((a, b) => eventTime(a) - eventTime(b));
   }
 
   function dayKey(ms) {
