@@ -187,10 +187,6 @@
   /* Per-stop counts that drive the Drawer count badges inside each
      chapter. Reactive on the parent's loaded data so they stay in
      sync with the on:change refresh path. */
-  function bookingsAt(id) { return bookings.filter((b) => b.stopId === id); }
-  function diaryAt(id)    { return diary.filter((d) => d.stopId === id); }
-  function photosAt(id)   { return photos.filter((p) => p.stopId === id); }
-  function budgetAt(id)   { return budgetEntries.filter((e) => e.stopId === id); }
 
   /* Display name for the default (unnamed) packing list. Falls
      back to "Packing list" when the user hasn't renamed it yet. */
@@ -920,10 +916,6 @@
         {@const isLast = i === stops.length - 1}
         {@const tripDir = trip.direction || 'northbound'}
         {@const stopTime = trainTimeFor(stop.id, tripDir)}
-        {@const stopBookings = bookingsAt(stop.id)}
-        {@const stopDiary = diaryAt(stop.id)}
-        {@const stopPhotos = photosAt(stop.id)}
-        {@const stopBudget = budgetAt(stop.id)}
         {@const trainLine = i === 0
           ? (stopTime?.depart ? `Departs ${stopTime.depart}` : '')
           : (stopTime?.arrive ? `Arrives ${stopTime.arrive}` : '')}
@@ -948,11 +940,17 @@
 
             <div class="scene-grid">
               <div class="scene-main">
+                <!-- Count expressions read `bookings` directly inside
+                     the prop so Svelte tracks the array as a reactive
+                     dep. {@const x = bookingsAt(stop.id)} only fires
+                     when the each block iterates, NOT when bookings
+                     changes, so the badge would lock to a stale count
+                     after the first render. -->
                 <Drawer
                   kicker="Bookings"
                   title="Booking checklist"
-                  count={stopBookings.length}
-                  countLabel={stopBookings.length === 1 ? 'plan' : 'plans'}
+                  count={bookings.filter((b) => b.stopId === stop.id).length}
+                  countLabel={bookings.filter((b) => b.stopId === stop.id).length === 1 ? 'plan' : 'plans'}
                 >
                   <BookingChecklist
                     tripId={trip.id}
@@ -977,8 +975,8 @@
                 <Drawer
                   kicker="Journey"
                   title="Travel notes"
-                  count={stopDiary.length}
-                  countLabel={stopDiary.length === 1 ? 'note' : 'notes'}
+                  count={diary.filter((d) => d.stopId === stop.id).length}
+                  countLabel={diary.filter((d) => d.stopId === stop.id).length === 1 ? 'note' : 'notes'}
                 >
                   <TravelDiary
                     tripId={trip.id}
@@ -993,8 +991,8 @@
                 <Drawer
                   kicker="Album"
                   title="Polaroids"
-                  count={stopPhotos.length}
-                  countLabel={stopPhotos.length === 1 ? 'photo' : 'photos'}
+                  count={photos.filter((p) => p.stopId === stop.id).length}
+                  countLabel={photos.filter((p) => p.stopId === stop.id).length === 1 ? 'photo' : 'photos'}
                 >
                   <PhotoAlbum
                     tripId={trip.id}
@@ -1009,8 +1007,8 @@
                 <Drawer
                   kicker="Ledger"
                   title="Spending"
-                  count={stopBudget.length}
-                  countLabel={stopBudget.length === 1 ? 'entry' : 'entries'}
+                  count={budgetEntries.filter((e) => e.stopId === stop.id).length}
+                  countLabel={budgetEntries.filter((e) => e.stopId === stop.id).length === 1 ? 'entry' : 'entries'}
                 >
                   <BudgetTracker
                     tripId={trip.id}
@@ -1762,23 +1760,21 @@
     background-image:
       repeating-linear-gradient(45deg, rgba(45, 30, 20, 0.03) 0, rgba(45, 30, 20, 0.03) 1px, transparent 1px, transparent 8px);
     color: #241f1a;
-    padding: 0;
+    /* Horizontal padding lives on the OUTER container so it doesn't
+       get added on top of the centered max-width gap on wide
+       viewports. Mirrors .before-board so chapter headings align
+       exactly with "Pack the whole trip in one place." */
+    padding: 0 24px;
   }
   .scene {
     position: relative;
     color: #241f1a;
     scroll-margin-top: 72px;
   }
-  /* Match max-width + horizontal padding with .before-board-inner
-     so the chapter heading lines up with "Pack the whole trip in
-     one place." on the page edge. Top padding is tight so the
-     gap above the first chapter feels intentional rather than
-     empty (was 56px against before-board's 56px bottom + 72px
-     top responsive bump = ~150px of cream). */
   .scene-inner {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 28px 24px 56px;
+    padding: 28px 0 56px;
   }
 
   /* Editorial section heading. Kicker (rust caps) + display H2 +
