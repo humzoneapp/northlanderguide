@@ -178,6 +178,14 @@
       : packingRows.filter((p) => !p.listName).length;
   }
 
+  /* Per-stop counts that drive the Drawer count badges inside each
+     chapter. Reactive on the parent's loaded data so they stay in
+     sync with the on:change refresh path. */
+  function bookingsAt(id) { return bookings.filter((b) => b.stopId === id); }
+  function diaryAt(id)    { return diary.filter((d) => d.stopId === id); }
+  function photosAt(id)   { return photos.filter((p) => p.stopId === id); }
+  function budgetAt(id)   { return budgetEntries.filter((e) => e.stopId === id); }
+
   /* Display name for the default (unnamed) packing list. Falls
      back to "Packing list" when the user hasn't renamed it yet. */
   $: defaultPackingListLabel = (trip && trip.defaultPackingListName) || 'Packing list';
@@ -903,6 +911,15 @@
     <section class="scenes">
       {#each stops as stop, i}
         {@const isLast = i === stops.length - 1}
+        {@const tripDir = trip.direction || 'northbound'}
+        {@const stopTime = trainTimeFor(stop.id, tripDir)}
+        {@const stopBookings = bookingsAt(stop.id)}
+        {@const stopDiary = diaryAt(stop.id)}
+        {@const stopPhotos = photosAt(stop.id)}
+        {@const stopBudget = budgetAt(stop.id)}
+        {@const trainLine = i === 0
+          ? (stopTime?.depart ? `Departs ${stopTime.depart}` : '')
+          : (stopTime?.arrive ? `Arrives ${stopTime.arrive}` : '')}
 
         <article id="scene-{i}" class="scene">
           <div class="scene-inner">
@@ -914,26 +931,22 @@
                 {#if stop.stayStart}
                   <span class="scene-meta-sep" aria-hidden="true">·</span>
                   <span class="scene-meta-date">{formatStayLabel(stop)}</span>
-                {:else}
+                {/if}
+                {#if trainLine}
                   <span class="scene-meta-sep" aria-hidden="true">·</span>
-                  <span class="scene-meta-clock">
-                    {i === 0 ? 'Boarding' : 'Arrival'}  {arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}
-                  </span>
+                  <span class="scene-meta-time">{trainLine}</span>
                 {/if}
               </div>
             </header>
 
             <div class="scene-grid">
               <div class="scene-main">
-                <div class="scene-when">
-                  {#if !isLast}{hereDuration(i)}{:else}End of the line{/if}
-                </div>
-
-                <section class="self-section">
-                  <div class="group-head">
-                    <span class="group-label">Schedule for {stop.name}</span>
-                    <span class="group-rule" aria-hidden="true"></span>
-                  </div>
+                <Drawer
+                  kicker="Bookings"
+                  title="Booking checklist"
+                  count={stopBookings.length}
+                  countLabel={stopBookings.length === 1 ? 'plan' : 'plans'}
+                >
                   <BookingChecklist
                     tripId={trip.id}
                     stopIds={trip.stopIds || []}
@@ -950,58 +963,60 @@
                     <span class="browse-guide-plus" aria-hidden="true">+</span>
                     Browse the Guide for {stop.name}
                   </button>
-                </section>
+                </Drawer>
 
-                <section class="self-section">
-                  <div class="group-head">
-                    <span class="group-label">Notes from {stop.name}</span>
-                    <span class="group-rule" aria-hidden="true"></span>
-                  </div>
+                <Drawer
+                  kicker="Journey"
+                  title="Travel notes"
+                  count={stopDiary.length}
+                  countLabel={stopDiary.length === 1 ? 'note' : 'notes'}
+                >
                   <TravelDiary
                     tripId={trip.id}
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
                     on:change={load}
                   />
-                </section>
+                </Drawer>
 
-                <section class="self-section">
-                  <div class="group-head">
-                    <span class="group-label">Polaroids from {stop.name}</span>
-                    <span class="group-rule" aria-hidden="true"></span>
-                  </div>
+                <Drawer
+                  kicker="Album"
+                  title="Polaroids"
+                  count={stopPhotos.length}
+                  countLabel={stopPhotos.length === 1 ? 'photo' : 'photos'}
+                >
                   <PhotoAlbum
                     tripId={trip.id}
                     stopIds={trip.stopIds || []}
                     stopFilter={stop.id}
                     on:change={load}
                   />
-                </section>
+                </Drawer>
 
-                <section class="self-section">
-                  <div class="group-head">
-                    <span class="group-label">Spending at {stop.name}</span>
-                    <span class="group-rule" aria-hidden="true"></span>
-                  </div>
+                <Drawer
+                  kicker="Ledger"
+                  title="Spending"
+                  count={stopBudget.length}
+                  countLabel={stopBudget.length === 1 ? 'entry' : 'entries'}
+                >
                   <BudgetTracker
                     tripId={trip.id}
                     stopFilter={stop.id}
                     on:change={load}
                   />
-                </section>
+                </Drawer>
 
-                <section class="self-section">
-                  <div class="group-head">
-                    <span class="group-label">Happening at {stop.name}</span>
-                    <span class="group-rule" aria-hidden="true"></span>
-                  </div>
+                <Drawer
+                  kicker="From the Guide"
+                  title="Happening at {stop.name}"
+                >
                   <EventsAlongRoute
                     tripId={trip.id}
                     stopIds={[stop.id]}
                     departureDate={stop.stayStart || trip.departureDate || null}
                     endDate={stop.stayEnd || trip.returnDate || null}
                   />
-                </section>
+                </Drawer>
               </div>
 
               <aside class="scene-aside">
@@ -1738,19 +1753,25 @@
     color: #241f1a;
     scroll-margin-top: 72px;
   }
+  /* Match max-width + horizontal padding with .before-board-inner
+     so the chapter heading lines up with "Pack the whole trip in
+     one place." on the page edge. Top padding is tight so the
+     gap above the first chapter feels intentional rather than
+     empty (was 56px against before-board's 56px bottom + 72px
+     top responsive bump = ~150px of cream). */
   .scene-inner {
-    max-width: 1080px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 56px 24px;
+    padding: 28px 24px 56px;
   }
 
   /* Editorial section heading. Kicker (rust caps) + display H2 +
-     metadata row (region · arrival) on a single dashed rust rule.
-     Mirrors stop-page.css:29-33 + plan-page.css:163-181. */
+     metadata row (region · date · train time). No bottom rule -
+     the Drawer accordions beneath provide their own visual
+     separators. */
   .scene-head {
-    border-bottom: 1px dashed rgba(125, 58, 30, 0.4);
-    padding-bottom: 22px;
-    margin-bottom: 36px;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
   }
   .scene-head .kicker {
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -1783,8 +1804,18 @@
   }
   .scene-meta-region { color: #c4860f; letter-spacing: 0.32em; }
   .scene-meta-sep { color: rgba(125, 58, 30, 0.4); }
-  .scene-meta-clock { color: #5a4f3d; font-family: 'Spline Sans', system-ui, sans-serif; }
   .scene-meta-date {
+    color: #7d3a1e;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 14.5px;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 600;
+  }
+  /* Train time slot on the chapter meta row. Inherits the same
+     italic Fraunces voice as the date so they read as a pair. */
+  .scene-meta-time {
     color: #7d3a1e;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
@@ -1885,54 +1916,17 @@
     line-height: 1;
   }
 
-  /* ===== Self-contained chapter sections =====
-     Each chapter renders five sections inline (Schedule / Notes /
-     Polaroids / Spending / Happening). Sections sit on cream paper
-     and are separated by a soft dashed gold rule, mirroring the
-     stop-page.css editorial rhythm. */
-  .self-section {
-    margin-top: 36px;
-    padding-top: 22px;
-    border-top: 1px dashed rgba(196, 134, 15, 0.45);
+  /* Per-chapter Drawer stack. Each section (Booking checklist /
+     Travel notes / Polaroids / Spending / Happening) lives in its
+     own collapsed accordion so the chapter reads as five quiet
+     ledger lines instead of five stacked editorial sections with
+     dashed rules. The Drawer component handles its own border +
+     shadow; the .scene-main wrapper just needs to space them. */
+  .scene-main > :global(details.drawer) {
+    margin-bottom: 10px;
   }
-  .self-section:first-of-type {
-    margin-top: 28px;
-    padding-top: 22px;
-  }
-
-  /* "About 2h 25m before the next train" line above the first
-     section in each chapter. */
-  .scene-when {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #7d3a1e;
-    font-weight: 700;
-    margin-bottom: 24px;
-  }
-
-  /* Editorial group header. The label + dashed rust rule mirror
-     stop-page.css:78-79: italic Fraunces kicker against a dashed
-     line that fills the remainder of the row. */
-  .group-head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-  .group-label {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 500;
-    font-style: italic;
-    font-size: 20px;
-    color: #7d3a1e;
-    flex: 0 0 auto;
-  }
-  .group-rule {
-    flex: 1;
-    height: 0;
-    border-top: 1px dashed rgba(125, 58, 30, 0.35);
+  .scene-main > :global(details.drawer:last-of-type) {
+    margin-bottom: 0;
   }
 
   /* ===== Before You Board =====
@@ -1941,17 +1935,17 @@
      trip-wide PackingList. */
   .before-board {
     background: #fbf6ea;
-    padding: 56px 24px;
-  }
-  @media (min-width: 880px) {
-    .before-board { padding: 72px 32px; }
+    /* Bottom padding shrinks so the next chapter sits right under
+       the packing list rather than across a wall of cream; horizontal
+       padding stays at 24px to align with .scene-inner. */
+    padding: 56px 24px 28px;
   }
   .before-board-inner {
     max-width: 1100px;
     margin: 0 auto;
   }
   .before-board-head {
-    margin-bottom: 32px;
+    margin-bottom: 22px;
   }
   .before-board-head h2 {
     font-family: 'Fraunces', Georgia, serif;
@@ -1960,9 +1954,6 @@
     color: #0a2d21;
     margin: 6px 0 0;
     line-height: 1.2;
-  }
-  .before-board-inner > .group-head {
-    max-width: 760px;
   }
 
   /* ===== Add another packing list =====
