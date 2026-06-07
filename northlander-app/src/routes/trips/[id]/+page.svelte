@@ -16,6 +16,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
 
   /* ---------- Trip data ---------- */
   import {
@@ -68,6 +70,7 @@
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
+  import WeatherStrip from '$lib/components/WeatherStrip.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -183,6 +186,32 @@
      return entry. Departing station isn't a "stop" they visit
      (they board there). */
   $: stopsVisited = Math.max(0, stops.length - 1) + returnStops.length;
+
+  /* Animated count-up stores for the cover stats - each starts at
+     0 on first paint and tweens to the live value over 700ms.
+     Subsequent changes (user adds a booking) animate the delta so
+     the cover feels alive. */
+  const animStops = tweened(0, { duration: 700, easing: cubicOut });
+  const animPlans = tweened(0, { duration: 700, easing: cubicOut });
+  const animBooked = tweened(0, { duration: 700, easing: cubicOut });
+  const animPhotos = tweened(0, { duration: 700, easing: cubicOut });
+  const animNotes = tweened(0, { duration: 700, easing: cubicOut });
+  const animSpent = tweened(0, { duration: 800, easing: cubicOut });
+  $: animStops.set(stopsVisited);
+  $: animPlans.set(bookings.length);
+  $: animBooked.set(bookedCount);
+  $: animPhotos.set(photos.length);
+  $: animNotes.set(diary.length);
+  $: animSpent.set(budgetTotal || 0);
+
+  /* Parallax: shift the cover banner image up at 25% of scroll so
+     the photo feels like it sits behind glass. Listener attached
+     in onMount, torn down on destroy. */
+  let coverParallax = 0;
+  function handleScroll() {
+    if (typeof window === 'undefined') return;
+    coverParallax = Math.min(window.scrollY * 0.25, 240);
+  }
   /* Cover stat aggregates across every list. Per-list counts for
      the Drawer badges are derived inline where they're rendered. */
   $: packingCount = packingRows.length;
@@ -429,16 +458,53 @@
     Promise.resolve().then(rebuildTocObserver);
   }
 
+  /* Reveal-on-scroll: every .scene starts at opacity 0 + a small
+     translateY, and the observer adds .is-revealed as the section
+     comes into the viewport so it eases in. Held at component scope
+     so it can be rebuilt when chapters change. */
+  let revealObserver = null;
+  function rebuildRevealObserver() {
+    if (typeof document === 'undefined' || typeof IntersectionObserver === 'undefined') return;
+    if (revealObserver) {
+      revealObserver.disconnect();
+      revealObserver = null;
+    }
+    const scenes = Array.from(document.querySelectorAll('.scene, .return-divider, .foot, .narrative'));
+    if (!scenes.length) return;
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    scenes.forEach((s) => revealObserver.observe(s));
+  }
+  $: if (typeof window !== 'undefined' && Array.isArray(stops)) {
+    Promise.resolve().then(rebuildRevealObserver);
+  }
+
   onMount(() => {
     /* Tick the countdown once a minute. The page already does most
        of its work in load(); the ticker is just a wall-clock pulse. */
     const tickerId = setInterval(() => { tickerNow = Date.now(); }, 60_000);
     load();
+    /* Parallax scroll listener. Passive so it never blocks scroll. */
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
     return () => {
       clearInterval(tickerId);
       if (tocObserver) {
         tocObserver.disconnect();
         tocObserver = null;
+      }
+      if (revealObserver) {
+        revealObserver.disconnect();
+        revealObserver = null;
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('scroll', handleScroll);
       }
     };
   });
@@ -721,7 +787,7 @@
     <div
       class="cover-bg"
       class:has-image={!!bannerImage}
-      style={bannerImage ? `background-image:url('${bannerImage}')` : ''}
+      style={`${bannerImage ? `background-image:url('${bannerImage}');` : ''}transform: translateY(${coverParallax}px) scale(1.08);`}
       aria-hidden="true"
     ></div>
     <div class="cover-veil" aria-hidden="true"></div>
@@ -892,15 +958,15 @@
 
           <ul class="cover-stats">
             <li>
-              <b>{stopsVisited}</b>
+              <b>{Math.round($animStops)}</b>
               <span>{stopsVisited === 1 ? 'Stop' : 'Stops'}</span>
             </li>
-            <li><b>{bookings.length}</b><span>Plans</span></li>
-            <li><b>{bookedCount}</b><span>Booked</span></li>
-            <li><b>{photos.length}</b><span>Photos</span></li>
-            <li><b>{diary.length}</b><span>Notes</span></li>
+            <li><b>{Math.round($animPlans)}</b><span>Plans</span></li>
+            <li><b>{Math.round($animBooked)}</b><span>Booked</span></li>
+            <li><b>{Math.round($animPhotos)}</b><span>Photos</span></li>
+            <li><b>{Math.round($animNotes)}</b><span>Notes</span></li>
             {#if budgetEntries.length > 0}
-              <li><b>{formatAmount(budgetTotal)}</b><span>Spent</span></li>
+              <li><b>{formatAmount($animSpent)}</b><span>Spent</span></li>
             {/if}
           </ul>
         {:else}
@@ -1262,6 +1328,9 @@
                   <span class="scene-meta-sep" aria-hidden="true">·</span>
                   <span class="scene-meta-time">{trainLine}</span>
                 {/if}
+                {#if stop.stayStart}
+                  <WeatherStrip {stop} date={stop.stayStart} />
+                {/if}
               </div>
             </header>
 
@@ -1393,6 +1462,18 @@
                 Math.abs((stops[i + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
               )} to {stops[i + 1].name}
             </span>
+            <!-- Postmark on the right: arrival date stamp tilted like
+                 a passport cancellation. Only renders when the next
+                 stop carries a date the user picked. -->
+            {#if stops[i + 1].stayStart}
+              <span class="postmark" aria-hidden="true">
+                <span class="postmark-ring">
+                  <span class="postmark-arc postmark-arc--top">NORTHLANDER</span>
+                  <span class="postmark-stop">{stops[i + 1].name}</span>
+                  <span class="postmark-arc postmark-arc--bot">{formatDateShort(stops[i + 1].stayStart)}</span>
+                </span>
+              </span>
+            {/if}
           </div>
         {/if}
       {/each}
@@ -1434,6 +1515,9 @@
                   {#if trainLine}
                     <span class="scene-meta-sep" aria-hidden="true">·</span>
                     <span class="scene-meta-time">{trainLine}</span>
+                  {/if}
+                  {#if stop.stayStart}
+                    <WeatherStrip {stop} date={stop.stayStart} />
                   {/if}
                 </div>
               </header>
@@ -1560,6 +1644,15 @@
                   Math.abs((returnStops[j + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
                 )} to {returnStops[j + 1].name}
               </span>
+              {#if returnStops[j + 1].stayStart}
+                <span class="postmark" aria-hidden="true">
+                  <span class="postmark-ring">
+                    <span class="postmark-arc postmark-arc--top">NORTHLANDER</span>
+                    <span class="postmark-stop">{returnStops[j + 1].name}</span>
+                    <span class="postmark-arc postmark-arc--bot">{formatDateShort(returnStops[j + 1].stayStart)}</span>
+                  </span>
+                </span>
+              {/if}
             </div>
           {/if}
         {/each}
@@ -1847,8 +1940,16 @@
     background-position: center;
     background-size: cover;
     z-index: 0;
+    /* Parallax: the inline transform is updated on scroll. The
+       extra 8% scale gives translateY room to move without
+       exposing the edge of the photo. */
+    will-change: transform;
+    transition: transform 80ms linear;
   }
   .cover-bg.has-image { background-color: #0a2d21; }
+  @media (prefers-reduced-motion: reduce) {
+    .cover-bg { transition: none; transform: none !important; }
+  }
   /* Editorial overlay: deeper at the bottom for text legibility,
      warmer amber at the top for atmosphere. */
   .cover-veil {
@@ -2384,6 +2485,42 @@
     position: relative;
     color: #241f1a;
     scroll-margin-top: 72px;
+    /* Reveal-on-scroll: scenes start slightly down + faded; the
+       IntersectionObserver in onMount adds .is-revealed which
+       eases them into place. */
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
+  }
+  .scene.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* The return-divider + foot + narrative bands also fade in so the
+     bottom of the page doesn't feel weighted while the chapters
+     above animate. */
+  .return-divider,
+  .narrative,
+  .foot {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
+  }
+  .return-divider.is-revealed,
+  .narrative.is-revealed,
+  .foot.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scene,
+    .return-divider,
+    .narrative,
+    .foot {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
   .scene-inner {
     max-width: 1100px;
@@ -2878,6 +3015,65 @@
     font-size: 14px;
     color: #5a4f3d;
     white-space: nowrap;
+  }
+
+  /* Postmark stamp pinned to the right side of each chapter divider.
+     Reads as a passport cancellation: small forest-bordered circle,
+     stop name in italic Fraunces in the middle, the arriving date
+     below, the brand wordmark curved across the top. Tilted -8deg
+     so it feels stamped rather than typeset. */
+  .postmark {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%) rotate(-8deg);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .postmark-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    border: 2px solid #7d3a1e;
+    border-radius: 50%;
+    background: rgba(251, 246, 234, 0.35);
+    box-shadow: inset 0 0 0 4px rgba(251, 246, 234, 0.7), inset 0 0 0 5px rgba(125, 58, 30, 0.4);
+    color: #7d3a1e;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+  }
+  .postmark-arc {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 7.5px;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .postmark-arc--top { top: 10px; }
+  .postmark-arc--bot { bottom: 10px; }
+  .postmark-stop {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: #0a2d21;
+    text-align: center;
+    max-width: 70px;
+    line-height: 1.05;
+    text-transform: none;
+    padding: 0 6px;
+    overflow-wrap: anywhere;
+  }
+  /* On narrow viewports the postmark would overlap the divider
+     label. Hide it below 720px - the time line still reads clearly. */
+  @media (max-width: 720px) {
+    .postmark { display: none; }
   }
 
   /* Return-trip break: a heavier divider with a forest small-caps
