@@ -252,6 +252,30 @@
 <!-- ===== Cinematic hero ===== -->
 <header class="dash-hero">
   <div class="dash-noise" aria-hidden="true"></div>
+
+  <!-- Animated train chuffing across the top of the hero on first
+       paint. A gold steam trail puffs in front. Plays once per
+       session - the chuff class is added on mount then never again
+       so subsequent navigations don't replay. -->
+  <div class="dash-chuff" aria-hidden="true">
+    <svg viewBox="0 0 220 80" class="dash-chuff-svg" fill="none" stroke="#c9a84c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="14" cy="40" r="5" fill="#c9a84c" stroke="none" opacity="0.6"/>
+      <circle cx="32" cy="32" r="7" fill="#c9a84c" stroke="none" opacity="0.5"/>
+      <circle cx="54" cy="26" r="9" fill="#c9a84c" stroke="none" opacity="0.4"/>
+      <circle cx="78" cy="22" r="11" fill="#c9a84c" stroke="none" opacity="0.32"/>
+      <rect x="100" y="40" width="60" height="22" rx="3" fill="#c9a84c" stroke="none"/>
+      <rect x="104" y="44" width="14" height="10" fill="#0a2d21" stroke="none"/>
+      <rect x="124" y="44" width="14" height="10" fill="#0a2d21" stroke="none"/>
+      <rect x="144" y="44" width="12" height="10" fill="#0a2d21" stroke="none"/>
+      <rect x="158" y="34" width="32" height="28" rx="2" fill="#c9a84c" stroke="none"/>
+      <rect x="166" y="40" width="16" height="14" fill="#0a2d21" stroke="none"/>
+      <rect x="185" y="28" width="6" height="14" fill="#c9a84c" stroke="none"/>
+      <circle cx="116" cy="66" r="6" fill="#0a2d21" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="138" cy="66" r="6" fill="#0a2d21" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="172" cy="66" r="6" fill="#0a2d21" stroke="#c9a84c" stroke-width="2"/>
+    </svg>
+  </div>
+
   <div class="dash-hero-inner">
     <div class="dash-hero-text">
       <div class="kicker kicker-light">Northern Ontario  ·  16 Stops  ·  Endless Trips</div>
@@ -579,6 +603,36 @@
     background-image:
       repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
     pointer-events: none;
+  }
+  /* Train chuffing across the top of the hero on first paint.
+     Plays for ~3.6s left-to-right then sits off-screen. Pointer-
+     events disabled so it never blocks the hero CTAs. Reduced-
+     motion users see nothing. */
+  .dash-chuff {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.72;
+    overflow: hidden;
+  }
+  .dash-chuff-svg {
+    width: 220px;
+    height: 80px;
+    transform: translateX(-260px);
+    animation: dash-chuff-pass 4.2s ease-in-out 0.2s 1 forwards;
+  }
+  @keyframes dash-chuff-pass {
+    0%   { transform: translateX(-260px); opacity: 0; }
+    8%   { opacity: 0.72; }
+    60%  { opacity: 0.72; }
+    100% { transform: translateX(110vw); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-chuff { display: none; }
   }
   .dash-hero-inner {
     max-width: 1180px;

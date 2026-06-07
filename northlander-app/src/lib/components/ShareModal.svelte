@@ -313,6 +313,24 @@
         {#if linkError}
           <p class="font-serif italic text-rust text-[13px] mt-2">{linkError}</p>
         {/if}
+
+        <!-- QR code so anyone with a phone next to you can scan
+             instead of asking you to text the link. Uses the public
+             QuickChart QR endpoint (no key, returns a PNG). -->
+        {#if shareUrl}
+          <div class="qr-block">
+            <img
+              class="qr-img"
+              src={`https://quickchart.io/qr?text=${encodeURIComponent(shareUrl)}&size=180&margin=2&dark=0a2d21&light=fbf6ea`}
+              alt="QR code for the shareable trip link"
+              loading="lazy"
+              decoding="async"
+            />
+            <p class="qr-hint font-serif italic text-muted text-[12.5px]">
+              Point a phone camera at this to open the trip on theirs.
+            </p>
+          </div>
+        {/if}
       </div>
     </div>
 
@@ -511,5 +529,25 @@
     background: #c9a84c;
     color: #0a2d21;
     border-color: #c9a84c;
+  }
+
+  /* QR block. Centered under the link field, framed with the same
+     gold-on-cream paper aesthetic as the polaroid frames. */
+  .qr-block {
+    margin: 14px auto 0;
+    text-align: center;
+  }
+  .qr-img {
+    display: inline-block;
+    width: 160px;
+    height: 160px;
+    background: #fbf6ea;
+    padding: 8px;
+    border: 1.5px solid rgba(201, 168, 76, 0.65);
+    border-radius: 4px;
+    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.16);
+  }
+  .qr-hint {
+    margin: 8px 0 0;
   }
 </style>

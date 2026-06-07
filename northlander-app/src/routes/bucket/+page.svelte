@@ -3,9 +3,51 @@
   import {
     bucketItems,
     deleteBucketItem,
-    BUCKET_KINDS
+    BUCKET_KINDS,
+    db
   } from '$lib/stores/bucket.js';
   import { getStop, stopGuideUrl } from '$lib/data/stops.js';
+  import { pushToast } from '$lib/stores/toasts.js';
+
+  /* Filter + sort state. Kind filter is a tab row; query is a
+     case-insensitive substring match across name / address / notes;
+     sort flips between newest-first and A-Z. */
+  let kindFilter = 'all';
+  let query = '';
+  let sortMode = 'newest';
+
+  /* Kind tabs: All + every BUCKET_KINDS entry with its display label. */
+  const TABS = [{ id: 'all', label: 'All' }, ...BUCKET_KINDS.map((k) => ({ id: k.id, label: k.label }))];
+
+  $: visibleItems = (() => {
+    const rows = Array.isArray($bucketItems) ? $bucketItems.slice() : [];
+    const q = String(query || '').trim().toLowerCase();
+    const filtered = rows.filter((r) => {
+      if (kindFilter !== 'all' && r.kind !== kindFilter) return false;
+      if (!q) return true;
+      const blob = [r.name, r.address, r.notes].filter(Boolean).join(' ').toLowerCase();
+      return blob.includes(q);
+    });
+    if (sortMode === 'az') {
+      filtered.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    } else {
+      filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+    return filtered;
+  })();
+
+  /* Per-kind counts so each tab can show how many items live in it.
+     Computed once per render of the bucket so the chips don't
+     animate on every keystroke. */
+  $: kindCounts = (() => {
+    const out = { all: 0 };
+    for (const k of BUCKET_KINDS) out[k.id] = 0;
+    for (const r of $bucketItems || []) {
+      out.all += 1;
+      if (out[r.kind] != null) out[r.kind] += 1;
+    }
+    return out;
+  })();
 
   function kindLabel(id) {
     return (BUCKET_KINDS.find((k) => k.id === id) || BUCKET_KINDS[4]).label;
@@ -32,8 +74,16 @@
     goto(`/add?${params.toString()}`);
   }
 
-  async function remove(id) {
-    await deleteBucketItem(id);
+  async function remove(item) {
+    /* Snapshot before delete so Undo can restore via db.put(). */
+    const snapshot = { ...item };
+    await deleteBucketItem(item.id);
+    pushToast({
+      message: `Removed "${item.name}" from your bucket.`,
+      undo: async () => {
+        await db.bucketItems.put(snapshot);
+      }
+    });
   }
 </script>
 
@@ -55,6 +105,52 @@
   </p>
 </section>
 
+{#if $bucketItems.length > 0}
+  <!-- Filter / search / sort controls. Only render when there's
+       something to filter so an empty bucket doesn't show a row
+       of dead controls. -->
+  <section class="max-w-[1080px] mx-auto px-6 pb-2">
+    <div class="bucket-controls">
+      <div class="bucket-tabs" role="tablist" aria-label="Filter by kind">
+        {#each TABS as t}
+          <button
+            type="button"
+            class="bucket-tab"
+            class:is-active={kindFilter === t.id}
+            on:click={() => (kindFilter = t.id)}
+            role="tab"
+            aria-selected={kindFilter === t.id}
+          >
+            {t.label}
+            <span class="bucket-tab-count">{kindCounts[t.id] || 0}</span>
+          </button>
+        {/each}
+      </div>
+      <div class="bucket-tools">
+        <label class="bucket-search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M20 20 L16.5 16.5"/>
+          </svg>
+          <input
+            type="search"
+            placeholder="Search the bucket..."
+            bind:value={query}
+            aria-label="Search bucket items"
+          />
+        </label>
+        <label class="bucket-sort">
+          <span class="bucket-sort-label">Sort</span>
+          <select bind:value={sortMode} aria-label="Sort bucket items">
+            <option value="newest">Newest first</option>
+            <option value="az">A to Z</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </section>
+{/if}
+
 <section class="max-w-[1080px] mx-auto px-6 pb-20">
   {#if $bucketItems.length === 0}
     <!-- Empty state -->
@@ -70,9 +166,21 @@
         Browse the Guide
       </a>
     </div>
+  {:else if visibleItems.length === 0}
+    <div class="empty-card">
+      <h2 class="font-serif font-bold text-forest text-xl mb-2">No matches.</h2>
+      <p class="font-serif italic text-muted mb-4">
+        Try a different category or clear the search.
+      </p>
+      <button
+        type="button"
+        class="btn-primary"
+        on:click={() => { kindFilter = 'all'; query = ''; }}
+      >Clear filters</button>
+    </div>
   {:else}
     <ul class="bucket-grid">
-      {#each $bucketItems as item (item.id)}
+      {#each visibleItems as item (item.id)}
         <li class="bucket-card">
           <span class="bucket-icon" title={kindLabel(item.kind)} aria-label={kindLabel(item.kind)}>
             {#if item.kind === 'train'}
@@ -140,7 +248,7 @@
             <button
               type="button"
               class="bucket-remove"
-              on:click={() => remove(item.id)}
+              on:click={() => remove(item)}
               aria-label={`Remove ${item.name}`}
             >&times;</button>
           </div>
@@ -159,6 +267,113 @@
     text-align: center;
     max-width: 640px;
     margin: 0 auto;
+  }
+
+  /* Filter / search / sort row. Mirrors the Guide's events filter
+     pattern: pill tabs for category, an inline search field, and
+     a small sort dropdown. */
+  .bucket-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: rgba(251, 246, 234, 0.6);
+    border: 1px solid rgba(125, 58, 30, 0.18);
+    border-radius: 6px;
+  }
+  .bucket-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1 1 auto;
+  }
+  .bucket-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1.5px solid rgba(125, 58, 30, 0.35);
+    color: #5a4f3d;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+  .bucket-tab:hover {
+    background: rgba(125, 58, 30, 0.08);
+    color: #0a2d21;
+    border-color: #7d3a1e;
+  }
+  .bucket-tab.is-active {
+    background: #7d3a1e;
+    color: #fffdf6;
+    border-color: #7d3a1e;
+  }
+  .bucket-tab-count {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 11px;
+    opacity: 0.85;
+  }
+  .bucket-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 1 auto;
+  }
+  .bucket-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fffdf6;
+    border: 1.5px solid rgba(139, 106, 58, 0.45);
+    border-radius: 999px;
+    padding: 5px 12px;
+    color: #7d3a1e;
+  }
+  .bucket-search input {
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13.5px;
+    color: #0a2d21;
+    min-width: 0;
+    width: 180px;
+  }
+  .bucket-search input::placeholder { color: rgba(90, 79, 61, 0.55); font-style: italic; }
+  .bucket-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bucket-sort-label {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .bucket-sort select {
+    background: #fffdf6;
+    border: 1.5px solid rgba(139, 106, 58, 0.45);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
+    color: #0a2d21;
+  }
+  @media (max-width: 640px) {
+    .bucket-search input { width: 140px; }
   }
 
   .bucket-grid {

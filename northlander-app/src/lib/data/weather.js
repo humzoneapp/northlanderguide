@@ -114,6 +114,13 @@ export async function getWeatherFor(lat, lng, date) {
   const cached = readCache(key);
   if (cached) return cached;
 
+  /* Skip fetch entirely when the browser knows it's offline.
+     Returns a sentinel so the caller can render an honest "weather
+     unavailable offline" message instead of nothing. */
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return { offline: true };
+  }
+
   const url = `${ENDPOINT}?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${day}&end_date=${day}`;
 
   try {

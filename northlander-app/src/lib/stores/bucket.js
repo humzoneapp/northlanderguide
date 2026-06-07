@@ -10,6 +10,10 @@ import { db } from './trips.js';
 import { writable } from 'svelte/store';
 import { BOOKING_KINDS } from './bookings.js';
 
+/* Re-export `db` so the bucket page can call db.bucketItems.put()
+   on undo without taking a second dependency on trips.js. */
+export { db };
+
 /**
  * @typedef {Object} BucketItem
  * @property {number} id

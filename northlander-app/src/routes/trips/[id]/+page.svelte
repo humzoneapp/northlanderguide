@@ -349,6 +349,11 @@
   })();
   $: budgetTotal = totalOf(budgetEntries);
 
+  /* Cover collage starts open on desktop, collapsed on mobile.
+     Mobile users can tap the toggle pill to reveal. Default is set
+     reactively based on viewport width on first paint. */
+  let collageOpen = typeof window !== 'undefined' ? window.innerWidth >= 720 : true;
+
   /* First five stop photos for the cover collage. Tilts vary by
      index so the cluster looks scattered. */
   $: collagePhotos = stops.slice(0, 5).map((s, idx) => ({
@@ -1068,9 +1073,28 @@
         </div>
       </div>
 
-      <!-- Polaroid collage of stops -->
+      <!-- Polaroid collage of stops. Collapsed behind a chip on
+           small viewports so the cover doesn't dominate scroll. -->
       {#if collagePhotos.length > 0}
-        <div class="collage" aria-hidden="true">
+        <button
+          type="button"
+          class="collage-toggle"
+          on:click={() => (collageOpen = !collageOpen)}
+          aria-expanded={collageOpen}
+          aria-controls="cover-collage"
+        >
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="14" height="14" rx="2"/>
+            <rect x="7" y="8" width="14" height="12" rx="2" fill="#fbf6ea"/>
+          </svg>
+          <span>{collageOpen ? 'Hide route photos' : 'See route photos'}</span>
+        </button>
+        <div
+          id="cover-collage"
+          class="collage"
+          class:is-open={collageOpen}
+          aria-hidden="true"
+        >
           {#each collagePhotos as p, i}
             <figure class="collage-card" style="--rot:{p.tilt}deg;--i:{i}">
               <img src={p.src} alt="" loading="lazy" />
@@ -2398,6 +2422,37 @@
   .cover-edit-icon {
     width: 16px;
     height: 16px;
+  }
+
+  /* Toggle pill that collapses the cover collage on mobile. Only
+     visible below 720px - desktop users always see the photos. */
+  .collage-toggle {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1.5px dashed rgba(201, 168, 76, 0.7);
+    color: #c9a84c;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease;
+  }
+  .collage-toggle:hover {
+    background: #c9a84c;
+    color: #0a2d21;
+  }
+  @media (max-width: 720px) {
+    .collage-toggle { display: inline-flex; }
+    .collage:not(.is-open) {
+      display: none;
+    }
   }
 
   /* Polaroid collage */
