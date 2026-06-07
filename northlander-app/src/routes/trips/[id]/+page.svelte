@@ -528,6 +528,11 @@
     }
     const scenes = Array.from(document.querySelectorAll('.scene, .return-divider, .foot, .narrative'));
     if (!scenes.length) return;
+    /* Opt scenes into the pre-reveal hidden state only NOW that we
+       know the observer is about to attach. If JS or the observer
+       fail (or the queue runs before the scenes mount), the CSS
+       default is fully visible so chapters never disappear. */
+    scenes.forEach((s) => s.classList.add('is-pre-reveal'));
     revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -2843,38 +2848,44 @@
     position: relative;
     color: #241f1a;
     scroll-margin-top: 72px;
-    /* Reveal-on-scroll: scenes start slightly down + faded; the
-       IntersectionObserver in onMount adds .is-revealed which
-       eases them into place. */
-    opacity: 0;
-    transform: translateY(28px);
+    /* Default is visible. The reveal-on-scroll animation only runs
+       when JS adds .is-pre-reveal (immediately, then .is-revealed
+       on intersection). If JS or the observer fail, scenes still
+       show - they just don't animate in. Earlier opacity:0 default
+       hid scenes entirely when the observer didn't fire on time. */
     transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
   }
-  .scene.is-revealed {
+  .scene.is-pre-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .scene.is-pre-reveal.is-revealed {
     opacity: 1;
     transform: translateY(0);
   }
-  /* The return-divider + foot + narrative bands also fade in so the
-     bottom of the page doesn't feel weighted while the chapters
-     above animate. */
+  /* Same pattern for the return-divider + foot + narrative bands. */
   .return-divider,
   .narrative,
   .foot {
-    opacity: 0;
-    transform: translateY(28px);
     transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
   }
-  .return-divider.is-revealed,
-  .narrative.is-revealed,
-  .foot.is-revealed {
+  .return-divider.is-pre-reveal,
+  .narrative.is-pre-reveal,
+  .foot.is-pre-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .return-divider.is-pre-reveal.is-revealed,
+  .narrative.is-pre-reveal.is-revealed,
+  .foot.is-pre-reveal.is-revealed {
     opacity: 1;
     transform: translateY(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .scene,
-    .return-divider,
-    .narrative,
-    .foot {
+    .scene.is-pre-reveal,
+    .return-divider.is-pre-reveal,
+    .narrative.is-pre-reveal,
+    .foot.is-pre-reveal {
       opacity: 1;
       transform: none;
       transition: none;
