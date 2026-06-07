@@ -11,7 +11,7 @@ import {
   formatTripDate,
   DIRECTIONS
 } from '$lib/data/schedule.js';
-import { getStopsByIds } from '$lib/data/stops.js';
+import { getStopsByIds, stopImageUrl } from '$lib/data/stops.js';
 
 const W = 1080;
 const H = 1080;
@@ -108,6 +108,130 @@ function ellipsize(ctx, text, maxW) {
   return text.slice(0, lo).trimEnd() + '...';
 }
 
+/* Pick up to three stops to feature as polaroids - the departure,
+   a middle stop, and the destination - so the collage tells the
+   trip's story at a glance without crowding the right column. For
+   very short trips we return whatever stops exist. */
+function pickCollageStops(stops) {
+  if (!Array.isArray(stops) || stops.length === 0) return [];
+  if (stops.length <= 3) return stops.slice();
+  const last = stops.length - 1;
+  const idxs = [0, Math.round(last / 2), last];
+  const seen = new Set();
+  const out = [];
+  for (const i of idxs) {
+    if (seen.has(i)) continue;
+    seen.add(i);
+    out.push(stops[i]);
+  }
+  return out;
+}
+
+/* Load an image off the Guide with CORS so the canvas stays
+   un-tainted (toBlob would fail otherwise). Resolves to null on
+   network failure / 404 / CORS denial so the caller can fall back
+   to a placeholder polaroid without breaking the whole poster. The
+   Guide's vercel.json sends Access-Control-Allow-Origin:* for
+   /images/* specifically so this path works at runtime. */
+function loadImage(url) {
+  return new Promise((resolve) => {
+    if (!url) return resolve(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+/* Draw a tilted polaroid frame at (cx, cy) with a photo image
+   inside and a stop-name caption below. Photo is "cover"-cropped
+   into the photo box so the aspect ratio is consistent regardless
+   of source. Falls back to a forest-tile + giant initial when the
+   image failed to load (CORS error, 404, etc). */
+function drawPolaroid(ctx, { cx, cy, w, h, tilt, img, label }) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(tilt);
+
+  /* Drop shadow under the frame so the polaroid pops off the
+     linen paper. */
+  ctx.shadowColor = 'rgba(35, 25, 15, 0.32)';
+  ctx.shadowBlur = 22;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 10;
+
+  /* Cream paper frame with a hairline gold inner rule that reads
+     as "polaroid border" without competing with the photo. */
+  ctx.fillStyle = '#fffdf6';
+  ctx.fillRect(-w / 2, -h / 2, w, h);
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  ctx.strokeStyle = 'rgba(201, 168, 76, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(-w / 2 + 4, -h / 2 + 4, w - 8, h - 8);
+
+  /* Photo box: top portion of the polaroid. Standard polaroid
+     ratio leaves more space at the bottom for the caption. */
+  const padInside = 14;
+  const photoW = w - padInside * 2;
+  const photoH = h - padInside * 2 - 56; /* 56px caption strip */
+  const photoX = -w / 2 + padInside;
+  const photoY = -h / 2 + padInside;
+
+  if (img) {
+    /* Cover-crop: scale the image so it fills the photo box without
+       letterboxing, then center-crop the overflow. */
+    const sAR = img.width / img.height;
+    const dAR = photoW / photoH;
+    let sx = 0;
+    let sy = 0;
+    let sw = img.width;
+    let sh = img.height;
+    if (sAR > dAR) {
+      sw = img.height * dAR;
+      sx = (img.width - sw) / 2;
+    } else {
+      sh = img.width / dAR;
+      sy = (img.height - sh) / 2;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, photoX, photoY, photoW, photoH);
+  } else {
+    /* Fallback: forest tile with a giant Fraunces initial in the
+       middle so the polaroid still reads as something. */
+    ctx.fillStyle = C.forest;
+    ctx.fillRect(photoX, photoY, photoW, photoH);
+    ctx.fillStyle = C.gold;
+    ctx.font = '900 96px Fraunces';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      (label || '?').trim().charAt(0).toUpperCase(),
+      photoX + photoW / 2,
+      photoY + photoH / 2
+    );
+  }
+
+  /* Caption strip with the stop name in italic Fraunces, hand-
+     written feel. Truncated so a long station name doesn't blow
+     out the bottom of the polaroid. */
+  ctx.fillStyle = C.ink;
+  ctx.font = 'italic 700 22px Fraunces';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const captionY = -h / 2 + padInside + photoH + 30;
+  ctx.fillText(
+    ellipsize(ctx, label || '', photoW - 8),
+    0,
+    captionY
+  );
+
+  ctx.restore();
+}
+
 function drawStamp(ctx, x, y, r, lines) {
   ctx.save();
   ctx.translate(x, y);
@@ -157,6 +281,16 @@ export async function generatePosterBlob(trip) {
   const stopsForward = getStopsByIds(trip.stopIds || []);
   const stops = direction === 'southbound' ? stopsForward.slice().reverse() : stopsForward;
   const dateLine = trip.departureDate ? formatTripDate(trip.departureDate) : null;
+
+  /* Preload up to four stop hero images for the polaroid collage.
+     We pick from across the route so the collage tells the trip's
+     story at a glance: the departure, two middle stops, the
+     destination. Loads run in parallel and resolve to null on
+     failure so a slow / blocked image never blocks the poster. */
+  const collageStops = pickCollageStops(stops);
+  const collageImages = await Promise.all(
+    collageStops.map((s) => loadImage(stopImageUrl(s)))
+  );
 
   /* ----- background ----- */
   ctx.fillStyle = C.cream;
@@ -227,7 +361,12 @@ export async function generatePosterBlob(trip) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    const labelMaxW = W - railX - 70 - PAD;
+    /* Narrower label column: the polaroid collage now lives in the
+       right half (~520-1024), so station labels need to terminate
+       before that boundary. Was W - railX - 70 - PAD = 754; now
+       capped so a long station name ellipsizes instead of running
+       under the photos. */
+    const labelMaxW = 460;
 
     stops.forEach((stop, i) => {
       const y = routeTop + dotR + i * rowH;
@@ -242,21 +381,47 @@ export async function generatePosterBlob(trip) {
       ctx.arc(railX, y, dotR, 0, Math.PI * 2);
       ctx.fill();
 
-      /* name */
+      /* name - slightly smaller so the narrower column doesn't
+         truncate names that previously fit. */
       ctx.fillStyle = C.forest;
-      ctx.font = rowH > 70 ? '900 36px Fraunces' : '900 28px Fraunces';
+      ctx.font = rowH > 70 ? '900 30px Fraunces' : '900 24px Fraunces';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       ctx.fillText(ellipsize(ctx, stop.name, labelMaxW), railX + 50, y - 8);
 
       /* region + arrival clock */
       ctx.fillStyle = C.muted;
-      ctx.font = '700 16px "Spline Sans"';
+      ctx.font = '700 14px "Spline Sans"';
       const region = stop.region || '';
       const time = arrivalClock(stop.offsetMinutes, departure, direction);
       const meta = region + (region && time ? '  ·  ' : '') + time;
-      ctx.fillText(ellipsize(ctx, meta, labelMaxW), railX + 50, y + 20);
+      ctx.fillText(ellipsize(ctx, meta, labelMaxW), railX + 50, y + 18);
     });
+
+    /* ----- polaroid collage =====
+       Up to three tilted polaroids scattered down the right half
+       so the shareable image carries some actual photography (the
+       stops' hero photos), not just typography. Positions are
+       deliberately staggered to read as something a real traveller
+       laid down on the page rather than a tidy grid - and the
+       bottom polaroid intentionally slides a corner under the foot
+       band so it reads as tucked-into-the-ticket. */
+    if (collageStops.length > 0) {
+      const SLOTS = [
+        { cx: 840, cy: 480, w: 250, h: 290, tilt:  0.06 },
+        { cx: 770, cy: 660, w: 230, h: 270, tilt: -0.08 },
+        { cx: 880, cy: 780, w: 220, h: 240, tilt:  0.05 }
+      ];
+      collageStops.forEach((stop, i) => {
+        const slot = SLOTS[i];
+        if (!slot) return;
+        drawPolaroid(ctx, {
+          ...slot,
+          img: collageImages[i],
+          label: stop.name
+        });
+      });
+    }
   }
 
   /* ----- bottom forest band ----- */
