@@ -986,15 +986,14 @@
              rows roll up into the Spent stat and subtract from
              Remaining live. budgetRemaining can go negative when
              the user blows through, in which case the badge + the
-             progress bar flip to amber. -->
-        <Drawer
-          kicker="Trip budget"
-          title="Budget"
-          count={tripBudgetTarget != null
-            ? (budgetOverspent ? `Over by ${formatAmount(-budgetRemaining)}` : `${formatAmount(budgetRemaining)} left`)
-            : 'Set a target'}
-          countLabel={tripBudgetTarget != null ? '' : ''}
-        >
+             progress bar flip to amber. Lifted OUT of a Drawer on
+             2026-06-07 so the running figure stays visible at a
+             glance instead of hiding behind an accordion. -->
+        <section class="bb-budget-flat" aria-labelledby="bb-budget-title">
+          <header class="bb-budget-flat-head">
+            <span class="bb-budget-flat-kicker">Trip budget</span>
+            <h3 id="bb-budget-title" class="bb-budget-flat-title">Budget</h3>
+          </header>
           <div class="bb-budget">
             {#if editingBudgetTarget}
               <form class="bb-budget-edit" on:submit|preventDefault={commitBudgetTarget}>
@@ -1049,7 +1048,7 @@
               </p>
             {/if}
           </div>
-        </Drawer>
+        </section>
       </div>
     </section>
 
@@ -1685,13 +1684,17 @@
   .cover-countdown {
     font-family: 'Fraunces', Georgia, serif;
     font-size: clamp(20px, 3vw, 28px);
-    color: #f5f0e8;
+    /* "until you board" sits on the parent and reads in amber so
+       the bigger ivory numbers carry the visual weight. Was the
+       other way around until 2026-06-07; the amber numbers washed
+       out against the forest band. */
+    color: #c4860f;
     line-height: 1.2;
     margin: 14px 0 20px;
   }
   .cover-countdown strong {
     font-weight: 900;
-    color: #c4860f;
+    color: #f5f0e8;
   }
   .cover-countdown.italic-soft {
     font-style: italic;
@@ -2118,6 +2121,7 @@
      commits via commitNewPackingList. */
   .bb-add-list {
     margin-top: 14px;
+    margin-bottom: 28px;
   }
   .bb-add-list-btn {
     display: inline-flex;
@@ -2192,9 +2196,39 @@
   }
 
   /* ===== Trip budget panel =====
-     Sits inside the Budget Drawer in Before You Board. Three big
-     numbers (target / spent / left) with a progress bar, plus an
-     inline-edit affordance on the target. */
+     Lives in its own flat block in Before You Board (not a Drawer
+     since 2026-06-07; the figure should stay visible without
+     unfurling). The header mirrors a Drawer summary row so the
+     band still reads as "the same kind of thing" alongside the
+     packing-list accordions above it. */
+  .bb-budget-flat {
+    background: #fbf6ea;
+    border: 1px solid rgba(125, 58, 30, 0.18);
+    border-radius: 4px;
+    padding: 14px 18px 18px;
+  }
+  .bb-budget-flat-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+  .bb-budget-flat-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c4860f;
+  }
+  .bb-budget-flat-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #0a2d21;
+    margin: 0;
+    line-height: 1.1;
+  }
   .bb-budget {
     padding: 4px 2px 6px;
   }
