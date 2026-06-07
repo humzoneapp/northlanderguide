@@ -200,6 +200,21 @@
     mode = 'return';
   }
 
+  /* Remove a single committed entry without touching the rest.
+     This is the lightweight reorder path - rather than dragging
+     chips around (fragile on iOS), the user removes the wrong-
+     placed entry and re-adds it where it belongs. */
+  function removeEntry(idx) {
+    entries = entries.filter((_, i) => i !== idx);
+    /* If we removed the last outbound stop, the return leg's
+       starting reference is also gone; safest to drop it too so
+       dates don't strand. */
+    if (entries.length < 2) returnEntries = [];
+  }
+  function removeReturnEntry(idx) {
+    returnEntries = returnEntries.filter((_, i) => i !== idx);
+  }
+
   function close() {
     if (submitting) return;
     dispatch('close');
@@ -303,18 +318,27 @@
     {#if entries.length > 0 || returnEntries.length > 0}
       <div class="rp-trail">
         {#each entries as e, i}
-          <button
-            type="button"
-            class="rp-chip"
-            on:click={() => editEntry(i)}
-            title="Edit this stop"
-          >
-            <span class="rp-chip-label">
-              {i === 0 ? 'Depart' : `Stop ${i}`}
-            </span>
-            <span class="rp-chip-name">{stopName(e.stopId)}</span>
-            <span class="rp-chip-date">{formatDate(e.date)}</span>
-          </button>
+          <div class="rp-chip-wrap">
+            <button
+              type="button"
+              class="rp-chip"
+              on:click={() => editEntry(i)}
+              title="Edit this stop and everything after"
+            >
+              <span class="rp-chip-label">
+                {i === 0 ? 'Depart' : `Stop ${i}`}
+              </span>
+              <span class="rp-chip-name">{stopName(e.stopId)}</span>
+              <span class="rp-chip-date">{formatDate(e.date)}</span>
+            </button>
+            <button
+              type="button"
+              class="rp-chip-x"
+              on:click={() => removeEntry(i)}
+              aria-label={`Remove ${stopName(e.stopId)} from the route`}
+              title="Remove just this stop"
+            >&times;</button>
+          </div>
         {/each}
         {#if returnEntries.length > 0}
           <!-- Visual turnaround marker between outbound + return -->
@@ -326,18 +350,27 @@
             </svg>
           </span>
           {#each returnEntries as e, j}
-            <button
-              type="button"
-              class="rp-chip rp-chip-return"
-              on:click={() => editReturnEntry(j)}
-              title="Edit this return stop"
-            >
-              <span class="rp-chip-label">
-                {j === returnEntries.length - 1 ? 'Return' : `Return ${j + 1}`}
-              </span>
-              <span class="rp-chip-name">{stopName(e.stopId)}</span>
-              <span class="rp-chip-date">{formatDate(e.date)}</span>
-            </button>
+            <div class="rp-chip-wrap">
+              <button
+                type="button"
+                class="rp-chip rp-chip-return"
+                on:click={() => editReturnEntry(j)}
+                title="Edit this return stop"
+              >
+                <span class="rp-chip-label">
+                  {j === returnEntries.length - 1 ? 'Return' : `Return ${j + 1}`}
+                </span>
+                <span class="rp-chip-name">{stopName(e.stopId)}</span>
+                <span class="rp-chip-date">{formatDate(e.date)}</span>
+              </button>
+              <button
+                type="button"
+                class="rp-chip-x"
+                on:click={() => removeReturnEntry(j)}
+                aria-label={`Remove return stop ${stopName(e.stopId)}`}
+                title="Remove just this return stop"
+              >&times;</button>
+            </div>
           {/each}
         {/if}
         {#if (mode === 'pick' && entries.length > 0) || (mode === 'return' && returnEntries.length > 0)}
@@ -606,6 +639,40 @@
   }
   .rp-chip-return {
     border-color: rgba(10, 45, 33, 0.45);
+  }
+
+  /* Chip wrapper holds the main chip + a small remove × so the
+     user can drop a single entry from the route without restarting.
+     The × sits half-overhanging the chip's top-right corner. */
+  .rp-chip-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+  .rp-chip-x {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fbf6ea;
+    border: 1.5px solid rgba(125, 58, 30, 0.55);
+    color: #7d3a1e;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(40, 30, 15, 0.18);
+    transition: background 160ms ease, color 160ms ease;
+    z-index: 2;
+  }
+  .rp-chip-x:hover {
+    background: #7d3a1e;
+    color: #fffdf6;
   }
 
   /* ===== Body ===== */

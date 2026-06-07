@@ -29,6 +29,8 @@
     renameTripPackingList,
     deleteTripPackingList,
     setTripBudgetTarget,
+    wrapTrip,
+    unwrapTrip,
     deleteTrip,
     setTripCover,
     clearTripCover
@@ -73,6 +75,7 @@
   import WeatherStrip from '$lib/components/WeatherStrip.svelte';
   import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import DayPlan from '$lib/components/DayPlan.svelte';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -196,6 +199,43 @@
   $: weatherStopsList = [...stops, ...returnStops]
     .filter((s) => s && s.id && s.stayStart)
     .map((s) => ({ stopId: s.id, date: s.stayStart }));
+
+  /* Trip-state helpers used by the wrap-up CTA. The end date is
+     the LAST date on the route - return leg's final entry if there
+     is one, else the last outbound entry, else the departure date.
+     "Past" = end date is strictly before today's local date. */
+  $: tripEndDate = (() => {
+    if (returnStops.length > 0) return returnStops[returnStops.length - 1].stayStart || null;
+    if (stops.length > 0) return stops[stops.length - 1].stayStart || trip?.departureDate || null;
+    return trip?.departureDate || null;
+  })();
+  $: tripIsPast = (() => {
+    if (!tripEndDate || !/^\d{4}-\d{2}-\d{2}$/.test(tripEndDate)) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const [y, m, d] = tripEndDate.split('-').map(Number);
+    const end = new Date(y, m - 1, d);
+    end.setHours(23, 59, 59, 999);
+    return end.getTime() < today.getTime();
+  })();
+  $: tripIsWrapped = !!trip?.wrappedAt;
+  let wrapBusy = false;
+
+  async function handleWrapTrip() {
+    if (!trip || wrapBusy) return;
+    wrapBusy = true;
+    const updated = await wrapTrip(trip.id);
+    if (updated) trip = updated;
+    wrapBusy = false;
+    pushToast({
+      message: 'Trip wrapped. Locked into your archive.',
+      kind: 'success',
+      undo: async () => {
+        const reset = await unwrapTrip(trip.id);
+        if (reset) trip = reset;
+      }
+    });
+  }
 
   /* Animated count-up stores for the cover stats - each starts at
      0 on first paint and tweens to the live value over 700ms.
@@ -922,6 +962,20 @@
       </div>
     {/if}
 
+    <!-- Wrapped-trip stamp: tilted passport cancellation pinned to
+         the cover when the user has explicitly wrapped the trip.
+         Sits above everything else in the cover so it reads as a
+         closing mark. -->
+    {#if tripIsWrapped}
+      <div class="wrapped-stamp" aria-hidden="true">
+        <span class="wrapped-stamp-ring">
+          <span class="wrapped-stamp-top">NORTHLANDER</span>
+          <span class="wrapped-stamp-big">Wrapped</span>
+          <span class="wrapped-stamp-bot">Bon voyage</span>
+        </span>
+      </div>
+    {/if}
+
     <div class="cover-inner" class:is-empty={stops.length === 0}>
       <div class="cover-text">
         <div class="kicker kicker-light">A Northlander Itinerary</div>
@@ -991,6 +1045,35 @@
               <li><b>{formatAmount($animSpent)}</b><span>Spent</span></li>
             {/if}
           </ul>
+
+          <!-- Wrap-up CTA: surfaces after the trip's end date passes
+               and is dismissed once the user stamps it Wrapped. The
+               band frames the moment as ceremonial - last note,
+               favourite photo, lock in the spend total - rather
+               than just "delete the trip". -->
+          {#if tripIsPast && !tripIsWrapped}
+            <div class="wrap-cta" role="note">
+              <div class="wrap-cta-text">
+                <span class="wrap-cta-kicker">Your trip wrapped {tripEndDate ? formatDateShort(tripEndDate) : 'recently'}</span>
+                <p class="wrap-cta-body">
+                  Add a closing note, pick a favourite photo, lock in the spend total.
+                  Then stamp it <em>Wrapped</em> and it slides into your archive.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="wrap-cta-btn"
+                on:click={handleWrapTrip}
+                disabled={wrapBusy}
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M7 12 L10 15 L17 8"/>
+                </svg>
+                <span>{wrapBusy ? 'Wrapping...' : 'Wrap up this trip'}</span>
+              </button>
+            </div>
+          {/if}
         {:else}
           <!-- Empty-trip welcome. This is the entire page until
                the user picks a route - one warm prompt, one button.
@@ -2440,6 +2523,129 @@
   .cover-edit-icon {
     width: 16px;
     height: 16px;
+  }
+
+  /* Wrap-up CTA: ceremonial cream band on the cover after the
+     trip's end date. Single button stamps the trip Wrapped, slides
+     into the user's archive. Sits in the flow above the cover
+     action row so it's hard to miss. */
+  .wrap-cta {
+    margin: 22px 0 6px;
+    background: rgba(251, 246, 234, 0.92);
+    border: 1.5px solid #c9a84c;
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 6px 16px rgba(40, 30, 15, 0.18);
+  }
+  .wrap-cta-text {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+  .wrap-cta-kicker {
+    display: block;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    margin-bottom: 4px;
+  }
+  .wrap-cta-body {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #0a2d21;
+    font-size: 14px;
+    line-height: 1.45;
+    margin: 0;
+  }
+  .wrap-cta-body em {
+    font-style: normal;
+    font-weight: 700;
+    color: #7d3a1e;
+  }
+  .wrap-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #c9a84c;
+    color: #0a2d21;
+    border: 2px solid #c9a84c;
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    box-shadow: 0 3px 8px rgba(40, 30, 15, 0.22);
+  }
+  .wrap-cta-btn:hover:not(:disabled) {
+    background: #d8b863;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.3);
+  }
+  .wrap-cta-btn:disabled { opacity: 0.6; cursor: progress; }
+
+  /* Wrapped stamp: tilted passport cancellation pinned to the
+     cover's top-right corner. Larger than the chapter postmarks
+     because this is the trip's closing mark. */
+  .wrapped-stamp {
+    position: absolute;
+    top: 60px;
+    right: 28px;
+    transform: rotate(-12deg);
+    z-index: 3;
+    pointer-events: none;
+  }
+  .wrapped-stamp-ring {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 140px;
+    border: 4px solid #c9a84c;
+    border-radius: 50%;
+    background: rgba(125, 58, 30, 0.18);
+    box-shadow: inset 0 0 0 6px rgba(251, 246, 234, 0.5), inset 0 0 0 7px rgba(201, 168, 76, 0.6);
+    color: #c9a84c;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+  }
+  .wrapped-stamp-top,
+  .wrapped-stamp-bot {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #c9a84c;
+  }
+  .wrapped-stamp-top { margin-top: 12px; }
+  .wrapped-stamp-bot { margin-bottom: 12px; }
+  .wrapped-stamp-big {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 26px;
+    color: #f5f0e8;
+    text-shadow: 0 1px 2px rgba(10, 45, 33, 0.4);
+    line-height: 1;
+    margin: 4px 0;
+  }
+  @media (max-width: 720px) {
+    .wrapped-stamp {
+      top: 12px;
+      right: 12px;
+      transform: rotate(-10deg) scale(0.7);
+      transform-origin: top right;
+    }
   }
 
   /* Toggle pill that collapses the cover collage on mobile. Only

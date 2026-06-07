@@ -282,6 +282,19 @@ export async function renameTripPackingList(id, currentName, newName) {
   return db.trips.get(id);
 }
 
+/* Stamp a trip as "Wrapped" so the cover surfaces a passport-
+   cancellation stamp + the home card flips to the wrapped style.
+   Reversible via unwrapTrip in case the user fat-fingered it. */
+export async function wrapTrip(id) {
+  if (!id) return null;
+  return updateTrip(id, { wrappedAt: Date.now() });
+}
+
+export async function unwrapTrip(id) {
+  if (!id) return null;
+  return updateTrip(id, { wrappedAt: null });
+}
+
 /* Set the trip-wide budget target. Empty / null / a non-finite
    number stores as null (no target set). Accepts a number or a
    string; the latter is coerced. */
