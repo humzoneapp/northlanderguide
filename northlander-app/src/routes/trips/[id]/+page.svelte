@@ -50,6 +50,8 @@
     formatTripDate,
     DIRECTIONS,
     OFFICIAL_SCHEDULE_URL,
+    NORTHBOUND_DEPARTURE,
+    SOUTHBOUND_DEPARTURE,
     travelDuration,
     travelMinutes,
     todayLocalISO
@@ -289,7 +291,13 @@
   $: bookedCount = bookings.filter((b) => b.status === 'booked').length;
   $: pendingCount = bookings.length - bookedCount;
   $: tripDateLine = trip && trip.departureDate ? formatTripDate(trip.departureDate) : '';
-  $: countdown = daysUntil(trip && trip.departureDate);
+  /* Live countdown to the train's scheduled departure time. Updates
+     once a minute via tickerNow so the display creeps in real time
+     without burning a frame budget. The reactive declaration reads
+     tickerNow + trip.direction + trip.departureDate so any of them
+     changing recomputes. */
+  let tickerNow = Date.now();
+  $: countdown = computeCountdown(trip, tickerNow);
   /* Stamp date: the trip's departure month/year if set, otherwise
      the month we're in. Powers the "Now Boarding"-style postmark
      on the sign-off. */
@@ -309,7 +317,13 @@
     tilt: ((idx % 5) - 2) * 4
   }));
 
-  onMount(load);
+  onMount(() => {
+    /* Tick the countdown once a minute. The page already does most
+       of its work in load(); the ticker is just a wall-clock pulse. */
+    const tickerId = setInterval(() => { tickerNow = Date.now(); }, 60_000);
+    load();
+    return () => clearInterval(tickerId);
+  });
 
   async function load() {
     /* Only show the platform-loading state on the very first load.
@@ -410,12 +424,32 @@
     return `${start} to ${fmt(stop.stayEnd)}`;
   }
 
-  function daysUntil(yyyymmdd) {
-    if (!yyyymmdd) return null;
-    const today = todayLocalISO();
-    const a = new Date(today);
-    const b = new Date(yyyymmdd);
-    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  /* Live countdown: returns `{ days, hours, minutes }` or `null`
+     when no departure date is set, or `{ past: true }` once the
+     train has left. Anchored at the train's actual scheduled
+     departure time (18:30 northbound / 22:15 southbound), not
+     midnight, so the count is accurate to the boarding moment. */
+  function computeCountdown(t, nowMs) {
+    if (!t || !t.departureDate) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t.departureDate);
+    if (!m) return null;
+    const time = (t.direction === 'southbound' ? SOUTHBOUND_DEPARTURE : NORTHBOUND_DEPARTURE);
+    const [h, min] = String(time).split(':').map(Number);
+    const dep = new Date(
+      Number(m[1]),
+      Number(m[2]) - 1,
+      Number(m[3]),
+      Number(h) || 0,
+      Number(min) || 0,
+      0,
+      0
+    ).getTime();
+    const diff = dep - nowMs;
+    if (diff <= 0) return { past: true };
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return { days, hours, minutes };
   }
 
   /* ---------- Actions ---------- */
@@ -649,21 +683,25 @@
             <div class="cover-date">{tripDateLine}  ·  {dirMeta?.label || 'Northbound'}</div>
           {/if}
 
-          {#if countdown != null}
-            <div class="cover-countdown">
-              {#if countdown > 1}
-                <strong>{countdown}</strong> days until you board
-              {:else if countdown === 1}
-                <strong>Tomorrow.</strong> Final checks on the platform.
-              {:else if countdown === 0}
-                <strong>Today.</strong> Safe travels.
-              {:else}
-                You've been. This is your record.
-              {/if}
-            </div>
-          {:else}
+          {#if countdown == null}
             <div class="cover-countdown italic-soft">
               Pick a departure date in Before You Board below and we'll count it down.
+            </div>
+          {:else if countdown.past}
+            <div class="cover-countdown italic-soft">
+              You've been. This is your record.
+            </div>
+          {:else}
+            {@const d = countdown.days}
+            {@const h = countdown.hours}
+            {@const m = countdown.minutes}
+            <div class="cover-countdown">
+              <strong>
+                {#if d > 0}{d} {d === 1 ? 'day' : 'days'}, {/if}
+                {#if d > 0 || h > 0}{h} {h === 1 ? 'hr' : 'hrs'}, {/if}
+                {m} {m === 1 ? 'min' : 'mins'}
+              </strong>
+              until you board
             </div>
           {/if}
 

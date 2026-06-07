@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import {
     loadEvents,
     eventsForStops,
@@ -11,6 +11,11 @@
   } from '$lib/data/events.js';
   import { getStop } from '$lib/data/stops.js';
   import { addBooking } from '$lib/stores/bookings.js';
+  import {
+    listUserEvents,
+    addUserEvent,
+    deleteUserEvent
+  } from '$lib/stores/user-events.js';
 
   /** @type {string} */
   export let tripId;
@@ -22,12 +27,37 @@
       alongside departureDate, only events between the two dates show. */
   export let endDate = null;
 
+  const dispatch = createEventDispatcher();
+
   /** @type {Array} */
   let events = [];
+  /** @type {import('$lib/stores/user-events.js').UserEvent[]} */
+  let userEvents = [];
   let loading = true;
   let error = '';
   /* Saved tracker so the same event can't be added twice in a row. */
   let savedIds = {};
+
+  /* "Add your own" form state. The form is hidden behind a pill so
+     the user-events block doesn't push the Guide grid down when
+     there's nothing to add. */
+  let showAddForm = false;
+  let formName = '';
+  let formDate = departureDate || todayLocal();
+  let formTime = '';
+  let formVenue = '';
+  let formAddress = '';
+  let formUrl = '';
+  let formDescription = '';
+  let formBusy = false;
+
+  function todayLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 
   $: tripId, stopIds, departureDate, endDate, refresh();
 
@@ -36,24 +66,92 @@
   async function refresh() {
     if (!Array.isArray(stopIds) || stopIds.length === 0) {
       events = [];
+      userEvents = [];
       loading = false;
       return;
     }
     loading = true;
     error = '';
     try {
-      const data = await loadEvents();
+      const [data, ueRows] = await Promise.all([
+        loadEvents(),
+        tripId ? listUserEvents(tripId) : Promise.resolve([])
+      ]);
       const forStops = eventsForStops(data, stopIds);
       const inWindow = (departureDate && endDate)
         ? eventsInRange(forStops, departureDate, endDate)
         : eventsInDateWindow(forStops, departureDate, 7);
       events = sortEvents(inWindow);
+      /* Filter user events to the same stop set so each chapter's
+         strip only shows its own. */
+      const ids = new Set(stopIds);
+      userEvents = ueRows.filter((u) => !u.stopId || ids.has(u.stopId));
     } catch (err) {
       error = "We couldn't fetch events from the Guide right now. Check your connection?";
       events = [];
     } finally {
       loading = false;
     }
+  }
+
+  async function submitUserEvent() {
+    if (formBusy) return;
+    const cleanName = formName.trim();
+    if (!cleanName || !formDate) return;
+    formBusy = true;
+    try {
+      await addUserEvent(tripId, {
+        stopId: stopIds[0] || null,
+        name: cleanName,
+        startDate: formDate,
+        startTime: formTime || null,
+        venue: formVenue || null,
+        address: formAddress || null,
+        url: formUrl || null,
+        description: formDescription || null
+      });
+      formName = '';
+      formTime = '';
+      formVenue = '';
+      formAddress = '';
+      formUrl = '';
+      formDescription = '';
+      showAddForm = false;
+      await refresh();
+      dispatch('change');
+    } finally {
+      formBusy = false;
+    }
+  }
+
+  async function removeUserEvent(id) {
+    const ok = typeof window !== 'undefined' && window.confirm
+      ? window.confirm('Remove this event from your trip?')
+      : true;
+    if (!ok) return;
+    await deleteUserEvent(id);
+    await refresh();
+    dispatch('change');
+  }
+
+  function formatUserEventDate(ev) {
+    if (!ev || !ev.startDate) return '';
+    const [y, m, d] = ev.startDate.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    const now = new Date();
+    const day = dt.toLocaleDateString('en-CA', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: dt.getFullYear() === now.getFullYear() ? undefined : 'numeric'
+    });
+    return ev.startTime ? `${day}  .  ${ev.startTime}` : day;
+  }
+
+  function userEventMapUrl(ev) {
+    const parts = [ev.venue, ev.address].filter((s) => s && String(s).trim());
+    if (parts.length === 0) return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(', '))}`;
   }
 
   function stopNameFor(id) {
@@ -83,14 +181,8 @@
 <div>
   <div class="flex items-baseline justify-between mb-3">
     <div>
-      <div class="kicker">From the Guide</div>
       <h3 class="font-serif font-bold text-forest text-xl">Events along your route</h3>
     </div>
-    {#if !loading && events.length > 0}
-      <span class="font-serif italic text-rust text-sm flex-none">
-        {events.length} {events.length === 1 ? 'event' : 'events'}
-      </span>
-    {/if}
   </div>
 
   {#if !departureDate}
@@ -98,6 +190,122 @@
       Set dates in your route to narrow events to the days you're at this stop.
     </p>
   {/if}
+
+  <!-- Your events: user-added items that sit above the Guide pull
+       so the things they care about most are first on the page. -->
+  <div class="user-events-block">
+    <div class="sub-heading">
+      <span class="sub-kicker">Your events</span>
+      <span class="sub-rule" aria-hidden="true"></span>
+      {#if userEvents.length > 0}
+        <span class="sub-count">{userEvents.length} {userEvents.length === 1 ? 'pinned' : 'pinned'}</span>
+      {/if}
+    </div>
+
+    {#if userEvents.length === 0 && !showAddForm}
+      <p class="font-serif italic text-muted text-sm mb-3">
+        Add a dinner reservation, a show, a meet-up. They'll sit in your chapter alongside Guide listings.
+      </p>
+    {/if}
+
+    {#if userEvents.length > 0}
+      <ul class="user-events-list">
+        {#each userEvents as ue (ue.id)}
+          <li class="user-event-card">
+            <button
+              type="button"
+              class="user-event-remove"
+              on:click={() => removeUserEvent(ue.id)}
+              aria-label="Remove this event"
+              title="Remove"
+            >x</button>
+            <div class="user-event-when">{formatUserEventDate(ue)}</div>
+            <h4 class="user-event-name">{ue.name}</h4>
+            {#if ue.venue}
+              {@const mapUrl = userEventMapUrl(ue)}
+              <div class="user-event-venue">
+                <span>{ue.venue}{ue.address ? ` . ${ue.address}` : ''}</span>
+                {#if mapUrl}
+                  <a
+                    class="event-map-btn"
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`Open ${ue.venue} on a map`}
+                    title="Open on a map"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 21 C7 14 4 11 4 8 a8 8 0 0 1 16 0 c0 3 -3 6 -8 13 Z" />
+                      <circle cx="12" cy="8" r="2.5" />
+                    </svg>
+                  </a>
+                {/if}
+              </div>
+            {/if}
+            {#if ue.description}
+              <p class="user-event-desc">{ue.description}</p>
+            {/if}
+            {#if ue.url}
+              <div class="user-event-foot">
+                <a class="event-link" href={ue.url} target="_blank" rel="noopener">Open ↗</a>
+              </div>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    {#if showAddForm}
+      <form class="user-event-form" on:submit|preventDefault={submitUserEvent}>
+        <label class="ue-field ue-field-wide">
+          <span>What</span>
+          <input type="text" bind:value={formName} placeholder="Dinner at Aux Trois Petits Bouchons" required />
+        </label>
+        <label class="ue-field">
+          <span>Date</span>
+          <input type="date" bind:value={formDate} required />
+        </label>
+        <label class="ue-field">
+          <span>Time</span>
+          <input type="time" bind:value={formTime} />
+        </label>
+        <label class="ue-field">
+          <span>Venue</span>
+          <input type="text" bind:value={formVenue} placeholder="Optional" />
+        </label>
+        <label class="ue-field">
+          <span>Address</span>
+          <input type="text" bind:value={formAddress} placeholder="Optional, used for the map pin" />
+        </label>
+        <label class="ue-field ue-field-wide">
+          <span>Link</span>
+          <input type="url" bind:value={formUrl} placeholder="https://" />
+        </label>
+        <label class="ue-field ue-field-wide">
+          <span>Note</span>
+          <textarea bind:value={formDescription} rows="2" placeholder="Reservation under the family name, etc."></textarea>
+        </label>
+        <div class="ue-form-actions">
+          <button type="button" class="ue-cancel" on:click={() => (showAddForm = false)}>Cancel</button>
+          <button type="submit" class="ue-save" disabled={formBusy || !formName.trim() || !formDate}>
+            {formBusy ? 'Saving...' : 'Pin to trip'}
+          </button>
+        </div>
+      </form>
+    {:else}
+      <button type="button" class="ue-add-pill" on:click={() => (showAddForm = true)}>
+        + Add your own event
+      </button>
+    {/if}
+  </div>
+
+  <div class="sub-heading sub-heading-guide">
+    <span class="sub-kicker">From the Guide</span>
+    <span class="sub-rule" aria-hidden="true"></span>
+    {#if !loading && events.length > 0}
+      <span class="sub-count">{events.length} {events.length === 1 ? 'listing' : 'listings'}</span>
+    {/if}
+  </div>
 
   {#if loading}
     <p class="font-serif italic text-muted">Pulling listings from NorthlanderGuide.com...</p>
@@ -442,5 +650,238 @@
     color: #3f6e44;
     border-color: #3f6e44;
     cursor: default;
+  }
+
+  /* Subheadings split the strip into "Your events" and
+     "From the Guide" so the user-added items aren't lost under
+     the Guide grid. Letterpress small caps + a dashed gold rule
+     match the rest of the editorial vocabulary. */
+  .sub-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 10px;
+  }
+  .sub-heading-guide {
+    margin-top: 22px;
+  }
+  .sub-kicker {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    white-space: nowrap;
+  }
+  .sub-rule {
+    flex: 1;
+    height: 1px;
+    border-top: 1px dashed rgba(201, 168, 76, 0.7);
+  }
+  .sub-count {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #7d3a1e;
+    white-space: nowrap;
+  }
+
+  .user-events-block {
+    margin-bottom: 4px;
+  }
+  .user-events-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) {
+    .user-events-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .user-event-card {
+    position: relative;
+    background: #fbf6ea;
+    border: 1px solid rgba(139, 106, 58, 0.35);
+    border-left: 3px solid #c9a84c;
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .user-event-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(125, 58, 30, 0.4);
+    border-radius: 50%;
+    background: transparent;
+    color: #7d3a1e;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .user-event-remove:hover {
+    background: #7d3a1e;
+    border-color: #7d3a1e;
+    color: #fffdf6;
+  }
+  .user-event-when {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .user-event-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0a2d21;
+    line-height: 1.25;
+    margin: 0;
+    padding-right: 26px;
+    overflow-wrap: anywhere;
+  }
+  .user-event-venue {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12.5px;
+    color: #5a4f3d;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .user-event-desc {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: #241f1a;
+    opacity: 0.82;
+    margin: 4px 0 0;
+  }
+  .user-event-foot {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(139, 106, 58, 0.35);
+  }
+
+  .ue-add-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px dashed rgba(125, 58, 30, 0.55);
+    color: #7d3a1e;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .ue-add-pill:hover {
+    background: #7d3a1e;
+    border-color: #7d3a1e;
+    color: #fffdf6;
+  }
+
+  .user-event-form {
+    background: #fbf6ea;
+    border: 1px solid rgba(139, 106, 58, 0.45);
+    border-left: 3px solid #c9a84c;
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 6px;
+  }
+  .ue-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ue-field-wide {
+    grid-column: 1 / -1;
+  }
+  .ue-field > span {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .ue-field input,
+  .ue-field textarea {
+    border: 1px solid rgba(139, 106, 58, 0.45);
+    background: #fffdf6;
+    padding: 7px 9px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 13px;
+    color: #241f1a;
+    border-radius: 2px;
+  }
+  .ue-field input:focus,
+  .ue-field textarea:focus {
+    outline: 2px solid #c9a84c;
+    outline-offset: 1px;
+    border-color: #7d3a1e;
+  }
+  .ue-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 2px;
+  }
+  .ue-cancel,
+  .ue-save {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .ue-cancel {
+    background: transparent;
+    color: #5a4f3d;
+    border-color: rgba(90, 79, 61, 0.45);
+  }
+  .ue-cancel:hover {
+    background: rgba(90, 79, 61, 0.08);
+  }
+  .ue-save {
+    background: #0a2d21;
+    color: #fffdf6;
+    border-color: #0a2d21;
+  }
+  .ue-save:hover:not(:disabled) {
+    background: #07241a;
+  }
+  .ue-save:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
 </style>

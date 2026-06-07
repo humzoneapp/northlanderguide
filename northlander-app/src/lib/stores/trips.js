@@ -75,6 +75,12 @@ db.version(3).stores({
 db.version(4).stores({
   photos: '++id, tripId, stopId, takenAt, createdAt'
 });
+/* v5 - userEvents table for events the user adds themselves
+   alongside the Guide's pull. Additive; no migration needed for
+   existing installs. */
+db.version(5).stores({
+  userEvents: '++id, tripId, stopId, startDate, createdAt'
+});
 
 /* ---------- slugging ----------
    We use a stable slug from the trip name as the primary key so URLs
@@ -394,6 +400,7 @@ export async function deleteTrip(id) {
     db.diaryEntries,
     db.budgetEntries,
     db.photos,
+    db.userEvents,
     async () => {
       await db.trips.delete(id);
       await db.packingItems.where({ tripId: id }).delete();
@@ -401,6 +408,7 @@ export async function deleteTrip(id) {
       await db.diaryEntries.where({ tripId: id }).delete();
       await db.budgetEntries.where({ tripId: id }).delete();
       await db.photos.where({ tripId: id }).delete();
+      await db.userEvents.where({ tripId: id }).delete();
     }
   );
   trips.set(await listTrips());
