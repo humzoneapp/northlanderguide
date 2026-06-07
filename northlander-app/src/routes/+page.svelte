@@ -79,11 +79,26 @@
         ]);
         const pendingPlans = bookings.filter((b) => b.status === 'pending').length;
         const packedCount = packing.filter((p) => p.packed).length;
+        const bookedCount = bookings.filter((b) => b.status === 'booked').length;
+        /* Composite "ready" fraction: average packing progress with
+           booking progress when both exist; fall through to whichever
+           one does. Drives the circular progress ring around the
+           polaroid seal. */
+        const haveP = packing.length > 0;
+        const haveB = bookings.length > 0;
+        const packF = haveP ? packedCount / packing.length : null;
+        const bookF = haveB ? bookedCount / bookings.length : null;
+        let readyFraction = null;
+        if (packF != null && bookF != null) readyFraction = (packF + bookF) / 2;
+        else if (packF != null) readyFraction = packF;
+        else if (bookF != null) readyFraction = bookF;
         return [t.id, {
           planCount: bookings.length,
           pendingPlans,
           packTotal: packing.length,
-          packDone: packedCount
+          packDone: packedCount,
+          bookedCount,
+          readyFraction
         }];
       })
     );
@@ -341,6 +356,7 @@
           {@const isWrapped = days != null && days < 0}
           {@const prog = packFraction(trip)}
           {@const initial = (trip.name || '?').trim().charAt(0).toUpperCase()}
+          {@const ready = tripStats[trip.id]?.readyFraction}
           <div
             class="polaroid-wrap"
             style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px; --i:{i}"
@@ -372,7 +388,33 @@
                 {/if}
 
                 <span class="polaroid-seal" aria-hidden="true">
+                  {#if ready != null}
+                    <!-- SVG progress ring: gold-dashed background +
+                         solid rust arc proportional to ready. The
+                         initial sits at the center as before. -->
+                    <svg class="polaroid-seal-ring" viewBox="0 0 40 40">
+                      <circle cx="20" cy="20" r="17" stroke="rgba(201, 168, 76, 0.55)" stroke-width="2" fill="none" stroke-dasharray="3 3" />
+                      <circle
+                        cx="20"
+                        cy="20"
+                        r="17"
+                        stroke="#c9a84c"
+                        stroke-width="3"
+                        fill="none"
+                        stroke-linecap="round"
+                        transform="rotate(-90 20 20)"
+                        stroke-dasharray={`${(Math.max(0, Math.min(1, ready)) * 2 * Math.PI * 17).toFixed(1)} ${(2 * Math.PI * 17).toFixed(1)}`}
+                      />
+                    </svg>
+                  {/if}
                   <span>{initial}</span>
+                  {#if ready != null && ready >= 1}
+                    <span class="polaroid-seal-tick" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 9 7 13 13 4"/>
+                      </svg>
+                    </span>
+                  {/if}
                 </span>
               </div>
 
@@ -948,6 +990,34 @@
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
     line-height: 1;
   }
+  /* Progress ring overlaid on the seal. Gold dashed background +
+     solid amber arc proportional to how ready the trip is. */
+  .polaroid-seal-ring {
+    position: absolute;
+    inset: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Small tick in the corner when ready hits 100% so the user gets
+     a tiny celebration moment without needing a confetti library. */
+  .polaroid-seal-tick {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 22px;
+    height: 22px;
+    background: #c9a84c;
+    color: #0a2d21;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(40, 30, 15, 0.32);
+    z-index: 3;
+  }
+  .polaroid-seal-tick svg { width: 14px; height: 14px; }
 
   /* "Now Boarding" rust ribbon on the day-of trip. Pinned to the
      photo, gently swaying. */

@@ -71,6 +71,7 @@
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
   import WeatherStrip from '$lib/components/WeatherStrip.svelte';
+  import DayPlan from '$lib/components/DayPlan.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -1312,6 +1313,9 @@
         {@const trainLine = i === 0
           ? (stopTime?.depart ? `Departs ${stopTime.depart}` : '')
           : (stopTime?.arrive ? `Arrives ${stopTime.arrive}` : '')}
+        {@const dayCount = bookings.filter((b) => b.stopId === stop.id).length
+          + diary.filter((d) => d.stopId === stop.id).length
+          + budgetEntries.filter((e) => e.stopId === stop.id).length}
 
         <article id="scene-{i}" class="scene">
           <div class="scene-inner">
@@ -1336,6 +1340,24 @@
 
             <div class="scene-grid">
               <div class="scene-main">
+                <!-- Day plan timeline: stitches this chapter's bookings,
+                     diary entries and spending into one chronological
+                     view so the user can see their day at a glance.
+                     dayCount const is declared above as a direct
+                     child of the {#each} block (Svelte 4 rule). -->
+                <Drawer
+                  kicker="Day plan"
+                  title="What's happening"
+                  count={dayCount}
+                  countLabel={dayCount === 1 ? 'item' : 'items'}
+                >
+                  <DayPlan
+                    bookings={bookings.filter((b) => b.stopId === stop.id)}
+                    diary={diary.filter((d) => d.stopId === stop.id)}
+                    budgetEntries={budgetEntries.filter((e) => e.stopId === stop.id)}
+                  />
+                </Drawer>
+
                 <!-- Count expressions read `bookings` directly inside
                      the prop so Svelte tracks the array as a reactive
                      dep. {@const x = bookingsAt(stop.id)} only fires
@@ -1498,6 +1520,9 @@
           {@const returnDir = tripDir === 'northbound' ? 'southbound' : 'northbound'}
           {@const stopTime = trainTimeFor(stop.id, returnDir)}
           {@const trainLine = stopTime?.arrive ? `Arrives ${stopTime.arrive}` : ''}
+          {@const dayCount = bookings.filter((b) => b.stopId === stop.id).length
+            + diary.filter((d) => d.stopId === stop.id).length
+            + budgetEntries.filter((e) => e.stopId === stop.id).length}
 
           <article id="scene-return-{j}" class="scene scene--return">
             <div class="scene-inner">
@@ -1524,6 +1549,19 @@
 
               <div class="scene-grid">
                 <div class="scene-main">
+                  <Drawer
+                    kicker="Day plan"
+                    title="What's happening"
+                    count={dayCount}
+                    countLabel={dayCount === 1 ? 'item' : 'items'}
+                  >
+                    <DayPlan
+                      bookings={bookings.filter((b) => b.stopId === stop.id)}
+                      diary={diary.filter((d) => d.stopId === stop.id)}
+                      budgetEntries={budgetEntries.filter((e) => e.stopId === stop.id)}
+                    />
+                  </Drawer>
+
                   <Drawer
                     kicker="Bookings"
                     title="Booking checklist"
