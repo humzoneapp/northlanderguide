@@ -95,6 +95,56 @@
     }
   }
 
+  /* Per-platform share for the trip poster. Same intent as the
+     photo lightbox: try the device share sheet first (which lists
+     every installed app the user might post to), fall through to
+     each platform's web intent on desktop. Instagram has no
+     web posting API so we download the poster and pop a new tab
+     to instagram.com so the user can post from the IG app. */
+  let platformBusy = false;
+  async function shareToPlatform(platform) {
+    if (platformBusy || !posterBlob) return;
+    platformBusy = true;
+    try {
+      const filename = `${trip.id || 'trip'}-northlander.png`;
+      const text = `My ${trip.name || 'Northlander trip'} - planned with Northlander.app`;
+      const file = new File([posterBlob], filename, { type: 'image/png' });
+      const canFile =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] });
+      if (canFile && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ files: [file], title: text, text });
+          return;
+        } catch (_) {
+          /* User cancelled or share failed; fall through. */
+        }
+      }
+      const sharedUrl = shareUrl || 'https://northlander.app/';
+      if (platform === 'x') {
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(sharedUrl)}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      } else if (platform === 'facebook') {
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(sharedUrl)}&quote=${encodeURIComponent(text)}`,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      } else if (platform === 'instagram') {
+        await deliverPoster(posterBlob, trip.id, text);
+        window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+      } else {
+        await deliverPoster(posterBlob, trip.id, text);
+      }
+    } finally {
+      platformBusy = false;
+    }
+  }
+
   async function handleCopyLink() {
     if (!shareUrl || linkBusy) return;
     linkBusy = true;
@@ -178,6 +228,65 @@
       <p class="text-center font-serif italic text-muted text-sm mt-3">
         1080 by 1080 pixels, perfect for Instagram or iMessage.
       </p>
+
+      <!-- Branded share row. Same idea as the photo lightbox: try
+           navigator.share with the poster file first; on desktop
+           fall through to per-platform web intents so the user
+           can still post the trip link with one tap. -->
+      <div class="share-row" role="group" aria-label="Share to social">
+        <button
+          type="button"
+          class="share-icon share-x"
+          on:click={() => shareToPlatform('x')}
+          disabled={platformBusy || !posterBlob}
+          title="Share to X (Twitter)"
+          aria-label="Share to X"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d="M17.53 3H20.5l-6.49 7.41L21.75 21h-6.05l-4.74-6.2L5.3 21H2.31l6.94-7.92L1.81 3h6.2l4.27 5.65L17.53 3zm-1.06 16.2h1.67L7.6 4.7H5.82l10.65 14.5z"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="share-icon share-instagram"
+          on:click={() => shareToPlatform('instagram')}
+          disabled={platformBusy || !posterBlob}
+          title="Share to Instagram"
+          aria-label="Share to Instagram"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="share-icon share-facebook"
+          on:click={() => shareToPlatform('facebook')}
+          disabled={platformBusy || !posterBlob}
+          title="Share to Facebook"
+          aria-label="Share to Facebook"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H8.08V12h2.36V9.96c0-2.33 1.39-3.62 3.52-3.62.7 0 1.43.12 2.04.24v2.43h-1.15c-1.13 0-1.48.7-1.48 1.42V12h2.52l-.4 2.89h-2.12v6.99A10 10 0 0 0 22 12z"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="share-icon share-native"
+          on:click={() => shareToPlatform('native')}
+          disabled={platformBusy || !posterBlob}
+          title="More share options"
+          aria-label="More share options"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </button>
+      </div>
 
       <div class="link-block">
         <div class="link-head">
@@ -332,5 +441,67 @@
   .share-cta:hover:not(:disabled) {
     background: #1f3d2d;
     border-color: #1f3d2d;
+  }
+
+  /* Branded share row. Mirror of the photo lightbox styling so a
+     user who's seen one knows what the other does. Centered under
+     the poster preview. */
+  .share-row {
+    margin: 14px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .share-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease, filter 140ms ease;
+    padding: 0;
+  }
+  .share-icon:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; }
+  .share-x {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+  .share-x:hover:not(:disabled) {
+    background: #000000;
+    color: #ffffff;
+  }
+  .share-instagram {
+    background: linear-gradient(135deg, #515bd4 0%, #8134af 30%, #dd2a7b 60%, #feda77 100%);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .share-instagram:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+  .share-facebook {
+    background: #1877f2;
+    color: #ffffff;
+    border-color: #1877f2;
+  }
+  .share-facebook:hover:not(:disabled) {
+    background: #0f60d0;
+    border-color: #0f60d0;
+  }
+  .share-native {
+    background: transparent;
+    color: #7d3a1e;
+    border-color: #7d3a1e;
+  }
+  .share-native:hover:not(:disabled) {
+    background: #7d3a1e;
+    color: #fffdf6;
   }
 </style>

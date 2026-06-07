@@ -261,6 +261,58 @@
     }
   }
 
+  /* Per-platform share buttons. On iOS/Android the only honest path
+     to "post to Instagram" or X is via `navigator.share({files})`
+     because no public web API lets the browser upload a photo into
+     those apps directly. So every brand button first tries the
+     native share sheet (which on iOS routes through the user's
+     Share Extension list, where Instagram / X / Facebook live).
+     On desktop where file share isn't supported we fall through:
+     - X opens the tweet intent with the caption pre-filled.
+     - Facebook opens the URL sharer with the Northlander.app URL.
+     - Instagram has no web post API at all, so we download the
+       image (so the user can drag it into the IG web composer)
+       and pop a new tab to instagram.com. */
+  async function shareToPlatform(platform) {
+    if (shareBusy || !openPhoto) return;
+    shareBusy = true;
+    try {
+      const p = openPhoto;
+      const caption = (p.caption || 'A polaroid from the Northlander').trim();
+      const filename = p.caption
+        ? `${p.caption.replace(/[^a-z0-9-]+/gi, '-').slice(0, 40)}.jpg`
+        : `northlander-${p.id}.jpg`;
+      const file = new File([p.blob], filename, { type: 'image/jpeg' });
+      const canFile = typeof navigator !== 'undefined' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
+      if (canFile && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ files: [file], title: caption, text: caption });
+          return;
+        } catch (_) {
+          /* User cancelled or sheet failed; fall through to platform
+             web intent. */
+        }
+      }
+      const tripUrl = 'https://northlander.app/';
+      if (platform === 'x') {
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}&url=${encodeURIComponent(tripUrl)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } else if (platform === 'facebook') {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(tripUrl)}&quote=${encodeURIComponent(caption)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } else if (platform === 'instagram') {
+        /* IG has no web posting endpoint - download so the user can
+           drag the file into the Instagram desktop composer. */
+        downloadOpen();
+        window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+      } else {
+        downloadOpen();
+      }
+    } finally {
+      shareBusy = false;
+    }
+  }
+
   function downloadOpen() {
     if (!openPhoto) return;
     const url = fullUrlFor(openPhoto);
@@ -425,40 +477,88 @@
               {/each}
             </select>
           {/if}
-          <button
-            type="button"
-            class="lightbox-share"
-            on:click={shareOpen}
-            disabled={shareBusy}
-            title="Share to Instagram, Messages, Mail..."
-            aria-label="Share photo"
-          >
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
-              <polyline points="16 6 12 2 8 6"/>
-              <line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-            <span>{shareBusy ? 'Sharing...' : 'Share'}</span>
-          </button>
-          <button
-            type="button"
-            class="lightbox-download"
-            on:click={downloadOpen}
-            title="Save a copy to your device"
-            aria-label="Download photo"
-          >
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
-              <polyline points="8 12 12 16 16 12"/>
-              <line x1="12" y1="3" x2="12" y2="16"/>
-            </svg>
-            <span>Download</span>
-          </button>
-          <button
-            type="button"
-            class="lightbox-remove"
-            on:click={removeOpen}
-          >Remove from album</button>
+
+          <!-- Branded share row. Tapping any platform first tries
+               navigator.share with the file (which on iOS / Android
+               opens the system sheet listing X / IG / FB / Messages
+               etc. all at once); when that's unavailable each button
+               falls through to the platform's web intent. -->
+          <div class="share-row" role="group" aria-label="Share to social">
+            <button
+              type="button"
+              class="share-icon share-x"
+              on:click={() => shareToPlatform('x')}
+              disabled={shareBusy}
+              title="Share to X (Twitter)"
+              aria-label="Share to X"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d="M17.53 3H20.5l-6.49 7.41L21.75 21h-6.05l-4.74-6.2L5.3 21H2.31l6.94-7.92L1.81 3h6.2l4.27 5.65L17.53 3zm-1.06 16.2h1.67L7.6 4.7H5.82l10.65 14.5z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="share-icon share-instagram"
+              on:click={() => shareToPlatform('instagram')}
+              disabled={shareBusy}
+              title="Share to Instagram"
+              aria-label="Share to Instagram"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="share-icon share-facebook"
+              on:click={() => shareToPlatform('facebook')}
+              disabled={shareBusy}
+              title="Share to Facebook"
+              aria-label="Share to Facebook"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H8.08V12h2.36V9.96c0-2.33 1.39-3.62 3.52-3.62.7 0 1.43.12 2.04.24v2.43h-1.15c-1.13 0-1.48.7-1.48 1.42V12h2.52l-.4 2.89h-2.12v6.99A10 10 0 0 0 22 12z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="share-icon share-native"
+              on:click={shareOpen}
+              disabled={shareBusy}
+              title="More share options"
+              aria-label="More share options"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+                <polyline points="16 6 12 2 8 6"/>
+                <line x1="12" y1="2" x2="12" y2="15"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="lightbox-side-actions">
+            <button
+              type="button"
+              class="lightbox-download"
+              on:click={downloadOpen}
+              title="Save a copy to your device"
+              aria-label="Download photo"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+                <polyline points="8 12 12 16 16 12"/>
+                <line x1="12" y1="3" x2="12" y2="16"/>
+              </svg>
+              <span>Download</span>
+            </button>
+            <button
+              type="button"
+              class="lightbox-remove"
+              on:click={removeOpen}
+            >Remove from album</button>
+          </div>
         </div>
       </div>
     </div>
@@ -779,8 +879,8 @@
   .lightbox-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 14px;
     flex-wrap: wrap;
   }
   .tag-select {
@@ -798,12 +898,83 @@
   .tag-select:focus {
     border-color: #7d3a1e;
   }
-  /* Share + Download buttons. Same pill aesthetic so they read as
-     a pair; share is rust-filled (primary action), download is
-     dashed outline (secondary). On mobile navigator.share opens
-     the native sheet covering Instagram / Messages / WhatsApp /
-     Mail; on desktop both paths fall through to download. */
-  .lightbox-share,
+  /* Branded social share row. Circular icon buttons in each
+     platform's recognized colour; on tap they invoke
+     navigator.share(file) first and fall back to web intents on
+     desktop. Kept compact so the bottom of the lightbox doesn't
+     crowd the caption textarea. */
+  .share-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .share-icon {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1.5px solid transparent;
+    background: #fbf6ea;
+    color: #0a2d21;
+    cursor: pointer;
+    transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease;
+    padding: 0;
+  }
+  .share-icon:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; }
+  .share-x {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+  .share-x:hover:not(:disabled) {
+    background: #000000;
+    color: #ffffff;
+  }
+  .share-instagram {
+    /* Instagram's recognizable purple-magenta-orange gradient. */
+    background: linear-gradient(135deg, #515bd4 0%, #8134af 30%, #dd2a7b 60%, #feda77 100%);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .share-instagram:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+  .share-facebook {
+    background: #1877f2;
+    color: #ffffff;
+    border-color: #1877f2;
+  }
+  .share-facebook:hover:not(:disabled) {
+    background: #0f60d0;
+    border-color: #0f60d0;
+  }
+  .share-native {
+    background: transparent;
+    color: #f5f0e8;
+    border-color: rgba(201, 168, 76, 0.65);
+  }
+  .share-native:hover:not(:disabled) {
+    background: #c9a84c;
+    color: #0a2d21;
+    border-color: #c9a84c;
+  }
+
+  /* Download + Remove sit in a secondary row beside the social
+     icons. Both have solid filled hover states so the text never
+     dissolves into the background - earlier dashed-gold treatment
+     turned ivory-on-12pc-gold which was hard to read on a dark
+     lightbox shell. */
+  .lightbox-side-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
   .lightbox-download {
     display: inline-flex;
     align-items: center;
@@ -817,37 +988,30 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
-  }
-  .lightbox-share {
-    background: #6e2e17;
-    color: #fffdf6;
-    border: 1.5px solid #6e2e17;
-  }
-  .lightbox-share:hover:not(:disabled) {
-    background: #884023;
-    border-color: #884023;
-  }
-  .lightbox-share:disabled { opacity: 0.6; cursor: not-allowed; }
-  .lightbox-download {
     background: transparent;
     color: #c9a84c;
-    border: 1.5px dashed rgba(201, 168, 76, 0.65);
+    border: 1.5px solid #c9a84c;
   }
   .lightbox-download:hover {
-    background: rgba(201, 168, 76, 0.12);
-    color: #f5f0e8;
+    background: #c9a84c;
+    color: #0a2d21;
     border-color: #c9a84c;
   }
   .lightbox-remove {
     background: transparent;
-    border: 0;
+    border: 1.5px solid transparent;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
+    font-size: 13px;
     color: #c4860f;
     cursor: pointer;
-    padding: 4px 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
   }
   .lightbox-remove:hover {
+    background: #7d3a1e;
     color: #f5f0e8;
+    border-color: #7d3a1e;
   }
 </style>
