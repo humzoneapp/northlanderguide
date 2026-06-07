@@ -35,9 +35,48 @@
   $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
   $: depClock = trip ? departureFor(trip.direction || 'northbound') : '09:00';
 
+  /* Build the full chronological stop list including the return
+     leg. Each entry carries an `isReturn` flag so the route sheet
+     can mark the turnaround and pull train times off the opposite
+     direction. Legacy single-return-date trips hydrate as one
+     return entry. Older trips with just `stopIds[]` keep working
+     via the direction-oriented fallback. */
   function deriveStops(t) {
+    if (Array.isArray(t.stops) && t.stops.length > 0) {
+      const outbound = t.stops
+        .map((e) => {
+          const s = getStop(e.stopId);
+          return s ? { ...s, date: e.date || '', isReturn: false } : null;
+        })
+        .filter(Boolean);
+      let ret = [];
+      if (Array.isArray(t.returnStops) && t.returnStops.length > 0) {
+        ret = t.returnStops
+          .map((e) => {
+            const s = getStop(e.stopId);
+            return s ? { ...s, date: e.date || '', isReturn: true } : null;
+          })
+          .filter(Boolean);
+      } else if (t.returnDate && t.returnStopId) {
+        const s = getStop(t.returnStopId);
+        if (s) ret = [{ ...s, date: t.returnDate, isReturn: true }];
+      }
+      return [...outbound, ...ret];
+    }
     const forward = getStopsByIds(t.stopIds || []);
-    return (t.direction === 'southbound') ? forward.slice().reverse() : forward;
+    const oriented = (t.direction === 'southbound') ? forward.slice().reverse() : forward;
+    return oriented.map((s) => ({ ...s, isReturn: false }));
+  }
+
+  /* Schedule direction for a single stop entry. Outbound rides
+     the trip's saved direction; return rides the opposite. */
+  function dirFor(stop) {
+    const outbound = trip?.direction || 'northbound';
+    if (!stop?.isReturn) return outbound;
+    return outbound === 'northbound' ? 'southbound' : 'northbound';
+  }
+  function depClockFor(stop) {
+    return departureFor(dirFor(stop));
   }
 
   function kindLabel(k) {
@@ -162,15 +201,23 @@
     {:else}
       <ol class="route">
         {#each stops as stop, i}
-          <li>
+          {@const prev = i > 0 ? stops[i - 1] : null}
+          {@const turnedAround = stop.isReturn && (!prev || !prev.isReturn)}
+          {#if turnedAround}
+            <li class="route-turn" aria-hidden="true">Turnaround &mdash; Return Trip</li>
+          {/if}
+          <li class:is-return={stop.isReturn}>
             <div class="route-row">
               <span class="route-num">{i + 1}</span>
               <div class="route-body">
                 <div class="route-name-row">
                   <span class="route-name">{stop.name}</span>
-                  <span class="route-time">{arrivalClock(stop.offsetMinutes, depClock, trip.direction || 'northbound')}</span>
+                  <span class="route-time">{arrivalClock(stop.offsetMinutes, depClockFor(stop), dirFor(stop))}</span>
                 </div>
-                <div class="route-meta">{stop.region}  ·  {travelDuration(stop.offsetMinutes, trip.direction || 'northbound')}</div>
+                <div class="route-meta">
+                  {stop.region}
+                  {#if stop.date} &middot; {formatTripDate(stop.date)}{/if}
+                </div>
               </div>
             </div>
           </li>
@@ -541,6 +588,29 @@
     text-transform: uppercase;
     font-weight: 600;
     margin-top: 2px;
+  }
+  /* Return-leg rows wear a subtle gold tinge on the row number so
+     they read as a different leg without overpowering the print
+     aesthetic. */
+  .route li.is-return .route-num {
+    color: #c9a84c;
+    border-color: #c9a84c;
+  }
+  /* Turnaround marker between outbound and return blocks. Same
+     editorial small-caps vocabulary as the chapter divider. */
+  .route-turn {
+    list-style: none;
+    margin: 12px 0 8px;
+    padding: 6px 0;
+    text-align: center;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    border-top: 1px dashed rgba(125, 58, 30, 0.45);
+    border-bottom: 1px dashed rgba(125, 58, 30, 0.45);
   }
 
   /* ===== Checklists ===== */

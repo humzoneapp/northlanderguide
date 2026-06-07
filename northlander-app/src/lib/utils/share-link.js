@@ -22,12 +22,22 @@ const FIELD_BOOKING = [
   'startTime', 'checkIn', 'checkOut', 'address',
   'contact', 'confirmation', 'notes'
 ];
-const FIELD_PACKING = ['name', 'packed'];
+const FIELD_PACKING = ['name', 'packed', 'listName'];
 const FIELD_DIARY   = ['text', 'stopId', 'createdAt'];
-const FIELD_BUDGET  = ['label', 'amount', 'category', 'createdAt'];
+const FIELD_BUDGET  = ['label', 'amount', 'category', 'stopId', 'spentDate', 'createdAt'];
 const FIELD_TRIP    = [
   'name', 'stopIds', 'color', 'strap', 'colorId',
-  'departureDate', 'direction'
+  'departureDate', 'direction',
+  /* Dated multi-stop route + multi-stop return added to the
+     payload 2026-06-07; without these the recipient was rebuilding
+     the trip with no actual stops or dates. */
+  'stops', 'returnStops', 'returnDate', 'returnStopId',
+  /* Packing list metadata so a renamed default or named lists
+     survive the round-trip. */
+  'defaultPackingListName', 'extraPackingLists',
+  /* Trip-wide budget target so the share recipient sees the same
+     "Spent / Left of target" math. */
+  'budgetTarget'
 ];
 
 function pickFields(row, fields) {

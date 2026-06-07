@@ -16,7 +16,28 @@
   let payload = null;
 
   $: trip = payload?.trip || null;
-  $: stops = (trip?.stopIds || []).map((id) => getStop(id)).filter(Boolean);
+  /* Prefer the dated `stops` shape when the share payload carries
+     it (2026-06-07 forward). Falls back to the legacy `stopIds`
+     for trips shared before the route + dates landed in the
+     payload. */
+  $: stops = (() => {
+    if (!trip) return [];
+    if (Array.isArray(trip.stops) && trip.stops.length > 0) {
+      return trip.stops.map((e) => getStop(e.stopId)).filter(Boolean);
+    }
+    return (trip.stopIds || []).map((id) => getStop(id)).filter(Boolean);
+  })();
+  $: returnStops = (() => {
+    if (!trip) return [];
+    if (Array.isArray(trip.returnStops) && trip.returnStops.length > 0) {
+      return trip.returnStops.map((e) => getStop(e.stopId)).filter(Boolean);
+    }
+    if (trip.returnStopId && trip.returnDate) {
+      const s = getStop(trip.returnStopId);
+      return s ? [s] : [];
+    }
+    return [];
+  })();
   $: direction = (trip?.direction === 'southbound') ? 'southbound' : 'northbound';
   $: directionMeta = DIRECTIONS.find((d) => d.id === direction) || DIRECTIONS[0];
   $: depClock = departureFor(direction);
@@ -62,11 +83,37 @@
       const created = await createTrip({ name, colorId: palette.id });
 
       /* Carry over the trip's route + departure metadata. createTrip
-         only seeds name + color, so this second pass widens it. */
+         only seeds name + color, so this second pass widens it.
+         Includes the dated `stops` + multi-stop `returnStops` shapes
+         (2026-06-07 forward) AND the legacy mirrors so older
+         readers in the recipient's app keep working. */
+      const stopsArr = Array.isArray(srcTrip.stops) && srcTrip.stops.length > 0
+        ? srcTrip.stops
+            .filter((s) => s && s.stopId)
+            .map((s) => ({ stopId: String(s.stopId), date: s.date || '' }))
+        : [];
+      const returnStopsArr = Array.isArray(srcTrip.returnStops) && srcTrip.returnStops.length > 0
+        ? srcTrip.returnStops
+            .filter((s) => s && s.stopId)
+            .map((s) => ({ stopId: String(s.stopId), date: s.date || '' }))
+        : srcTrip.returnDate && srcTrip.returnStopId
+          ? [{ stopId: String(srcTrip.returnStopId), date: srcTrip.returnDate }]
+          : [];
+      const stopIdsArr = stopsArr.length > 0
+        ? stopsArr.map((s) => s.stopId)
+        : (Array.isArray(srcTrip.stopIds) ? srcTrip.stopIds.slice() : []);
+      const mirroredReturn = returnStopsArr[returnStopsArr.length - 1] || null;
       await db.trips.update(created.id, {
-        stopIds: Array.isArray(srcTrip.stopIds) ? srcTrip.stopIds.slice() : [],
-        departureDate: srcTrip.departureDate || null,
+        stops: stopsArr,
+        stopIds: stopIdsArr,
+        returnStops: returnStopsArr,
+        returnDate: mirroredReturn?.date || srcTrip.returnDate || null,
+        returnStopId: mirroredReturn?.stopId || srcTrip.returnStopId || null,
+        departureDate: srcTrip.departureDate || (stopsArr[0]?.date || null),
         direction: srcTrip.direction === 'southbound' ? 'southbound' : 'northbound',
+        defaultPackingListName: srcTrip.defaultPackingListName || null,
+        extraPackingLists: Array.isArray(srcTrip.extraPackingLists) ? srcTrip.extraPackingLists.slice() : [],
+        budgetTarget: Number.isFinite(srcTrip.budgetTarget) ? Number(srcTrip.budgetTarget) : null,
         updatedAt: Date.now()
       });
 
@@ -81,6 +128,7 @@
             tripId: created.id,
             name: String(r.name || '').trim() || 'Item',
             packed: !!r.packed,
+            listName: r.listName || null,
             createdAt: now,
             updatedAt: now
           }))
@@ -125,6 +173,8 @@
             label: String(r.label || '').trim() || 'Entry',
             amount: Number(r.amount) || 0,
             category: r.category || 'other',
+            stopId: r.stopId || null,
+            spentDate: r.spentDate || null,
             createdAt: Number(r.createdAt) || now,
             updatedAt: now
           }))

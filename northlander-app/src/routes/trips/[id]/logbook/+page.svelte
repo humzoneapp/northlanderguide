@@ -39,16 +39,28 @@
   let photoUrls = new Map();
 
   $: id = $page.params.id;
-  $: stops = trip && Array.isArray(trip.stops) && trip.stops.length > 0
-    ? trip.stops
-        .map((e) => getStop(e.stopId))
-        .filter(Boolean)
+  $: outboundStops = trip && Array.isArray(trip.stops) && trip.stops.length > 0
+    ? trip.stops.map((e) => getStop(e.stopId)).filter(Boolean)
     : trip
       ? (trip.stopIds || []).map((sid) => getStop(sid)).filter(Boolean)
       : [];
+  /* Pull the return leg too so the route summary + Stop stat
+     reflect the WHOLE trip, not just the way out. Legacy single-
+     return-date trips hydrate into a one-entry array so the
+     count is still correct. */
+  $: returnStops = trip && Array.isArray(trip.returnStops) && trip.returnStops.length > 0
+    ? trip.returnStops.map((e) => getStop(e.stopId)).filter(Boolean)
+    : trip && trip.returnStopId && trip.returnDate
+      ? [getStop(trip.returnStopId)].filter(Boolean)
+      : [];
+  $: stops = [...outboundStops, ...returnStops];
   $: tripDateLine = trip && trip.departureDate ? formatTripDate(trip.departureDate) : '';
   $: totalSpent = totalOf(budget);
-  $: stopCount = Math.max(0, stops.length - 1);
+  /* Stops the user actually visits = outbound entries - the one
+     they board at + each return stop. So depart Toronto, hop off
+     at Bracebridge, hop off at North Bay, return to Toronto =
+     3 stops (Bracebridge, North Bay, Toronto). */
+  $: stopCount = Math.max(0, outboundStops.length - 1) + returnStops.length;
 
   /* Combine every mutation event into one chronological feed. Each
      event uses `createdAt` (the exact moment the row was written
@@ -205,8 +217,14 @@
     <a href={`/trips/${trip.id}`} class="back-link">&larr; Back to {trip.name}</a>
     <div class="kicker">Trip Logbook</div>
     <h1>{trip.name}</h1>
-    {#if stops.length >= 2}
-      <p class="route">{stops[0].name} &rarr; {stops[stops.length - 1].name}{tripDateLine ? `  .  ${tripDateLine}` : ''}</p>
+    {#if outboundStops.length >= 2}
+      <p class="route">
+        {outboundStops[0].name} &rarr; {outboundStops[outboundStops.length - 1].name}
+        {#if returnStops.length > 0}
+          <span class="route-return">&rarr; back to {returnStops[returnStops.length - 1].name}</span>
+        {/if}
+        {tripDateLine ? `  .  ${tripDateLine}` : ''}
+      </p>
     {:else if tripDateLine}
       <p class="route">{tripDateLine}</p>
     {/if}
@@ -362,6 +380,10 @@
     color: #ede0cc;
     font-size: clamp(14px, 1.8vw, 17px);
     margin: 0 0 20px;
+  }
+  .route-return {
+    color: #c9a84c;
+    margin-left: 4px;
   }
   .stats {
     list-style: none;

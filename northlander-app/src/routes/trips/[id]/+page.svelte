@@ -95,6 +95,7 @@
   let showAddPlan = false;
   let addPlanStop = '';
   let addPlanKind = 'all';
+  let addPlanFromReturn = false;
 
   /* Inline rename state on the cover H1 */
   let editingName = false;
@@ -178,6 +179,10 @@
      leg. Each entry mirrors the outbound shape (`stayStart` /
      `stayEnd`) so the same chapter component pattern works. */
   $: returnStops = trip ? deriveReturnStops(trip) : [];
+  /* Cover Stops stat: outbound stops the user gets off at + every
+     return entry. Departing station isn't a "stop" they visit
+     (they board there). */
+  $: stopsVisited = Math.max(0, stops.length - 1) + returnStops.length;
   /* Cover stat aggregates across every list. Per-list counts for
      the Drawer badges are derived inline where they're rendered. */
   $: packingCount = packingRows.length;
@@ -631,9 +636,13 @@
     showStopPicker = false;
   }
 
-  async function openAddPlan(stopId = '', kind = 'all') {
+  /* `fromReturn` flips the direction passed to AddPlanModal so train
+     times printed inside the modal track the return leg when the
+     user opens it from a return-chapter pill. */
+  async function openAddPlan(stopId = '', kind = 'all', fromReturn = false) {
     addPlanStop = stopId;
     addPlanKind = kind;
+    addPlanFromReturn = fromReturn;
     showAddPlan = true;
   }
   async function closeAddPlan() {
@@ -883,8 +892,8 @@
 
           <ul class="cover-stats">
             <li>
-              <b>{Math.max(0, stops.length - 1)}</b>
-              <span>{stops.length - 1 === 1 ? 'Stop' : 'Stops'}</span>
+              <b>{stopsVisited}</b>
+              <span>{stopsVisited === 1 ? 'Stop' : 'Stops'}</span>
             </li>
             <li><b>{bookings.length}</b><span>Plans</span></li>
             <li><b>{bookedCount}</b><span>Booked</span></li>
@@ -1450,7 +1459,7 @@
                     <button
                       type="button"
                       class="browse-guide-btn"
-                      on:click={() => openAddPlan(stop.id, 'all')}
+                      on:click={() => openAddPlan(stop.id, 'all', true)}
                     >
                       <span class="browse-guide-plus" aria-hidden="true">+</span>
                       Browse the Guide for {stop.name}
@@ -1656,11 +1665,21 @@
   {#if showAddPlan}
     <AddPlanModal
       tripId={trip.id}
-      stopIds={trip.stopIds || []}
+      stopIds={
+        /* Stop chips show every stop the user visits, outbound +
+           return, de-duplicated since the user might re-visit the
+           same station on the way back. */
+        Array.from(new Set([
+          ...(trip.stopIds || []),
+          ...returnStops.map((s) => s.id)
+        ]))
+      }
       initialStop={addPlanStop}
       initialKind={addPlanKind}
       existingBookings={bookings}
-      direction={trip.direction || 'northbound'}
+      direction={addPlanFromReturn
+        ? ((trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound')
+        : (trip.direction || 'northbound')}
       on:change={load}
       on:close={closeAddPlan}
     />
