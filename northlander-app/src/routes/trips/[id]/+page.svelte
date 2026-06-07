@@ -71,6 +71,7 @@
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
   import WeatherStrip from '$lib/components/WeatherStrip.svelte';
+  import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import DayPlan from '$lib/components/DayPlan.svelte';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
@@ -187,6 +188,14 @@
      return entry. Departing station isn't a "stop" they visit
      (they board there). */
   $: stopsVisited = Math.max(0, stops.length - 1) + returnStops.length;
+
+  /* Weather-stop list threaded into PackingPickerModal so it can
+     synthesize a "For the forecast" suggestion group when rain /
+     snow / hot / cold is expected. We only include stops that
+     have a date - undated stops can't be forecast against. */
+  $: weatherStopsList = [...stops, ...returnStops]
+    .filter((s) => s && s.id && s.stayStart)
+    .map((s) => ({ stopId: s.id, date: s.stayStart }));
 
   /* Animated count-up stores for the cover stats - each starts at
      0 on first paint and tweens to the live value over 700ms.
@@ -798,6 +807,13 @@
     ></div>
     <div class="cover-veil" aria-hidden="true"></div>
 
+    <!-- Weather particle overlay: gold rain streaks on rainy days,
+         snowflakes on snow days, nothing otherwise. Reads the first
+         outbound stop's forecast so the cover sets the mood. -->
+    {#if stops.length > 0 && stops[0].stayStart}
+      <WeatherParticles stop={stops[0]} date={stops[0].stayStart} />
+    {/if}
+
     {#if stops.length > 0}
       <div class="cover-ticket" aria-label="Route">
         {#each stops as s, i}
@@ -1157,6 +1173,7 @@
           <PackingList
             tripId={trip.id}
             stopIds={trip.stopIds || []}
+            weatherStops={weatherStopsList}
             on:change={load}
           />
           <div class="bb-list-foot">
@@ -1197,6 +1214,7 @@
               tripId={trip.id}
               stopIds={trip.stopIds || []}
               listName={name}
+              weatherStops={weatherStopsList}
               on:change={load}
             />
             <div class="bb-list-foot">

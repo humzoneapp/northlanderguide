@@ -23,6 +23,7 @@
   } from '$lib/data/packing.js';
   import { getStop } from '$lib/data/stops.js';
   import { addPackingItem, deletePackingItem, listPackingItems } from '$lib/stores/packing.js';
+  import { getWeatherFor } from '$lib/data/weather.js';
 
   /** @type {string} */
   export let tripId;
@@ -33,6 +34,10 @@
       check + new additions to this named packing list (Mom / Kids /
       Camera bag etc.). Empty = the default unnamed list. */
   export let listName = '';
+  /** @type {{ stopId: string, date: string }[]} - outbound + return
+      stops with dates, used to build the weather-aware suggestion
+      group. Empty array = no weather group rendered. */
+  export let weatherStops = [];
 
   const dispatch = createEventDispatcher();
 
@@ -60,6 +65,49 @@
     return s ? s.name : '';
   }).filter(Boolean);
 
+  /* Weather-aware suggestions are prepended to the curated groups
+     above so the user sees them first. The synthesized group is
+     keyed under "__weather" so it's distinguishable from the
+     Guide's triggers. */
+  let weatherGroupItems = [];
+
+  /* Build the weather suggestion list from a set of forecasts. We
+     scan codes + temps across the trip and pick suggestions for
+     whatever extreme shows up. Each suggestion looks like the
+     Guide's packing rows so it slots into the same renderer. */
+  function buildWeatherGroup(forecasts) {
+    if (!Array.isArray(forecasts) || forecasts.length === 0) return [];
+    const conditions = { rain: false, snow: false, hot: false, cold: false };
+    for (const f of forecasts) {
+      if (!f || f.offline) continue;
+      const c = Number(f.code);
+      if ([51,53,55,61,63,65,66,67,80,81,82].includes(c)) conditions.rain = true;
+      if ([71,73,75,77,85,86].includes(c)) conditions.snow = true;
+      if (Number.isFinite(f.tempMax) && f.tempMax >= 25) conditions.hot = true;
+      if (Number.isFinite(f.tempMin) && f.tempMin <= 5) conditions.cold = true;
+    }
+    const out = [];
+    if (conditions.rain) {
+      out.push({ item: 'Rain jacket', triggerType: '__weather', trigger: 'Forecast: rain' });
+      out.push({ item: 'Compact umbrella', triggerType: '__weather', trigger: 'Forecast: rain' });
+    }
+    if (conditions.snow) {
+      out.push({ item: 'Warm winter coat', triggerType: '__weather', trigger: 'Forecast: snow' });
+      out.push({ item: 'Wool socks', triggerType: '__weather', trigger: 'Forecast: snow' });
+      out.push({ item: 'Hat and gloves', triggerType: '__weather', trigger: 'Forecast: snow' });
+    }
+    if (conditions.hot) {
+      out.push({ item: 'Sunscreen', triggerType: '__weather', trigger: 'Forecast: hot' });
+      out.push({ item: 'Sun hat', triggerType: '__weather', trigger: 'Forecast: hot' });
+      out.push({ item: 'Reusable water bottle', triggerType: '__weather', trigger: 'Forecast: hot' });
+    }
+    if (conditions.cold && !conditions.snow) {
+      out.push({ item: 'Warm layer', triggerType: '__weather', trigger: 'Forecast: cold' });
+      out.push({ item: 'Thermal base layer', triggerType: '__weather', trigger: 'Forecast: cold' });
+    }
+    return out;
+  }
+
   onMount(async () => {
     try {
       const [data, existing] = await Promise.all([
@@ -79,8 +127,34 @@
       }
       existingItemIds = map;
       const filtered = sortPackingItems(packingForStops(data, stopNames));
-      items = filtered;
-      groups = groupPackingItems(filtered);
+
+      /* Fetch the trip's weather forecasts in parallel (max 16-day
+         window, cached per stop+date in sessionStorage so repeat
+         opens don't re-hit the network). */
+      if (Array.isArray(weatherStops) && weatherStops.length > 0) {
+        const forecasts = await Promise.all(
+          weatherStops
+            .map((s) => {
+              const stop = getStop(s.stopId);
+              if (!stop || !s.date) return null;
+              return getWeatherFor(stop.lat, stop.lng, s.date);
+            })
+        );
+        weatherGroupItems = buildWeatherGroup(forecasts.filter(Boolean));
+      }
+
+      items = [...weatherGroupItems, ...filtered];
+      /* Build the group map: the weather group is prepended via a
+         manual entry so renderer treats it as a top section. */
+      const baseGroups = groupPackingItems(filtered);
+      if (weatherGroupItems.length > 0) {
+        const merged = new Map();
+        merged.set('__weather', weatherGroupItems);
+        for (const [k, v] of baseGroups) merged.set(k, v);
+        groups = merged;
+      } else {
+        groups = baseGroups;
+      }
     } catch (err) {
       error = "We couldn't load the packing suggestions from the Guide right now. Check your connection?";
     } finally {

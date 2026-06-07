@@ -20,6 +20,11 @@
       `listName` matches; new items + picker additions auto-tag
       with the same name. Empty / unset = the default unnamed list. */
   export let listName = '';
+  /** @type {{ stopId: string, date: string }[]} - trip's stops with
+      dates. Threaded through to the picker so it can fetch weather
+      forecasts and synthesize a "For the forecast" suggestion
+      group when rain / snow / hot / cold is expected. */
+  export let weatherStops = [];
 
   const dispatch = createEventDispatcher();
 
@@ -222,6 +227,7 @@
     {tripId}
     {stopIds}
     {listName}
+    {weatherStops}
     on:change={() => { refresh(); dispatch('change'); }}
     on:close={() => { showPicker = false; refresh(); dispatch('change'); }}
   />

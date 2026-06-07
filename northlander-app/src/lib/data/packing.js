@@ -141,6 +141,9 @@ export function triggerLabel(t) {
   if (!t) return 'Other';
   if (t === 'Always Include') return 'For any trip';
   if (t === 'Stop Specific')  return 'For where you\'re going';
+  /* Synthesized in-app group injected by PackingPickerModal when
+     the weather forecast suggests gear (rain / snow / hot / cold). */
+  if (t === '__weather') return 'For the forecast';
   const m = /^Season:\s*(.+)$/i.exec(t);
   if (m) return `For ${m[1].toLowerCase()} trips`;
   return t;

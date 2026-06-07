@@ -40,6 +40,45 @@ import { writable } from 'svelte/store';
  * @property {number} updatedAt    - epoch ms
  */
 
+/* Trip moods. Picked once at trip creation, surfaced as a small
+   glyph on the home polaroid card so the dashboard reads at a
+   glance. Glyphs are inline SVG so they inherit currentColor and
+   tile cleanly into the rust-on-cream / cream-on-rust contexts. */
+export const TRIP_MOODS = [
+  {
+    id: 'solo',
+    label: 'Solo',
+    glyph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 21 V17 a4 4 0 0 1 4 -4 H15 a4 4 0 0 1 4 4 V21"/></svg>'
+  },
+  {
+    id: 'family',
+    label: 'Family',
+    glyph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="7" r="2.5"/><circle cx="12" cy="14" r="2"/><path d="M3 20 V18 a3 3 0 0 1 3 -3 H8 a3 3 0 0 1 3 3 V20"/><path d="M13 20 V18 a3 3 0 0 1 3 -3 H18 a3 3 0 0 1 3 3 V20"/></svg>'
+  },
+  {
+    id: 'romantic',
+    label: 'Romantic',
+    glyph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 C6 15 3 12 3 8 a5 5 0 0 1 9 -3 a5 5 0 0 1 9 3 c0 4 -3 7 -9 12 Z"/></svg>'
+  },
+  {
+    id: 'adventure',
+    label: 'Adventure',
+    glyph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 8 L13 14 L17 6 L21 20 Z"/><circle cx="16" cy="4" r="1.6"/></svg>'
+  },
+  {
+    id: 'work',
+    label: 'Work',
+    glyph: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7 V5 a2 2 0 0 1 2 -2 H13 a2 2 0 0 1 2 2 V7"/></svg>'
+  }
+];
+
+/* Helper for components rendering a trip mood glyph: returns the
+   full mood record or null if the trip has no mood set. */
+export function getTripMood(moodId) {
+  if (!moodId) return null;
+  return TRIP_MOODS.find((m) => m.id === moodId) || null;
+}
+
 /* Five vintage leather palettes the user can tint a suitcase with.
    Each pair = (body, strap). These read on cream paper without
    feeling cartoonish. */
@@ -126,7 +165,7 @@ export async function getTrip(id) {
    created row (with its slug as `id`). `body` and `strap` override
    the palette when present, which is how the "custom" swatch in
    NewTripModal hands its hex codes through. */
-export async function createTrip({ name, colorId = 'rust', body, strap } = {}) {
+export async function createTrip({ name, colorId = 'rust', body, strap, moodId = null } = {}) {
   const palette = LEATHER_COLORS.find((c) => c.id === colorId) || LEATHER_COLORS[0];
   const id = await uniqueTripSlug(name);
   const now = Date.now();
@@ -137,6 +176,10 @@ export async function createTrip({ name, colorId = 'rust', body, strap } = {}) {
     color: body || palette.body,
     strap: strap || palette.strap,
     colorId: colorId === 'custom' ? 'custom' : palette.id,
+    /* Optional mood tag. Validated against TRIP_MOODS; anything
+       else stores as null so future enum changes don't strand
+       garbage on the row. */
+    moodId: moodId && TRIP_MOODS.some((m) => m.id === moodId) ? moodId : null,
     createdAt: now,
     updatedAt: now
   };
