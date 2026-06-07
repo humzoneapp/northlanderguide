@@ -323,7 +323,7 @@
   }
 
   .pp-head {
-    background: #5e2a14;
+    background: #4a1f0e;
     color: #f5f0e8;
     padding: 18px 22px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
@@ -537,7 +537,7 @@
   .pp-custom-input:focus { border-color: #7d3a1e; }
 
   .pp-foot {
-    background: #5e2a14;
+    background: #4a1f0e;
     border-top: 3px double rgba(201, 168, 76, 0.55);
     padding: 12px 22px;
     display: flex;

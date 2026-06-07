@@ -585,7 +585,7 @@
 
   /* ===== Header ===== */
   .ap-head {
-    background: #5e2a14;
+    background: #4a1f0e;
     color: #f5f0e8;
     display: flex;
     align-items: center;
@@ -1070,7 +1070,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: #5e2a14;
+    background: #4a1f0e;
     color: #f3ece0;
     border: 2px solid #6e2e17;
     padding: 8px 14px;
@@ -1111,7 +1111,7 @@
 
   /* ===== Foot ===== */
   .ap-foot {
-    background: #5e2a14;
+    background: #4a1f0e;
     color: #ede0cc;
     padding: 12px 20px;
     display: flex;

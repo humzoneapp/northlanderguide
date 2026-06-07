@@ -2120,7 +2120,9 @@
      the list without a second modal. Pressing Enter or blurring
      commits via commitNewPackingList. */
   .bb-add-list {
-    margin-top: 14px;
+    /* Equal breathing room above (Drawer to pill) and below (pill to
+       Budget panel) so the dashed pill sits in symmetrical space. */
+    margin-top: 28px;
     margin-bottom: 28px;
   }
   .bb-add-list-btn {
@@ -2232,21 +2234,31 @@
   .bb-budget {
     padding: 4px 2px 6px;
   }
+  /* Bigger, brighter rust button with a gold ring so it reads as a
+     real call-to-action against the cream paper panel. Earlier
+     spec was a narrower rust pill with cream text - the contrast
+     held but the button itself looked dim against the warm linen
+     background. */
   .bb-budget-set {
-    background: #6e2e17;
-    color: #fffdf6;
-    border: 1.5px solid #6e2e17;
-    padding: 8px 18px;
+    background: #7d3a1e;
+    color: #ffffff;
+    border: 2px solid #c9a84c;
+    padding: 11px 22px;
     border-radius: 4px;
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease;
+    box-shadow: 0 2px 0 rgba(74, 31, 14, 0.35);
+    transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
   }
-  .bb-budget-set:hover { background: #884023; border-color: #884023; }
+  .bb-budget-set:hover {
+    background: #8e4524;
+    border-color: #d8b863;
+    transform: translateY(-1px);
+  }
   .bb-budget-hint {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;

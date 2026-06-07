@@ -451,11 +451,12 @@
   }
 
   /* ===== Head =====
-     Lighter ivory text on forest so the title doesn't blend, with a
-     gold double-rule beneath that ties into the cover banner. The
-     close X is ivory so it reads on any state. */
+     Deep rust matched to the footer band so the modal reads as a
+     single boarding-pass identity (was #5e2a14, deepened to
+     #4a1f0e on 2026-06-07 - the user wanted the band richer and
+     more clearly the same colour on both ends). */
   .rp-head {
-    background: #5e2a14;
+    background: #4a1f0e;
     padding: 18px 24px 16px;
     border-bottom: 3px double rgba(201, 168, 76, 0.55);
     display: flex;
@@ -713,9 +714,11 @@
     color: #0a2d21;
   }
 
-  /* ===== Footer ===== */
+  /* ===== Footer =====
+     Same deep rust as the head so the two bands read as one band
+     wrapping the cream body. Matched to #4a1f0e on 2026-06-07. */
   .rp-foot {
-    background: #5e2a14;
+    background: #4a1f0e;
     border-top: 3px double rgba(201, 168, 76, 0.55);
     padding: 12px 20px;
     display: flex;
@@ -726,35 +729,6 @@
     flex: none;
     color: #ede0cc;
   }
-  /* Cancel / Back text buttons stay ivory on the rust band. */
-  .rp-foot :global(.rp-text-btn) {
-    color: #ede0cc;
-  }
-  .rp-foot :global(.rp-text-btn:hover) {
-    color: #f5f0e8;
-  }
-  /* Add-stop dashed pill: lighten the border + label so it reads
-     against the rust footer. */
-  .rp-foot :global(.rp-add-stop) {
-    color: #ede0cc;
-    border-color: #ede0cc;
-  }
-  .rp-foot :global(.rp-add-stop:hover:not(:disabled)) {
-    background: #ede0cc;
-    color: #5e2a14;
-    border-color: #ede0cc;
-  }
-  /* Primary button flips to forest so it reads against the rust
-     band; gold border keeps the boarding-pass feel. */
-  .rp-foot :global(.btn-primary) {
-    background: #0a2d21;
-    border-color: #0a2d21;
-    color: #f5f0e8;
-  }
-  .rp-foot :global(.btn-primary:hover) {
-    background: #1f3d2d;
-    border-color: #1f3d2d;
-  }
   .rp-foot-right {
     display: flex;
     align-items: center;
@@ -762,36 +736,70 @@
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+  /* Base styles for the inline buttons. Defaults are tuned for the
+     rust footer band the picker actually mounts in, so we don't
+     need a second :global override that fights source order. Cancel
+     / Back read as an italic ivory link; +Add stop reads as an
+     ivory dashed pill that flips to a filled ivory chip on hover. */
   .rp-text-btn {
     background: transparent;
     border: 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    color: #5a4f3d;
+    color: #f3e7cf;
     cursor: pointer;
-    padding: 6px 2px;
+    padding: 6px 8px;
     font-size: 14px;
   }
-  .rp-text-btn:hover { color: #7d3a1e; }
-  /* Secondary button. Matches .btn-primary's square 4px radius +
-     padding so the two footer buttons read as a pair. The dashed
-     rust outline keeps it secondary (vs. the filled rust primary). */
+  .rp-text-btn:hover:not(:disabled) {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  .rp-text-btn:disabled { opacity: 0.55; cursor: not-allowed; }
   .rp-add-stop {
     background: transparent;
-    border: 2px dashed #7d3a1e;
-    color: #7d3a1e;
-    padding: 0.85rem 1.5rem;
+    border: 2px dashed #f3e7cf;
+    color: #f3e7cf;
+    padding: 0.65rem 1.2rem;
     border-radius: 4px;
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     cursor: pointer;
-    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease, opacity 140ms ease;
   }
   .rp-add-stop:hover:not(:disabled) {
-    background: #7d3a1e;
-    border-color: #7d3a1e;
-    color: #fffdf6;
+    background: #f3e7cf;
+    color: #4a1f0e;
+    border-color: #f3e7cf;
   }
-  .rp-add-stop:disabled { cursor: not-allowed; }
+  /* Disabled state stays readable - the label fades but doesn't
+     dissolve. Previously Tailwind's .disabled\:opacity-50 dropped
+     it to 50% which left "+ Add stop" almost unreadable on the
+     dark band before the user filled in a date. */
+  .rp-add-stop:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  /* Primary button: amber gold on forest so the call-to-action is
+     impossible to miss on the dark band. Was forest-on-rust; the
+     low contrast had the "+ Add stop" label disappearing into the
+     band when disabled. */
+  .rp-foot :global(.btn-primary) {
+    background: #c9a84c;
+    border-color: #c9a84c;
+    color: #0a2d21;
+    padding: 0.7rem 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .rp-foot :global(.btn-primary:hover:not(:disabled)) {
+    background: #d8b863;
+    border-color: #d8b863;
+  }
+  .rp-foot :global(.btn-primary:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 </style>

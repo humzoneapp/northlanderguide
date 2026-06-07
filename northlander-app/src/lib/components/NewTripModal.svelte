@@ -70,7 +70,7 @@
   ></button>
 
   <div class="relative z-10 w-full max-w-[460px] bg-cream shadow-ticket pl-card">
-    <header class="bg-[#5e2a14] text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold">
+    <header class="bg-[#4a1f0e] text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold">
       <span id="new-trip-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px]">Start a New Trip</span>
       <button
         type="button"

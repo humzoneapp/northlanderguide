@@ -191,7 +191,7 @@
   ></button>
 
   <div class="relative z-10 w-full max-w-[560px] max-h-full bg-cream shadow-ticket pl-card flex flex-col">
-    <header class="bg-[#6e2e17] text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
+    <header class="bg-[#4a1f0e] text-ivory px-6 py-3 flex justify-between items-center border-b-[3px] border-double border-gold flex-none">
       <div>
         <span id="share-title" class="font-serif font-black uppercase tracking-[0.18em] text-[15px] block">
           Share Your Trip
@@ -316,7 +316,7 @@
       </div>
     </div>
 
-    <footer class="bg-[#5e2a14] border-t-[3px] border-double border-gold/55 px-6 py-3 flex items-center justify-between gap-3 flex-none">
+    <footer class="bg-[#4a1f0e] border-t-[3px] border-double border-gold/55 px-6 py-3 flex items-center justify-between gap-3 flex-none">
       <button
         type="button"
         on:click={close}
