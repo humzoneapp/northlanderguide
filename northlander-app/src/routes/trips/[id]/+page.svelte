@@ -76,6 +76,8 @@
   import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import DayPlan from '$lib/components/DayPlan.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
+  import { downloadTripBackup } from '$lib/utils/backup.js';
+  import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
   let trip = null;
@@ -539,6 +541,8 @@
     Promise.resolve().then(rebuildRevealObserver);
   }
 
+  let ptrHandle = null;
+
   onMount(() => {
     /* Tick the countdown once a minute. The page already does most
        of its work in load(); the ticker is just a wall-clock pulse. */
@@ -547,6 +551,12 @@
     /* Parallax scroll listener. Passive so it never blocks scroll. */
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+    /* Pull-to-refresh: dragging down from the top reloads the trip
+       + every child row so external mutations (file restore, other
+       tabs, the share import path) reflect immediately. */
+    if (typeof document !== 'undefined') {
+      ptrHandle = pullToRefresh(document.body, { onRefresh: load });
     }
     return () => {
       clearInterval(tickerId);
@@ -560,6 +570,10 @@
       }
       if (typeof window !== 'undefined') {
         window.removeEventListener('scroll', handleScroll);
+      }
+      if (ptrHandle) {
+        ptrHandle.destroy();
+        ptrHandle = null;
       }
     };
   });
@@ -1867,6 +1881,33 @@
         rel="noopener"
         class="btn-primary cover-print"
       >Save as PDF</a>
+    </div>
+  </section>
+
+  <!-- ===== Backup ===== -->
+  <section class="backup">
+    <div class="backup-inner">
+      <div>
+        <div class="kicker">Backup</div>
+        <p>Download a single file with every plan, photo and note from this trip. Hand it to yourself if you switch devices or wipe browser data.</p>
+      </div>
+      <button
+        type="button"
+        class="backup-btn"
+        on:click={async () => {
+          if (!trip) return;
+          const ok = await downloadTripBackup(trip.id);
+          if (ok) pushToast({ message: 'Backup downloaded.', kind: 'success' });
+          else pushToast({ message: 'Backup failed.', kind: 'warn' });
+        }}
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
+          <polyline points="8 12 12 16 16 12"/>
+          <line x1="12" y1="3" x2="12" y2="16"/>
+        </svg>
+        <span>Download backup</span>
+      </button>
     </div>
   </section>
 
@@ -3583,6 +3624,55 @@
       top: 14px; right: 14px;
     }
     .foot-stamp-line--big { font-size: 14px; }
+  }
+
+  /* ===== Backup band =====
+     Sits above the danger zone so users see the "download a copy"
+     option before the "delete this trip" one. Same cream/dashed
+     vocabulary as the rest of the page. */
+  .backup {
+    background: #f3ece0;
+    padding: 24px 24px 0;
+  }
+  .backup-inner {
+    max-width: 920px;
+    margin: 0 auto;
+    border-top: 1px dashed rgba(125, 58, 30, 0.4);
+    padding-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .backup p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 4px 0 0;
+    max-width: 60ch;
+  }
+  .backup-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #7d3a1e;
+    border: 1.5px solid #7d3a1e;
+    padding: 9px 16px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  }
+  .backup-btn:hover {
+    background: #7d3a1e;
+    color: #fffdf6;
+    transform: translateY(-1px);
   }
 
   /* ===== Danger zone ===== */

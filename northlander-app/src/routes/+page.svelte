@@ -2,21 +2,73 @@
   import { onMount, onDestroy } from 'svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
-  import { trips, deleteTrip, getTripMood } from '$lib/stores/trips.js';
+  import { trips, deleteTrip, getTripMood, listTrips } from '$lib/stores/trips.js';
+  import { restoreTripBackup } from '$lib/utils/backup.js';
+  import { pushToast } from '$lib/stores/toasts.js';
+  import { goto } from '$app/navigation';
+  import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
   import { STOPS, getStop, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
   import { listPackingItems } from '$lib/stores/packing.js';
   import { todayLocalISO, formatTripDate } from '$lib/data/schedule.js';
 
   let showNewModal = false;
+
+  /* Pull-to-refresh handler. Re-reads trips + per-trip stats so a
+     user who edited a trip elsewhere (file restore, another tab)
+     can drag down to see fresh dashboard data. */
+  async function handleRefresh() {
+    const list = await listTrips();
+    trips.set(list);
+    await loadTripStats(list);
+  }
+
+  /* File input + handler for restoring a previously-downloaded
+     .northlander.json backup. Reads the file, parses, hands the
+     payload off to restoreTripBackup, and routes the user to the
+     restored trip page on success. */
+  let restoreFileInput;
+  async function onRestoreFile(ev) {
+    const file = ev?.target?.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const created = await restoreTripBackup(payload);
+      if (created) {
+        pushToast({ message: `Restored "${created.name}".`, kind: 'success' });
+        goto(`/trips/${created.id}`);
+      } else {
+        pushToast({ message: "That file didn't look like a Northlander backup.", kind: 'warn' });
+      }
+    } catch (err) {
+      console.error(err);
+      pushToast({ message: 'Could not read that file.', kind: 'warn' });
+    } finally {
+      if (restoreFileInput) restoreFileInput.value = '';
+    }
+  }
   /* The trips store populates from Dexie on first paint. We wait
      a short beat before deciding whether to mount the onboarding
      overlay so returning users (who have trips but the store
      hasn't filled yet) don't see it flash up and then disappear. */
   let onboardingReady = false;
+  /* Pull-to-refresh action handle so we can tear it down on
+     destroy. Attached directly to document.body so the gesture
+     works no matter which surface the user grabs. */
+  let ptrHandle = null;
   onMount(() => {
     const t = setTimeout(() => (onboardingReady = true), 220);
-    return () => clearTimeout(t);
+    if (typeof document !== 'undefined') {
+      ptrHandle = pullToRefresh(document.body, { onRefresh: handleRefresh });
+    }
+    return () => {
+      clearTimeout(t);
+      if (ptrHandle) {
+        ptrHandle.destroy();
+        ptrHandle = null;
+      }
+    };
   });
   onDestroy(() => {
     if (typeof URL !== 'undefined') {
@@ -300,6 +352,26 @@
         >
           {$trips.length === 0 ? 'Start your first trip' : '+ Start a new trip'}
         </button>
+        <button
+          type="button"
+          class="dash-restore"
+          on:click={() => restoreFileInput?.click()}
+          title="Restore a previously downloaded .northlander.json file"
+        >
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12 V5 a2 2 0 0 1 2 -2 H18 a2 2 0 0 1 2 2 V12"/>
+            <polyline points="8 12 12 8 16 12"/>
+            <line x1="12" y1="3" x2="12" y2="16"/>
+          </svg>
+          <span>Restore a backup</span>
+        </button>
+        <input
+          type="file"
+          accept=".json,application/json"
+          bind:this={restoreFileInput}
+          on:change={onRestoreFile}
+          hidden
+        />
       </div>
     </div>
 
@@ -612,6 +684,32 @@
       repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
     pointer-events: none;
   }
+  /* Restore-a-backup secondary CTA. Quiet italic next to the
+     primary new-trip button so it doesn't compete. */
+  .dash-restore {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 14px;
+    background: transparent;
+    border: 1.5px dashed rgba(245, 240, 232, 0.6);
+    color: #f3ece0;
+    padding: 9px 14px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+  .dash-restore:hover {
+    background: #f3ece0;
+    color: #0a2d21;
+    border-color: #f3ece0;
+  }
+
   /* Train chuffing across the top of the hero on first paint.
      Plays for ~3.6s left-to-right then sits off-screen. Pointer-
      events disabled so it never blocks the hero CTAs. Reduced-
