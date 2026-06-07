@@ -59,6 +59,26 @@
     return `${y}-${m}-${day}`;
   }
 
+  /* Pick the [start, end] YYYY-MM-DD window the user-events list
+     should be gated to. When the parent passes both dates (the trip
+     page does per chapter), use them verbatim. When endDate is
+     missing, mirror eventsInDateWindow and synthesize a 7-day window
+     forward from departureDate. When departureDate is missing too,
+     return [null, null] so the filter passes everything (the user
+     hasn't dated their route yet). */
+  function userEventsWindow(start, end) {
+    if (!start) return [null, null];
+    if (end) return [start, end];
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(start);
+    if (!m) return [start, null];
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    d.setDate(d.getDate() + 6);
+    const y = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const da = String(d.getDate()).padStart(2, '0');
+    return [start, `${y}-${mo}-${da}`];
+  }
+
   $: tripId, stopIds, departureDate, endDate, refresh();
 
   onMount(refresh);
@@ -82,10 +102,22 @@
         ? eventsInRange(forStops, departureDate, endDate)
         : eventsInDateWindow(forStops, departureDate, 7);
       events = sortEvents(inWindow);
-      /* Filter user events to the same stop set so each chapter's
-         strip only shows its own. */
+      /* Filter user events to the same stop set AND the same date
+         window the Guide grid uses, so each chapter's strip only
+         shows items that fall on the days the user is actually at
+         the stop. When `endDate` is missing (one-way, last chapter),
+         mirror the Guide's 7-day fallback from `departureDate`. */
       const ids = new Set(stopIds);
-      userEvents = ueRows.filter((u) => !u.stopId || ids.has(u.stopId));
+      const [winStart, winEnd] = userEventsWindow(departureDate, endDate);
+      userEvents = ueRows.filter((u) => {
+        if (u.stopId && !ids.has(u.stopId)) return false;
+        if (!winStart) return true;
+        const d = u.startDate;
+        if (!d) return false;
+        if (d < winStart) return false;
+        if (winEnd && d > winEnd) return false;
+        return true;
+      });
     } catch (err) {
       error = "We couldn't fetch events from the Guide right now. Check your connection?";
       events = [];
