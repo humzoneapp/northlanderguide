@@ -322,12 +322,120 @@
     tilt: ((idx % 5) - 2) * 4
   }));
 
+  /* Inline SVG glyphs for the TOC chips. Kept tiny so they sit
+     inside a 14px row without throwing off the pill height. */
+  const TOC_ICONS = {
+    top: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 L4 20 L20 20"/><path d="M4 6 L12 14 L16 10 L20 14"/></svg>',
+    pack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8 V6 a2 2 0 0 1 2 -2 H15 a2 2 0 0 1 2 2 V8"/><rect x="5" y="8" width="14" height="13" rx="2"/><path d="M9 12 H15"/></svg>',
+    stop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21 C7 14 4 11 4 8 a8 8 0 0 1 16 0 c0 3 -3 6 -8 13 Z"/><circle cx="12" cy="8" r="2.5"/></svg>',
+    depart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="14" rx="3"/><path d="M4 11 L20 11"/><circle cx="8.5" cy="20" r="1.4"/><circle cx="15.5" cy="20" r="1.4"/></svg>',
+    returnLeg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 H10 a4 4 0 0 0 -4 4 v3"/><path d="M9 16 L4 13 L9 10"/></svg>',
+    foot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9 L15 12 L9 15 Z" fill="currentColor"/></svg>'
+  };
+
+  /* Reactive list of TOC chips. Always begins with Top + Pack, then
+     one chip per outbound stop (named after the stop), then one per
+     return stop, then Sign off. Stop names get truncated CSS-side
+     so a long station name doesn't blow the chip width up. */
+  $: tocItems = (() => {
+    if (!trip) return [];
+    const items = [
+      { id: 'trip-top', label: 'Top', icon: TOC_ICONS.top },
+      { id: 'trip-pack', label: 'Pack', icon: TOC_ICONS.pack }
+    ];
+    stops.forEach((s, i) => {
+      items.push({
+        id: `scene-${i}`,
+        label: s.name,
+        icon: i === 0 ? TOC_ICONS.depart : TOC_ICONS.stop
+      });
+    });
+    returnStops.forEach((s, j) => {
+      items.push({
+        id: `scene-return-${j}`,
+        label: s.name,
+        icon: TOC_ICONS.returnLeg
+      });
+    });
+    items.push({ id: 'trip-foot', label: 'Sign off', icon: TOC_ICONS.foot });
+    return items;
+  })();
+
+  /* Smooth scroll on chip tap with an offset that accounts for the
+     sticky topbar AND the sticky TOC itself. Mirrors the Guide's
+     pattern at site/stop-page.js:752+. */
+  const STICKY_OFFSET = 112;
+  function handleTocClick(e, id) {
+    if (typeof document === 'undefined') return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    const y = target.getBoundingClientRect().top + window.scrollY - STICKY_OFFSET;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+    /* Centre the tapped chip in the horizontal scroll bar so the
+       user can see which one they hit on a narrow viewport. */
+    const chip = e.currentTarget;
+    if (chip && chip.scrollIntoView) {
+      chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
+  /* IntersectionObserver that flips .is-active on the chip whose
+     section is currently in view. Held at component scope so we can
+     tear it down + rebuild it every time tocItems changes (a stop
+     gets added / removed / renamed). */
+  let tocObserver = null;
+  function rebuildTocObserver() {
+    if (typeof document === 'undefined' || typeof IntersectionObserver === 'undefined') return;
+    if (tocObserver) {
+      tocObserver.disconnect();
+      tocObserver = null;
+    }
+    const nav = document.getElementById('tripToc');
+    if (!nav) return;
+    const links = Array.from(nav.querySelectorAll('.trip-toc-link'));
+    if (!links.length) return;
+    const sections = links
+      .map((a) => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    if (!sections.length) return;
+    tocObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const id = entry.target.id;
+        links.forEach((a) => {
+          a.classList.toggle('is-active', a.getAttribute('href') === '#' + id);
+        });
+      });
+    }, {
+      /* Same offset trick as the Guide: a section is "active" only
+         when its top sits inside the upper third of the viewport,
+         well below the sticky topbar + TOC. */
+      rootMargin: `-${STICKY_OFFSET + 20}px 0px -55% 0px`,
+      threshold: 0
+    });
+    sections.forEach((s) => tocObserver.observe(s));
+  }
+
+  /* Bump the observer whenever the chip set changes (route edited,
+     packing list renamed, etc). Wrapped in a microtask so the
+     freshly-rendered chips are in the DOM by the time we query. */
+  $: if (typeof window !== 'undefined' && Array.isArray(tocItems)) {
+    Promise.resolve().then(rebuildTocObserver);
+  }
+
   onMount(() => {
     /* Tick the countdown once a minute. The page already does most
        of its work in load(); the ticker is just a wall-clock pulse. */
     const tickerId = setInterval(() => { tickerNow = Date.now(); }, 60_000);
     load();
-    return () => clearInterval(tickerId);
+    return () => {
+      clearInterval(tickerId);
+      if (tocObserver) {
+        tocObserver.disconnect();
+        tocObserver = null;
+      }
+    };
   });
 
   async function load() {
@@ -570,6 +678,28 @@
     </div>
   </nav>
 
+  <!-- ===== Trip table of contents =====
+       Sticky pill row that lets the user jump straight to any chapter
+       without scrolling through the page. Mirrors the Guide's
+       stop-page .sp-toc pattern: horizontally scrolling on mobile,
+       active chip auto-centres on tap, IntersectionObserver flips
+       the .is-active class as a section comes into view. -->
+  <nav class="trip-toc" id="tripToc" aria-label="Jump to a chapter">
+    <div class="trip-toc-row">
+      {#each tocItems as t}
+        <a
+          class="trip-toc-link"
+          href={`#${t.id}`}
+          data-trip-toc={t.id}
+          on:click={(e) => handleTocClick(e, t.id)}
+        >
+          <span class="trip-toc-icon" aria-hidden="true">{@html t.icon}</span>
+          <span class="trip-toc-label">{t.label}</span>
+        </a>
+      {/each}
+    </div>
+  </nav>
+
   <!-- ===== Editorial cover banner =====
        The arriving stop's hero photo (or the user's custom upload)
        sits behind a forest gradient overlay. A boarding-pass header
@@ -578,7 +708,7 @@
        below in the cream/ivory editorial style. A small "Change
        cover" button in the corner lets the user swap the banner
        image at any time. -->
-  <header class="cover" class:has-image={!!bannerImage}>
+  <header id="trip-top" class="cover" class:has-image={!!bannerImage}>
     <div
       class="cover-bg"
       class:has-image={!!bannerImage}
@@ -909,7 +1039,7 @@
          action). All that stays here is the one bag the user packs
          for the whole journey, tucked into a Drawer accordion so
          the section stays scannable as the list grows. -->
-    <section class="before-board">
+    <section id="trip-pack" class="before-board">
       <div class="before-board-inner">
         <div class="before-board-head">
           <div class="kicker">Before You Board</div>
@@ -1456,7 +1586,7 @@
        Stamp uses the Guide's circular double-border pattern
        (plan-page.css:1110-1142) at a smaller scale, rotated -8deg
        so it reads as something pressed onto the page. -->
-  <section class="foot">
+  <section id="trip-foot" class="foot">
     <span class="foot-stamp" aria-hidden="true">
       <span class="foot-stamp-line foot-stamp-line--top">Northlander</span>
       <span class="foot-stamp-line foot-stamp-line--big">Bon</span>
@@ -1591,6 +1721,93 @@
     margin: 0 8px;
   }
   .crumbs-now { color: #f5f0e8; }
+
+  /* ===== Trip table of contents =====
+     Sticky pill row that mirrors the Guide's stop-page TOC pattern
+     (site/stop-page.css .sp-toc) but recoloured for the App's cream
+     paper background. Sits just under the forest topbar at top:52px
+     and scrolls horizontally on mobile so a 16-stop trip's chips
+     can all be reached with a flick. */
+  .trip-toc {
+    position: sticky;
+    top: 52px;
+    z-index: 60;
+    background: #fbf6ea;
+    border-top: 1px solid rgba(125, 58, 30, 0.18);
+    border-bottom: 1px solid rgba(125, 58, 30, 0.22);
+    box-shadow: 0 4px 14px rgba(40, 30, 20, 0.06);
+    backdrop-filter: blur(6px);
+  }
+  .trip-toc-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    max-width: 1180px;
+    margin: 0 auto;
+    scroll-behavior: smooth;
+  }
+  .trip-toc-row::-webkit-scrollbar { display: none; }
+
+  .trip-toc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    background: transparent;
+    color: #5a4f3d;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    transition: background 140ms ease, color 140ms ease;
+    border: 1.5px solid transparent;
+    white-space: nowrap;
+  }
+  .trip-toc-link:hover {
+    background: rgba(125, 58, 30, 0.08);
+    color: #0a2d21;
+  }
+  .trip-toc-link.is-active {
+    background: #7d3a1e;
+    color: #fffdf6;
+    box-shadow: 0 3px 10px rgba(125, 58, 30, 0.32);
+  }
+  .trip-toc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: #7d3a1e;
+  }
+  .trip-toc-link.is-active .trip-toc-icon { color: #fffdf6; }
+  .trip-toc-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  /* Truncate long station names so a 16-stop trip's TOC stays
+     readable. The chip can still grow to accommodate its content
+     but tops out around 130px on each label. */
+  .trip-toc-label {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 720px) {
+    .trip-toc { top: 48px; }
+    .trip-toc-row { padding: 8px 12px; gap: 4px; }
+    .trip-toc-link { padding: 7px 11px; font-size: 12px; }
+  }
 
   /* ===== Cover banner =====
      The arriving stop's photo (or a user upload) sits behind a
