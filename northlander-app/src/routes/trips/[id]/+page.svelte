@@ -173,6 +173,11 @@
 
   $: tripId = $page.params.id;
   $: stops = trip ? deriveStops(trip) : [];
+  /* Return leg, derived separately so the cover ticket + the chapter
+     section can iterate it without confusing it with the outbound
+     leg. Each entry mirrors the outbound shape (`stayStart` /
+     `stayEnd`) so the same chapter component pattern works. */
+  $: returnStops = trip ? deriveReturnStops(trip) : [];
   /* Cover stat aggregates across every list. Per-list counts for
      the Drawer badges are derived inline where they're rendered. */
   $: packingCount = packingRows.length;
@@ -358,13 +363,16 @@
      `stopIds` with direction applied. */
   function deriveStops(t) {
     if (Array.isArray(t.stops) && t.stops.length > 0) {
+      const firstReturnDate = (Array.isArray(t.returnStops) && t.returnStops.length > 0)
+        ? (t.returnStops[0].date || '')
+        : (t.returnDate || '');
       return t.stops
         .map((entry, i, arr) => {
           const stop = getStopsByIds([entry.stopId])[0];
           if (!stop) return null;
           const stayStart = entry.date || '';
           const next = arr[i + 1];
-          const stayEnd = next ? (next.date || '') : (t.returnDate || '');
+          const stayEnd = next ? (next.date || '') : firstReturnDate;
           return { ...stop, date: stayStart, stayStart, stayEnd };
         })
         .filter(Boolean);
@@ -372,6 +380,29 @@
     const forward = getStopsByIds(t.stopIds || []);
     const oriented = (t.direction === 'southbound') ? forward.slice().reverse() : forward;
     return oriented.map((s) => ({ ...s, date: '', stayStart: '', stayEnd: '' }));
+  }
+
+  /* Walk the return leg the same way deriveStops walks the outbound
+     leg: each entry knows its arrival date and the stayEnd is the
+     NEXT return entry's date (or null on the last one, since the
+     trip ends there). Falls back to the legacy single-entry shape
+     when the trip predates multi-stop returns. */
+  function deriveReturnStops(t) {
+    let raw = Array.isArray(t.returnStops) ? t.returnStops : null;
+    if ((!raw || raw.length === 0) && t.returnDate) {
+      raw = [{ stopId: t.returnStopId || (Array.isArray(t.stops) && t.stops[0]?.stopId) || '', date: t.returnDate }];
+    }
+    if (!raw || raw.length === 0) return [];
+    return raw
+      .map((entry, i, arr) => {
+        const stop = getStopsByIds([entry.stopId])[0];
+        if (!stop) return null;
+        const stayStart = entry.date || '';
+        const next = arr[i + 1];
+        const stayEnd = next ? (next.date || '') : '';
+        return { ...stop, date: stayStart, stayStart, stayEnd, isReturn: true };
+      })
+      .filter(Boolean);
   }
 
   /* Window between this stop's arrival and the next stop's
@@ -484,6 +515,7 @@
     const detail = event.detail || {};
     const updated = await setTripRoute(trip.id, {
       stops: detail.stops || [],
+      returnStops: Array.isArray(detail.returnStops) ? detail.returnStops : undefined,
       returnDate: detail.returnDate || '',
       returnStopId: detail.returnStopId || ''
     });
@@ -578,7 +610,7 @@
               <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
             {/if}
           </span>
-          {#if i < stops.length - 1 || trip.returnDate}
+          {#if i < stops.length - 1 || returnStops.length > 0}
             <span class="cover-ticket-arrow" aria-hidden="true">
               <svg viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
                 <path d="M2 7 H48" stroke-dasharray="3 3"/>
@@ -587,17 +619,31 @@
             </span>
           {/if}
         {/each}
-        {#if trip.returnDate && returningStop}
+        {#if returnStops.length > 0}
           {@const returnDir = (trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound'}
-          {@const returnTime = trainTimeFor(returningStop.id, returnDir)}
-          <span class="cover-ticket-end">
-            <span class="cover-ticket-kicker">Return</span>
-            <span class="cover-ticket-name">{returningStop.name}</span>
-            {#if returnTime?.arrive}
-              <span class="cover-ticket-time">{returnTime.arrive}</span>
+          {#each returnStops as rs, j}
+            {@const returnTime = trainTimeFor(rs.id, returnDir)}
+            <span class="cover-ticket-end cover-ticket-end--return">
+              <span class="cover-ticket-kicker">
+                {j === returnStops.length - 1 ? 'Return' : `Return ${j + 1}`}
+              </span>
+              <span class="cover-ticket-name">{rs.name}</span>
+              {#if returnTime?.arrive}
+                <span class="cover-ticket-time">{returnTime.arrive}</span>
+              {/if}
+              {#if rs.stayStart}
+                <span class="cover-ticket-date">{formatDateShort(rs.stayStart)}</span>
+              {/if}
+            </span>
+            {#if j < returnStops.length - 1}
+              <span class="cover-ticket-arrow" aria-hidden="true">
+                <svg viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                  <path d="M2 7 H48" stroke-dasharray="3 3"/>
+                  <path d="M42 2 L52 7 L42 12"/>
+                </svg>
+              </span>
             {/if}
-            <span class="cover-ticket-date">{formatDateShort(trip.returnDate)}</span>
-          </span>
+          {/each}
         {/if}
       </div>
       <!-- Schedule reference. The Proposed Service Schedule on
@@ -1213,6 +1259,174 @@
       {/each}
     </section>
 
+    {#if returnStops.length > 0}
+      <!-- Return-trip break: a heavier divider that announces the
+           train has turned around. Each return entry then gets its
+           own chapter using the same five-drawer scene pattern, but
+           on the opposite direction (so train times read off the
+           return-leg schedule). -->
+      <div class="return-divider" aria-hidden="true">
+        <span class="return-divider-rule"></span>
+        <span class="return-divider-label">Return Trip</span>
+        <span class="return-divider-rule"></span>
+      </div>
+
+      <section class="scenes scenes--return">
+        {#each returnStops as stop, j}
+          {@const isLastReturn = j === returnStops.length - 1}
+          {@const tripDir = trip.direction || 'northbound'}
+          {@const returnDir = tripDir === 'northbound' ? 'southbound' : 'northbound'}
+          {@const stopTime = trainTimeFor(stop.id, returnDir)}
+          {@const trainLine = stopTime?.arrive ? `Arrives ${stopTime.arrive}` : ''}
+
+          <article id="scene-return-{j}" class="scene scene--return">
+            <div class="scene-inner">
+              <header class="scene-head">
+                <div class="kicker">
+                  {isLastReturn ? 'Return' : `Return ${j + 1}`}
+                </div>
+                <h2 class="scene-name">{stop.name}</h2>
+                <div class="scene-meta">
+                  <span class="scene-meta-region">{stop.region}</span>
+                  {#if stop.stayStart}
+                    <span class="scene-meta-sep" aria-hidden="true">·</span>
+                    <span class="scene-meta-date">{formatStayLabel(stop)}</span>
+                  {/if}
+                  {#if trainLine}
+                    <span class="scene-meta-sep" aria-hidden="true">·</span>
+                    <span class="scene-meta-time">{trainLine}</span>
+                  {/if}
+                </div>
+              </header>
+
+              <div class="scene-grid">
+                <div class="scene-main">
+                  <Drawer
+                    kicker="Bookings"
+                    title="Booking checklist"
+                    count={bookings.filter((b) => b.stopId === stop.id).length}
+                    countLabel={bookings.filter((b) => b.stopId === stop.id).length === 1 ? 'plan' : 'plans'}
+                  >
+                    <BookingChecklist
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      direction={returnDir}
+                      departureClock={depClock}
+                      refreshKey={dataVersion}
+                      hideHeader={true}
+                      on:change={load}
+                    />
+                    <button
+                      type="button"
+                      class="browse-guide-btn"
+                      on:click={() => openAddPlan(stop.id, 'all')}
+                    >
+                      <span class="browse-guide-plus" aria-hidden="true">+</span>
+                      Browse the Guide for {stop.name}
+                    </button>
+                  </Drawer>
+
+                  <Drawer
+                    kicker="Journey"
+                    title="Travel Diary"
+                    count={diary.filter((d) => d.stopId === stop.id).length}
+                    countLabel={diary.filter((d) => d.stopId === stop.id).length === 1 ? 'note' : 'notes'}
+                  >
+                    <TravelDiary
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      refreshKey={dataVersion}
+                      hideHeader={true}
+                      on:change={load}
+                    />
+                  </Drawer>
+
+                  <Drawer
+                    kicker="Album"
+                    title="Polaroids"
+                    count={photos.filter((p) => p.stopId === stop.id).length}
+                    countLabel={photos.filter((p) => p.stopId === stop.id).length === 1 ? 'photo' : 'photos'}
+                  >
+                    <PhotoAlbum
+                      tripId={trip.id}
+                      stopIds={trip.stopIds || []}
+                      stopFilter={stop.id}
+                      refreshKey={dataVersion}
+                      hideHeader={true}
+                      on:change={load}
+                    />
+                  </Drawer>
+
+                  <Drawer
+                    kicker="Ledger"
+                    title="Spending"
+                    count={budgetEntries.filter((e) => e.stopId === stop.id).length}
+                    countLabel={budgetEntries.filter((e) => e.stopId === stop.id).length === 1 ? 'entry' : 'entries'}
+                  >
+                    <BudgetTracker
+                      tripId={trip.id}
+                      stopFilter={stop.id}
+                      refreshKey={dataVersion}
+                      hideHeader={true}
+                      on:change={load}
+                    />
+                  </Drawer>
+
+                  <Drawer
+                    kicker="From the Guide"
+                    title="Happening at {stop.name}"
+                  >
+                    <EventsAlongRoute
+                      tripId={trip.id}
+                      stopIds={[stop.id]}
+                      departureDate={stop.stayStart || null}
+                      endDate={stop.stayEnd || null}
+                    />
+                  </Drawer>
+                </div>
+
+                <aside class="scene-aside">
+                  <figure class="scene-postcard">
+                    <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
+                  </figure>
+                  <p class="scene-aside-hook">{stop.hook}</p>
+                  <a
+                    class="scene-aside-guide"
+                    href={`https://northlanderguide.com/stops/${stop.id}/`}
+                    target="_blank"
+                    rel="noopener"
+                  >Open {stop.name} on the Guide  &rarr;</a>
+                </aside>
+              </div>
+            </div>
+          </article>
+
+          {#if !isLastReturn}
+            <div class="chapter-divider" aria-hidden="true">
+              <div class="chapter-divider-rule"></div>
+              <div class="chapter-divider-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="14" rx="3"/>
+                  <path d="M4 11 L20 11"/>
+                  <circle cx="8.5" cy="20" r="1.4"/>
+                  <circle cx="15.5" cy="20" r="1.4"/>
+                  <path d="M7 17 L7 19"/>
+                  <path d="M17 17 L17 19"/>
+                </svg>
+              </div>
+              <span class="chapter-divider-time">
+                {travelDuration(
+                  Math.abs((returnStops[j + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
+                )} to {returnStops[j + 1].name}
+              </span>
+            </div>
+          {/if}
+        {/each}
+      </section>
+    {/if}
+
   {#if unassigned.length > 0}
     <!-- ===== Loose plans ===== -->
     <section class="loose">
@@ -1297,6 +1511,7 @@
   {#if showStopPicker}
     <TripRoutePicker
       stops={trip.stops || (trip.stopIds || []).map((id) => ({ stopId: id, date: '' }))}
+      returnStops={trip.returnStops || []}
       returnDate={trip.returnDate || ''}
       returnStopId={trip.returnStopId || ''}
       on:save={saveStops}
@@ -2410,6 +2625,42 @@
     font-size: 14px;
     color: #5a4f3d;
     white-space: nowrap;
+  }
+
+  /* Return-trip break: a heavier divider with a forest small-caps
+     label centered between two gold rules so the user can see at
+     a glance that the train has turned around. */
+  .return-divider {
+    max-width: 1080px;
+    margin: 56px auto 40px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .return-divider-rule {
+    flex: 1;
+    height: 0;
+    border-top: 1px dashed rgba(201, 168, 76, 0.7);
+  }
+  .return-divider-label {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #0a2d21;
+    background: #fbf6ea;
+    padding: 6px 14px;
+    border: 1.5px solid #c9a84c;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* Return cover-ticket chips wear a forest kicker so the user can
+     see which chips belong to the return leg at a glance. */
+  .cover-ticket-end--return .cover-ticket-kicker {
+    color: #c9a84c;
   }
 
   /* ===== Loose plans ===== */

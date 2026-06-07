@@ -18,35 +18,40 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { STOPS } from '$lib/data/stops.js';
 
-  /** @type {{ stopId: string, date: string }[]} - existing route, if any */
+  /** @type {{ stopId: string, date: string }[]} - existing outbound route */
   export let stops = [];
-  /** @type {string} */
+  /** @type {{ stopId: string, date: string }[]} - existing multi-stop
+      return route (added 2026-06-07). When the trip was saved before
+      multi-stop returns shipped we synthesize a single-entry array
+      from the legacy returnDate + returnStopId on mount. */
+  export let returnStops = [];
+  /** @type {string} - legacy single-return date, kept as a prop so
+      existing callers continue to work; only consulted on mount when
+      `returnStops` is empty. */
   export let returnDate = '';
-  /** @type {string} - station the user ends at on the return leg.
-      Defaults to the departing station, but on mount we honour an
-      explicit value so editing an existing trip with a different
-      return location keeps it. */
+  /** @type {string} - legacy single-return station. */
   export let returnStopId = '';
 
   const dispatch = createEventDispatcher();
 
   /* Mode:
-       'pick'   - active step where the user picks station + date
-       'return' - final step, only a date input
+       'pick'   - active step where the user picks an OUTBOUND
+                  station + date
+       'return' - active step where the user picks a RETURN station
+                  + date. Now multi-step: the user can commit a
+                  return entry and add another, or save.
   */
   let mode = 'pick';
 
-  /** @type {{ stopId: string, date: string }[]} - committed entries */
+  /** @type {{ stopId: string, date: string }[]} - committed outbound entries */
   let entries = [];
+  /** @type {{ stopId: string, date: string }[]} - committed return entries */
+  let returnEntries = [];
 
   /* Active step state, edited in place until the user commits with
-     Add another stop / Set return date. */
+     Add another stop / Add another return stop / Set return date. */
   let activeStopId = '';
   let activeDate = '';
-
-  /* Return-step state. */
-  let returnDateDraft = '';
-  let returnStopIdDraft = '';
 
   let submitting = false;
 
@@ -56,13 +61,15 @@
         .filter((s) => s && s.stopId)
         .map((s) => ({ stopId: s.stopId, date: s.date || '' }));
     }
-    returnDateDraft = returnDate || '';
-    /* Default the return station to whatever was saved before;
-       fall back to the departing station so the most common
-       round-trip case is one tap from Done. */
-    returnStopIdDraft = returnStopId || entries[0]?.stopId || '';
-    /* Start a fresh active step so the user can append, or open the
-       return step if they already had a return date set. */
+    if (Array.isArray(returnStops) && returnStops.length > 0) {
+      returnEntries = returnStops
+        .filter((s) => s && s.stopId)
+        .map((s) => ({ stopId: s.stopId, date: s.date || '' }));
+    } else if (returnDate && returnStopId) {
+      /* Legacy single-stop return: hydrate into a one-entry array
+         so the picker starts in the new shape. */
+      returnEntries = [{ stopId: returnStopId, date: returnDate }];
+    }
     activeStopId = '';
     activeDate = '';
   });
@@ -81,25 +88,38 @@
   }
   const TODAY_ISO = todayLocal();
 
-  $: stepNumber = entries.length + 1;
+  /* The "anchor" entry the active step extends from. In pick mode
+     that's the previous outbound entry; in return mode it's the last
+     return entry, falling back to the last outbound entry when the
+     user is picking their first return stop. */
+  $: anchorEntry = (() => {
+    if (mode === 'return') {
+      if (returnEntries.length > 0) return returnEntries[returnEntries.length - 1];
+      if (entries.length > 0) return entries[entries.length - 1];
+      return null;
+    }
+    return entries.length > 0 ? entries[entries.length - 1] : null;
+  })();
   $: minDate = (() => {
-    const prev = entries.length > 0 ? entries[entries.length - 1].date || '' : '';
+    const prev = anchorEntry?.date || '';
     return prev && prev > TODAY_ISO ? prev : TODAY_ISO;
   })();
   /* The stop the user just boarded at / arrived at. The next pick
      can't be the same place - you're already there, you can't get
      off the train at the same station you just got on. */
-  $: prevStopId = entries.length > 0 ? entries[entries.length - 1].stopId : '';
+  $: prevStopId = anchorEntry?.stopId || '';
   $: canCommit = !!activeStopId && activeStopId !== prevStopId && !!activeDate && activeDate >= minDate;
-  $: lastEntryDate = entries.length > 0 ? entries[entries.length - 1].date : '';
-  $: returnMinDate = lastEntryDate && lastEntryDate > TODAY_ISO ? lastEntryDate : TODAY_ISO;
-  $: canSaveReturn = !!returnDateDraft && returnDateDraft >= returnMinDate;
   /* The trip needs at least the boarding station and one place to
      get off before it can be saved or have a return date. We check
      the post-commit count: if the active step is filled in, that
      entry will join the route on commit. */
-  $: postCommitCount = entries.length + (canCommit ? 1 : 0);
+  $: postCommitCount = entries.length + (mode === 'pick' && canCommit ? 1 : 0);
   $: canFinish = postCommitCount >= 2;
+  /* In return mode the user can save once they have at least one
+     committed return entry, OR they can save the active step
+     directly (commit-and-save in one tap). */
+  $: returnPostCommitCount = returnEntries.length + (mode === 'return' && canCommit ? 1 : 0);
+  $: canSaveReturn = mode === 'return' && entries.length >= 2 && returnPostCommitCount >= 1;
 
   function pick(id) {
     if (id && id === prevStopId) return;
@@ -108,7 +128,11 @@
 
   function commitActive() {
     if (!canCommit) return;
-    entries = [...entries, { stopId: activeStopId, date: activeDate }];
+    if (mode === 'return') {
+      returnEntries = [...returnEntries, { stopId: activeStopId, date: activeDate }];
+    } else {
+      entries = [...entries, { stopId: activeStopId, date: activeDate }];
+    }
     activeStopId = '';
     activeDate = '';
   }
@@ -123,20 +147,15 @@
        departure + one stop before a return makes sense. */
     if (canCommit) commitActive();
     if (entries.length < 2) return;
-    /* Re-seed the default if the user hasn't touched it yet
-       (e.g. they just added their first stop after opening). */
-    if (!returnStopIdDraft) {
-      returnStopIdDraft = entries[0]?.stopId || '';
-    }
     mode = 'return';
-  }
-  function pickReturnStop(id) {
-    returnStopIdDraft = id;
+    activeStopId = '';
+    activeDate = '';
   }
 
   /* One-way save: commit the active step and dispatch immediately
-     with no return date. The user is telling us they're not coming
-     back this way - the trip ends at the last stop they picked. */
+     with no return entries. The user is telling us they're not
+     coming back this way - the trip ends at the last stop they
+     picked. */
   async function finishOneWay() {
     if (submitting) return;
     if (canCommit) commitActive();
@@ -144,28 +163,41 @@
     submitting = true;
     dispatch('save', {
       stops: entries,
-      returnDate: ''
+      returnStops: []
     });
   }
 
   function backFromReturn() {
+    /* Going back from the return picker drops any in-flight active
+       return step but keeps committed return entries so the user
+       doesn't lose work by tapping Back. */
     mode = 'pick';
-  }
-
-  function removeEntry(idx) {
-    entries = entries.filter((_, i) => i !== idx);
+    activeStopId = '';
+    activeDate = '';
   }
 
   function editEntry(idx) {
-    /* Pull the entry back into the active step so the user can tweak
-       it; drop the entries that came after it since their dates may
-       no longer make sense. */
+    /* Pull an outbound entry back into the active step so the user
+       can tweak it; drop everything after it - both the rest of the
+       outbound AND every committed return entry, because their
+       dates / stations may no longer make sense once the outbound
+       leg is being reworked. */
     const entry = entries[idx];
     if (!entry) return;
     activeStopId = entry.stopId;
     activeDate = entry.date;
     entries = entries.slice(0, idx);
+    returnEntries = [];
     mode = 'pick';
+  }
+
+  function editReturnEntry(idx) {
+    const entry = returnEntries[idx];
+    if (!entry) return;
+    activeStopId = entry.stopId;
+    activeDate = entry.date;
+    returnEntries = returnEntries.slice(0, idx);
+    mode = 'return';
   }
 
   function close() {
@@ -177,17 +209,22 @@
     if (e.key === 'Escape') close();
   }
 
-  $: canSaveReturnFull = canSaveReturn && !!returnStopIdDraft;
-
   async function handleSave() {
     if (submitting) return;
     if (entries.length < 2) return;
-    if (!canSaveReturnFull) return;
+    if (mode !== 'return') return;
+    /* Commit the active return step on save so the user doesn't
+       have to tap "+ Add another return stop" before Save trip when
+       they only want one return entry. */
+    if (canCommit) commitActive();
+    if (returnEntries.length < 1) return;
     submitting = true;
+    const lastReturn = returnEntries[returnEntries.length - 1];
     dispatch('save', {
       stops: entries,
-      returnDate: returnDateDraft,
-      returnStopId: returnStopIdDraft || entries[0]?.stopId || ''
+      returnStops: returnEntries,
+      returnDate: lastReturn.date,
+      returnStopId: lastReturn.stopId
     });
   }
 
@@ -230,7 +267,11 @@
       <div>
         <span id="route-picker-title" class="rp-title">
           {#if mode === 'return'}
-            Return Trip
+            {#if returnEntries.length === 0}
+              Return Trip
+            {:else}
+              Return Stop {returnEntries.length + 1}
+            {/if}
           {:else if entries.length === 0}
             Departing From
           {:else}
@@ -239,7 +280,11 @@
         </span>
         <span class="rp-step">
           {#if mode === 'return'}
-            Last step &middot; Pick the date you're back, and the station you end at.
+            {#if returnEntries.length === 0}
+              Pick the first place you'll get off on the way back, and the day you arrive.
+            {:else}
+              Add another stop on the way back, or save to finish.
+            {/if}
           {:else if entries.length === 0}
             Where you board the train, and the day you leave.
           {:else}
@@ -255,7 +300,7 @@
       >&times;</button>
     </header>
 
-    {#if entries.length > 0}
+    {#if entries.length > 0 || returnEntries.length > 0}
       <div class="rp-trail">
         {#each entries as e, i}
           <button
@@ -271,107 +316,97 @@
             <span class="rp-chip-date">{formatDate(e.date)}</span>
           </button>
         {/each}
-        {#if mode === 'pick' && entries.length > 0}
+        {#if returnEntries.length > 0}
+          <!-- Visual turnaround marker between outbound + return -->
+          <span class="rp-trail-turn" aria-hidden="true">
+            <svg viewBox="0 0 24 14" width="22" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7 H17"/>
+              <path d="M14 3 L18 7 L14 11"/>
+              <path d="M21 11 Q21 7 17 7"/>
+            </svg>
+          </span>
+          {#each returnEntries as e, j}
+            <button
+              type="button"
+              class="rp-chip rp-chip-return"
+              on:click={() => editReturnEntry(j)}
+              title="Edit this return stop"
+            >
+              <span class="rp-chip-label">
+                {j === returnEntries.length - 1 ? 'Return' : `Return ${j + 1}`}
+              </span>
+              <span class="rp-chip-name">{stopName(e.stopId)}</span>
+              <span class="rp-chip-date">{formatDate(e.date)}</span>
+            </button>
+          {/each}
+        {/if}
+        {#if (mode === 'pick' && entries.length > 0) || (mode === 'return' && returnEntries.length > 0)}
           <span class="rp-trail-hint">Tap a chip to edit</span>
         {/if}
       </div>
     {/if}
 
-    {#if mode === 'return'}
-      <div class="rp-body">
-        <label class="rp-date-label">
-          <span class="rp-date-kicker">Return date</span>
-          <input
-            type="date"
-            class="rp-date-input rp-date-input--big"
-            bind:value={returnDateDraft}
-            min={returnMinDate}
-          />
-        </label>
-
-        <div class="rp-station-kicker">Return station</div>
-        <p class="rp-return-hint">
-          Defaults to <strong>{stopName(entries[0]?.stopId)}</strong> (where you boarded).
-          Pick a different stop if you're ending the trip somewhere else.
-        </p>
-        <ol class="rp-list">
-          {#each STOPS as stop}
-            <li>
-              <button
-                type="button"
-                class="rp-row"
-                class:is-on={stop.id === returnStopIdDraft}
-                on:click={() => pickReturnStop(stop.id)}
-              >
-                <span class="rp-dot" aria-hidden="true">
-                  {#if stop.id === returnStopIdDraft}
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 8 7 12 13 4"></polyline>
-                    </svg>
-                  {/if}
-                </span>
-                <div class="rp-row-body">
-                  <span class="rp-row-name">{stop.name}</span>
-                  <span class="rp-row-region">{stop.region}</span>
-                  <p class="rp-row-hook">{stop.hook}</p>
-                </div>
-              </button>
-            </li>
-          {/each}
-        </ol>
-      </div>
-    {:else}
-      <div class="rp-body">
-        <label class="rp-date-label">
-          <span class="rp-date-kicker">
+    <div class="rp-body">
+      <label class="rp-date-label">
+        <span class="rp-date-kicker">
+          {#if mode === 'return'}
+            {returnEntries.length === 0 ? 'Return arrival date' : 'Next return stop date'}
+          {:else}
             {entries.length === 0 ? 'Departure date' : 'Arrival date'}
-          </span>
-          <input
-            type="date"
-            class="rp-date-input"
-            bind:value={activeDate}
-            min={minDate}
-          />
-          {#if activeDate && activeDate < minDate}
-            <span class="rp-date-error">Must be on or after {formatDate(minDate)}.</span>
           {/if}
-        </label>
+        </span>
+        <input
+          type="date"
+          class="rp-date-input {mode === 'return' && returnEntries.length === 0 ? 'rp-date-input--big' : ''}"
+          bind:value={activeDate}
+          min={minDate}
+        />
+        {#if activeDate && activeDate < minDate}
+          <span class="rp-date-error">Must be on or after {formatDate(minDate)}.</span>
+        {/if}
+      </label>
 
-        <div class="rp-station-kicker">Station</div>
-        <ol class="rp-list">
-          {#each STOPS as stop}
-            {@const isPrev = stop.id === prevStopId}
-            <li>
-              <button
-                type="button"
-                class="rp-row"
-                class:is-on={stop.id === activeStopId}
-                class:is-disabled={isPrev}
-                on:click={() => pick(stop.id)}
-                disabled={isPrev}
-                aria-disabled={isPrev}
-              >
-                <span class="rp-dot" aria-hidden="true">
-                  {#if stop.id === activeStopId}
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 8 7 12 13 4"></polyline>
-                    </svg>
-                  {/if}
-                </span>
-                <div class="rp-row-body">
-                  <span class="rp-row-name">
-                    {stop.name}
-                    {#if isPrev}<span class="rp-row-mark">You're already here</span>{/if}
-                  </span>
-                  <span class="rp-row-region">{stop.region}</span>
-                  <p class="rp-row-hook">{stop.hook}</p>
-                </div>
-              </button>
-            </li>
-          {/each}
-        </ol>
+      <div class="rp-station-kicker">
+        {mode === 'return' ? 'Return station' : 'Station'}
       </div>
-    {/if}
+      {#if mode === 'return' && returnEntries.length === 0}
+        <p class="rp-return-hint">
+          Most travellers return to <strong>{stopName(entries[0]?.stopId)}</strong> (where you boarded). Pick a different stop if you're ending the trip somewhere else, or break the trip up with a stopover.
+        </p>
+      {/if}
+      <ol class="rp-list">
+        {#each STOPS as stop}
+          {@const isPrev = stop.id === prevStopId}
+          <li>
+            <button
+              type="button"
+              class="rp-row"
+              class:is-on={stop.id === activeStopId}
+              class:is-disabled={isPrev}
+              on:click={() => pick(stop.id)}
+              disabled={isPrev}
+              aria-disabled={isPrev}
+            >
+              <span class="rp-dot" aria-hidden="true">
+                {#if stop.id === activeStopId}
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 8 7 12 13 4"></polyline>
+                  </svg>
+                {/if}
+              </span>
+              <div class="rp-row-body">
+                <span class="rp-row-name">
+                  {stop.name}
+                  {#if isPrev}<span class="rp-row-mark">You're already here</span>{/if}
+                </span>
+                <span class="rp-row-region">{stop.region}</span>
+                <p class="rp-row-hook">{stop.hook}</p>
+              </div>
+            </button>
+          </li>
+        {/each}
+      </ol>
+    </div>
 
     <footer class="rp-foot">
       {#if mode === 'return'}
@@ -382,11 +417,22 @@
           disabled={submitting}
         >Back</button>
         <div class="rp-foot-right">
+          <!-- Add another return stop is enabled once the active step
+               is a valid pick; tap commits and stays in return mode
+               so the user can keep stringing return stops together. -->
           <button
             type="button"
-            class="btn-primary disabled:opacity-50"
+            class="rp-add-stop"
+            on:click={addAnotherStop}
+            disabled={!canCommit}
+            title="Pin this return stop and add another"
+          >+ Add another return stop</button>
+          <button
+            type="button"
+            class="btn-primary"
             on:click={handleSave}
-            disabled={!canSaveReturnFull || submitting}
+            disabled={!canSaveReturn || submitting}
+            title="Save the trip with the return route"
           >Save trip</button>
         </div>
       {:else}
@@ -403,7 +449,7 @@
                  to the next one. -->
             <button
               type="button"
-              class="btn-primary disabled:opacity-50"
+              class="btn-primary"
               on:click={addAnotherStop}
               disabled={!canCommit}
               title="Pin this stop and pick the next one"
@@ -414,25 +460,25 @@
                  or close the loop with a return date. -->
             <button
               type="button"
-              class="rp-add-stop disabled:opacity-50"
+              class="rp-add-stop"
               on:click={addAnotherStop}
               disabled={!canCommit}
               title="Pin this stop and add another"
             >+ Add another stop</button>
             <button
               type="button"
-              class="rp-add-stop disabled:opacity-50"
+              class="rp-add-stop"
               on:click={finishOneWay}
               disabled={!canFinish || submitting}
               title="Save the trip with no return"
             >One-way</button>
             <button
               type="button"
-              class="btn-primary disabled:opacity-50"
+              class="btn-primary"
               on:click={setReturn}
               disabled={!canFinish}
               title="Move on to the return date"
-            >Set return date  &rarr;</button>
+            >Set return  &rarr;</button>
           {/if}
         </div>
       {/if}
@@ -544,6 +590,22 @@
     color: #5a4f3d;
     font-size: 11.5px;
     margin-left: auto;
+  }
+  /* Visual turnaround marker between outbound and return chips so
+     the user can see at a glance where the trip turns back. */
+  .rp-trail-turn {
+    color: #7d3a1e;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px;
+  }
+  /* Return chips wear a forest accent on the kicker so they read as
+     a different leg from the outbound rust accents above. */
+  .rp-chip-return .rp-chip-label {
+    color: #0a2d21;
+  }
+  .rp-chip-return {
+    border-color: rgba(10, 45, 33, 0.45);
   }
 
   /* ===== Body ===== */

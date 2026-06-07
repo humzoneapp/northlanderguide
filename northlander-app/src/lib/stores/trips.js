@@ -285,8 +285,17 @@ export async function deleteTripPackingList(id, name) {
 /* Write the new dated-route shape on a trip. Mirrors `stopIds` and
    `departureDate` from `stops` so any code still reading the old
    shape keeps working. `direction` is derived from the first vs
-   last picked stop's canonical route index. */
-export async function setTripRoute(id, { stops, returnDate, returnStopId } = {}) {
+   last picked stop's canonical route index.
+
+   Multi-stop returns (added 2026-06-07): `returnStops` is an array
+   of `{stopId, date}` entries chronologically ordered after the
+   outbound leg. The legacy `returnDate` + `returnStopId` mirror the
+   LAST return entry so older readers (cover ticket, recap, poster,
+   print PDF) keep showing a single Return chip without needing to
+   know about multi-stop returns yet. When the caller passes a
+   single `returnDate` / `returnStopId` and omits `returnStops`, we
+   synthesize a one-entry array so the new shape is always written. */
+export async function setTripRoute(id, { stops, returnStops, returnDate, returnStopId } = {}) {
   if (!id) return null;
   const safeStops = Array.isArray(stops)
     ? stops.filter((s) => s && s.stopId).map((s) => ({
@@ -296,6 +305,28 @@ export async function setTripRoute(id, { stops, returnDate, returnStopId } = {})
     : [];
   const stopIds = safeStops.map((s) => s.stopId);
   const departureDate = safeStops[0]?.date || null;
+
+  let safeReturnStops;
+  if (Array.isArray(returnStops)) {
+    safeReturnStops = returnStops
+      .filter((s) => s && s.stopId)
+      .map((s) => ({
+        stopId: String(s.stopId),
+        date: typeof s.date === 'string' ? s.date : ''
+      }));
+  } else if (returnDate && returnStopId) {
+    safeReturnStops = [{ stopId: String(returnStopId), date: String(returnDate) }];
+  } else {
+    safeReturnStops = [];
+  }
+  /* Legacy mirrors point at the last return entry so the cover
+     ticket, recap and PDF print routes that haven't been taught
+     about multi-stop returns yet still show the user's final
+     return station + date. */
+  const lastReturn = safeReturnStops[safeReturnStops.length - 1] || null;
+  const mirroredReturnDate = lastReturn?.date || returnDate || null;
+  const mirroredReturnStopId = lastReturn?.stopId || returnStopId || stopIds[0] || null;
+
   /* Direction: northbound when the trip's farthest stop sits later
      in the south-to-north canonical order than the departing stop.
      We import routeIndex lazily to avoid a circular dependency
@@ -313,8 +344,9 @@ export async function setTripRoute(id, { stops, returnDate, returnStopId } = {})
     stops: safeStops,
     stopIds,
     departureDate,
-    returnDate: returnDate || null,
-    returnStopId: returnStopId || stopIds[0] || null,
+    returnStops: safeReturnStops,
+    returnDate: mirroredReturnDate,
+    returnStopId: mirroredReturnStopId,
     direction
   };
   return updateTrip(id, patch);
