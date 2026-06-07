@@ -443,9 +443,9 @@
     border-color: #1f3d2d;
   }
 
-  /* Branded share row. Mirror of the photo lightbox styling so a
-     user who's seen one knows what the other does. Centered under
-     the poster preview. */
+  /* Share row recoloured 2026-06-07 to the app palette. Mirror of
+     the PhotoAlbum lightbox styling so a user who's seen one knows
+     what the other does. Centered under the poster preview. */
   .share-row {
     margin: 14px auto 0;
     display: flex;
@@ -454,54 +454,62 @@
     gap: 12px;
   }
   .share-icon {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     border: 1.5px solid transparent;
     cursor: pointer;
-    transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease, filter 140ms ease;
+    transition: transform 180ms cubic-bezier(.2,.7,.3,1), background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     padding: 0;
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
   }
   .share-icon:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.22);
   }
-  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; }
+  .share-icon:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
+  }
+  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
   .share-x {
-    background: #ffffff;
-    color: #000000;
-    border-color: #000000;
+    background: #0a2d21;
+    color: #f5f0e8;
+    border-color: #0a2d21;
   }
   .share-x:hover:not(:disabled) {
-    background: #000000;
-    color: #ffffff;
+    background: #133e30;
+    border-color: #133e30;
   }
   .share-instagram {
-    background: linear-gradient(135deg, #515bd4 0%, #8134af 30%, #dd2a7b 60%, #feda77 100%);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.25);
+    background: #c9a84c;
+    color: #0a2d21;
+    border-color: #c9a84c;
   }
   .share-instagram:hover:not(:disabled) {
-    filter: brightness(1.08);
+    background: #d8b863;
+    border-color: #d8b863;
   }
   .share-facebook {
-    background: #1877f2;
-    color: #ffffff;
-    border-color: #1877f2;
-  }
-  .share-facebook:hover:not(:disabled) {
-    background: #0f60d0;
-    border-color: #0f60d0;
-  }
-  .share-native {
-    background: transparent;
-    color: #7d3a1e;
+    background: #7d3a1e;
+    color: #f5f0e8;
     border-color: #7d3a1e;
   }
+  .share-facebook:hover:not(:disabled) {
+    background: #8e4524;
+    border-color: #8e4524;
+  }
+  .share-native {
+    background: #fbf6ea;
+    color: #7d3a1e;
+    border-color: #c9a84c;
+  }
   .share-native:hover:not(:disabled) {
-    background: #7d3a1e;
-    color: #fffdf6;
+    background: #c9a84c;
+    color: #0a2d21;
+    border-color: #c9a84c;
   }
 </style>

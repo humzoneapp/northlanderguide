@@ -343,7 +343,7 @@
           {@const initial = (trip.name || '?').trim().charAt(0).toUpperCase()}
           <div
             class="polaroid-wrap"
-            style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px"
+            style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px; --i:{i}"
           >
             <a
               href={`/trips/${trip.id}`}
@@ -623,12 +623,29 @@
     padding: 8px 8px 14px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
     margin: 0;
-    transform: rotate(var(--rot, 0deg)) translateY(var(--lift, 0px));
+    --base-tilt: var(--rot, 0deg);
+    --base-lift: var(--lift, 0px);
+    transform: rotate(var(--base-tilt)) translateY(var(--base-lift));
     transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+    /* Ambient sway so the dashboard reads as alive even when the
+       user hasn't reached for the cursor. Staggered per-index so
+       all four polaroids don't dip on the same beat. */
+    animation: dash-polaroid-float 7.5s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -1.7s);
+    transform-origin: 50% 100%;
   }
   .dash-polaroid:hover {
     transform: rotate(0deg) translateY(-8px);
     z-index: 4;
+    animation: none;
+  }
+  @keyframes dash-polaroid-float {
+    0%   { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 7px)) rotate(0.9deg); }
+    100% { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-polaroid { animation: none; }
   }
   .dash-polaroid img {
     width: clamp(110px, 14vw, 170px);
@@ -771,12 +788,29 @@
      its tilt onto the wrapper and only handles the lift on hover. */
   .polaroid-wrap {
     position: relative;
-    transform: rotate(var(--rot, 0deg)) translateY(var(--y, 0px));
+    --base-tilt: var(--rot, 0deg);
+    --base-lift: var(--y, 0px);
+    transform: rotate(var(--base-tilt)) translateY(var(--base-lift));
     transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+    /* Idle drift so the trip polaroids don't sit dead still on the
+       dashboard. Staggered via --i so the row reads as a breeze
+       passing through the photos pinned to a paper page. */
+    animation: trip-polaroid-drift 8s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -2s);
+    transform-origin: 50% 100%;
   }
   .polaroid-wrap:hover {
     transform: rotate(0deg) translateY(-8px);
     z-index: 2;
+    animation: none;
+  }
+  @keyframes trip-polaroid-drift {
+    0%   { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 6px)) rotate(0.7deg); }
+    100% { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .polaroid-wrap { animation: none; }
   }
   /* Hover-reveal the delete corner on devices that support hover. */
   .polaroid-wrap:hover .polaroid-delete,

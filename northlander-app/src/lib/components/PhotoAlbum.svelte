@@ -572,6 +572,10 @@
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    /* Push the row down from whatever sits above (the Drawer's
+       dashed gold divider when this album is mounted in a chapter)
+       so the Add photos button isn't pressed against the rule. */
+    margin-top: 14px;
     margin-bottom: 12px;
   }
   .header-meta {
@@ -601,11 +605,18 @@
     font-weight: 600;
     letter-spacing: 0.02em;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
+    transition: background 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.7,.3,1), box-shadow 180ms ease;
   }
   .upload-btn:hover:not(:disabled) {
     background: #0a2d21;
     border-color: #0a2d21;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(40, 30, 15, 0.2);
+  }
+  .upload-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
   }
   .upload-btn:disabled {
     opacity: 0.6;
@@ -898,65 +909,75 @@
   .tag-select:focus {
     border-color: #7d3a1e;
   }
-  /* Branded social share row. Circular icon buttons in each
-     platform's recognized colour; on tap they invoke
-     navigator.share(file) first and fall back to web intents on
-     desktop. Kept compact so the bottom of the lightbox doesn't
-     crowd the caption textarea. */
+  /* Share row recoloured 2026-06-07 to live in the app's vintage
+     palette (forest / gold / rust / cream) instead of each platform's
+     brand colour. Distinct enough to recognize at a glance, plus
+     they actually look at home inside the cream lightbox meta panel.
+     Every chip lifts a touch on hover for a unified motion language. */
   .share-row {
     display: inline-flex;
     align-items: center;
     gap: 10px;
   }
   .share-icon {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     border: 1.5px solid transparent;
-    background: #fbf6ea;
-    color: #0a2d21;
     cursor: pointer;
-    transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease;
+    transition: transform 180ms cubic-bezier(.2,.7,.3,1), background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     padding: 0;
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
   }
   .share-icon:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.22);
   }
-  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; }
+  .share-icon:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
+  }
+  .share-icon:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+  /* X: deep forest, the darkest chip in the row. */
   .share-x {
-    background: #ffffff;
-    color: #000000;
-    border-color: #000000;
+    background: #0a2d21;
+    color: #f5f0e8;
+    border-color: #0a2d21;
   }
   .share-x:hover:not(:disabled) {
-    background: #000000;
-    color: #ffffff;
+    background: #133e30;
+    border-color: #133e30;
   }
+  /* Instagram: gold, the warmest chip - reads as the IG-energy in
+     palette without leaning on the magenta gradient. */
   .share-instagram {
-    /* Instagram's recognizable purple-magenta-orange gradient. */
-    background: linear-gradient(135deg, #515bd4 0%, #8134af 30%, #dd2a7b 60%, #feda77 100%);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.25);
+    background: #c9a84c;
+    color: #0a2d21;
+    border-color: #c9a84c;
   }
   .share-instagram:hover:not(:disabled) {
-    filter: brightness(1.08);
+    background: #d8b863;
+    border-color: #d8b863;
   }
+  /* Facebook: rust, distinct from forest + gold. */
   .share-facebook {
-    background: #1877f2;
-    color: #ffffff;
-    border-color: #1877f2;
+    background: #7d3a1e;
+    color: #f5f0e8;
+    border-color: #7d3a1e;
   }
   .share-facebook:hover:not(:disabled) {
-    background: #0f60d0;
-    border-color: #0f60d0;
+    background: #8e4524;
+    border-color: #8e4524;
   }
+  /* Native share: cream paper with gold ring + rust glyph so it
+     stands apart from the three solid-filled platform chips. */
   .share-native {
-    background: transparent;
-    color: #f5f0e8;
-    border-color: rgba(201, 168, 76, 0.65);
+    background: #fbf6ea;
+    color: #7d3a1e;
+    border-color: #c9a84c;
   }
   .share-native:hover:not(:disabled) {
     background: #c9a84c;
@@ -975,11 +996,17 @@
     gap: 12px;
     margin-left: auto;
   }
+  /* Download lives on the cream lightbox-meta band, so the earlier
+     gold-on-cream treatment was effectively invisible (low contrast
+     in both states). Now: solid rust filled with ivory text by
+     default; on hover it flips to forest fill so it still feels
+     like a touch lighting up. Sits in palette with the new share
+     icon row above it. */
   .lightbox-download {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 7px 14px;
     border-radius: 999px;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 12px;
@@ -987,15 +1014,17 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
-    background: transparent;
-    color: #c9a84c;
-    border: 1.5px solid #c9a84c;
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    background: #7d3a1e;
+    color: #f5f0e8;
+    border: 1.5px solid #7d3a1e;
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
   }
   .lightbox-download:hover {
-    background: #c9a84c;
-    color: #0a2d21;
-    border-color: #c9a84c;
+    background: #0a2d21;
+    border-color: #0a2d21;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(40, 30, 15, 0.2);
   }
   .lightbox-remove {
     background: transparent;

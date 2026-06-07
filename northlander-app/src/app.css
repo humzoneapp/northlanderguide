@@ -58,15 +58,29 @@
     font-weight: 600;
     font-size: 0.95rem;
     text-decoration: none;
-    transition: transform 0.15s, background 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.14);
+    transition: transform 180ms cubic-bezier(.2,.7,.3,1), background 200ms ease, border-color 200ms ease, box-shadow 180ms ease;
     cursor: pointer;
   }
   .btn-primary:hover {
     background: theme('colors.forest');
     border-color: theme('colors.forest');
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.22);
   }
   .btn-primary:active {
-    transform: scale(0.97);
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(40, 30, 15, 0.14);
+  }
+  /* Respect users who've asked the OS to dial down animations. */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary {
+      transition: background 200ms ease, border-color 200ms ease;
+    }
+    .btn-primary:hover,
+    .btn-primary:active {
+      transform: none;
+    }
   }
 
   /* Top bar - solid forest green like the Guide. */

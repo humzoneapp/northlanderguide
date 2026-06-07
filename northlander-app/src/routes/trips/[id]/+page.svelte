@@ -2257,12 +2257,29 @@
     padding: 8px 8px 12px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
     margin: 0;
-    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--i, 0) * -4px));
+    --base-tilt: var(--rot, 0deg);
+    --base-lift: calc(var(--i, 0) * -4px);
+    transform: rotate(var(--base-tilt)) translateY(var(--base-lift));
     transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
+    /* Gentle ambient sway: each card stagger-floats so the cluster
+       reads as something pinned to a board in a passing breeze.
+       The hover transform takes over by overriding `transform`. */
+    animation: cover-card-float 7s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -1.6s);
+    transform-origin: 50% 100%;
   }
   .collage-card:hover {
     transform: rotate(0deg) translateY(-8px);
     z-index: 4;
+    animation: none;
+  }
+  @keyframes cover-card-float {
+    0%   { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 6px)) rotate(0.8deg); }
+    100% { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .collage-card { animation: none; }
   }
   .collage-card img {
     width: clamp(110px, 16vw, 180px);
