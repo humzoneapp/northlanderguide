@@ -14,8 +14,10 @@
   import {
     listUserEvents,
     addUserEvent,
-    deleteUserEvent
+    deleteUserEvent,
+    restoreUserEvent
   } from '$lib/stores/user-events.js';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
   export let tripId;
@@ -157,13 +159,21 @@
   }
 
   async function removeUserEvent(id) {
-    const ok = typeof window !== 'undefined' && window.confirm
-      ? window.confirm('Remove this event from your trip?')
-      : true;
-    if (!ok) return;
-    await deleteUserEvent(id);
+    /* Toast + Undo replaces the window.confirm two-step. The five-
+       second dwell on the toast is the soft safety net. */
+    const snapshot = await deleteUserEvent(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: `Removed "${snapshot.name}".`,
+        undo: async () => {
+          await restoreUserEvent(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 
   function formatUserEventDate(ev) {

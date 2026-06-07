@@ -5,6 +5,7 @@
     addBudgetEntry,
     updateBudgetEntry,
     deleteBudgetEntry,
+    restoreBudgetEntry,
     totalOf,
     breakdownByCategory,
     formatAmount,
@@ -12,6 +13,7 @@
     BUDGET_CATEGORIES
   } from '$lib/stores/budget.js';
   import BookingKindIcon from './BookingKindIcon.svelte';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /* Today as YYYY-MM-DD in local time. Used to default the date
      input on the add row so a quick spend log lands on today. */
@@ -170,9 +172,19 @@
   }
 
   async function remove(id) {
-    await deleteBudgetEntry(id);
+    const snapshot = await deleteBudgetEntry(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: `Removed "${snapshot.label}".`,
+        undo: async () => {
+          await restoreBudgetEntry(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 
   function catLabel(id) {

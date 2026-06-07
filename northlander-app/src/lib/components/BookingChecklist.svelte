@@ -6,11 +6,13 @@
     renameBooking,
     updateBooking,
     deleteBooking,
+    restoreBooking,
     BOOKING_KINDS
   } from '$lib/stores/bookings.js';
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
   import { arrivalClock, arrivalMinutes, clockToMinutes } from '$lib/data/schedule.js';
   import BookingKindIcon from './BookingKindIcon.svelte';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
   export let tripId;
@@ -165,9 +167,19 @@
   }
 
   async function remove(id) {
-    await deleteBooking(id);
+    const snapshot = await deleteBooking(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: `Removed "${snapshot.title}".`,
+        undo: async () => {
+          await restoreBooking(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 
   /* Save handler for the room-detail fields. Fires on blur per

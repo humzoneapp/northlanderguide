@@ -1,5 +1,6 @@
 <script>
   import '../app.css';
+  import Toasts from '$lib/components/Toasts.svelte';
 </script>
 
 <div class="topbar flex items-center justify-between gap-4">
@@ -65,3 +66,7 @@
     Built for the Ontario Northland Northlander route. Independent, made by travellers.
   </p>
 </footer>
+
+<!-- Mounted once at the root so every page can pushToast() without
+     needing its own toast container. -->
+<Toasts />

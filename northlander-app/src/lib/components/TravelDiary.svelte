@@ -4,11 +4,13 @@
     listDiaryEntries,
     addDiaryEntry,
     updateDiaryEntry,
-    deleteDiaryEntry
+    deleteDiaryEntry,
+    restoreDiaryEntry
   } from '$lib/stores/diary.js';
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
   import { sanitizeDiaryHtml, renderDiaryText } from '$lib/utils/diary-html.js';
   import EmojiPicker from './EmojiPicker.svelte';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
   export let tripId;
@@ -194,9 +196,19 @@
   }
 
   async function remove(id) {
-    await deleteDiaryEntry(id);
+    const snapshot = await deleteDiaryEntry(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: 'Note removed.',
+        undo: async () => {
+          await restoreDiaryEntry(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 
   function stopNameOrNull(id) {

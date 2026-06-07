@@ -112,9 +112,19 @@ export async function updateBudgetEntry(id, patch = {}) {
   return db.budgetEntries.get(Number(id));
 }
 
+/* Returns the deleted row so the caller can offer Undo. */
 export async function deleteBudgetEntry(id) {
-  if (id == null) return;
+  if (id == null) return null;
+  const row = await db.budgetEntries.get(Number(id));
+  if (!row) return null;
   await db.budgetEntries.delete(Number(id));
+  return row;
+}
+
+export async function restoreBudgetEntry(row) {
+  if (!row || row.id == null) return null;
+  await db.budgetEntries.put(row);
+  return row;
 }
 
 /** Sum every entry's amount. */

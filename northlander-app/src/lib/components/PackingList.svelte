@@ -5,9 +5,11 @@
     addPackingItem,
     togglePackingItem,
     renamePackingItem,
-    deletePackingItem
+    deletePackingItem,
+    restorePackingItem
   } from '$lib/stores/packing.js';
   import PackingPickerModal from './PackingPickerModal.svelte';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
   export let tripId;
@@ -99,9 +101,19 @@
   }
 
   async function remove(id) {
-    await deletePackingItem(id);
+    const snapshot = await deletePackingItem(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: `Removed "${snapshot.name}".`,
+        undo: async () => {
+          await restorePackingItem(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 </script>
 

@@ -56,6 +56,17 @@ export async function renamePackingItem(id, name) {
   return db.packingItems.get(id);
 }
 
+/* Returns the deleted row so the caller can offer Undo. */
 export async function deletePackingItem(id) {
-  await db.packingItems.delete(id);
+  if (id == null) return null;
+  const row = await db.packingItems.get(Number(id));
+  if (!row) return null;
+  await db.packingItems.delete(Number(id));
+  return row;
+}
+
+export async function restorePackingItem(row) {
+  if (!row || row.id == null) return null;
+  await db.packingItems.put(row);
+  return row;
 }

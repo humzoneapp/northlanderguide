@@ -142,9 +142,24 @@ export async function updatePhoto(id, patch = {}) {
   return db.photos.get(Number(id));
 }
 
+/* Returns the full row before deletion so the caller can push an
+   undo toast that re-inserts it via restorePhoto(). Returns null
+   when the id doesn't exist. */
 export async function deletePhoto(id) {
-  if (id == null) return;
+  if (id == null) return null;
+  const row = await db.photos.get(Number(id));
+  if (!row) return null;
   await db.photos.delete(Number(id));
+  return row;
+}
+
+/* Restore a previously-deleted photo. Uses put() so the original
+   id is preserved - the caller can still reference the same id
+   from any local state it kept around. */
+export async function restorePhoto(row) {
+  if (!row || row.id == null) return null;
+  await db.photos.put(row);
+  return row;
 }
 
 /** Total bytes of every photo's full-res Blob + thumb for a trip.

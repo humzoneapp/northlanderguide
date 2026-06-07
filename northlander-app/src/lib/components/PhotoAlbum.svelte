@@ -5,10 +5,12 @@
     addPhoto,
     updatePhoto,
     deletePhoto,
+    restorePhoto,
     totalBytes,
     formatBytes
   } from '$lib/stores/photos.js';
   import { getStop, getStopsByIds } from '$lib/data/stops.js';
+  import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
   export let tripId;
@@ -197,9 +199,19 @@
     const id = openPhoto.id;
     const i = lightboxIndex;
     closeLightbox();
-    await deletePhoto(id);
+    const snapshot = await deletePhoto(id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: 'Photo removed.',
+        undo: async () => {
+          await restorePhoto(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
     /* Reopen the neighbour if there is one so the user can keep flipping. */
     if (visiblePhotos.length > 0) {
       const nextIdx = Math.min(i, visiblePhotos.length - 1);
@@ -219,13 +231,22 @@
     ev?.preventDefault?.();
     ev?.stopPropagation?.();
     if (!p) return;
-    const ok = typeof window !== 'undefined' && window.confirm
-      ? window.confirm('Remove this photo from the album?')
-      : true;
-    if (!ok) return;
-    await deletePhoto(p.id);
+    /* Toast + undo replaces the old window.confirm two-step. The
+       five-second dwell gives the same accidental-tap safety
+       without the modal interrupt. */
+    const snapshot = await deletePhoto(p.id);
     await refresh();
     dispatch('change');
+    if (snapshot) {
+      pushToast({
+        message: 'Photo removed.',
+        undo: async () => {
+          await restorePhoto(snapshot);
+          await refresh();
+          dispatch('change');
+        }
+      });
+    }
   }
 
   /* Share: prefer navigator.share with the photo as a file so the

@@ -98,7 +98,17 @@ export async function updateUserEvent(id, patch = {}) {
   return db.userEvents.get(Number(id));
 }
 
+/* Returns the deleted row so the caller can offer Undo. */
 export async function deleteUserEvent(id) {
-  if (id == null) return;
+  if (id == null) return null;
+  const row = await db.userEvents.get(Number(id));
+  if (!row) return null;
   await db.userEvents.delete(Number(id));
+  return row;
+}
+
+export async function restoreUserEvent(row) {
+  if (!row || row.id == null) return null;
+  await db.userEvents.put(row);
+  return row;
 }

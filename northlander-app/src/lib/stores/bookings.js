@@ -176,8 +176,19 @@ export async function setBookingKind(id, kind) {
   return db.bookings.get(id);
 }
 
+/* Returns the deleted row so the caller can offer Undo. */
 export async function deleteBooking(id) {
-  await db.bookings.delete(id);
+  if (id == null) return null;
+  const row = await db.bookings.get(Number(id));
+  if (!row) return null;
+  await db.bookings.delete(Number(id));
+  return row;
+}
+
+export async function restoreBooking(row) {
+  if (!row || row.id == null) return null;
+  await db.bookings.put(row);
+  return row;
 }
 
 /** Chronological sort for cinematic stop scenes. Bookings with a

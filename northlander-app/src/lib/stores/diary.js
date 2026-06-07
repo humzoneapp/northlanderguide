@@ -78,7 +78,18 @@ export async function updateDiaryEntry(id, patch) {
   return db.diaryEntries.get(id);
 }
 
+/* Returns the deleted row so the caller can offer Undo via a
+   toast that calls restoreDiaryEntry(row). */
 export async function deleteDiaryEntry(id) {
-  if (id == null) return;
-  await db.diaryEntries.delete(id);
+  if (id == null) return null;
+  const row = await db.diaryEntries.get(Number(id));
+  if (!row) return null;
+  await db.diaryEntries.delete(Number(id));
+  return row;
+}
+
+export async function restoreDiaryEntry(row) {
+  if (!row || row.id == null) return null;
+  await db.diaryEntries.put(row);
+  return row;
 }
