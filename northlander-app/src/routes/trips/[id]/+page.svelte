@@ -308,9 +308,14 @@
   async function commitBudgetTarget() {
     if (!trip) return;
     editingBudgetTarget = false;
-    const raw = budgetTargetDraft.trim();
-    const v = raw === '' ? null : Number(raw);
-    const updated = await setTripBudgetTarget(trip.id, raw === '' ? null : v);
+    /* The <input type="number"> bind coerces budgetTargetDraft to a
+       Number under the hood, so calling .trim() throws and the
+       save silently fails. Coerce to a string first (or accept the
+       Number directly) before deciding what to persist. */
+    const raw = String(budgetTargetDraft ?? '').trim();
+    const num = raw === '' ? NaN : Number(raw);
+    const v = Number.isFinite(num) && num >= 0 ? num : null;
+    const updated = await setTripBudgetTarget(trip.id, v);
     if (updated) trip = updated;
     budgetTargetDraft = '';
   }
@@ -3212,7 +3217,10 @@
   }
   .bb-budget-flat-head {
     display: flex;
-    align-items: center;
+    /* Pin the headline figure / button to the bottom of the text
+       block so it sits on the "Budget" h3 baseline, not floating
+       up at the midpoint of the kicker + title stack. */
+    align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 12px;
