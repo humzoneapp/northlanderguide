@@ -40,6 +40,16 @@
   </nav>
 </div>
 
+<main class="page-main">
+  <slot />
+</main>
+
+<footer class="border-t border-[#d9cfba] bg-ivory-soft py-10 px-6 text-center">
+  <p class="font-serif italic text-muted text-sm">
+    Built for the Ontario Northland Northlander route. Independent, made by travellers.
+  </p>
+</footer>
+
 <style>
   .topbar-link {
     color: #f3ece0;
@@ -55,17 +65,24 @@
   .topbar-link:hover {
     opacity: 1;
   }
+
+  /* Sticky-footer pattern: page is a flex column at least the full
+     viewport height. Main grows to fill remaining space so a short
+     page (e.g. the empty-trip onboarding) doesn't leave a stretch
+     of body-coloured wash below the footer. */
+  :global(html), :global(body) {
+    min-height: 100%;
+  }
+  :global(body) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .page-main {
+    flex: 1 0 auto;
+  }
 </style>
-
-<main>
-  <slot />
-</main>
-
-<footer class="border-t border-[#d9cfba] bg-ivory-soft py-10 px-6 text-center">
-  <p class="font-serif italic text-muted text-sm">
-    Built for the Ontario Northland Northlander route. Independent, made by travellers.
-  </p>
-</footer>
 
 <!-- Mounted once at the root so every page can pushToast() without
      needing its own toast container. -->
