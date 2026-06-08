@@ -360,7 +360,10 @@
   .ob-title {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 800;
-    font-size: clamp(20px, 3.5vw, 26px);
+    /* Bigger floor so the welcome title reads boldly on phones -
+       was clamping down to 20px which was small against the rest
+       of the card. */
+    font-size: clamp(26px, 5.5vw, 30px);
     line-height: 1.15;
     color: #f5f0e8;
     margin: 0;
@@ -694,9 +697,18 @@
     .ob-foot {
       padding: 14px 18px 20px;
     }
+    /* 2x2 polaroid grid on mobile - four cards on two rows of two
+       instead of the flex-wrap 3+1 that the four-card collage
+       falls into on a narrow viewport. */
+    .ob-collage {
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+      gap: 14px;
+      justify-content: center;
+    }
     .ob-polaroid img {
-      width: 72px;
-      height: 72px;
+      width: 96px;
+      height: 96px;
     }
   }
 </style>
