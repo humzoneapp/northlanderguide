@@ -810,6 +810,18 @@
 
 <svelte:head>
   <title>{trip ? trip.name + ' - Northlander' : 'Trip - Northlander'}</title>
+  <!-- On the empty-trip "Pick your route" screen the cover banner
+       is the only painted content, so we flip the body background
+       to forest while this state is mounted. Any space between the
+       cover and the footer reads as a continuous forest band
+       instead of leaving a body-coloured gap. The rule only paints
+       while this page is active; navigating away unmounts the
+       <style> block and the body returns to ivory. -->
+  {#if trip && stops.length === 0}
+    <style>
+      body { background-color: #0a2d21 !important; background-image: none !important; }
+    </style>
+  {/if}
 </svelte:head>
 
 {#if loading}
@@ -2183,17 +2195,10 @@
     padding: 56px 24px 64px;
     overflow: hidden;
   }
-  /* Empty-trip cover stretches to fill the viewport so the body
-     colour doesn't show through between the forest banner and the
-     cream footer. Estimates topbar (52px) + breadcrumb (~58px) +
-     TOC (~50px) ~= 160px of chrome above the cover. Uses dvh for
-     iOS Safari's dynamic viewport. */
-  .cover.is-empty-cover {
-    min-height: calc(100vh - 160px);
-    min-height: calc(100dvh - 160px);
-    display: flex;
-    flex-direction: column;
-  }
+  /* Empty-trip cover stays at its natural content size. The body
+     bg flips to forest via the <svelte:head> rule below so any
+     space between the cover bottom and the cream footer reads as
+     a continuous forest band, not a body-coloured gap. */
   .cover-bg {
     position: absolute;
     inset: 0;
