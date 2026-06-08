@@ -940,12 +940,14 @@
     font-weight: 600;
   }
   /* Sign-off at the bottom of the section, same vocabulary as the
-     Guide's editorial mood. Generous top margin so the bottom of the
-     last polaroid (tilt + shadow extending beyond its grid cell)
-     doesn't crowd into the line. */
+     Guide's editorial mood. Polaroid cards tilt + cast shadow
+     outside their grid cell so the section's content height
+     understates the visual footprint - bumped the top margin so
+     the sign-off sits CLEAR of the "Free, no credit card." line
+     on the new-trip CTA polaroid below. */
   .desk-signoff {
     text-align: center;
-    margin: 48px auto 0;
+    margin: 120px auto 0;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 13px;
