@@ -2095,7 +2095,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 16px;
+    /* Horizontal padding matches the breadcrumb band above (24px)
+       so both rows' content edges line up at the same viewport
+       offset. */
+    padding: 10px 24px;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -2158,7 +2161,9 @@
 
   @media (max-width: 720px) {
     .trip-toc { top: 48px; }
-    .trip-toc-row { padding: 8px 12px; gap: 4px; }
+    /* Keep the TOC's left edge aligned with the breadcrumb on
+       narrow viewports too (both use 24px gutters). */
+    .trip-toc-row { padding: 8px 24px; gap: 4px; }
     .trip-toc-link { padding: 7px 11px; font-size: 12px; }
   }
 
