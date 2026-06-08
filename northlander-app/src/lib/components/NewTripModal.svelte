@@ -112,7 +112,12 @@
             class:is-active={moodId === ''}
             on:click={() => (moodId = '')}
           >
-            <span class="mood-glyph mood-glyph--blank" aria-hidden="true">&middot;</span>
+            <span class="mood-glyph mood-glyph--blank" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <line x1="6" y1="18" x2="18" y2="6"/>
+              </svg>
+            </span>
             <span>Skip</span>
           </button>
           {#each TRIP_MOODS as m}
@@ -198,8 +203,8 @@
   }
   .mood-glyph :global(svg) { width: 16px; height: 16px; }
   .mood-glyph--blank {
-    font-size: 14px;
-    line-height: 1;
-    opacity: 0.5;
+    /* Slashed-circle "no-mood" mark. Reads as Skip / opt out
+       without resorting to an ambiguous middot character. */
+    opacity: 0.75;
   }
 </style>
