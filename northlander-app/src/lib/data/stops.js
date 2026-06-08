@@ -35,8 +35,13 @@ export const STOPS = [
   { id: 'bracebridge',  name: 'Bracebridge',         region: 'Muskoka',                hook: 'A town built around an illuminated waterfall.',                     lat: 45.0400, lng: -79.3100, offsetMinutes: 170, image: 'images/northlander-bracebridge.jpeg' },
   { id: 'huntsville',   name: 'Huntsville',          region: 'Muskoka',                hook: '100-plus Group of Seven murals, and the gateway to Algonquin.',     lat: 45.3270, lng: -79.2160, offsetMinutes: 205, image: 'images/northlander-huntsville.jpeg' },
   { id: 'southriver',   name: 'South River',         region: 'Almaguin Highlands',     hook: "The quiet back door into Algonquin's wild west side.",              lat: 45.8370, lng: -79.3800, offsetMinutes: 260, image: 'images/northlander-south-river.jpeg' },
-  { id: 'temagami',     name: 'Temagami',            region: 'Lake Temagami',          hook: 'Paddle beneath 400-year-old red and white pines.',                   lat: 47.0640, lng: -79.7900, offsetMinutes: 360, image: 'images/northlander-temagami.jpeg' },
-  { id: 'northbay',     name: 'North Bay',           region: 'Lake Nipissing',         hook: 'A carousel, a beach and a heritage train on Lake Nipissing.',       lat: 46.3090, lng: -79.4610, offsetMinutes: 405, image: 'images/northlander-north-bay.jpeg' },
+  /* North Bay sits SOUTH of Temagami geographically (46.31 N vs
+     47.06 N), so the northbound train hits North Bay first then
+     Temagami. Offsets line up with the real Ontario Northland
+     schedule: North Bay arrives 23:30 (~5h from Toronto's 18:30
+     departure), Temagami arrives 01:10 next morning (~6h40). */
+  { id: 'northbay',     name: 'North Bay',           region: 'Lake Nipissing',         hook: 'A carousel, a beach and a heritage train on Lake Nipissing.',       lat: 46.3090, lng: -79.4610, offsetMinutes: 300, image: 'images/northlander-north-bay.jpeg' },
+  { id: 'temagami',     name: 'Temagami',            region: 'Lake Temagami',          hook: 'Paddle beneath 400-year-old red and white pines.',                   lat: 47.0640, lng: -79.7900, offsetMinutes: 415, image: 'images/northlander-temagami.jpeg' },
   { id: 'temiskaming',  name: 'Temiskaming Shores',  region: 'New Liskeard',           hook: 'Northern dairy country beneath a 100-metre cliff.',                  lat: 47.5090, lng: -79.6770, offsetMinutes: 480, image: 'images/northlander-temiskaming-shores.jpeg' },
   { id: 'englehart',    name: 'Englehart',           region: 'Timiskaming District',   hook: 'A town the railway itself built, gorge falls nearby.',               lat: 47.8210, lng: -79.8680, offsetMinutes: 515, image: 'images/northlander-englehart.jpeg' },
   { id: 'kirklandlake', name: 'Kirkland Lake',       region: 'Swastika stop',          hook: 'The town that gold built, and a hockey legend factory.',             lat: 48.1470, lng: -80.0370, offsetMinutes: 550, image: 'images/northlander-kirkland-lake.jpeg' },

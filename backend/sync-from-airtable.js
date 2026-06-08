@@ -117,7 +117,7 @@ const STOP_ID = {
 };
 const STOP_ORDER = [
   'union', 'langstaff', 'gormley', 'washago', 'gravenhurst', 'bracebridge',
-  'huntsville', 'southriver', 'temagami', 'northbay', 'temiskaming',
+  'huntsville', 'southriver', 'northbay', 'temagami', 'temiskaming',
   'englehart', 'kirklandlake', 'matheson', 'timmins', 'cochrane'
 ];
 
@@ -133,8 +133,8 @@ const STATION_COORDS = {
   bracebridge:  { lat: 45.043061, lng: -79.310298 },
   huntsville:   { lat: 45.323562, lng: -79.226337 },
   southriver:   { lat: 45.841012, lng: -79.3758 },
-  temagami:     { lat: 47.063732, lng: -79.78894 },
   northbay:     { lat: 46.313907, lng: -79.438537 },
+  temagami:     { lat: 47.063732, lng: -79.78894 },
   temiskaming:  { lat: 47.508713, lng: -79.684951 },
   englehart:    { lat: 47.826705, lng: -79.873119 },
   kirklandlake: { lat: 48.108031, lng: -80.104478 },

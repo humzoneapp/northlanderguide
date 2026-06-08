@@ -459,65 +459,12 @@ const STOPS = [
     ]
   },
 
-  /* ---- 9. TEMAGAMI ---- */
+  /* ---- 9. NORTH BAY ----
+       North Bay sits south of Temagami (46.31 N vs 47.06 N) so the
+       northbound train hits it first. Stop ordering corrected
+       2026-06-08. */
   {
-    id:"temagami", lat:47.064, lng:-79.79, hook:"Paddle beneath 400-year-old red and white pines.", name:"Temagami", region:"Lake Temagami", time:"6:00", image:"images/northlander-temagami.jpeg",
-    featured:{
-      restaurants:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ],
-      accommodations:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ],
-      parks:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ],
-      attractions:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ],
-      transportation:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ],
-      shops:[
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
-        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
-      ]
-    },
-    blurb:"A storied canoe-country town set among old-growth pine and a maze of interconnected lakes.",
-    facts:["Modern glass shelter stop","Famous for old-growth red & white pine","World-class canoe tripping"],
-    restaurants:[
-      {name:"Busy Bee Restaurant",tag:"Diner",desc:"Classic roadside diner, a Temagami institution.",rating:"4.4"},
-      {name:"Temagami bakeries & cafes",tag:"Cafe",desc:"Coffee and baked goods for the trail.",rating:"4.3"}
-    ],
-    parks:[
-      {name:"Finlayson Point Provincial Park",tag:"Provincial Park",desc:"Lakeside camping and a base for canoe trips.",rating:"4.7"},
-      {name:"Lady Evelyn–Smoothwater Park",tag:"Wilderness",desc:"Remote canoe-only wilderness with stunning rivers.",rating:"4.9"},
-      {name:"White Bear Forest",tag:"Old Growth",desc:"Trails through ancient red and white pine stands.",rating:"4.8"}
-    ],
-    attractions:[
-      {name:"Temagami Fire Tower",tag:"Lookout",desc:"30m tower on Caribou Mountain with sweeping views.",rating:"4.7"},
-      {name:"Finlayson Point lookout",tag:"Scenic",desc:"Sunset views over Lake Temagami's islands.",rating:"4.6"}
-    ],
-    accommodations:[
-      {name:"Temagami canoe lodges",tag:"Lodge",desc:"Classic outfitter lodges for canoe trippers.",rating:"4.6"},
-      {name:"Lakeside cabins",tag:"Cabin",desc:"Cabins and camps along Lake Temagami.",rating:"4.5"},
-      {name:"Finlayson Point camping",tag:"Camping",desc:"Provincial park campground on the lake.",rating:"4.6"}
-    ],
-    transportation:[],
-    events:[
-      {d:"26",m:"Jul",name:"Temagami Canoe Festival",where:"Town waterfront",desc:"Heritage paddling event and demonstrations."},
-      {d:"02",m:"Aug",name:"Temagami Art Walk",where:"Lakeshore Drive",desc:"Local artists and crafters showcase."}
-    ]
-  },
-
-  /* ---- 10. NORTH BAY ---- */
-  {
-    id:"northbay", lat:46.309, lng:-79.461, hook:"A carousel, a beach and a heritage train on Lake Nipissing.", name:"North Bay", region:"Lake Nipissing", time:"6:45", image:"images/northlander-north-bay.jpeg",
+    id:"northbay", lat:46.309, lng:-79.461, hook:"A carousel, a beach and a heritage train on Lake Nipissing.", name:"North Bay", region:"Lake Nipissing", time:"5:00", image:"images/northlander-north-bay.jpeg",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -571,6 +518,62 @@ const STOPS = [
       {d:"14",m:"Jun",name:"North Bay Farmers' Market",where:"Downtown Waterfront",desc:"Saturday market by the lake."},
       {d:"12",m:"Jul",name:"Summer in the Park",where:"Lee Park",desc:"Major outdoor music festival on the waterfront."},
       {d:"09",m:"Aug",name:"Heritage Festival & Air Show",where:"North Bay Waterfront",desc:"Family festival with an aerial display."}
+    ]
+  },
+
+  /* ---- 10. TEMAGAMI ---- */
+  {
+    id:"temagami", lat:47.064, lng:-79.79, hook:"Paddle beneath 400-year-old red and white pines.", name:"Temagami", region:"Lake Temagami", time:"6:55", image:"images/northlander-temagami.jpeg",
+    featured:{
+      restaurants:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      accommodations:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      parks:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      attractions:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      transportation:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ],
+      shops:[
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
+        {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true}
+      ]
+    },
+    blurb:"A storied canoe-country town set among old-growth pine and a maze of interconnected lakes.",
+    facts:["Modern glass shelter stop","Famous for old-growth red & white pine","World-class canoe tripping"],
+    restaurants:[
+      {name:"Busy Bee Restaurant",tag:"Diner",desc:"Classic roadside diner, a Temagami institution.",rating:"4.4"},
+      {name:"Temagami bakeries & cafes",tag:"Cafe",desc:"Coffee and baked goods for the trail.",rating:"4.3"}
+    ],
+    parks:[
+      {name:"Finlayson Point Provincial Park",tag:"Provincial Park",desc:"Lakeside camping and a base for canoe trips.",rating:"4.7"},
+      {name:"Lady Evelyn–Smoothwater Park",tag:"Wilderness",desc:"Remote canoe-only wilderness with stunning rivers.",rating:"4.9"},
+      {name:"White Bear Forest",tag:"Old Growth",desc:"Trails through ancient red and white pine stands.",rating:"4.8"}
+    ],
+    attractions:[
+      {name:"Temagami Fire Tower",tag:"Lookout",desc:"30m tower on Caribou Mountain with sweeping views.",rating:"4.7"},
+      {name:"Finlayson Point lookout",tag:"Scenic",desc:"Sunset views over Lake Temagami's islands.",rating:"4.6"}
+    ],
+    accommodations:[
+      {name:"Temagami canoe lodges",tag:"Lodge",desc:"Classic outfitter lodges for canoe trippers.",rating:"4.6"},
+      {name:"Lakeside cabins",tag:"Cabin",desc:"Cabins and camps along Lake Temagami.",rating:"4.5"},
+      {name:"Finlayson Point camping",tag:"Camping",desc:"Provincial park campground on the lake.",rating:"4.6"}
+    ],
+    transportation:[],
+    events:[
+      {d:"26",m:"Jul",name:"Temagami Canoe Festival",where:"Town waterfront",desc:"Heritage paddling event and demonstrations."},
+      {d:"02",m:"Aug",name:"Temagami Art Walk",where:"Lakeshore Drive",desc:"Local artists and crafters showcase."}
     ]
   },
 
