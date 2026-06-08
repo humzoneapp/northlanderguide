@@ -329,26 +329,6 @@
         >
           {$trips.length === 0 ? 'Start your first trip' : '+ Start a new trip'}
         </button>
-        <button
-          type="button"
-          class="dash-restore"
-          on:click={() => restoreFileInput?.click()}
-          title="Restore a previously downloaded .northlander.json file"
-        >
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 12 V5 a2 2 0 0 1 2 -2 H18 a2 2 0 0 1 2 2 V12"/>
-            <polyline points="8 12 12 8 16 12"/>
-            <line x1="12" y1="3" x2="12" y2="16"/>
-          </svg>
-          <span>Restore a backup</span>
-        </button>
-        <input
-          type="file"
-          accept=".json,application/json"
-          bind:this={restoreFileInput}
-          on:change={onRestoreFile}
-          hidden
-        />
       </div>
     </div>
 
@@ -626,6 +606,39 @@
   </div>
 </section>
 
+<!-- Restore-a-backup band. Quiet section at the bottom of the
+     home so it doesn't compete with "Start a new trip" up top
+     but is still discoverable for users coming back to import a
+     .northlander.json file from another device. -->
+<section class="dash-restore-band">
+  <div class="dash-restore-inner">
+    <div>
+      <div class="kicker">Already have a backup?</div>
+      <p>Restore a previously downloaded <code>.northlander.json</code> file and pick up exactly where you left off.</p>
+    </div>
+    <button
+      type="button"
+      class="dash-restore"
+      on:click={() => restoreFileInput?.click()}
+      title="Restore a previously downloaded .northlander.json file"
+    >
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 12 V5 a2 2 0 0 1 2 -2 H18 a2 2 0 0 1 2 2 V12"/>
+        <polyline points="8 12 12 8 16 12"/>
+        <line x1="12" y1="3" x2="12" y2="16"/>
+      </svg>
+      <span>Restore a backup</span>
+    </button>
+    <input
+      type="file"
+      accept=".json,application/json"
+      bind:this={restoreFileInput}
+      on:change={onRestoreFile}
+      hidden
+    />
+  </div>
+</section>
+
 {#if showNewModal}
   <NewTripModal on:close={() => (showNewModal = false)} />
 {/if}
@@ -661,17 +674,51 @@
       repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
     pointer-events: none;
   }
-  /* Restore-a-backup secondary CTA. Quiet italic next to the
-     primary new-trip button so it doesn't compete. */
+  /* Restore-a-backup band. Sits at the bottom of the home page as
+     a quiet secondary entry point - separate from "Start a new
+     trip" up top so it doesn't compete for attention but is still
+     discoverable for users coming back from a wiped device. */
+  .dash-restore-band {
+    background: #fbf6ea;
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+    padding: 32px 24px 64px;
+  }
+  .dash-restore-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .dash-restore-inner p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    margin: 4px 0 0;
+    max-width: 60ch;
+    font-size: 14px;
+  }
+  .dash-restore-inner code {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-style: normal;
+    font-size: 12.5px;
+    background: rgba(125, 58, 30, 0.08);
+    color: #7d3a1e;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  /* Restore-a-backup CTA. Rust on cream now that the band lives
+     on the cream paper footer, not the dark hero. */
   .dash-restore {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-left: 14px;
     background: transparent;
-    border: 1.5px dashed rgba(245, 240, 232, 0.6);
-    color: #f3ece0;
-    padding: 9px 14px;
+    border: 1.5px dashed #7d3a1e;
+    color: #7d3a1e;
+    padding: 9px 16px;
     border-radius: 4px;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 12px;
@@ -682,9 +729,9 @@
     transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
   }
   .dash-restore:hover {
-    background: #f3ece0;
-    color: #0a2d21;
-    border-color: #f3ece0;
+    background: #7d3a1e;
+    color: #fffdf6;
+    border-color: #7d3a1e;
   }
 
   .dash-hero-inner {
