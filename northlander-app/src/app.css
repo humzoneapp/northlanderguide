@@ -25,7 +25,20 @@
     background-image: radial-gradient(rgba(120, 100, 70, 0.05) 1px, transparent 1px);
     background-size: 4px 4px;
     -webkit-font-smoothing: antialiased;
+    /* Tint native form controls (date / time pickers, checkboxes,
+       progress bars) with the app's rust accent instead of the OS
+       default blue. Falls back gracefully on browsers that don't
+       support accent-color. */
+    accent-color: #7d3a1e;
   }
+  /* Anchors default to rust so every list / event name reads in
+     palette on mobile - iOS Safari otherwise paints them with its
+     own blue link colour. Components that want a forest or gold
+     link override locally. */
+  a {
+    color: inherit;
+  }
+  a:visited { color: inherit; }
   h1, h2, h3, h4 {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
