@@ -22,7 +22,12 @@
   import { fade, fly } from 'svelte/transition';
   import { STOPS, stopImageUrl } from '$lib/data/stops.js';
 
-  const KEY = 'northlander.onboarded';
+  /* Bumped to v2 on 2026-06-08 when the onboarding cards were
+     rewritten around the app's actual capabilities (train data +
+     weather + per-stop drawers + offline / private / shareable).
+     Existing visitors see the refreshed tour once on their next
+     load; subsequent loads stay dismissed. */
+  const KEY = 'northlander.onboarded.v2';
 
   const dispatch = createEventDispatcher();
 
@@ -42,29 +47,32 @@
       tilt: ((i % 4) - 1.5) * 5
     }));
 
+  /* Onboarding cards lean into BENEFITS, not steps. Each card
+     teases a capability so a first-time visitor sees what the app
+     unlocks before they're asked to invest a single tap. */
   const cards = [
     {
       kicker: 'Welcome aboard',
       title: 'Plan a Northern Ontario train trip.',
-      body: "The Northlander runs north from Toronto Union to Cochrane through some of the prettiest country in the province. This app is how you carry your route, your plans, and your photos for the whole journey.",
-      cta: 'Show me how'
+      body: "From the morning you board to the last photo at Cochrane - your route, your packing, your plans, your photos, your day-by-day all live in one place.",
+      cta: "Show me what's inside"
     },
     {
-      kicker: 'Step one',
-      title: 'Name your trip.',
-      body: "Pick a name. The trip sits on your platform until you're ready to open it again.",
+      kicker: 'Built on real data',
+      title: 'Real train times. Live weather. Day by day.',
+      body: "The app threads in the actual Ontario Northland schedule, fetches the forecast for every stop on your route, and even suggests rain gear when the weather calls for it. You plan a trip that knows where it's going.",
       cta: 'Next'
     },
     {
-      kicker: 'Step two',
-      title: 'Pick your stops.',
-      body: "Choose the train stations you'll step off at along the route, and the day you'll arrive at each. Every stop becomes a chapter you can fill with plans, polaroids, and notes from the journey.",
+      kicker: 'Carry it all',
+      title: 'Bookings, polaroids, diary, spending, events.',
+      body: "Every stop becomes its own chapter. Pin a dinner reservation, snap a polaroid from the platform, jot a note, log a coffee spend, drop in a local event. Build a keepsake while you travel.",
       cta: 'Next'
     },
     {
-      kicker: 'Step three',
-      title: 'Open it anywhere.',
-      body: "Everything you save lives on this device. No accounts, no servers, no internet needed once your trip is packed. Open it on your phone the morning you board.",
+      kicker: "It's yours",
+      title: 'Free. Offline. No accounts.',
+      body: "Everything you save lives on this device. Works offline on the train. Download a backup any time. Share a trip with a friend with one link or a QR code. No login. No credit card. No catch.",
       cta: 'Start my first trip'
     }
   ];
@@ -157,34 +165,103 @@
             {/each}
           </div>
         {:else if step === 1}
-          <!-- Sample polaroid: a stop photo with a "Your trip" caption.
-               Replaces the old tinted suitcase metaphor. -->
-          <figure class="ob-trip-card" aria-hidden="true">
-            <img src={collagePhotos[0]?.src} alt="" loading="lazy" />
-            <figcaption>Your trip</figcaption>
-          </figure>
+          <!-- Train + weather + day icons so the user can see the
+               trio of real-data features the card promises. -->
+          <div class="ob-trio">
+            <div class="ob-trio-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="6" y="5" width="20" height="18" rx="4"/>
+                <path d="M6 14 L26 14"/>
+                <circle cx="11" cy="26" r="1.8"/>
+                <circle cx="21" cy="26" r="1.8"/>
+                <path d="M9 22 L9 25 M23 22 L23 25"/>
+              </svg>
+              <span>Train times</span>
+            </div>
+            <div class="ob-trio-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="13" r="4"/>
+                <line x1="11" y1="3" x2="11" y2="6"/>
+                <line x1="3" y1="13" x2="6" y2="13"/>
+                <line x1="5" y1="7" x2="7" y2="9"/>
+                <path d="M13 24 a6 6 0 1 1 9 -4 a4 4 0 0 1 4 4 H11 a4 4 0 0 1 2 0 Z"/>
+              </svg>
+              <span>Forecast</span>
+            </div>
+            <div class="ob-trio-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="5" y="7" width="22" height="20" rx="3"/>
+                <line x1="5" y1="13" x2="27" y2="13"/>
+                <line x1="11" y1="3" x2="11" y2="9"/>
+                <line x1="21" y1="3" x2="21" y2="9"/>
+                <circle cx="11" cy="19" r="1.4" fill="currentColor"/>
+                <circle cx="16" cy="19" r="1.4" fill="currentColor"/>
+                <circle cx="21" cy="19" r="1.4" fill="currentColor"/>
+              </svg>
+              <span>Day plan</span>
+            </div>
+          </div>
         {:else if step === 2}
-          <!-- Mini numbered route rail (RouteMap echo) -->
-          <div class="ob-route">
-            {#each [1, 2, 3, 4] as n, i}
-              {#if i > 0}<span class="ob-route-rail"></span>{/if}
-              <span class="ob-route-pin">{n}</span>
-            {/each}
+          <!-- Stack of chapter "drawer" pills - shows the per-stop
+               sections (Day plan / Bookings / Diary / Polaroids /
+               Spending / Events) the user gets at every stop. -->
+          <div class="ob-drawers">
+            <div class="ob-drawer">
+              <span class="ob-drawer-kicker">Day plan</span>
+              <span class="ob-drawer-arrow">&rsaquo;</span>
+            </div>
+            <div class="ob-drawer">
+              <span class="ob-drawer-kicker">Bookings</span>
+              <span class="ob-drawer-arrow">&rsaquo;</span>
+            </div>
+            <div class="ob-drawer">
+              <span class="ob-drawer-kicker">Travel Diary</span>
+              <span class="ob-drawer-arrow">&rsaquo;</span>
+            </div>
+            <div class="ob-drawer">
+              <span class="ob-drawer-kicker">Polaroids</span>
+              <span class="ob-drawer-arrow">&rsaquo;</span>
+            </div>
+            <div class="ob-drawer">
+              <span class="ob-drawer-kicker">Spending</span>
+              <span class="ob-drawer-arrow">&rsaquo;</span>
+            </div>
           </div>
-          <p class="ob-route-caption">Toronto Union to Cochrane, your way.</p>
         {:else}
-          <!-- Offline glyph -->
-          <div class="ob-offline">
-            <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="20" y="10" width="40" height="60" rx="6" />
-              <line x1="20" y1="62" x2="60" y2="62" />
-              <circle cx="40" cy="68" r="1.5" fill="currentColor" />
-              <path d="M28 28 Q40 22 52 28" />
-              <path d="M31 34 Q40 30 49 34" />
-              <path d="M34 40 Q40 38 46 40" />
-            </svg>
-            <span class="ob-offline-tag">Works offline</span>
+          <!-- Offline + lock + share trio = "your trip, on your
+               device, only you control how it travels". -->
+          <div class="ob-offline-trio">
+            <div class="ob-offline-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="8" y="4" width="16" height="24" rx="3"/>
+                <line x1="8" y1="24" x2="24" y2="24"/>
+                <circle cx="16" cy="26" r="0.8" fill="currentColor"/>
+                <path d="M11 11 Q16 7 21 11"/>
+                <path d="M12.5 14 Q16 11.5 19.5 14"/>
+                <path d="M14 17 Q16 16 18 17"/>
+              </svg>
+              <span>Offline</span>
+            </div>
+            <div class="ob-offline-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="7" y="14" width="18" height="14" rx="2"/>
+                <path d="M11 14 V10 a5 5 0 0 1 10 0 V14"/>
+                <circle cx="16" cy="21" r="1.4"/>
+              </svg>
+              <span>Private</span>
+            </div>
+            <div class="ob-offline-tile">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="16" r="3"/>
+                <circle cx="23" cy="8" r="3"/>
+                <circle cx="23" cy="24" r="3"/>
+                <line x1="11.6" y1="14.6" x2="20.4" y2="9.4"/>
+                <line x1="11.6" y1="17.4" x2="20.4" y2="22.6"/>
+              </svg>
+              <span>Shareable</span>
+            </div>
           </div>
+          <span class="ob-offline-tag">Free. Yours. Forever.</span>
         {/if}
       </div>
 
@@ -430,16 +507,89 @@
     margin: 16px 0 0;
   }
 
-  /* Step 4: offline glyph */
-  .ob-offline {
+  /* Step 2: trio of feature tiles (train / weather / day plan).
+     Three cream paper chips with palette-tinted icons + caption
+     so the user sees the three real-data hooks at a glance. */
+  .ob-trio,
+  .ob-offline-trio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .ob-trio-tile,
+  .ob-offline-tile {
+    background: #fffdf6;
+    border: 1.5px solid rgba(125, 58, 30, 0.32);
+    border-radius: 6px;
+    padding: 14px 12px 12px;
+    width: 96px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    box-shadow: 0 6px 14px rgba(40, 25, 10, 0.14);
     color: #7d3a1e;
   }
-  .ob-offline svg { width: 156px; height: 156px; }
+  .ob-trio-tile svg,
+  .ob-offline-tile svg {
+    width: 36px;
+    height: 36px;
+  }
+  .ob-trio-tile span,
+  .ob-offline-tile span {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0a2d21;
+    text-align: center;
+  }
+
+  /* Step 3: stack of chapter "drawer" pills. Mimics the actual
+     accordion summary rows the user gets at every stop, so the
+     onboarding preview matches reality once they're inside. */
+  .ob-drawers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .ob-drawer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #fffdf6;
+    border: 1.5px solid rgba(125, 58, 30, 0.3);
+    border-left: 3px solid #c9a84c;
+    border-radius: 4px;
+    padding: 9px 14px;
+    box-shadow: 0 3px 8px rgba(40, 25, 10, 0.08);
+  }
+  .ob-drawer-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .ob-drawer-arrow {
+    color: #c9a84c;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  /* Step 4: closing tag below the offline / private / shareable
+     trio. Quiet italic so the trio above carries the weight. */
   .ob-offline-tag {
+    margin-top: 14px;
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 11px;
     font-weight: 700;
