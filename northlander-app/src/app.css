@@ -13,6 +13,12 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Force a light colour scheme so native form controls (date /
+       time pickers, scrollbars, focus rings) paint in light mode
+       across every OS, ignoring the user's system-wide dark mode
+       preference. Combined with accent-color this keeps the
+       picker chrome on-palette. */
+    color-scheme: light;
   }
   body {
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -30,6 +36,24 @@
        default blue. Falls back gracefully on browsers that don't
        support accent-color. */
     accent-color: #7d3a1e;
+  }
+  /* Text-selection highlight uses palette gold + forest text
+     instead of the OS-default blue wash. This affects every
+     ::selection across the app - body text, inputs, and the
+     numbers in the native date / time picker preview rows. */
+  ::selection {
+    background: #c9a84c;
+    color: #0a2d21;
+  }
+  ::-moz-selection {
+    background: #c9a84c;
+    color: #0a2d21;
+  }
+  /* iOS tap-highlight: the brief flash when a user taps a button
+     or link. Tinted to match the palette instead of the system
+     translucent blue. */
+  * {
+    -webkit-tap-highlight-color: rgba(201, 168, 76, 0.32);
   }
   /* Anchors default to rust so every list / event name reads in
      palette on mobile - iOS Safari otherwise paints them with its
