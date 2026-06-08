@@ -83,10 +83,15 @@
   const tilts = [-3, 0, 4, -2, 3, -4];
   const offsets = [8, -6, 10, 4, -4, 6];
 
-  /* Quick-delete from the dashboard. Native confirm keeps the
-     two-step safety without us shipping an in-page modal for the
-     polaroid corner. Works on iPad Safari out of the box. */
-  async function handleDeleteTrip(trip, ev) {
+  /* In-page confirm dialog state for the polaroid corner delete.
+     window.confirm worked but felt jarring; a styled modal in the
+     app's vocabulary lets the user pause before nuking a trip.
+     `confirmingTrip` holds the trip pending confirmation; null
+     means no dialog open. */
+  let confirmingTrip = null;
+  let confirmBusy = false;
+
+  function handleDeleteTrip(trip, ev) {
     /* The polaroid wrapper holds the <a> link AND this button as
        siblings; the button is positioned absolute. preventDefault
        + stopPropagation are belt-and-braces so any future
@@ -94,11 +99,21 @@
     ev?.preventDefault?.();
     ev?.stopPropagation?.();
     if (!trip) return;
-    const ok = typeof window !== 'undefined' && window.confirm
-      ? window.confirm(`Delete "${trip.name}"? This can't be undone.`)
-      : true;
-    if (!ok) return;
-    await deleteTrip(trip.id);
+    confirmingTrip = trip;
+  }
+  async function confirmDelete() {
+    if (!confirmingTrip || confirmBusy) return;
+    confirmBusy = true;
+    try {
+      await deleteTrip(confirmingTrip.id);
+      confirmingTrip = null;
+    } finally {
+      confirmBusy = false;
+    }
+  }
+  function cancelDelete() {
+    if (confirmBusy) return;
+    confirmingTrip = null;
   }
 
   /* Tag line shown on each trip card's luggage tag. With stops:
@@ -641,6 +656,54 @@
 
 {#if showNewModal}
   <NewTripModal on:close={() => (showNewModal = false)} />
+{/if}
+
+<!-- In-page confirmation for polaroid-corner delete. Forest header
+     + cream body + rust footer so it speaks the same boarding-pass
+     vocabulary as the rest of the modals. -->
+{#if confirmingTrip}
+  <div
+    class="confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-trip-title"
+    on:keydown={(e) => { if (e.key === 'Escape') cancelDelete(); }}
+  >
+    <button
+      type="button"
+      class="confirm-backdrop"
+      on:click={cancelDelete}
+      aria-label="Cancel delete"
+    ></button>
+    <div class="confirm-card">
+      <header class="confirm-head">
+        <span class="confirm-kicker">Danger zone</span>
+        <h2 id="confirm-trip-title" class="confirm-title">Delete "{confirmingTrip.name}"?</h2>
+      </header>
+      <div class="confirm-body">
+        <p>
+          This removes the trip's packing list, bookings, photos, diary,
+          and spending. It <strong>cannot be undone</strong>.
+        </p>
+      </div>
+      <footer class="confirm-foot">
+        <button
+          type="button"
+          class="confirm-cancel"
+          on:click={cancelDelete}
+          disabled={confirmBusy}
+        >Keep this trip</button>
+        <button
+          type="button"
+          class="confirm-confirm"
+          on:click={confirmDelete}
+          disabled={confirmBusy}
+        >
+          {confirmBusy ? 'Deleting...' : 'Yes, delete it'}
+        </button>
+      </footer>
+    </div>
+  </div>
 {/if}
 
 <!-- First-launch onboarding. Renders only when the persisted
@@ -1503,5 +1566,131 @@
     line-height: 1.55;
     color: #cad7cf;
     margin: 0;
+  }
+
+  /* ===== Delete-trip confirmation =====
+     Inline modal triggered by the polaroid corner X. Forest +
+     cream + rust boarding-pass band identity, same vocabulary as
+     the rest of the app's modals. */
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .confirm-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 30, 20, 0.72);
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    backdrop-filter: blur(2px);
+  }
+  .confirm-card {
+    position: relative;
+    z-index: 1;
+    background: #fbf6ea;
+    border: 1.5px solid #c9a84c;
+    box-shadow: 0 24px 48px rgba(10, 30, 20, 0.45);
+    width: 100%;
+    max-width: 460px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .confirm-head {
+    background: #4a1f0e;
+    padding: 16px 22px 14px;
+    border-bottom: 3px double rgba(201, 168, 76, 0.55);
+  }
+  .confirm-kicker {
+    display: block;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 4px;
+  }
+  .confirm-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(18px, 4vw, 22px);
+    color: #f5f0e8;
+    line-height: 1.2;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .confirm-body {
+    padding: 18px 22px;
+  }
+  .confirm-body p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #5a4f3d;
+    margin: 0;
+  }
+  .confirm-body strong {
+    font-style: normal;
+    color: #7d3a1e;
+    font-weight: 700;
+  }
+  .confirm-foot {
+    background: #4a1f0e;
+    border-top: 3px double rgba(201, 168, 76, 0.55);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .confirm-cancel {
+    background: transparent;
+    border: 1.5px solid rgba(245, 240, 232, 0.5);
+    color: #f3ece0;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease;
+  }
+  .confirm-cancel:hover {
+    background: rgba(245, 240, 232, 0.1);
+    border-color: #f3ece0;
+  }
+  .confirm-confirm {
+    background: #c9a84c;
+    border: 2px solid #c9a84c;
+    color: #0a2d21;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+  }
+  .confirm-confirm:hover:not(:disabled) {
+    background: #d8b863;
+    transform: translateY(-1px);
+  }
+  .confirm-confirm:disabled {
+    opacity: 0.55;
+    cursor: progress;
   }
 </style>

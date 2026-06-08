@@ -22,6 +22,25 @@
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
+
+  /* Floating scroll-to-top button. Appears once the user has
+     scrolled past ~600px and clears when they're back near the
+     top. Mobile-first - the desktop browser scroll-bar already
+     gives the user a one-flick path back. */
+  let showScrollTop = false;
+  function onScroll() {
+    if (typeof window === 'undefined') return;
+    showScrollTop = window.scrollY > 600;
+  }
+  function scrollToTop() {
+    if (typeof window === 'undefined') return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  onMount(() => {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  });
 </script>
 
 <div class="topbar flex items-center justify-between gap-4">
@@ -220,6 +239,45 @@
     .topbar-burger { display: inline-flex; }
   }
 
+  /* Floating scroll-to-top button. Anchored bottom-right with
+     safe-area insets so iOS Safari's home indicator doesn't
+     overlap. Rust filled, gold ring for the boarding-pass
+     vocabulary. Fades in / out via Svelte's mount cycle. */
+  .scroll-top {
+    position: fixed;
+    right: calc(env(safe-area-inset-right, 0) + 18px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 22px);
+    z-index: 240;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #7d3a1e;
+    border: 2px solid #c9a84c;
+    color: #fbf6ea;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(40, 30, 15, 0.32);
+    transition: transform 160ms cubic-bezier(.2,.7,.3,1), background 160ms ease;
+    animation: scroll-top-in 220ms cubic-bezier(.2,.7,.3,1) both;
+  }
+  .scroll-top:hover {
+    background: #0a2d21;
+    transform: translateY(-2px);
+  }
+  .scroll-top:active {
+    transform: translateY(0);
+  }
+  @keyframes scroll-top-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-top { animation: none; transition: background 160ms ease; }
+    .scroll-top:hover { transform: none; }
+  }
+
   /* Sticky-footer pattern: page is a flex column at least the full
      viewport height. Main grows to fill remaining space so a short
      page (e.g. the empty-trip onboarding) doesn't leave a stretch
@@ -237,6 +295,23 @@
     flex: 1 0 auto;
   }
 </style>
+
+<!-- Floating scroll-to-top button. Visible on every page once the
+     user has scrolled far enough that "scroll back manually" feels
+     long. -->
+{#if showScrollTop}
+  <button
+    type="button"
+    class="scroll-top"
+    on:click={scrollToTop}
+    aria-label="Scroll back to the top"
+    title="Back to top"
+  >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 14 12 8 18 14"/>
+    </svg>
+  </button>
+{/if}
 
 <!-- Mounted once at the root so every page can pushToast() without
      needing its own toast container. -->

@@ -19,13 +19,10 @@
        preference. Combined with accent-color this keeps the
        picker chrome on-palette. */
     color-scheme: light;
-    /* Lock the document to the viewport's width on mobile so a
-       single element bursting wide (long inline title, a flex row
-       that didn't wrap, an image past the viewport) can't make
-       the whole page scroll horizontally. Pages then stay snapped
-       to the same width whether the user is on the home, the
-       trip page, the bucket, etc. */
-    overflow-x: hidden;
+    /* DO NOT put overflow-x: hidden on <html> - it silently breaks
+       position: sticky on every descendant in Chrome and Safari.
+       The horizontal-clip lives on <body> instead, which doesn't
+       have the same effect on sticky. */
   }
   body {
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -43,7 +40,12 @@
        default blue. Falls back gracefully on browsers that don't
        support accent-color. */
     accent-color: #7d3a1e;
-    overflow-x: hidden;
+    /* overflow-x: clip prevents horizontal scroll without making
+       <body> a scroll container, which means position: sticky on
+       descendants (the trip TOC, anything else that scrolls with
+       the page) keeps working. overflow-x: hidden would have broken
+       sticky in Chrome / Safari. */
+    overflow-x: clip;
     /* Pin the body to the viewport's CSS pixel width regardless of
        OS / address-bar resizing so every page reports the same
        layout box on mobile. */
