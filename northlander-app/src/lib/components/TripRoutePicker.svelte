@@ -276,7 +276,7 @@
     aria-label="Close"
   ></button>
 
-  <div class="relative z-10 w-full max-w-[680px] max-h-full bg-cream shadow-ticket pl-card flex flex-col">
+  <div class="rp-shell relative z-10 w-full max-w-[680px] bg-cream shadow-ticket pl-card flex flex-col">
 
     <header class="rp-head">
       <div>
@@ -675,11 +675,29 @@
     color: #fffdf6;
   }
 
+  /* Modal shell sits inside a fixed full-viewport flex container.
+     Capped at 90dvh so iOS Safari's dynamic URL bar never lets it
+     extend below the visible viewport (was max-h-full which on
+     iOS resolved to 100vh / static viewport and pushed the footer
+     under the URL bar). */
+  .rp-shell {
+    max-height: 90vh;
+    max-height: 90dvh;
+    min-height: 0;
+  }
+
   /* ===== Body ===== */
   .rp-body {
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: #fbf6ea;
-    flex: 1;
+    flex: 1 1 auto;
+    /* min-height: 0 is the critical fix - flex items default to
+       min-height: auto which prevents them from shrinking below
+       their content size, breaking overflow-y. With min-height
+       set to 0 the body shrinks within the flex column and the
+       station list actually scrolls on mobile. */
+    min-height: 0;
     padding: 18px 24px 8px;
   }
   .rp-date-label {
@@ -698,6 +716,10 @@
   }
   .rp-date-input {
     width: 100%;
+    /* min-height so the tap target stays generous on iOS Safari
+       even before the user picks a value (some iOS versions
+       collapse type="date" with no value to a thin line). */
+    min-height: 48px;
     background: #fffdf6;
     border: 1.5px solid #8b6a3a;
     border-radius: 3px;
@@ -707,6 +729,22 @@
     color: #0a2d21;
     outline: none;
     transition: border-color 140ms ease;
+    /* Tap-targets for type="date" on iOS sometimes hide the
+       calendar icon if the browser's color-scheme conflict makes
+       it match the bg. Force the picker indicator visible + tap-
+       friendly. */
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+  }
+  .rp-date-input::-webkit-date-and-time-value {
+    text-align: left;
+  }
+  .rp-date-input::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    color: #7d3a1e;
+    cursor: pointer;
   }
   .rp-date-input:focus { border-color: #7d3a1e; }
   .rp-date-input--big {
