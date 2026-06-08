@@ -1387,63 +1387,88 @@
              glance instead of hiding behind an accordion. -->
         <section class="bb-budget-flat" aria-labelledby="bb-budget-title">
           <header class="bb-budget-flat-head">
-            <span class="bb-budget-flat-kicker">Trip budget</span>
-            <h3 id="bb-budget-title" class="bb-budget-flat-title">Budget</h3>
-          </header>
-          <div class="bb-budget">
-            {#if editingBudgetTarget}
-              <form class="bb-budget-edit" on:submit|preventDefault={commitBudgetTarget}>
-                <span class="bb-budget-edit-prefix" aria-hidden="true">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  inputmode="decimal"
-                  bind:value={budgetTargetDraft}
-                  class="bb-budget-input"
-                  placeholder="2000"
-                  on:blur={commitBudgetTarget}
-                  on:keydown={(e) => { if (e.key === 'Escape') cancelBudgetTarget(); }}
-                  autofocus
-                />
-                <span class="bb-budget-edit-hint">Press Enter to save. Leave blank to clear.</span>
-              </form>
-            {:else if tripBudgetTarget == null}
-              <button type="button" class="bb-budget-set" on:click={startEditBudgetTarget}>
-                Set a trip budget
-              </button>
-              <p class="bb-budget-hint">
-                Drop in a target and every spend you log in a chapter ledger
-                subtracts from it. Useful for "I have $2,000 for this trip."
-              </p>
-            {:else}
-              <div class="bb-budget-stats" class:is-over={budgetOverspent}>
-                <div class="bb-budget-stat">
-                  <span class="bb-budget-stat-kicker">Target</span>
-                  <button type="button" class="bb-budget-stat-num bb-budget-target-btn" on:click={startEditBudgetTarget} title="Edit target">
-                    {formatAmount(tripBudgetTarget)}
-                  </button>
-                </div>
-                <div class="bb-budget-stat">
-                  <span class="bb-budget-stat-kicker">Spent</span>
-                  <span class="bb-budget-stat-num bb-budget-stat-spent">{formatAmount(budgetSpent)}</span>
-                </div>
-                <div class="bb-budget-stat">
-                  <span class="bb-budget-stat-kicker">{budgetOverspent ? 'Over by' : 'Left'}</span>
-                  <span class="bb-budget-stat-num bb-budget-stat-left" class:is-over={budgetOverspent}>
+            <div class="bb-budget-flat-text">
+              <span class="bb-budget-flat-kicker">Trip budget</span>
+              <h3 id="bb-budget-title" class="bb-budget-flat-title">Budget</h3>
+            </div>
+            <!-- Live figure pinned to the title line. Shows whatever
+                 the user has left to spend (or how far over budget
+                 they've gone). Tapping opens the inline editor so
+                 they can adjust the target / add more funds. When
+                 no target is set, this slot carries the Set CTA. -->
+            <div class="bb-budget-headline">
+              {#if editingBudgetTarget}
+                <form class="bb-budget-inline-edit" on:submit|preventDefault={commitBudgetTarget}>
+                  <span class="bb-budget-inline-prefix" aria-hidden="true">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    inputmode="decimal"
+                    bind:value={budgetTargetDraft}
+                    class="bb-budget-inline-input"
+                    placeholder={tripBudgetTarget != null ? String(tripBudgetTarget) : '2000'}
+                    on:blur={commitBudgetTarget}
+                    on:keydown={(e) => { if (e.key === 'Escape') cancelBudgetTarget(); }}
+                    autofocus
+                  />
+                </form>
+              {:else if tripBudgetTarget == null}
+                <button
+                  type="button"
+                  class="bb-budget-set"
+                  on:click={startEditBudgetTarget}
+                >Set a budget</button>
+              {:else}
+                <button
+                  type="button"
+                  class="bb-budget-headline-btn"
+                  class:is-over={budgetOverspent}
+                  on:click={startEditBudgetTarget}
+                  title={budgetOverspent ? 'Tap to add more funds' : 'Tap to adjust the target'}
+                >
+                  <span class="bb-budget-headline-figure">
                     {formatAmount(budgetOverspent ? -budgetRemaining : budgetRemaining)}
                   </span>
-                </div>
-              </div>
-              <div class="bb-budget-bar" aria-hidden="true">
-                <span class="bb-budget-bar-fill" style="width: {budgetPercent}%;" class:is-over={budgetOverspent}></span>
-              </div>
-              <p class="bb-budget-hint">
-                Logged from each chapter's <em>Spending</em> drawer. Tap the
-                target above to change it.
-              </p>
-            {/if}
-          </div>
+                  <span class="bb-budget-headline-tag">{budgetOverspent ? 'over' : 'left'}</span>
+                  <svg viewBox="0 0 24 24" width="13" height="13" class="bb-budget-headline-edit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 20 H8 L18 10 L14 6 L4 16 Z"/>
+                  </svg>
+                </button>
+              {/if}
+            </div>
+          </header>
+
+          {#if editingBudgetTarget}
+            <p class="bb-budget-edit-hint">
+              Type the new target amount. Press <strong>Enter</strong> to save, or <strong>Escape</strong> to cancel.
+              Leave blank to clear the target entirely.
+            </p>
+          {:else if tripBudgetTarget == null}
+            <p class="bb-budget-hint">
+              Drop in a target and every spend you log in a chapter ledger
+              subtracts from it. Useful for "I have $2,000 for this trip."
+            </p>
+          {:else}
+            <!-- Supplementary stats: how much spent / of what target.
+                 The live "left" / "over" figure sits in the headline
+                 above so it's always in view. -->
+            <div class="bb-budget-substats" class:is-over={budgetOverspent}>
+              <span class="bb-budget-sub">
+                <strong>{formatAmount(budgetSpent)}</strong> spent
+              </span>
+              <span class="bb-budget-sub-sep" aria-hidden="true">&middot;</span>
+              <span class="bb-budget-sub">
+                of <strong>{formatAmount(tripBudgetTarget)}</strong> target
+              </span>
+            </div>
+            <div class="bb-budget-bar" aria-hidden="true">
+              <span class="bb-budget-bar-fill" style="width: {budgetPercent}%;" class:is-over={budgetOverspent}></span>
+            </div>
+            <p class="bb-budget-hint">
+              Logged from each chapter's <em>Spending</em> drawer. Tap the figure above to adjust your target or add more funds.
+            </p>
+          {/if}
         </section>
       </div>
     </section>
@@ -3185,9 +3210,18 @@
   }
   .bb-budget-flat-head {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .bb-budget-flat-text {
+    display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-bottom: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .bb-budget-flat-kicker {
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -3205,6 +3239,117 @@
     margin: 0;
     line-height: 1.1;
   }
+
+  /* Live figure pinned to the title line. Big, tappable, always
+     visible. Updates as the user spends; tapping opens the inline
+     editor so they can adjust the target or top up. */
+  .bb-budget-headline {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+  }
+  .bb-budget-headline-btn {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    background: transparent;
+    border: 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #0a2d21;
+    transition: background 140ms ease, transform 140ms ease;
+  }
+  .bb-budget-headline-btn:hover {
+    background: rgba(201, 168, 76, 0.18);
+    transform: translateY(-1px);
+  }
+  .bb-budget-headline-figure {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(22px, 3vw, 28px);
+    color: #0a2d21;
+    line-height: 1;
+  }
+  .bb-budget-headline-btn.is-over .bb-budget-headline-figure {
+    color: #c4860f;
+  }
+  .bb-budget-headline-tag {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    align-self: center;
+  }
+  .bb-budget-headline-btn.is-over .bb-budget-headline-tag { color: #c4860f; }
+  .bb-budget-headline-edit {
+    color: #7d3a1e;
+    margin-left: 2px;
+    opacity: 0.7;
+    align-self: center;
+  }
+  .bb-budget-headline-btn:hover .bb-budget-headline-edit { opacity: 1; }
+
+  /* Inline edit form. Same slot as the headline figure so swapping
+     between view and edit doesn't shift any other layout. */
+  .bb-budget-inline-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bb-budget-inline-prefix {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: #7d3a1e;
+    line-height: 1;
+  }
+  .bb-budget-inline-input {
+    width: 110px;
+    background: #fffdf6;
+    border: 1.5px solid #8b6a3a;
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: #0a2d21;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .bb-budget-inline-input::-webkit-outer-spin-button,
+  .bb-budget-inline-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .bb-budget-inline-input:focus { border-color: #7d3a1e; }
+
+  /* Sub-stats: small italic "$X spent of $Y target" line under the
+     headline so the user can see both halves of the math without
+     unfurling anything. */
+  .bb-budget-substats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: 13.5px;
+    margin: 4px 0 10px;
+  }
+  .bb-budget-substats strong {
+    font-style: normal;
+    font-weight: 700;
+    color: #0a2d21;
+  }
+  .bb-budget-substats.is-over strong { color: #c4860f; }
+  .bb-budget-sub-sep {
+    color: rgba(125, 58, 30, 0.45);
+  }
+
   .bb-budget {
     padding: 4px 2px 6px;
   }
