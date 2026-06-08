@@ -765,7 +765,10 @@
   .dash-hero h1 {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 900;
-    font-size: clamp(2.6rem, 7vw, 5rem);
+    /* Larger floor (3.6rem) so the title reads big on phones where
+       7vw drops below the desktop ceiling - was tiny against the
+       full-height hero band. */
+    font-size: clamp(3.6rem, 10vw, 5rem);
     line-height: 0.95;
     margin: 14px 0 18px;
     letter-spacing: -0.015em;
@@ -1248,7 +1251,9 @@
      rather than a real photo, so push the name down a touch and
      center it for a more invitational feel. */
   .polaroid-paper--cta {
-    padding-top: 22px;
+    /* Extra breathing room above "A fresh trip" so the text isn't
+       pressed against the dashed-circle icon area above. */
+    padding-top: 40px;
     text-align: center;
   }
   .polaroid-name {
