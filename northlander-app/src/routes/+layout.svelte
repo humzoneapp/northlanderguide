@@ -61,7 +61,7 @@
   <slot />
 </main>
 
-<footer class="mt-20 border-t border-[#d9cfba] bg-ivory-soft py-10 px-6 text-center">
+<footer class="border-t border-[#d9cfba] bg-ivory-soft py-10 px-6 text-center">
   <p class="font-serif italic text-muted text-sm">
     Built for the Ontario Northland Northlander route. Independent, made by travellers.
   </p>
