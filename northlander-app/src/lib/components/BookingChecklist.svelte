@@ -432,14 +432,17 @@
           </button>
         {/each}
       </div>
-      <input
-        type="time"
-        bind:value={newTime}
-        class="book-add-time"
-        class:is-set={!!newTime}
-        aria-label="Time"
-        title="Optional start time"
-      />
+      <label class="book-add-time-label">
+        <span class="book-add-time-kicker">Pick a time</span>
+        <input
+          type="time"
+          bind:value={newTime}
+          class="book-add-time"
+          class:is-set={!!newTime}
+          aria-label="Time"
+          title="Optional start time"
+        />
+      </label>
       {#if !stopFilter && tripStops.length > 0}
         <select bind:value={newStop} class="book-stop" aria-label="Pin to stop">
           <option value="">Anywhere</option>
@@ -618,34 +621,75 @@
     border-color: #0a2d21;
     color: #c9a84c;
   }
+  /* Wrapper around the add-row time pill so the user sees a kicker
+     "Pick a time" above the input. Native <input type="time"> on
+     iOS renders blank with no placeholder + no icon when there's
+     no value, so without an external label the pill looks dead. */
+  .book-add-time-label {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    min-width: 0;
+  }
+  .book-add-time-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    padding-left: 10px;
+  }
   /* Time pill: same dashed-gold vocabulary as the row time pills
      so the add row reads as part of the same family. */
   .book-add-time {
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #6e2e17;
-    background: transparent;
+    background-color: transparent;
+    /* Small clock glyph baked in as a background image so the pill
+       reads as a time picker even when empty - iOS otherwise paints
+       no placeholder + no icon. The icon hides via the is-set rule
+       below once the user picks a value, so HH:MM has the pill to
+       itself. */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237d3a1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7 V12 L15 14'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 14px 14px;
     border: 1.5px dashed rgba(196, 134, 15, 0.55);
     border-radius: 999px;
-    padding: 4px 10px;
-    width: 90px;
-    text-align: center;
+    padding: 6px 12px 6px 28px;
+    min-height: 36px;
+    width: 110px;
+    text-align: left;
     cursor: pointer;
     outline: none;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    -webkit-appearance: none;
+    appearance: none;
   }
   .book-add-time:hover,
   .book-add-time:focus-visible {
     border-color: #c4860f;
-    background: rgba(196, 134, 15, 0.08);
+    background-color: rgba(196, 134, 15, 0.08);
   }
   .book-add-time.is-set {
-    background: rgba(196, 134, 15, 0.18);
+    background-color: rgba(196, 134, 15, 0.18);
+    background-image: none;
+    padding-left: 12px;
+    text-align: center;
     border-color: #c4860f;
     border-style: solid;
     color: #0a2d21;
+  }
+  .book-add-time::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    -webkit-appearance: none;
+    width: 0;
+    margin: 0;
   }
   .book-stop {
     background: #fbf6ea;
@@ -730,36 +774,59 @@
     background: rgba(196, 134, 15, 0.04);
   }
 
-  /* Compact time pill in column 2 of every row. Empty state gets
-     a dashed gold outline and a placeholder feel; once a value is
-     set we switch to a filled amber tag so the schedule reads at
-     a glance. The native time picker still pops on tap / focus. */
+  /* Compact time pill in column 2 of every row. Empty state shows
+     a small clock glyph + "Time" so iOS users can see what the
+     pill does even before they've picked a value (the native
+     <input type="time"> renders no placeholder, no icon when
+     empty). The .is-set rule below replaces the icon + label with
+     the filled-in HH:MM. */
   .book-time {
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #6e2e17;
-    background: transparent;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237d3a1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7 V12 L15 14'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 14px 14px;
     border: 1.5px dashed rgba(196, 134, 15, 0.55);
     border-radius: 999px;
-    padding: 3px 8px;
-    width: 84px;
-    text-align: center;
+    padding: 5px 12px 5px 28px;
+    min-height: 32px;
+    width: 100px;
+    text-align: left;
     cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  /* When empty on iOS, the input's content area stays blank. Use
+     ::before pseudo to print "Time" beside the clock icon. */
+  .book-time::-webkit-datetime-edit-fields-wrapper {
+    color: inherit;
   }
   .book-time:hover,
   .book-time:focus-visible {
     border-color: #c4860f;
-    background: rgba(196, 134, 15, 0.08);
+    background-color: rgba(196, 134, 15, 0.08);
     outline: none;
   }
   .book-time.is-set {
-    background: rgba(196, 134, 15, 0.18);
+    background-color: rgba(196, 134, 15, 0.18);
+    background-image: none;
+    padding-left: 12px;
+    text-align: center;
     border-color: #c4860f;
     border-style: solid;
     color: #0a2d21;
+  }
+  .book-time::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    -webkit-appearance: none;
+    width: 0;
+    margin: 0;
   }
   /* Wrap is inline-flex so the Done pill sits flush next to the
      time input without affecting other row cells. */

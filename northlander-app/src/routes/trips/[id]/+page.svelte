@@ -2304,14 +2304,19 @@
     font-family: 'Spline Sans', system-ui, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.28em;
-    font-size: 10px;
+    /* Floored at 12px so the kicker stays readable on phones;
+       was 10px which read as a thin caps strip. */
+    font-size: clamp(12px, 2.6vw, 13px);
     font-weight: 800;
     color: #c9a84c;
   }
   .cover-ticket-name {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
-    font-size: clamp(1rem, 1.9vw, 1.3rem);
+    /* Bigger floor on phones so station names read clearly within
+       the boarding-pass strip - was 1rem (16px) which was too
+       small alongside the kicker + time. */
+    font-size: clamp(1.25rem, 4.5vw, 1.4rem);
     color: #f5f0e8;
     text-align: center;
     line-height: 1.15;
@@ -2322,7 +2327,7 @@
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
     font-style: italic;
-    font-size: clamp(1rem, 1.9vw, 1.3rem);
+    font-size: clamp(1.15rem, 4vw, 1.3rem);
     color: #c9a84c;
     text-align: center;
     line-height: 1.15;
@@ -2331,7 +2336,7 @@
   .cover-ticket-date {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: 12.5px;
+    font-size: clamp(13.5px, 3vw, 14.5px);
     color: #ede0cc;
     margin-top: 2px;
   }

@@ -1036,32 +1036,47 @@
   .ap-time {
     align-self: stretch;
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     color: #6e2e17;
-    background: transparent;
+    background-color: transparent;
+    /* Clock glyph painted as a background so the empty time pill
+       reads as a time picker even on iOS, where native
+       <input type="time"> shows nothing inside an empty pill. */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237d3a1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7 V12 L15 14'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 14px 14px;
     border: 1.5px dashed rgba(196, 134, 15, 0.55);
     border-radius: 999px;
-    padding: 4px 8px;
-    text-align: center;
+    padding: 6px 12px 6px 28px;
+    min-height: 36px;
+    text-align: left;
     cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    -webkit-appearance: none;
+    appearance: none;
   }
   .ap-time:hover,
   .ap-time:focus-visible {
     border-color: #c4860f;
-    background: rgba(196, 134, 15, 0.08);
+    background-color: rgba(196, 134, 15, 0.08);
     outline: none;
   }
   .ap-time.is-set {
-    background: rgba(196, 134, 15, 0.18);
+    background-color: rgba(196, 134, 15, 0.18);
+    background-image: none;
+    padding-left: 12px;
+    text-align: center;
     border-color: #c4860f;
     border-style: solid;
     color: #0a2d21;
   }
   .ap-time::-webkit-calendar-picker-indicator {
-    opacity: 0.6;
-    margin-left: 2px;
+    opacity: 0;
+    -webkit-appearance: none;
+    width: 0;
+    margin: 0;
   }
 
   .ap-add {
