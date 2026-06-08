@@ -19,6 +19,13 @@
        preference. Combined with accent-color this keeps the
        picker chrome on-palette. */
     color-scheme: light;
+    /* Lock the document to the viewport's width on mobile so a
+       single element bursting wide (long inline title, a flex row
+       that didn't wrap, an image past the viewport) can't make
+       the whole page scroll horizontally. Pages then stay snapped
+       to the same width whether the user is on the home, the
+       trip page, the bucket, etc. */
+    overflow-x: hidden;
   }
   body {
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -36,6 +43,24 @@
        default blue. Falls back gracefully on browsers that don't
        support accent-color. */
     accent-color: #7d3a1e;
+    overflow-x: hidden;
+    /* Pin the body to the viewport's CSS pixel width regardless of
+       OS / address-bar resizing so every page reports the same
+       layout box on mobile. */
+    width: 100%;
+    max-width: 100%;
+  }
+  /* Belt-and-braces: images, videos and SVGs never overflow their
+     container. Catches Guide hero photos + uploaded covers + the
+     odd inline SVG that didn't declare a max width. */
+  img, svg, video, canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Long word-break for prose so a single URL or station name
+     can't burst a card wider than the viewport. */
+  p, h1, h2, h3, h4, h5, li {
+    overflow-wrap: anywhere;
   }
   /* Text-selection highlight uses palette gold + forest text
      instead of the OS-default blue wash. This affects every
