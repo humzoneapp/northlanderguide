@@ -862,7 +862,7 @@
        below in the cream/ivory editorial style. A small "Change
        cover" button in the corner lets the user swap the banner
        image at any time. -->
-  <header id="trip-top" class="cover" class:has-image={!!bannerImage}>
+  <header id="trip-top" class="cover" class:has-image={!!bannerImage} class:is-empty-cover={stops.length === 0}>
     <div
       class="cover-bg"
       class:has-image={!!bannerImage}
@@ -2090,15 +2090,20 @@
     border-bottom: 1px solid rgba(125, 58, 30, 0.22);
     box-shadow: 0 4px 14px rgba(40, 30, 20, 0.06);
     backdrop-filter: blur(6px);
+    /* Outer gutter mirrors .crumbs so both bands push their inner
+       content the same 24px from the viewport edge on wide
+       screens. Without this the TOC's max-width container sat
+       inset 24px further than the breadcrumb above it. */
+    padding: 0 24px;
   }
   .trip-toc-row {
     display: flex;
     align-items: center;
     gap: 6px;
-    /* Horizontal padding matches the breadcrumb band above (24px)
-       so both rows' content edges line up at the same viewport
-       offset. */
-    padding: 10px 24px;
+    /* Vertical padding only - horizontal gutter lives on the
+       sticky band so the row's max-width container behaves like
+       .crumbs-inner. */
+    padding: 10px 0;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -2160,10 +2165,8 @@
   }
 
   @media (max-width: 720px) {
-    .trip-toc { top: 48px; }
-    /* Keep the TOC's left edge aligned with the breadcrumb on
-       narrow viewports too (both use 24px gutters). */
-    .trip-toc-row { padding: 8px 24px; gap: 4px; }
+    .trip-toc { top: 48px; padding: 0 24px; }
+    .trip-toc-row { padding: 8px 0; gap: 4px; }
     .trip-toc-link { padding: 7px 11px; font-size: 12px; }
   }
 
@@ -2179,6 +2182,17 @@
     color: #f5f0e8;
     padding: 56px 24px 64px;
     overflow: hidden;
+  }
+  /* Empty-trip cover stretches to fill the viewport so the body
+     colour doesn't show through between the forest banner and the
+     cream footer. Estimates topbar (52px) + breadcrumb (~58px) +
+     TOC (~50px) ~= 160px of chrome above the cover. Uses dvh for
+     iOS Safari's dynamic viewport. */
+  .cover.is-empty-cover {
+    min-height: calc(100vh - 160px);
+    min-height: calc(100dvh - 160px);
+    display: flex;
+    flex-direction: column;
   }
   .cover-bg {
     position: absolute;
