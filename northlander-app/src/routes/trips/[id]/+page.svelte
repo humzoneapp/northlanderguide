@@ -2107,6 +2107,27 @@
        screens. Without this the TOC's max-width container sat
        inset 24px further than the breadcrumb above it. */
     padding: 0 24px;
+    position: sticky;
+  }
+  /* Fade-out gradient on the right edge of the TOC band on mobile
+     so the last chip is visibly cropped - a "there's more, swipe
+     left" affordance. Sits inside the band over the scrollable
+     row but with pointer-events: none so it never blocks taps. */
+  .trip-toc::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 48px;
+    background: linear-gradient(to right, rgba(251, 246, 234, 0) 0%, rgba(251, 246, 234, 0.95) 75%, #fbf6ea 100%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+  .trip-toc.is-scrollable::after {
+    opacity: 1;
   }
   .trip-toc-row {
     display: flex;
@@ -2177,8 +2198,29 @@
   }
 
   @media (max-width: 720px) {
-    .trip-toc { top: 48px; padding: 0 24px; }
-    .trip-toc-row { padding: 8px 0; gap: 4px; }
+    .trip-toc {
+      top: 48px;
+      /* Keep left gutter at 24px so the first chip lines up with
+         the breadcrumb above. Drop the right gutter to 0 so the
+         row can scroll right past the viewport edge - the fade
+         gradient (::after) signals that more chips sit beyond. */
+      padding: 0 0 0 24px;
+    }
+    /* Always show the fade on mobile so users see the "scroll for
+       more" affordance whether or not the chips actually overflow
+       (and they almost always do on phones). */
+    .trip-toc::after {
+      opacity: 1;
+      width: 56px;
+    }
+    .trip-toc-row {
+      padding: 8px 0;
+      gap: 4px;
+      /* Trailing padding inside the row so the user can keep
+         flicking past the last chip without it sticking to the
+         very edge. */
+      padding-right: 32px;
+    }
     .trip-toc-link { padding: 7px 11px; font-size: 12px; }
   }
 
