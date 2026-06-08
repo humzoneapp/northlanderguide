@@ -2046,7 +2046,9 @@
   .crumbs {
     background: #0a2d21;
     color: #cad7cf;
-    padding: 18px 24px 0;
+    /* Bottom padding so the breadcrumb row doesn't butt directly
+       against the sticky TOC underneath. */
+    padding: 18px 24px 16px;
   }
   .crumbs-inner {
     max-width: 1180px;
