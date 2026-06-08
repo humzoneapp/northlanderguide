@@ -40,6 +40,7 @@
   import { listPhotos } from '$lib/stores/photos.js';
   import { listPackingItems } from '$lib/stores/packing.js';
   import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
+  import { listUserEvents } from '$lib/stores/user-events.js';
 
   /* ---------- Stop + schedule helpers ---------- */
   import {
@@ -75,6 +76,7 @@
   import WeatherStrip from '$lib/components/WeatherStrip.svelte';
   import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import DayPlan from '$lib/components/DayPlan.svelte';
+  import StopMap from '$lib/components/StopMap.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
   import { downloadTripBackup } from '$lib/utils/backup.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
@@ -98,6 +100,10 @@
      AddPlanModal writes a new booking without closing). */
   let dataVersion = 0;
   let budgetEntries = [];
+  /* User-added events surface inside EventsAlongRoute. We also
+     load them at the page level so the per-chapter StopMap can pin
+     them alongside bookings. */
+  let userEventsAll = [];
 
   /* Modal flags */
   let showStopPicker = false;
@@ -599,12 +605,13 @@
     loading = false;
     if (!trip) return;
 
-    [bookings, diary, photos, packingRows, budgetEntries] = await Promise.all([
+    [bookings, diary, photos, packingRows, budgetEntries, userEventsAll] = await Promise.all([
       listBookings(trip.id),
       listDiaryEntries(trip.id),
       listPhotos(trip.id),
       listPackingItems(trip.id),
-      listBudgetEntries(trip.id)
+      listBudgetEntries(trip.id),
+      listUserEvents(trip.id)
     ]);
     dataVersion += 1;
   }
@@ -1544,6 +1551,21 @@
                   />
                 </Drawer>
 
+                <!-- Geo view of the chapter: every booking + user
+                     event with an address gets a rust pin on a
+                     Carto Voyager map centred on the train station.
+                     Lazy-loads Leaflet only when the drawer opens. -->
+                <Drawer
+                  kicker="On the map"
+                  title={`Where it is in ${stop.name}`}
+                >
+                  <StopMap
+                    {stop}
+                    bookings={bookings.filter((b) => b.stopId === stop.id)}
+                    userEvents={userEventsAll.filter((e) => !e.stopId || e.stopId === stop.id)}
+                  />
+                </Drawer>
+
                 <!-- Count expressions read `bookings` directly inside
                      the prop so Svelte tracks the array as a reactive
                      dep. {@const x = bookingsAt(stop.id)} only fires
@@ -1745,6 +1767,17 @@
                       bookings={bookings.filter((b) => b.stopId === stop.id)}
                       diary={diary.filter((d) => d.stopId === stop.id)}
                       budgetEntries={budgetEntries.filter((e) => e.stopId === stop.id)}
+                    />
+                  </Drawer>
+
+                  <Drawer
+                    kicker="On the map"
+                    title={`Where it is in ${stop.name}`}
+                  >
+                    <StopMap
+                      {stop}
+                      bookings={bookings.filter((b) => b.stopId === stop.id)}
+                      userEvents={userEventsAll.filter((e) => !e.stopId || e.stopId === stop.id)}
                     />
                   </Drawer>
 
