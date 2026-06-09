@@ -60,7 +60,6 @@
   import TripRoutePicker from '$lib/components/TripRoutePicker.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
-  import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import TripChapter from '$lib/components/trip/TripChapter.svelte';
   import TripBeforeBoard from '$lib/components/trip/TripBeforeBoard.svelte';
   import CoverTicket from '$lib/components/trip/CoverTicket.svelte';
@@ -729,13 +728,6 @@
       aria-hidden="true"
     ></div>
     <div class="cover-veil" aria-hidden="true"></div>
-
-    <!-- Weather particle overlay: gold rain streaks on rainy days,
-         snowflakes on snow days, nothing otherwise. Reads the first
-         outbound stop's forecast so the cover sets the mood. -->
-    {#if stops.length > 0 && stops[0].stayStart}
-      <WeatherParticles stop={stops[0]} date={stops[0].stayStart} />
-    {/if}
 
     <CoverTicket
       {stops}
