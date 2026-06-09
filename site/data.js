@@ -689,7 +689,7 @@ const STOPS = [
 
   /* ---- 13. KIRKLAND LAKE (SWASTIKA) ---- */
   {
-    id:"kirklandlake", lat:48.147, lng:-80.037, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
+    id:"kirklandlake", lat:48.108, lng:-80.1045, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},

@@ -132,21 +132,52 @@
          100% on Northlander-route locations once the city + country
          context is added. */
       const ctx = `, ${stop.name}, Ontario, Canada`;
+
+      /* Every booking gets a pin, no matter what. The geocoder tries
+         the address first, then falls back to "<title>, <stop>,
+         Ontario" so a booking like "Dinner at The Raven & Republic"
+         still resolves without the user having to type an address.
+         If both lookups miss, the pin drops at the train station
+         with a popup that nudges the user to add an address. */
       const bookingHits = await Promise.all(
         (bookings || []).map(async (b) => {
-          if (!b.address) return null;
-          const loc = await geocode(b.address + ctx);
-          if (!loc) return null;
-          return { kind: 'booking', row: b, loc };
+          let loc = null;
+          let resolvedBy = 'address';
+          if (b.address) {
+            loc = await geocode(b.address + ctx);
+          }
+          if (!loc && b.title) {
+            loc = await geocode(b.title + ctx);
+            if (loc) resolvedBy = 'title';
+          }
+          if (!loc) {
+            /* Park at the station with a tiny lat offset so
+               multiple unresolved bookings don't overlap exactly. */
+            const jitter = (Math.random() - 0.5) * 0.0008;
+            loc = { lat: stop.lat + jitter, lng: stop.lng + jitter };
+            resolvedBy = 'station';
+          }
+          return { kind: 'booking', row: b, loc, resolvedBy };
         })
       );
       const eventHits = await Promise.all(
         (userEvents || []).map(async (e) => {
           const query = [e.venue, e.address].filter(Boolean).join(', ');
-          if (!query) return null;
-          const loc = await geocode(query + ctx);
-          if (!loc) return null;
-          return { kind: 'event', row: e, loc };
+          let loc = null;
+          let resolvedBy = 'address';
+          if (query) {
+            loc = await geocode(query + ctx);
+          }
+          if (!loc && e.name) {
+            loc = await geocode(e.name + ctx);
+            if (loc) resolvedBy = 'title';
+          }
+          if (!loc) {
+            const jitter = (Math.random() - 0.5) * 0.0008;
+            loc = { lat: stop.lat + jitter, lng: stop.lng + jitter };
+            resolvedBy = 'station';
+          }
+          return { kind: 'event', row: e, loc, resolvedBy };
         })
       );
 
@@ -154,7 +185,7 @@
       pinCount = hits.length;
 
       for (const hit of hits) {
-        const { row, loc, kind } = hit;
+        const { row, loc, kind, resolvedBy } = hit;
         const letter = kind === 'event'
           ? 'E'
           : (kindLabel(row.kind || 'other')[0] || '?');
@@ -168,7 +199,14 @@
         const addr = kind === 'event' ? (row.address || row.venue || '') : (row.address || '');
         const url = kind === 'event' ? row.url : null;
 
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr || `${loc.lat},${loc.lng}`)}`;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr || title || `${loc.lat},${loc.lng}`)}`;
+
+        /* When the pin sat at the station because no address /
+           title resolved, the popup tells the user how to refine
+           it instead of pretending we know where it is. */
+        const stationHint = resolvedBy === 'station'
+          ? `<span class="nl-pop-hint">Near the station - add an address to pin it exactly.</span>`
+          : '';
 
         L.marker([loc.lat, loc.lng], { icon: rustIcon(letter) })
           .addTo(layer)
@@ -178,6 +216,7 @@
               <strong class="nl-pop-title">${escapeHtml(title || '')}</strong>
               ${timeStr ? `<span class="nl-pop-time">${escapeHtml(timeStr)}</span>` : ''}
               ${addr ? `<span class="nl-pop-addr">${escapeHtml(addr)}</span>` : ''}
+              ${stationHint}
               <div class="nl-pop-actions">
                 <a href="${mapUrl}" target="_blank" rel="noopener">Open in Maps &rarr;</a>
                 ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Visit site &rarr;</a>` : ''}
@@ -465,6 +504,13 @@
     font-style: italic;
     font-size: 13px;
     color: #5a4f3d;
+  }
+  :global(.nl-pop-hint) {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: #c4860f;
+    margin-top: 4px;
   }
   :global(.nl-pop-actions) {
     display: flex;

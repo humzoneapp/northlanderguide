@@ -44,7 +44,11 @@ export const STOPS = [
   { id: 'temagami',     name: 'Temagami',            region: 'Lake Temagami',          hook: 'Paddle beneath 400-year-old red and white pines.',                   lat: 47.0640, lng: -79.7900, offsetMinutes: 415, image: 'images/northlander-temagami.jpeg' },
   { id: 'temiskaming',  name: 'Temiskaming Shores',  region: 'New Liskeard',           hook: 'Northern dairy country beneath a 100-metre cliff.',                  lat: 47.5090, lng: -79.6770, offsetMinutes: 480, image: 'images/northlander-temiskaming-shores.jpeg' },
   { id: 'englehart',    name: 'Englehart',           region: 'Timiskaming District',   hook: 'A town the railway itself built, gorge falls nearby.',               lat: 47.8210, lng: -79.8680, offsetMinutes: 515, image: 'images/northlander-englehart.jpeg' },
-  { id: 'kirklandlake', name: 'Kirkland Lake',       region: 'Swastika stop',          hook: 'The town that gold built, and a hockey legend factory.',             lat: 48.1470, lng: -80.0370, offsetMinutes: 550, image: 'images/northlander-kirkland-lake.jpeg' },
+  /* The Northlander actually stops at the historic Swastika
+     station within Kirkland Lake's town limits, not at Kirkland
+     Lake's town centre. Coords corrected to the Swastika platform
+     2026-06-09. */
+  { id: 'kirklandlake', name: 'Kirkland Lake',       region: 'Swastika stop',          hook: 'The town that gold built, and a hockey legend factory.',             lat: 48.1080, lng: -80.1045, offsetMinutes: 550, image: 'images/northlander-kirkland-lake.jpeg' },
   { id: 'matheson',     name: 'Matheson',            region: 'Black River-Matheson',   hook: '22 spring-fed kettle lakes and the coach north to Cochrane.',        lat: 48.5340, lng: -80.4640, offsetMinutes: 595, image: 'images/northlander-matheson.jpeg' },
   { id: 'timmins',      name: 'Timmins-Porcupine',   region: 'Timmins',                hook: 'Descend a real gold mine at the northern end of the line.',          lat: 48.4758, lng: -81.3305, offsetMinutes: 640, image: 'images/northlander-timmins-porcupine.jpeg' },
   { id: 'cochrane',     name: 'Cochrane',            region: 'Polar Bear Express link',hook: 'Meet polar bears, then ride the rails to James Bay.',                lat: 49.0660, lng: -81.0150, offsetMinutes: 680, image: 'images/northlander-cochrane.jpeg' }
