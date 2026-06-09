@@ -968,22 +968,16 @@
       </p>
     {/if}
 
-    <input
-      bind:this={coverFileInput}
-      type="file"
-      accept="image/*"
-      class="cover-file-input"
-      on:change={handleCoverUpload}
-      tabindex="-1"
-      aria-hidden="true"
-    />
     {#if stops.length > 0}
       <div class="cover-photo-actions">
-        <button
-          type="button"
+        <!-- iOS Safari refuses to open the file picker when JS
+             calls .click() on a hidden file input, because the
+             input isn't in layout flow. A <label> wrapping the
+             input handles the tap natively and works on every
+             mobile browser. -->
+        <label
           class="cover-photo-btn"
-          on:click={() => coverFileInput?.click()}
-          disabled={coverUploadBusy}
+          class:is-busy={coverUploadBusy}
           aria-label={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
           title={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
         >
@@ -992,7 +986,15 @@
             <circle cx="12" cy="13" r="3.5"/>
           </svg>
           <span>{coverUploadBusy ? 'Uploading...' : (coverObjectUrl ? 'Replace cover' : 'Upload cover')}</span>
-        </button>
+          <input
+            bind:this={coverFileInput}
+            type="file"
+            accept="image/*"
+            class="cover-file-input"
+            on:change={handleCoverUpload}
+            disabled={coverUploadBusy}
+          />
+        </label>
         {#if coverObjectUrl}
           <button
             type="button"
@@ -2379,8 +2381,21 @@
     .cover-ticket-end { min-width: 0; flex-basis: 100%; }
   }
 
-  /* Discreet "Change cover" button in the top-right corner. */
-  .cover-file-input { display: none; }
+  /* Discreet "Change cover" label in the top-right corner. The
+     wrapping <label> contains a visually-hidden file input so iOS
+     opens the picker on tap without us needing to call .click() in
+     JS (which iOS Safari refuses on inputs that aren't in layout). */
+  .cover-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
   .cover-photo-actions {
     position: absolute;
     top: 12px;
@@ -2405,13 +2420,14 @@
     text-transform: uppercase;
     font-weight: 700;
     transition: background 0.15s, border-color 0.15s;
+    position: relative;
   }
   .cover-photo-btn svg { width: 14px; height: 14px; }
-  .cover-photo-btn:hover:not(:disabled) {
+  .cover-photo-btn:hover:not(.is-busy) {
     background: rgba(10, 45, 33, 0.85);
     border-color: #c9a84c;
   }
-  .cover-photo-btn:disabled { opacity: 0.6; cursor: progress; }
+  .cover-photo-btn.is-busy { opacity: 0.6; cursor: progress; }
   .cover-photo-reset {
     background: transparent;
     border: 0;

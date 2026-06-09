@@ -370,25 +370,26 @@
           <span class="meta-pill">{formatBytes(bytes)}</span>
         {/if}
       {/if}
-      <button
-        type="button"
-        class="upload-btn"
-        on:click={() => fileInput?.click()}
-        disabled={uploadActive}
-      >
+      <!-- Label wrapping the file input. iOS Safari refuses to
+           open the picker when JS calls .click() on a hidden input
+           because the input isn't in the layout flow; the label
+           handles the tap natively, no JS required. The input is
+           visually hidden but still in the DOM so the tap reaches
+           it. -->
+      <label class="upload-btn" class:is-busy={uploadActive}>
         {uploadActive ? `Uploading ${uploadDone} of ${uploadTotal}` : 'Add photos'}
-      </button>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+          multiple
+          bind:this={fileInput}
+          on:change={handlePick}
+          disabled={uploadActive}
+          class="upload-input"
+        />
+      </label>
     </div>
   </div>
-
-  <input
-    type="file"
-    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-    multiple
-    bind:this={fileInput}
-    on:change={handlePick}
-    hidden
-  />
 
   {#if uploadError}
     <p class="upload-error">{uploadError}</p>
@@ -616,6 +617,9 @@
     font-style: normal;
   }
   .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: #6e2e17;
     color: #f3ece0;
     border: 2px solid #6e2e17;
@@ -628,20 +632,35 @@
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
     transition: background 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.7,.3,1), box-shadow 180ms ease;
+    position: relative;
   }
-  .upload-btn:hover:not(:disabled) {
+  .upload-btn:hover:not(.is-busy) {
     background: #0a2d21;
     border-color: #0a2d21;
     transform: translateY(-1px);
     box-shadow: 0 5px 12px rgba(40, 30, 15, 0.2);
   }
-  .upload-btn:active:not(:disabled) {
+  .upload-btn:active:not(.is-busy) {
     transform: translateY(0);
     box-shadow: 0 2px 6px rgba(40, 30, 15, 0.12);
   }
-  .upload-btn:disabled {
+  .upload-btn.is-busy {
     opacity: 0.6;
     cursor: progress;
+  }
+  /* Native file input visually hidden but still in layout so iOS
+     Safari treats it as a real element. The wrapping <label> picks
+     up the tap and opens the picker without any JS. */
+  .upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
   .upload-error {
     background: rgba(125, 58, 30, 0.12);
