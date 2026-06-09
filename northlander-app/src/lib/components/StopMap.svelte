@@ -309,15 +309,23 @@
       ).addTo(map);
 
       initted = true;
-      await renderMarkers();
     } catch (err) {
-      /* Leaflet CDN injection failed or tile-layer setup threw.
-         Surface a quiet "map unavailable" message in place of the
-         loading placeholder so the user knows nothing more is
-         coming. The rest of the chapter still works. */
+      /* Leaflet CDN injection failed or tile-layer setup threw -
+         the map itself can't render. Surface a quiet "map
+         unavailable" message; the rest of the chapter still works.
+         Logged to the console so users reporting the message can
+         paste the actual cause back to whoever's debugging. */
+      console.error('StopMap init failed:', err);
       initted = false;
       loadFailed = true;
+      return;
     }
+    /* Markers run in a separate try inside renderMarkers - a
+       geocode hiccup or a bad row shouldn't flip the whole map
+       into the unavailable state, since the basemap is fine. */
+    renderMarkers().catch((err) => {
+      console.error('StopMap renderMarkers failed:', err);
+    });
   }
 
   /* Auto-init the map without the user having to tap. Two paths:
