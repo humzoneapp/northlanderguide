@@ -1692,18 +1692,6 @@
                 Math.abs((stops[i + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
               )} to {stops[i + 1].name}
             </span>
-            <!-- Postmark on the right: arrival date stamp tilted like
-                 a passport cancellation. Only renders when the next
-                 stop carries a date the user picked. -->
-            {#if stops[i + 1].stayStart}
-              <span class="postmark" aria-hidden="true">
-                <span class="postmark-ring">
-                  <span class="postmark-arc postmark-arc--top">NORTHLANDER</span>
-                  <span class="postmark-stop">{stops[i + 1].name}</span>
-                  <span class="postmark-arc postmark-arc--bot">{formatDateShort(stops[i + 1].stayStart)}</span>
-                </span>
-              </span>
-            {/if}
           </div>
         {/if}
       {/each}
@@ -1901,15 +1889,6 @@
                   Math.abs((returnStops[j + 1].offsetMinutes || 0) - (stop.offsetMinutes || 0))
                 )} to {returnStops[j + 1].name}
               </span>
-              {#if returnStops[j + 1].stayStart}
-                <span class="postmark" aria-hidden="true">
-                  <span class="postmark-ring">
-                    <span class="postmark-arc postmark-arc--top">NORTHLANDER</span>
-                    <span class="postmark-stop">{returnStops[j + 1].name}</span>
-                    <span class="postmark-arc postmark-arc--bot">{formatDateShort(returnStops[j + 1].stayStart)}</span>
-                  </span>
-                </span>
-              {/if}
             </div>
           {/if}
         {/each}
@@ -1946,12 +1925,6 @@
        (plan-page.css:1110-1142) at a smaller scale, rotated -8deg
        so it reads as something pressed onto the page. -->
   <section id="trip-foot" class="foot">
-    <span class="foot-stamp" aria-hidden="true">
-      <span class="foot-stamp-line foot-stamp-line--top">Northlander</span>
-      <span class="foot-stamp-line foot-stamp-line--big">Bon</span>
-      <span class="foot-stamp-line foot-stamp-line--big">Voyage</span>
-      <span class="foot-stamp-line foot-stamp-line--bot">{stampDate}</span>
-    </span>
     <h2>Bon voyage.</h2>
     <p>Open this on your phone the morning you board.</p>
     <div class="it-actions foot-actions">
