@@ -118,6 +118,22 @@
       <h2>12. Contact</h2>
       <p>Anything legal-shaped, billing-related (once that exists), or just confusing: <a href="mailto:hello@northlanderguide.com">hello@northlanderguide.com</a>.</p>
     </section>
+
+    <section>
+      <h2>13. Services and credits</h2>
+      <p>Northlander.app stands on a small set of free, open services. We pay none of them, so we owe them visibility:</p>
+      <ul>
+        <li><strong>Maps</strong> by <a href="https://carto.com/" target="_blank" rel="noopener">Carto</a> (Voyager basemap tiles).</li>
+        <li><strong>Tile data</strong> by <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, under the Open Database License.</li>
+        <li><strong>Weather forecasts</strong> by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</li>
+        <li><strong>Geocoding</strong> (address to map pin) by <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>.</li>
+        <li><strong>Stop hero photos</strong> served by <a href="https://www.northlanderguide.com/" target="_blank" rel="noopener">Northlander Guide</a> via a same-origin proxy.</li>
+        <li><strong>QR encoding</strong> via the <a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener">qrcode-generator</a> library, bundled into the app so the QR code is drawn entirely in your browser.</li>
+        <li><strong>Map rendering</strong> by <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>, lazy-loaded from a public CDN.</li>
+        <li><strong>Hosting</strong> by <a href="https://vercel.com/" target="_blank" rel="noopener">Vercel</a>.</li>
+      </ul>
+      <p>If any of these services has trouble on a given day, the matching feature in the app degrades quietly (a map drops to a cream tile, a weather strip drops to "weather unavailable", a pin parks at the train station instead of the venue's exact location). Nothing the app does is so dependent on a third party that an outage breaks your trip.</p>
+    </section>
   </article>
 </main>
 
