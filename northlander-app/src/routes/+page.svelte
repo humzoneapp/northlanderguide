@@ -629,7 +629,7 @@
   <div class="dash-restore-inner">
     <div>
       <div class="kicker">Already have a backup?</div>
-      <p>Restore a previously downloaded <code>.northlander.json</code> file and pick up exactly where you left off.</p>
+      <p>Bring a trip back from a file you saved on another device. Pick up exactly where you left off.</p>
     </div>
     <button
       type="button"
@@ -762,15 +762,6 @@
     margin: 4px 0 0;
     max-width: 60ch;
     font-size: 14px;
-  }
-  .dash-restore-inner code {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-style: normal;
-    font-size: 12.5px;
-    background: rgba(125, 58, 30, 0.08);
-    color: #7d3a1e;
-    padding: 1px 6px;
-    border-radius: 3px;
   }
   /* Restore-a-backup CTA. Rust on cream now that the band lives
      on the cream paper footer, not the dark hero. */
