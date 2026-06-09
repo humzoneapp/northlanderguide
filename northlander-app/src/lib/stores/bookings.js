@@ -176,6 +176,30 @@ export async function setBookingKind(id, kind) {
   return db.bookings.get(id);
 }
 
+/* Persist a successful geocode so the next page load can skip the
+   Nominatim round-trip entirely. Stores the lat/lng, which path
+   resolved ('address' or 'title' fallback), and the exact query
+   string used - so a later render can detect whether the cached
+   coords still match the current address/title and re-geocode
+   when they don't. */
+export async function setBookingGeo(id, geo) {
+  if (id == null || !geo) return null;
+  const lat = Number(geo.lat);
+  const lng = Number(geo.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const next = {
+    geo: {
+      lat,
+      lng,
+      source: geo.source === 'title' ? 'title' : 'address',
+      query: String(geo.query || ''),
+    },
+    updatedAt: Date.now(),
+  };
+  await db.bookings.update(Number(id), next);
+  return db.bookings.get(Number(id));
+}
+
 /* Returns the deleted row so the caller can offer Undo. */
 export async function deleteBooking(id) {
   if (id == null) return null;

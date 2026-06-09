@@ -98,6 +98,27 @@ export async function updateUserEvent(id, patch = {}) {
   return db.userEvents.get(Number(id));
 }
 
+/* Persist a successful geocode so the next page load can skip the
+   Nominatim round-trip. Mirrors setBookingGeo in bookings.js - same
+   shape so the map component can treat both the same way. */
+export async function setUserEventGeo(id, geo) {
+  if (id == null || !geo) return null;
+  const lat = Number(geo.lat);
+  const lng = Number(geo.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const next = {
+    geo: {
+      lat,
+      lng,
+      source: geo.source === 'title' ? 'title' : 'address',
+      query: String(geo.query || ''),
+    },
+    updatedAt: Date.now(),
+  };
+  await db.userEvents.update(Number(id), next);
+  return db.userEvents.get(Number(id));
+}
+
 /* Returns the deleted row so the caller can offer Undo. */
 export async function deleteUserEvent(id) {
   if (id == null) return null;

@@ -18,7 +18,8 @@
   import { onMount, onDestroy, tick, createEventDispatcher } from 'svelte';
   import { loadLeaflet } from '$lib/utils/leaflet-loader.js';
   import { geocode } from '$lib/utils/geocode.js';
-  import { BOOKING_KINDS } from '$lib/stores/bookings.js';
+  import { BOOKING_KINDS, setBookingGeo } from '$lib/stores/bookings.js';
+  import { setUserEventGeo } from '$lib/stores/user-events.js';
 
   /** @type {{ lat: number, lng: number, name: string }} */
   export let stop;
@@ -133,51 +134,75 @@
          context is added. */
       const ctx = `, ${stop.name}, Ontario, Canada`;
 
-      /* Every booking gets a pin, no matter what. The geocoder tries
-         the address first, then falls back to "<title>, <stop>,
-         Ontario" so a booking like "Dinner at The Raven & Republic"
-         still resolves without the user having to type an address.
-         If both lookups miss, the pin drops at the train station
-         with a popup that nudges the user to add an address. */
+      /* Resolve a row's pin location. Each row is geocoded by its
+         address first, then a "<title>, <stop>, Ontario" fallback,
+         then a station-jitter fallback if both miss. The row's saved
+         `geo` field short-circuits the network calls when it still
+         matches the current address/title query - which is the
+         common case once a booking has been on the trip for one
+         render. New / edited addresses fall through to a fresh
+         geocode and the result is persisted for next time. */
+      async function resolveLocation({ row, addressQuery, titleQuery, persist }) {
+        const primaryQuery = addressQuery || titleQuery;
+        if (row.geo && Number.isFinite(row.geo.lat) && Number.isFinite(row.geo.lng) && row.geo.query === primaryQuery) {
+          return {
+            loc: { lat: row.geo.lat, lng: row.geo.lng },
+            resolvedBy: row.geo.source === 'title' ? 'title' : 'address',
+            fromCache: true,
+          };
+        }
+        let loc = null;
+        let resolvedBy = 'address';
+        if (addressQuery) {
+          loc = await geocode(addressQuery);
+        }
+        if (!loc && titleQuery) {
+          loc = await geocode(titleQuery);
+          if (loc) resolvedBy = 'title';
+        }
+        if (loc) {
+          const usedQuery = resolvedBy === 'address' ? addressQuery : titleQuery;
+          /* Fire-and-forget: a missed write just means we re-geocode
+             again next render, not a user-visible failure. */
+          persist({
+            lat: loc.lat,
+            lng: loc.lng,
+            source: resolvedBy,
+            query: usedQuery,
+          }).catch(() => {});
+          return { loc, resolvedBy, fromCache: false };
+        }
+        /* Park at the station with a tiny lat offset so multiple
+           unresolved rows don't overlap exactly. */
+        const jitter = (Math.random() - 0.5) * 0.0008;
+        return {
+          loc: { lat: stop.lat + jitter, lng: stop.lng + jitter },
+          resolvedBy: 'station',
+          fromCache: false,
+        };
+      }
+
       const bookingHits = await Promise.all(
         (bookings || []).map(async (b) => {
-          let loc = null;
-          let resolvedBy = 'address';
-          if (b.address) {
-            loc = await geocode(b.address + ctx);
-          }
-          if (!loc && b.title) {
-            loc = await geocode(b.title + ctx);
-            if (loc) resolvedBy = 'title';
-          }
-          if (!loc) {
-            /* Park at the station with a tiny lat offset so
-               multiple unresolved bookings don't overlap exactly. */
-            const jitter = (Math.random() - 0.5) * 0.0008;
-            loc = { lat: stop.lat + jitter, lng: stop.lng + jitter };
-            resolvedBy = 'station';
-          }
-          return { kind: 'booking', row: b, loc, resolvedBy };
+          const resolved = await resolveLocation({
+            row: b,
+            addressQuery: b.address ? b.address + ctx : null,
+            titleQuery: b.title ? b.title + ctx : null,
+            persist: (geo) => setBookingGeo(b.id, geo),
+          });
+          return { kind: 'booking', row: b, ...resolved };
         })
       );
       const eventHits = await Promise.all(
         (userEvents || []).map(async (e) => {
-          const query = [e.venue, e.address].filter(Boolean).join(', ');
-          let loc = null;
-          let resolvedBy = 'address';
-          if (query) {
-            loc = await geocode(query + ctx);
-          }
-          if (!loc && e.name) {
-            loc = await geocode(e.name + ctx);
-            if (loc) resolvedBy = 'title';
-          }
-          if (!loc) {
-            const jitter = (Math.random() - 0.5) * 0.0008;
-            loc = { lat: stop.lat + jitter, lng: stop.lng + jitter };
-            resolvedBy = 'station';
-          }
-          return { kind: 'event', row: e, loc, resolvedBy };
+          const venueAddress = [e.venue, e.address].filter(Boolean).join(', ');
+          const resolved = await resolveLocation({
+            row: e,
+            addressQuery: venueAddress ? venueAddress + ctx : null,
+            titleQuery: e.name ? e.name + ctx : null,
+            persist: (geo) => setUserEventGeo(e.id, geo),
+          });
+          return { kind: 'event', row: e, ...resolved };
         })
       );
 
