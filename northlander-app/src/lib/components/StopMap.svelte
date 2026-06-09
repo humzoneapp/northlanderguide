@@ -63,10 +63,17 @@
 
   /* Bookings + user events refresh under our feet from the parent.
      Re-render markers whenever the data changes after init.
+     The `void bookings; void userEvents;` reads aren't no-ops: Svelte
+     tracks reactive deps by static analysis of THIS block, not by
+     peeking into renderMarkers(). Without the explicit reads here,
+     newly-added bookings never reach the map - the block would only
+     re-fire when initted/map/L change.
      Errors from this reactive call get swallowed by Svelte otherwise -
      wrap with .catch so they surface in the console instead of
      vanishing. */
   $: if (initted && map && L) {
+    void bookings;
+    void userEvents;
     renderMarkers().catch((err) => {
       console.error('StopMap renderMarkers failed:', err);
     });
