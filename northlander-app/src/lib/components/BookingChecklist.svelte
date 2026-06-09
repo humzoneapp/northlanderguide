@@ -2,7 +2,6 @@
   import { onMount, createEventDispatcher } from 'svelte';
   import {
     listBookings,
-    addBooking,
     renameBooking,
     updateBooking,
     deleteBooking,
@@ -12,6 +11,7 @@
   import { getStopsByIds, getStop } from '$lib/data/stops.js';
   import { arrivalClock, arrivalMinutes, clockToMinutes } from '$lib/data/schedule.js';
   import BookingKindIcon from './BookingKindIcon.svelte';
+  import QuickAddBookingModal from './QuickAddBookingModal.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
 
   /** @type {string} */
@@ -47,11 +47,11 @@
   /** @type {import('$lib/stores/bookings.js').Booking[]} */
   let items = [];
   let loaded = false;
-  let newTitle = '';
-  let newKind = 'other';
-  let newStop = '';
-  let newTime = '';
-  let busy = false;
+  /* Flips true while the user is filling out the modal add form.
+     Replaces the inline kind/title/time row so address can be
+     captured at creation time - without an address the new booking
+     would park on the train station rather than its real location. */
+  let showAdd = false;
 
   $: tripStops = getStopsByIds(stopIds || []);
 
@@ -97,27 +97,12 @@
     loaded = true;
   }
 
-  async function handleAdd() {
-    if (busy) return;
-    const clean = newTitle.trim();
-    if (!clean) return;
-    busy = true;
-    try {
-      await addBooking(tripId, {
-        title: clean,
-        kind: newKind,
-        stopId: stopFilter || newStop || null,
-        startTime: newTime || null
-      });
-      newTitle = '';
-      newKind = 'other';
-      newStop = '';
-      newTime = '';
-      await refresh();
-      dispatch('change');
-    } finally {
-      busy = false;
-    }
+  async function handleSaved() {
+    /* QuickAddBookingModal already wrote to the store; just refresh
+       the local mirror and let the trip page reload the bookings
+       prop so the chapter map picks up the new pin. */
+    await refresh();
+    dispatch('change');
   }
 
   function stopNameFor(id) {
@@ -412,63 +397,31 @@
       </ul>
     {/if}
 
-    <!-- Quick add row. Five small kind buttons replace the old
-         dropdown so the user can pick eat/sleep/do/train/other
-         with a single tap (and read the choice at a glance), plus
-         a time pill so users can set HH:MM at creation time. -->
-    <form
-      on:submit|preventDefault={handleAdd}
-      class="book-add"
+    <!-- Single dashed-gold pill opens the QuickAddBookingModal so the
+         user can fill in name + address + kind in one focused form.
+         The inline kind/title/time row used to live here but had no
+         address field, so every booking added through it parked on
+         the train station instead of its real location. -->
+    <button
+      type="button"
+      class="book-add-open"
+      on:click={() => (showAdd = true)}
     >
-      <div class="book-add-kinds" role="radiogroup" aria-label="Booking kind">
-        {#each BOOKING_KINDS as k}
-          <button
-            type="button"
-            class="book-add-kind"
-            class:is-active={newKind === k.id}
-            on:click={() => (newKind = k.id)}
-            aria-label={k.label}
-            aria-pressed={newKind === k.id}
-            title={k.label}
-          >
-            <BookingKindIcon kind={k.id} size="1.1rem" />
-          </button>
-        {/each}
-      </div>
-      <label class="book-add-time-label">
-        <span class="book-add-time-kicker">Pick a time</span>
-        <input
-          type="time"
-          bind:value={newTime}
-          class="book-add-time"
-          class:is-set={!!newTime}
-          aria-label="Time"
-          title="Optional start time"
-        />
-      </label>
-      {#if !stopFilter && tripStops.length > 0}
-        <select bind:value={newStop} class="book-stop" aria-label="Pin to stop">
-          <option value="">Anywhere</option>
-          {#each tripStops as s}
-            <option value={s.id}>At {s.name}</option>
-          {/each}
-        </select>
-      {/if}
-      <input
-        type="text"
-        bind:value={newTitle}
-        maxlength="120"
-        placeholder="Add a booking..."
-        class="book-add-input"
-      />
-      <button
-        type="submit"
-        class="book-add-btn"
-        disabled={busy || !newTitle.trim()}
-      >Add</button>
-    </form>
+      <span class="book-add-open-plus" aria-hidden="true">+</span>
+      Add a booking
+    </button>
   {/if}
 </div>
+
+{#if showAdd}
+  <QuickAddBookingModal
+    {tripId}
+    {stopIds}
+    initialStop={stopFilter}
+    on:saved={handleSaved}
+    on:close={() => (showAdd = false)}
+  />
+{/if}
 
 <style>
   .book-list {
@@ -580,172 +533,39 @@
     color: #7a4f0c;
   }
 
-  /* The add row uses flex-wrap so the kind buttons + time pill +
-     title input + Add button reflow onto two lines on narrow
-     screens instead of squeezing into one. */
-  .book-add {
+  /* Full-width dashed-gold pill that opens QuickAddBookingModal.
+     Same vocabulary as the "+ Add another packing list" pill on
+     the Before You Board section so the gesture grammar matches. */
+  .book-add-open {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 2px dashed rgba(139, 106, 58, 0.45);
-  }
-  /* Five small icon buttons for kind: train / room / meal /
-     activity / other. Tap to select; the active one fills with
-     forest. Replaces the old <select> Other dropdown. */
-  .book-add-kinds {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    flex: 0 0 auto;
-  }
-  .book-add-kind {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1.5px dashed rgba(139, 106, 58, 0.55);
-    background: transparent;
-    color: #7d3a1e;
-    display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
-  }
-  .book-add-kind:hover {
-    border-color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.08);
-  }
-  .book-add-kind.is-active {
-    background: #0a2d21;
-    border-color: #0a2d21;
-    color: #c9a84c;
-  }
-  /* Wrapper around the add-row time pill so the user sees a kicker
-     "Pick a time" above the input. Native <input type="time"> on
-     iOS renders blank with no placeholder + no icon when there's
-     no value, so without an external label the pill looks dead. */
-  .book-add-time-label {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
-    min-width: 0;
-  }
-  .book-add-time-kicker {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #7d3a1e;
-    padding-left: 10px;
-  }
-  /* Time pill: same dashed-gold vocabulary as the row time pills
-     so the add row reads as part of the same family. */
-  .book-add-time {
-    font-family: 'Spline Sans', system-ui, sans-serif;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: 1.5px dashed rgba(196, 134, 15, 0.7);
+    border-radius: 999px;
+    background: transparent;
+    font-family: 'Spline Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #6e2e17;
-    background-color: transparent;
-    /* Small clock glyph baked in as a background image so the pill
-       reads as a time picker even when empty - iOS otherwise paints
-       no placeholder + no icon. The icon hides via the is-set rule
-       below once the user picks a value, so HH:MM has the pill to
-       itself. */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237d3a1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7 V12 L15 14'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 8px center;
-    background-size: 14px 14px;
-    border: 1.5px dashed rgba(196, 134, 15, 0.55);
-    border-radius: 999px;
-    padding: 6px 12px 6px 28px;
-    min-height: 36px;
-    width: 110px;
-    text-align: left;
-    cursor: pointer;
-    outline: none;
-    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .book-add-time:hover,
-  .book-add-time:focus-visible {
-    border-color: #c4860f;
-    background-color: rgba(196, 134, 15, 0.08);
-  }
-  .book-add-time.is-set {
-    background-color: rgba(196, 134, 15, 0.18);
-    background-image: none;
-    padding-left: 12px;
-    text-align: center;
-    border-color: #c4860f;
-    border-style: solid;
-    color: #0a2d21;
-  }
-  .book-add-time::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    -webkit-appearance: none;
-    width: 0;
-    margin: 0;
-  }
-  .book-stop {
-    background: #fbf6ea;
-    border: 1px solid #8b6a3a;
-    border-radius: 3px;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #0a2d21;
-    padding: 6px 8px;
-    cursor: pointer;
-    outline: none;
-  }
-  .book-stop:focus {
-    border-color: #7d3a1e;
-  }
-  @media (max-width: 540px) {
-    .book-add {
-      gap: 8px;
-    }
-  }
-  .book-add-input {
-    background: transparent;
-    border: 0;
-    padding: 4px 0;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 1rem;
-    color: #241f1a;
-    outline: none;
-    min-width: 0;
-    flex: 1 1 200px;
-  }
-  .book-add-input::placeholder {
-    color: rgba(90, 79, 61, 0.55);
-    font-style: italic;
-  }
-  .book-add-btn {
-    background: transparent;
-    border: 0;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     color: #7d3a1e;
     cursor: pointer;
-    padding: 4px 8px;
-    transition: color 0.15s;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
   }
-  .book-add-btn:hover:not(:disabled) {
+  .book-add-open:hover {
+    background: rgba(196, 134, 15, 0.1);
     color: #0a2d21;
+    border-color: #c4860f;
   }
-  .book-add-btn:disabled {
-    color: rgba(125, 58, 30, 0.4);
-    cursor: not-allowed;
+  .book-add-open-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 17px;
+    line-height: 1;
   }
 
   /* ===== Room expand panel ===== */
