@@ -43,6 +43,14 @@
      screen forever. */
   let loadFailed = false;
 
+  /* Mouse-only devices get hover-to-open popups; touch devices
+     keep tap-to-open. Computed once at module load so we don't
+     re-query matchMedia per marker. */
+  const hoverPopupsEnabled =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: fine)').matches;
+
   /* Bookings + user events refresh under our feet from the parent.
      Re-render markers whenever the data changes after init.
      Errors from this reactive call get swallowed by Svelte otherwise -
@@ -95,10 +103,40 @@
     return `${h12}:${m[2]} ${period}`;
   }
 
-  /* Custom Leaflet marker = rust circle with a forest dot + a tag
-     letter for the kind. SVG inlined so it inherits the brand
-     palette without dragging in a marker image asset. */
-  function rustIcon(label = '') {
+  /* Pin colour vocabulary so a glance at the map reads as a
+     legend. Stays inside the brand palette + a couple of muted
+     extensions so the new categories don't fight the cream paper
+     UI elsewhere. */
+  const KIND_VISUAL = {
+    train:    { color: '#0a2d21', label: 'Train' },
+    room:     { color: '#7d3a1e', label: 'Stay' },
+    meal:     { color: '#c4860f', label: 'Meal' },
+    activity: { color: '#4a6b3a', label: 'Activity' },
+    other:    { color: '#5a4f3d', label: 'Other' },
+  };
+  const EVENT_VISUAL = { color: '#c9a84c', label: 'Event' };
+  /* Legend order matches the popup vocabulary and the BOOKING_KINDS
+     ordering (Train ticket -> Place to stay -> Reservation ->
+     Activity -> Other), with Event tacked on at the end. */
+  const LEGEND_ITEMS = [
+    { key: 'train',    ...KIND_VISUAL.train },
+    { key: 'room',     ...KIND_VISUAL.room },
+    { key: 'meal',     ...KIND_VISUAL.meal },
+    { key: 'activity', ...KIND_VISUAL.activity },
+    { key: 'other',    ...KIND_VISUAL.other },
+    { key: 'event',    ...EVENT_VISUAL },
+  ];
+
+  function colorFor(kind, bucket) {
+    if (bucket === 'event') return EVENT_VISUAL.color;
+    return (KIND_VISUAL[kind] || KIND_VISUAL.other).color;
+  }
+
+  /* Custom Leaflet marker = colour-by-kind pin with a cream dot
+     and a tag letter for the kind. SVG inlined so it inherits
+     the brand palette without dragging in a marker image asset. */
+  function kindIcon(kind, bucket, label = '') {
+    const fill = colorFor(kind, bucket);
     return L.divIcon({
       className: 'nl-marker',
       iconSize: [32, 40],
@@ -107,7 +145,7 @@
       html: `
         <span class="nl-marker-shell" aria-hidden="true">
           <svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 0 C7 0 0 7 0 16 c0 9 16 24 16 24 s16 -15 16 -24 c0 -9 -7 -16 -16 -16 Z" fill="#7d3a1e" stroke="#c9a84c" stroke-width="2"/>
+            <path d="M16 0 C7 0 0 7 0 16 c0 9 16 24 16 24 s16 -15 16 -24 c0 -9 -7 -16 -16 -16 Z" fill="${fill}" stroke="#c9a84c" stroke-width="2"/>
             <circle cx="16" cy="16" r="8" fill="#fbf6ea"/>
           </svg>
           <span class="nl-marker-letter">${escapeHtml(label)}</span>
@@ -288,7 +326,7 @@
           ? `<span class="nl-pop-hint">Pinned at the station. Add an address on the booking to pin it exactly.</span>`
           : '';
 
-        L.marker([loc.lat, loc.lng], { icon: rustIcon(letter) })
+        const marker = L.marker([loc.lat, loc.lng], { icon: kindIcon(row.kind, kind, letter) })
           .addTo(layer)
           .bindPopup(`
             <div class="nl-pop">
@@ -303,6 +341,15 @@
               </div>
             </div>
           `);
+        /* Hover-to-open popups on mouse devices. Skipped on touch
+           devices (matchMedia '(pointer: fine)' is false on most
+           phones / tablets) so iOS/Android keep their familiar
+           tap-to-open behavior. mouseout closes it; click still
+           opens the same popup normally. */
+        if (hoverPopupsEnabled) {
+          marker.on('mouseover', () => marker.openPopup());
+          marker.on('mouseout', () => marker.closePopup());
+        }
       }
 
       /* Auto-fit if we have any pins; otherwise stay zoomed on the
@@ -473,6 +520,19 @@
     </p>
   {/if}
 </div>
+{#if !loadFailed}
+  <!-- Pin-colour legend. Always rendered (even before the map
+       loads) so users see the vocabulary up front and don't have
+       to click each pin to discover what its colour means. -->
+  <ul class="map-legend" aria-label="Pin colour key">
+    {#each LEGEND_ITEMS as item (item.key)}
+      <li class="map-legend-item">
+        <span class="map-legend-dot" style={`background:${item.color}`} aria-hidden="true"></span>
+        <span class="map-legend-label">{item.label}</span>
+      </li>
+    {/each}
+  </ul>
+{/if}
 
 <style>
   .stop-map-wrap {
@@ -576,8 +636,44 @@
     margin: 0 auto;
   }
 
+  /* Pin-colour legend, sits directly below the map. Horizontal chip
+     row that wraps on narrow screens. Each item is a small filled
+     circle in the kind's pin colour plus a Spline Sans caps label,
+     so the user can read it the same way they read the rest of the
+     editorial cap-rows on the page. */
+  .map-legend {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+  }
+  .map-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .map-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #c9a84c;
+    flex: 0 0 auto;
+  }
+  .map-legend-label {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #5a4f3d;
+  }
+
   /* Custom marker chrome (the divIcon Leaflet draws). Inline-flex
-     so the letter sits centred on the rust pin. */
+     so the letter sits centred on the kind-coloured pin. */
   :global(.nl-marker .nl-marker-shell) {
     position: relative;
     display: inline-flex;
