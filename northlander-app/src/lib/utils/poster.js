@@ -127,21 +127,53 @@ function pickCollageStops(stops) {
   return out;
 }
 
-/* Load an image off the Guide with CORS so the canvas stays
-   un-tainted (toBlob would fail otherwise). Resolves to null on
-   network failure / 404 / CORS denial so the caller can fall back
-   to a placeholder polaroid without breaking the whole poster. The
-   Guide's vercel.json sends Access-Control-Allow-Origin:* for
-   /images/* specifically so this path works at runtime. */
-function loadImage(url) {
-  return new Promise((resolve) => {
-    if (!url) return resolve(null);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
-    img.src = url;
-  });
+/* Load an image off the Guide via fetch + createImageBitmap so the
+   canvas stays un-tainted (toBlob would fail otherwise). Using
+   fetch with explicit mode: 'cors' is more reliable than
+   <img crossorigin> because:
+     - it never reuses a non-CORS cached response (a previously
+       cached fetch without the Access-Control header would
+       silently fail when later requested via crossOrigin=anonymous)
+     - it bypasses any prior tainted entry in the disk cache
+     - createImageBitmap returns a canvas-drawable bitmap that
+       never taints regardless of source headers
+   Falls back to a tagged <img> from an object URL when
+   createImageBitmap isn't available. Returns null on any failure
+   so callers can drop in a placeholder polaroid.
+   The Guide's vercel.json sends Access-Control-Allow-Origin:*
+   for /images/*. */
+async function loadImage(url) {
+  if (!url || typeof fetch === 'undefined') return null;
+  try {
+    const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (typeof createImageBitmap === 'function') {
+      try {
+        return await createImageBitmap(blob);
+      } catch (_) {
+        /* createImageBitmap can fail on some blob types; fall
+           through to the <img> path. */
+      }
+    }
+    return await new Promise((resolve) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(blob);
+      img.onload = () => {
+        /* The object URL stays referenced through draw time; revoked
+           lazily so the bitmap stays valid for the canvas paint. */
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
+        resolve(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(null);
+      };
+      img.src = objectUrl;
+    });
+  } catch (_) {
+    return null;
+  }
 }
 
 /* Draw a tilted polaroid frame at (cx, cy) with a photo image
