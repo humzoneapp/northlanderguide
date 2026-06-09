@@ -2355,13 +2355,16 @@
     position: relative;
     z-index: 3;
     max-width: 1180px;
-    margin: 8px auto 28px;
+    margin: 10px auto 28px;
     text-align: center;
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: 12.5px;
+    /* Bigger floor so the schedule disclaimer reads on phones -
+       was 12.5px which was too tight under the ticket strip. */
+    font-size: clamp(14.5px, 2vw, 16px);
     color: #ede0cc;
-    opacity: 0.85;
+    opacity: 0.92;
+    line-height: 1.4;
   }
   .cover-ticket-note a {
     color: #c9a84c;
