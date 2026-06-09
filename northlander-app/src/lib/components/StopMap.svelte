@@ -51,6 +51,16 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(pointer: fine)').matches;
 
+  /* Init is called from both the Drawer toggle handler and the
+     IntersectionObserver. They can fire in the same animation
+     frame the moment the drawer opens, race past the `initted`
+     guard, and both reach L.map(mapEl) - the second call throws
+     "Map container is already initialized", flips loadFailed
+     true, and CSS hides the (otherwise working) map. Guard the
+     window between start and `initted = true` with a flag so a
+     second caller bails out instead of racing. */
+  let initInflight = false;
+
   /* Bookings + user events refresh under our feet from the parent.
      Re-render markers whenever the data changes after init.
      Errors from this reactive call get swallowed by Svelte otherwise -
@@ -377,7 +387,9 @@
       if (map) map.invalidateSize();
       return;
     }
+    if (initInflight) return;
     if (!mapEl || !stop) return;
+    initInflight = true;
     try {
       loadFailed = false;
       L = await loadLeaflet();
@@ -433,6 +445,8 @@
       console.error('StopMap init failed:', err);
       initted = false;
       loadFailed = true;
+    } finally {
+      initInflight = false;
     }
   }
 
