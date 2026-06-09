@@ -46,6 +46,18 @@
   let editingId = null;
   let editStopId = '';
 
+  /* Inline date-edit state. The date stamp on each row turns into
+     a native <input type="date"> when tapped so backdated notes
+     (writing on the train about yesterday) can be corrected without
+     the full Edit flow. Pre-2026-06-06 the composer had a manual
+     date input; that was removed for being friction on the 95%
+     quick-note path. The tap-to-edit pattern keeps the 5% backdate
+     case reachable without bringing the friction back to the composer. */
+  let editDateFor = null;
+  let editDateDraft = '';
+  /** @type {Record<number, HTMLInputElement>} */
+  let dateInputs = {};
+
   /* Rich-text editors are contenteditable divs the user types into.
      We read innerHTML on save, sanitize via sanitizeDiaryHtml, and
      persist that. Each editor remembers the last selection range so
@@ -216,16 +228,20 @@
     return s ? s.name : null;
   }
 
-  /* Always show date + time stamped on the note when it was saved.
-     The date input on the composer was retired 2026-06-06; the
-     timestamp is whatever moment the user tapped Add note. The
-     short kicker reads e.g. "Sat, Jun 12 . 10:30 AM". For same-day
-     entries we still tag with Today / Yesterday for warmth. */
+  /* Date + time stamped on each note. When the user has set an
+     entryDate (via tap-to-edit on the row), that overrides createdAt
+     for the date half - the time still comes from createdAt since
+     entryDate is day-precision only. Short kicker reads e.g.
+     "Sat, Jun 12 . 10:30 AM". Same-day entries tag with Today /
+     Yesterday for warmth. */
   function formatEntryDate(entry) {
     if (!entry || !entry.createdAt) return '';
-    const dt = new Date(entry.createdAt);
+    const createdDt = new Date(entry.createdAt);
+    const dt = entry.entryDate && /^\d{4}-\d{2}-\d{2}$/.test(entry.entryDate)
+      ? new Date(entry.entryDate + 'T12:00:00')
+      : createdDt;
     const now = new Date();
-    const time = dt.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' });
+    const time = createdDt.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' });
     const sameDay = dt.toDateString() === now.toDateString();
     if (sameDay) return `Today  .  ${time}`;
     const yesterday = new Date(now);
@@ -239,6 +255,52 @@
       year: sameYear ? undefined : 'numeric'
     });
     return `${date}  .  ${time}`;
+  }
+
+  /* Seed the date input from entryDate when set, otherwise from
+     the createdAt timestamp's local date so the picker opens on
+     "the day this note currently shows" rather than blank. */
+  function seedDateFor(entry) {
+    if (entry?.entryDate && /^\d{4}-\d{2}-\d{2}$/.test(entry.entryDate)) {
+      return entry.entryDate;
+    }
+    if (!entry?.createdAt) return '';
+    const dt = new Date(entry.createdAt);
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const d = String(dt.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  async function startDateEdit(entry) {
+    editDateFor = entry.id;
+    editDateDraft = seedDateFor(entry);
+    await tick();
+    const el = dateInputs[entry.id];
+    if (el && typeof el.focus === 'function') el.focus();
+    if (el && typeof el.showPicker === 'function') {
+      try { el.showPicker(); } catch (_) { /* not allowed without gesture */ }
+    }
+  }
+
+  function cancelDateEdit() {
+    editDateFor = null;
+    editDateDraft = '';
+  }
+
+  async function commitDateEdit(entry) {
+    if (editDateFor !== entry.id) return;
+    const id = entry.id;
+    const draft = editDateDraft || '';
+    editDateFor = null;
+    editDateDraft = '';
+    /* Only write when the value actually changed - avoids touching
+       updatedAt and stamping a stray "edited" tag on the row. */
+    const current = entry.entryDate || '';
+    if (draft === current) return;
+    await updateDiaryEntry(id, { entryDate: draft || null });
+    await refresh();
+    dispatch('change');
   }
 </script>
 
@@ -457,7 +519,29 @@
               </div>
             {:else}
               <div class="diary-meta">
-                <span class="diary-date">{formatEntryDate(entry)}</span>
+                {#if editDateFor === entry.id}
+                  <!-- svelte-ignore a11y-autofocus -->
+                  <input
+                    type="date"
+                    class="diary-date-input"
+                    bind:value={editDateDraft}
+                    bind:this={dateInputs[entry.id]}
+                    aria-label="Backdate this note"
+                    on:change={() => commitDateEdit(entry)}
+                    on:blur={() => commitDateEdit(entry)}
+                    on:keydown={(e) => {
+                      if (e.key === 'Escape') { e.preventDefault(); cancelDateEdit(); }
+                      if (e.key === 'Enter') { e.preventDefault(); commitDateEdit(entry); }
+                    }}
+                  />
+                {:else}
+                  <button
+                    type="button"
+                    class="diary-date"
+                    on:click={() => startDateEdit(entry)}
+                    title="Tap to backdate this note"
+                  >{formatEntryDate(entry)}</button>
+                {/if}
                 {#if entry.stopId && stopNameOrNull(entry.stopId)}
                   <span class="diary-stop-pill">{stopNameOrNull(entry.stopId)}</span>
                 {/if}
@@ -628,13 +712,44 @@
     gap: 10px;
     margin-bottom: 6px;
   }
+  /* Date stamp doubles as a tap-target for backdating. Keep the
+     quiet kicker look (no border, no hover background) so it
+     reads as a label not a button at rest - just an italic
+     underline-on-hover hint that it's interactive. */
   .diary-date {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
     font-family: 'Spline Sans', sans-serif;
     font-size: 10.5px;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #7d3a1e;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .diary-date:hover,
+  .diary-date:focus-visible {
+    color: #0a2d21;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    outline: none;
+  }
+  .diary-date-input {
+    background: #fffdf6;
+    border: 1px solid #7d3a1e;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0a2d21;
+    outline: none;
+  }
+  .diary-date-input:focus {
+    border-color: #c4860f;
   }
   .diary-stop-pill {
     font-family: 'Fraunces', Georgia, serif;
