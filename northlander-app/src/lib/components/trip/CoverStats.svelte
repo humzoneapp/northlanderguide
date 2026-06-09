@@ -33,6 +33,14 @@
   export let dirLabel = 'Northbound';
   /** null = no departure date | { past: true } | { days, hours, minutes }. */
   export let countdown = null;
+  /** True once the user has stamped the trip as wrapped via the
+      WrapCta on the cover. Used to gate the "You've been" copy so
+      it doesn't fire mid-trip (the cover countdown computes
+      `past=true` the moment the train has departed, but mid-trip
+      users haven't "been" yet - they're on the train. TodayBand
+      handles the live phase; this stays silent until the trip is
+      genuinely over). */
+  export let wrapped = false;
 
   /* Live counts the parent already aggregates. Each one drives one
      tweened store below. */
@@ -60,10 +68,15 @@
   <div class="cover-countdown italic-soft">
     Pick a departure date in Before You Board below and we'll count it down.
   </div>
-{:else if countdown.past}
+{:else if countdown.past && wrapped}
   <div class="cover-countdown italic-soft">
     You've been. This is your record.
   </div>
+{:else if countdown.past}
+  <!-- Mid-trip: the train has already departed but the trip isn't
+       wrapped yet. TodayBand at the top of the page carries the
+       "here's where you are now" message; the cover stays quiet so
+       it doesn't fight for the same slot. -->
 {:else}
   {@const d = countdown.days}
   {@const h = countdown.hours}

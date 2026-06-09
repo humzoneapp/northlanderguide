@@ -69,6 +69,7 @@
   import CoverPhoto from '$lib/components/trip/CoverPhoto.svelte';
   import CoverTitleEdit from '$lib/components/trip/CoverTitleEdit.svelte';
   import CoverStats from '$lib/components/trip/CoverStats.svelte';
+  import TodayBand from '$lib/components/trip/TodayBand.svelte';
   import TripSignOff from '$lib/components/trip/TripSignOff.svelte';
   import TripBackup from '$lib/components/trip/TripBackup.svelte';
   import TripDangerZone from '$lib/components/trip/TripDangerZone.svelte';
@@ -328,6 +329,17 @@
     if (chip && chip.scrollIntoView) {
       chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
+  }
+
+  /* TodayBand's Jump CTA reuses the same STICKY_OFFSET so the
+     scrolled-into-view chapter sits below the topbar + sticky TOC
+     by the same amount as a TOC chip click. */
+  function jumpToChapter(id) {
+    if (typeof document === 'undefined') return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    const y = target.getBoundingClientRect().top + window.scrollY - STICKY_OFFSET;
+    window.scrollTo({ top: y, behavior: 'smooth' });
   }
 
   /* IntersectionObserver that flips .is-active on the chip whose
@@ -710,6 +722,18 @@
     </div>
   </nav>
 
+  <!-- "Today on the route" band: only renders when today's date sits
+       inside the trip window. Sits above the cover so a user opening
+       the app during the trip greets "where am I right now" before
+       the editorial cover. Self-hides for pre-trip + wrapped trips. -->
+  <TodayBand
+    {stops}
+    {returnStops}
+    direction={trip.direction || 'northbound'}
+    wrapped={tripIsWrapped}
+    on:jump={(e) => jumpToChapter(e.detail.id)}
+  />
+
   <!-- ===== Editorial cover banner =====
        The arriving stop's hero photo (or the user's custom upload)
        sits behind a forest gradient overlay. A boarding-pass header
@@ -770,6 +794,7 @@
             {tripDateLine}
             dirLabel={dirMeta?.label || 'Northbound'}
             {countdown}
+            wrapped={tripIsWrapped}
             {stopsVisited}
             plansCount={bookings.length}
             spent={budgetTotal}
