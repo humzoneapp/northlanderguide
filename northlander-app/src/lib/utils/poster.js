@@ -248,32 +248,6 @@ function drawPolaroid(ctx, { cx, cy, w, h, tilt, img, label }) {
   ctx.restore();
 }
 
-function drawStamp(ctx, x, y, r, lines) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(-0.18); // ~-10deg
-  ctx.fillStyle = C.gold;
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = C.forest;
-  ctx.lineWidth = 4;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(0, 0, r - 8, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = C.forest;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '900 14px "Spline Sans"';
-  ctx.fillText(lines[0], 0, -22);
-  ctx.font = '900 22px Fraunces';
-  ctx.fillText(lines[1], 0, 0);
-  ctx.font = '900 12px "Spline Sans"';
-  ctx.fillText(lines[2], 0, 22);
-  ctx.restore();
-}
-
 /**
  * Render the poster and return a PNG Blob (or null on error).
  *
@@ -345,14 +319,6 @@ export async function generatePosterBlob(trip) {
     ? `${dateLine}  ·  Departure ${arrivalClock(0, departure, direction)}`
     : `Departure ${arrivalClock(0, departure, direction)}`;
   ctx.fillText(ellipsize(ctx, dateText, titleMaxW), W / 2, 320);
-
-  /* ----- stamp in the corner -----
-     Sits ABOVE the trip-name title (which baselines around y=270
-     and can be up to 96px tall). Earlier placement at y=200 with
-     a 78px radius extended down to ~y=278, overlapping the title.
-     Lifted to y=145 so the stamp clears the title and sits inside
-     the top forest band's corner. */
-  drawStamp(ctx, W - PAD - 90, 145, 60, ['Boarding Pass', 'The North', 'All Seasons']);
 
   /* ----- route ----- */
   const routeTop = 400;
