@@ -27,7 +27,7 @@
   <article class="legal-inner">
     <aside class="legal-banner" role="note">
       <strong>Independent &middot; Not affiliated with Ontario Northland.</strong>
-      Northlander.app and NorthlanderGuide.com are run by independent travellers. We are <strong>not</strong> Ontario Northland Railway, the Ontario Northland Transportation Commission, or any related agency. We do not sell tickets, hold reservations, or speak for the railway. For anything official &mdash; train times, fares, station information, service updates &mdash; go to <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
+      Northlander.app and NorthlanderGuide.com are run by independent travellers. We are <strong>not</strong> Ontario Northland Railway, the Ontario Northland Transportation Commission, or any related agency. We do not sell tickets, hold reservations, or speak for the railway. For anything official (train times, fares, station information, service updates) go to <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
     </aside>
 
     <p class="legal-lede">
@@ -46,9 +46,9 @@
     <section>
       <h2>2. Where your data physically sits</h2>
       <ul>
-        <li><strong>IndexedDB (named "northlander")</strong> &mdash; holds your trips and every child row (packing, bookings, diary, budget, photos, user events).</li>
-        <li><strong>sessionStorage</strong> &mdash; short-lived cache for weather forecasts and geocoded addresses so we don't re-fetch them on every page change.</li>
-        <li><strong>localStorage</strong> &mdash; one or two flags (whether you've dismissed the onboarding overlay, etc).</li>
+        <li><strong>IndexedDB (named "northlander")</strong> : holds your trips and every child row (packing, bookings, diary, budget, photos, user events).</li>
+        <li><strong>sessionStorage</strong> : short-lived cache for weather forecasts and geocoded addresses so we don't re-fetch them on every page change.</li>
+        <li><strong>localStorage</strong> : one or two flags (whether you've dismissed the onboarding overlay, etc).</li>
       </ul>
       <p>You can wipe all of it any time by clearing your browser's site data for <em>northlander.app</em>, or by deleting individual trips through the app's interface.</p>
     </section>
@@ -57,19 +57,19 @@
       <h2>3. Third-party services the app talks to</h2>
       <p>The app fetches a handful of read-only services so it can show train schedules, maps, weather, and Guide listings. None of these calls carry your trip data:</p>
       <ul>
-        <li><strong>NorthlanderGuide.com</strong> &mdash; loads listing, event and packing-suggestion data files via cross-origin script tags. We send no information about you.</li>
-        <li><strong>Open-Meteo</strong> (open-meteo.com) &mdash; fetches the daily weather forecast for each stop on your route by latitude / longitude only. Open-Meteo is a free, no-key weather API; their privacy policy is at <a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener">open-meteo.com/en/terms</a>.</li>
-        <li><strong>OpenStreetMap Nominatim</strong> (nominatim.openstreetmap.org) &mdash; geocodes booking and event addresses into map coordinates. Sees the address text you submit and your IP address (standard for any web request). Their privacy policy is at <a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">osmfoundation.org/wiki/Privacy_Policy</a>.</li>
-        <li><strong>Carto basemaps</strong> &mdash; supplies the map tiles you see on each chapter's map. Sees the map tile coordinates and your IP address.</li>
-        <li><strong>images.weserv.nl</strong> &mdash; public image proxy used as a fallback to fetch stop photos for the share poster. Sees only the public image URL.</li>
-        <li><strong>QuickChart</strong> (quickchart.io) &mdash; renders the QR code on the Share modal from the share link you generate.</li>
+        <li><strong>NorthlanderGuide.com</strong> : loads listing, event and packing-suggestion data files via cross-origin script tags. We send no information about you.</li>
+        <li><strong>Open-Meteo</strong> (open-meteo.com) : fetches the daily weather forecast for each stop on your route by latitude / longitude only. Open-Meteo is a free, no-key weather API; their privacy policy is at <a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener">open-meteo.com/en/terms</a>.</li>
+        <li><strong>OpenStreetMap Nominatim</strong> (nominatim.openstreetmap.org) : geocodes booking and event addresses into map coordinates. Sees the address text you submit and your IP address (standard for any web request). Their privacy policy is at <a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">osmfoundation.org/wiki/Privacy_Policy</a>.</li>
+        <li><strong>Carto basemaps</strong> : supplies the map tiles you see on each chapter's map. Sees the map tile coordinates and your IP address.</li>
+        <li><strong>images.weserv.nl</strong> : public image proxy used as a fallback to fetch stop photos for the share poster. Sees only the public image URL.</li>
+        <li><strong>QuickChart</strong> (quickchart.io) : renders the QR code on the Share modal from the share link you generate.</li>
       </ul>
       <p>We do not maintain analytics or logs of these calls. The third parties listed above may log standard web-server access information per their own policies.</p>
     </section>
 
     <section>
       <h2>4. Photos and uploads</h2>
-      <p>Photos you upload (to the trip cover or to the per-stop album) are resized in your browser and stored as Blobs inside IndexedDB on your device. They are not uploaded anywhere. If you use the device "Share" sheet to post a polaroid to Instagram / X / etc., that share happens through your operating system &mdash; the photo travels directly from your device to the app you picked.</p>
+      <p>Photos you upload (to the trip cover or to the per-stop album) are resized in your browser and stored as Blobs inside IndexedDB on your device. They are not uploaded anywhere. If you use the device "Share" sheet to post a polaroid to Instagram / X / etc., that share happens through your operating system : the photo travels directly from your device to the app you picked.</p>
     </section>
 
     <section>

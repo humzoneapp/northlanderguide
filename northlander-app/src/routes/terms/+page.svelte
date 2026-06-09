@@ -38,7 +38,7 @@
     </p>
 
     <section>
-      <h2>1. What this app is &mdash; and is not</h2>
+      <h2>1. What this app is, and is not</h2>
       <p>Northlander.app is a free, independent, browser-based trip planner for travellers riding the Ontario Northland Northlander train route between Toronto Union and Cochrane.</p>
       <p><strong>It is not operated, endorsed, sponsored, or affiliated with Ontario Northland Railway, the Northlander train service, the Ontario Northland Transportation Commission, the Government of Ontario, or any other railway or transit authority.</strong> The "Northlander" word is used purely to describe the train route this app helps you plan around, in the same way a third-party guidebook might reference a city or landmark.</p>
       <p>The companion site NorthlanderGuide.com provides editorial content (stop descriptions, restaurants, attractions, events) that this app pulls in as suggestions. NorthlanderGuide.com is operated by the same independent travellers behind this app and is similarly not affiliated with Ontario Northland.</p>
@@ -92,15 +92,15 @@
     </section>
 
     <section>
-      <h2>8. No warranty &mdash; everything is "as is"</h2>
+      <h2>8. No warranty. Everything is "as is"</h2>
       <p>The app, all of its features, all data shown in it, and any service provided through it are offered <strong>"as is" and "as available"</strong>, without warranty of any kind, express or implied. To the maximum extent permitted by law, we disclaim all warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, completeness, timeliness, reliability, and uninterrupted availability.</p>
       <p>We make no representation that the information in the app is accurate, current, complete, or free of errors. Train times, addresses, dates, weather forecasts, geocoded map locations, listing details, event information, packing suggestions, and every other piece of data may contain errors, omissions, or inaccuracies. <strong>You use the app entirely at your own risk.</strong></p>
     </section>
 
     <section>
       <h2>9. Limitation of liability</h2>
-      <p>To the maximum extent permitted by law, neither the operators of Northlander.app nor anyone associated with the app are liable for any damages whatsoever &mdash; direct, indirect, incidental, consequential, special, exemplary, or punitive &mdash; arising from or in connection with your use of (or inability to use) the app. This includes, without limitation, liability for: missed trains, missed connections, cancelled or delayed travel, wasted bookings, lost reservations, incorrect addresses or directions, getting lost, weather-related decisions, errors in displayed train times or schedules, errors in venue or event information, loss of data, loss of photos, loss of profits, loss of revenue, or loss of opportunity &mdash; even if we were advised of the possibility of such damages and even if a remedy fails of its essential purpose.</p>
-      <p>If any of the above limitations are held unenforceable in your jurisdiction, our total aggregate liability to you for any and all claims arising from the app shall not exceed the amount you have paid us in the twelve (12) months preceding the claim &mdash; which, on the free plan, is zero dollars (CAD&nbsp;$0).</p>
+      <p>To the maximum extent permitted by law, neither the operators of Northlander.app nor anyone associated with the app are liable for any damages whatsoever (direct, indirect, incidental, consequential, special, exemplary, or punitive) arising from or in connection with your use of (or inability to use) the app. This includes, without limitation, liability for: missed trains, missed connections, cancelled or delayed travel, wasted bookings, lost reservations, incorrect addresses or directions, getting lost, weather-related decisions, errors in displayed train times or schedules, errors in venue or event information, loss of data, loss of photos, loss of profits, loss of revenue, or loss of opportunity. This applies even if we were advised of the possibility of such damages and even if a remedy fails of its essential purpose.</p>
+      <p>If any of the above limitations are held unenforceable in your jurisdiction, our total aggregate liability to you for any and all claims arising from the app shall not exceed the amount you have paid us in the twelve (12) months preceding the claim, which, on the free plan, is zero dollars (CAD&nbsp;$0).</p>
       <p>You agree to release, indemnify, and hold harmless the operators of Northlander.app, NorthlanderGuide.com, their volunteers, and contributors from any claim arising from your use of the app or your reliance on any information shown in it.</p>
     </section>
 

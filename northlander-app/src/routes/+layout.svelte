@@ -146,8 +146,7 @@
   <p class="footer-disclaimer">
     Independent &middot; Not affiliated with Ontario Northland Railway. Confirm all train times,
     fares, addresses, and schedules at
-    <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>
-    before relying on them.
+    <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
   </p>
   <nav class="footer-legal" aria-label="Legal">
     <a href="/privacy">Privacy</a>
