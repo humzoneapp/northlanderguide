@@ -44,8 +44,15 @@
   let loadFailed = false;
 
   /* Bookings + user events refresh under our feet from the parent.
-     Re-render markers whenever the data changes after init. */
-  $: if (initted && map && L) renderMarkers();
+     Re-render markers whenever the data changes after init.
+     Errors from this reactive call get swallowed by Svelte otherwise -
+     wrap with .catch so they surface in the console instead of
+     vanishing. */
+  $: if (initted && map && L) {
+    renderMarkers().catch((err) => {
+      console.error('StopMap renderMarkers failed:', err);
+    });
+  }
 
   function kindLabel(id) {
     const k = BOOKING_KINDS.find((x) => x.id === id);
@@ -308,6 +315,13 @@
         }
       ).addTo(map);
 
+      /* Setting initted=true is what kicks off the first
+         renderMarkers run - the reactive declaration at the top
+         of this script fires because initted is a tracked dep,
+         and that's the single canonical caller. An earlier
+         version called renderMarkers explicitly here as well,
+         which caused two concurrent runs to race and double the
+         pins. */
       initted = true;
     } catch (err) {
       /* Leaflet CDN injection failed or tile-layer setup threw -
@@ -318,14 +332,7 @@
       console.error('StopMap init failed:', err);
       initted = false;
       loadFailed = true;
-      return;
     }
-    /* Markers run in a separate try inside renderMarkers - a
-       geocode hiccup or a bad row shouldn't flip the whole map
-       into the unavailable state, since the basemap is fine. */
-    renderMarkers().catch((err) => {
-      console.error('StopMap renderMarkers failed:', err);
-    });
   }
 
   /* Auto-init the map without the user having to tap. Two paths:
