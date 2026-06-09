@@ -70,8 +70,10 @@
   import CoverPhoto from '$lib/components/trip/CoverPhoto.svelte';
   import CoverTitleEdit from '$lib/components/trip/CoverTitleEdit.svelte';
   import CoverStats from '$lib/components/trip/CoverStats.svelte';
+  import TripSignOff from '$lib/components/trip/TripSignOff.svelte';
+  import TripBackup from '$lib/components/trip/TripBackup.svelte';
+  import TripDangerZone from '$lib/components/trip/TripDangerZone.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
-  import { downloadTripBackup } from '$lib/utils/backup.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
 
   /** @type {{ id: string, name: string, color: string, strap: string, colorId?: string, stopIds?: string[], departureDate?: string|null, direction?: string } | null} */
@@ -107,8 +109,6 @@
   let addPlanFromReturn = false;
 
   /* Inline rename state on the cover H1 */
-  let confirmingDelete = false;
-
   /* Custom cover photo for the banner. Built from trip.coverBlob
      when present; revoked whenever the row swaps out or the page
      unmounts so we don't leak object URLs across navigations. The
@@ -991,81 +991,9 @@
     </section>
   {/if}
 
-  <!-- ===== Sign off =====
-       Closes the page with an editorial signature - forest band
-       with a small vintage stamp pinned in the top-right corner.
-       Stamp uses the Guide's circular double-border pattern
-       (plan-page.css:1110-1142) at a smaller scale, rotated -8deg
-       so it reads as something pressed onto the page. -->
-  <section id="trip-foot" class="foot">
-    <h2>Bon voyage.</h2>
-    <p>Open this on your phone the morning you board.</p>
-    <div class="it-actions foot-actions">
-      <a
-        href={`/trips/${trip.id}/print`}
-        target="_blank"
-        rel="noopener"
-        class="btn-primary cover-print"
-      >Save as PDF</a>
-    </div>
-  </section>
-
-  <!-- ===== Backup ===== -->
-  <section class="backup">
-    <div class="backup-inner">
-      <div>
-        <div class="kicker">Backup</div>
-        <p>Download a single file with every plan, photo and note from this trip. Hand it to yourself if you switch devices or wipe browser data.</p>
-      </div>
-      <button
-        type="button"
-        class="backup-btn"
-        on:click={async () => {
-          if (!trip) return;
-          const ok = await downloadTripBackup(trip.id);
-          if (ok) pushToast({ message: 'Backup downloaded.', kind: 'success' });
-          else pushToast({ message: 'Backup failed.', kind: 'warn' });
-        }}
-      >
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 12 V19 a2 2 0 0 0 2 2 H18 a2 2 0 0 0 2 -2 V12"/>
-          <polyline points="8 12 12 16 16 12"/>
-          <line x1="12" y1="3" x2="12" y2="16"/>
-        </svg>
-        <span>Download backup</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- ===== Danger zone ===== -->
-  <section class="danger">
-    <div class="danger-inner">
-      <div>
-        <div class="kicker">Danger zone</div>
-        <p>Deleting a suitcase removes its packing list, bookings and notes. There's no undo.</p>
-      </div>
-      {#if confirmingDelete}
-        <div class="danger-actions">
-          <button
-            type="button"
-            on:click={() => (confirmingDelete = false)}
-            class="danger-cancel"
-          >Cancel</button>
-          <button
-            type="button"
-            on:click={handleDelete}
-            class="btn-primary danger-confirm"
-          >Yes, delete the suitcase</button>
-        </div>
-      {:else}
-        <button
-          type="button"
-          on:click={() => (confirmingDelete = true)}
-          class="danger-link"
-        >Delete this trip</button>
-      {/if}
-    </div>
-  </section>
+  <TripSignOff tripId={trip.id} />
+  <TripBackup tripId={trip.id} />
+  <TripDangerZone on:delete={handleDelete} />
 
   {/if}<!-- end onboarding gate -->
 
@@ -1434,34 +1362,8 @@
   /* Cover dateline + countdown + stats grid styles live in
      CoverStats.svelte. */
 
-  /* Cover action buttons (Edit route, Logbook, Export PDF, Share)
-     live in CoverActions.svelte. The shared .it-actions layout is
-     kept below for the sign-off section's foot row. */
-  .it-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 26px;
-  }
-  .cover-print {
-    background: transparent;
-    border: 2px solid rgba(201, 168, 76, 0.45);
-    color: #c9a84c;
-    padding: 0.7rem 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.06em;
-  }
-  .cover-print:hover {
-    background: rgba(201, 168, 76, 0.12);
-    border-color: #c9a84c;
-    color: #f5f0e8;
-  }
+  /* Cover action buttons live in CoverActions.svelte and the foot
+     Save-as-PDF link lives in TripSignOff.svelte. */
 
   /* Wrap-up CTA styles live in WrapCta.svelte. */
 
@@ -1594,27 +1496,26 @@
      IntersectionObserver still drives the animation. The other three
      bands (return divider, narrative, foot) still get their reveal
      transition styles below since they remain in this file. */
+  /* Reveal styles for .scene and .foot live in their owning
+     components (TripChapter, TripSignOff) since the markup moved
+     there. The two bands still in this file get theirs here. */
   .return-divider,
-  .narrative,
-  .foot {
+  .narrative {
     transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
   }
   .return-divider.is-pre-reveal,
-  .narrative.is-pre-reveal,
-  .foot.is-pre-reveal {
+  .narrative.is-pre-reveal {
     opacity: 0;
     transform: translateY(28px);
   }
   .return-divider.is-pre-reveal.is-revealed,
-  .narrative.is-pre-reveal.is-revealed,
-  .foot.is-pre-reveal.is-revealed {
+  .narrative.is-pre-reveal.is-revealed {
     opacity: 1;
     transform: translateY(0);
   }
   @media (prefers-reduced-motion: reduce) {
     .return-divider.is-pre-reveal,
-    .narrative.is-pre-reveal,
-    .foot.is-pre-reveal {
+    .narrative.is-pre-reveal {
       opacity: 1;
       transform: none;
       transition: none;
@@ -1824,204 +1725,6 @@
      vintage stamp pinned in the corner. The stamp is a direct port
      of the Guide's pl-pass-stamp (plan-page.css:1110-1142): circular
      double-border ring, amber fill, dotted inner ring, rotated. */
-  .foot {
-    position: relative;
-    background: linear-gradient(180deg, #0e3b2c 0%, #0a2d21 100%);
-    color: #f5f0e8;
-    padding: 64px 24px;
-    text-align: center;
-    overflow: hidden;
-  }
-  .foot h2 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-weight: 500;
-    font-size: clamp(1.8rem, 5vw, 2.6rem);
-    color: #c9a84c;
-    margin: 0 0 8px;
-  }
-  .foot p {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #cad7cf;
-    margin: 0 0 28px;
-  }
-  .foot-actions { justify-content: center; margin-top: 0; }
-
-  .foot-stamp {
-    position: absolute;
-    top: 24px;
-    right: 32px;
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    border: 3px double #c9a84c;
-    background: radial-gradient(circle, rgba(196, 134, 15, 0.08) 0%, transparent 65%);
-    box-shadow:
-      0 6px 14px rgba(0, 0, 0, 0.3),
-      inset 0 0 0 6px transparent,
-      inset 0 0 0 7px rgba(201, 168, 76, 0.35);
-    color: #c9a84c;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    transform: rotate(-8deg);
-    font-family: 'Fraunces', Georgia, serif;
-    line-height: 1;
-    text-align: center;
-    user-select: none;
-  }
-  .foot-stamp::before,
-  .foot-stamp::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    width: 26px;
-    height: 1px;
-    background: #c9a84c;
-    opacity: 0.7;
-    transform: translateX(-50%);
-  }
-  .foot-stamp::before { top: 18px; }
-  .foot-stamp::after  { bottom: 18px; }
-  .foot-stamp-line {
-    display: block;
-  }
-  .foot-stamp-line--top {
-    font-size: 8.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-weight: 700;
-    margin-top: 4px;
-  }
-  .foot-stamp-line--big {
-    font-style: italic;
-    font-weight: 700;
-    font-size: 17px;
-  }
-  .foot-stamp-line--bot {
-    font-size: 8.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  @media (max-width: 720px) {
-    .foot-stamp {
-      width: 78px; height: 78px;
-      top: 14px; right: 14px;
-    }
-    .foot-stamp-line--big { font-size: 14px; }
-  }
-
-  /* ===== Backup band =====
-     Sits above the danger zone so users see the "download a copy"
-     option before the "delete this trip" one. Same cream/dashed
-     vocabulary as the rest of the page. */
-  .backup {
-    background: #f3ece0;
-    padding: 24px 24px 0;
-  }
-  .backup-inner {
-    max-width: 920px;
-    margin: 0 auto;
-    border-top: 1px dashed rgba(125, 58, 30, 0.4);
-    padding-top: 24px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
-  .backup p {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 4px 0 0;
-    max-width: 60ch;
-  }
-  .backup-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    color: #7d3a1e;
-    border: 1.5px solid #7d3a1e;
-    padding: 9px 16px;
-    border-radius: 4px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
-  }
-  .backup-btn:hover {
-    background: #7d3a1e;
-    color: #fffdf6;
-    transform: translateY(-1px);
-  }
-
-  /* ===== Danger zone ===== */
-  .danger {
-    background: #f3ece0;
-    padding: 24px 24px 64px;
-  }
-  .danger-inner {
-    max-width: 920px;
-    margin: 0 auto;
-    border-top: 1px dashed rgba(125, 58, 30, 0.4);
-    padding-top: 24px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-  }
-  .danger p {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 4px 0 0;
-  }
-  .danger-link {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    color: #6e2e17;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .danger-link:hover { color: #0a2d21; }
-  .danger-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-  .danger-cancel {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .danger-cancel:hover { color: #6e2e17; }
-  .danger-confirm {
-    background: #5e2a14;
-    border-color: #5e2a14;
-  }
-  .danger-confirm:hover {
-    background: #7d3a1e;
-    border-color: #7d3a1e;
-  }
+  /* Sign-off, Backup, and Danger Zone styles live in their owning
+     components: TripSignOff, TripBackup, TripDangerZone. */
 </style>
