@@ -304,20 +304,19 @@
               </div>
             {/if}
 
-            {#if item.kind === 'room'}
-              <button
-                type="button"
-                class="book-expand"
-                class:is-open={expanded[item.id]}
-                on:click={() => toggleExpanded(item.id)}
-                aria-label={expanded[item.id] ? 'Hide room details' : 'Show room details'}
-                aria-expanded={!!expanded[item.id]}
-              >
-                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-            {/if}
+            <button
+              type="button"
+              class="book-expand"
+              class:is-open={expanded[item.id]}
+              on:click={() => toggleExpanded(item.id)}
+              aria-label={expanded[item.id] ? 'Hide details' : 'Show details'}
+              aria-expanded={!!expanded[item.id]}
+              title={item.kind === 'room' ? 'Room details' : 'Address + notes'}
+            >
+              <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
 
             <button
               type="button"
@@ -326,7 +325,7 @@
               aria-label={`Remove ${item.title}`}
             >&times;</button>
 
-            {#if item.kind === 'room' && expanded[item.id]}
+            {#if expanded[item.id]}
               <div class="book-extras">
                 <div class="extras-grid">
                   {#if tripStops.length > 0}
@@ -343,26 +342,28 @@
                       </select>
                     </label>
                   {/if}
-                  <label>
-                    <span class="extras-kicker">Check-in</span>
-                    <input
-                      type="date"
-                      value={item.checkIn || ''}
-                      on:blur={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
-                      on:change={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
-                    />
-                  </label>
-                  <label>
-                    <span class="extras-kicker">Check-out</span>
-                    <input
-                      type="date"
-                      value={item.checkOut || ''}
-                      on:blur={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
-                      on:change={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
-                    />
-                  </label>
+                  {#if item.kind === 'room'}
+                    <label>
+                      <span class="extras-kicker">Check-in</span>
+                      <input
+                        type="date"
+                        value={item.checkIn || ''}
+                        on:blur={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
+                        on:change={(e) => saveRoomField(item.id, 'checkIn', e.currentTarget.value)}
+                      />
+                    </label>
+                    <label>
+                      <span class="extras-kicker">Check-out</span>
+                      <input
+                        type="date"
+                        value={item.checkOut || ''}
+                        on:blur={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
+                        on:change={(e) => saveRoomField(item.id, 'checkOut', e.currentTarget.value)}
+                      />
+                    </label>
+                  {/if}
                   <label class="extras-full">
-                    <span class="extras-kicker">Address</span>
+                    <span class="extras-kicker">Address (pins to the map)</span>
                     <input
                       type="text"
                       maxlength="240"
@@ -371,32 +372,34 @@
                       on:blur={(e) => saveRoomField(item.id, 'address', e.currentTarget.value)}
                     />
                   </label>
-                  <label>
-                    <span class="extras-kicker">Host or contact</span>
-                    <input
-                      type="text"
-                      maxlength="120"
-                      placeholder="Phone, email, or host name"
-                      value={item.contact || ''}
-                      on:blur={(e) => saveRoomField(item.id, 'contact', e.currentTarget.value)}
-                    />
-                  </label>
-                  <label>
-                    <span class="extras-kicker">Confirmation #</span>
-                    <input
-                      type="text"
-                      maxlength="60"
-                      placeholder="Booking ref."
-                      value={item.confirmation || ''}
-                      on:blur={(e) => saveRoomField(item.id, 'confirmation', e.currentTarget.value)}
-                    />
-                  </label>
+                  {#if item.kind === 'room'}
+                    <label>
+                      <span class="extras-kicker">Host or contact</span>
+                      <input
+                        type="text"
+                        maxlength="120"
+                        placeholder="Phone, email, or host name"
+                        value={item.contact || ''}
+                        on:blur={(e) => saveRoomField(item.id, 'contact', e.currentTarget.value)}
+                      />
+                    </label>
+                    <label>
+                      <span class="extras-kicker">Confirmation #</span>
+                      <input
+                        type="text"
+                        maxlength="60"
+                        placeholder="Booking ref."
+                        value={item.confirmation || ''}
+                        on:blur={(e) => saveRoomField(item.id, 'confirmation', e.currentTarget.value)}
+                      />
+                    </label>
+                  {/if}
                   <label class="extras-full">
                     <span class="extras-kicker">Notes</span>
                     <textarea
                       rows="2"
                       maxlength="500"
-                      placeholder="Parking, wifi password, late check-in instructions..."
+                      placeholder={item.kind === 'room' ? 'Parking, wifi password, late check-in instructions...' : 'Any extra details to remember...'}
                       value={item.notes || ''}
                       on:blur={(e) => saveRoomField(item.id, 'notes', e.currentTarget.value)}
                     ></textarea>

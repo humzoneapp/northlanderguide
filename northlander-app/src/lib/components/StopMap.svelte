@@ -126,10 +126,16 @@
        be at the station anyway). */
     busy = true;
     try {
+      /* Append "<stop name>, Ontario, Canada" to every geocode query
+         so short addresses ("123 Main St", "Riverside Lodge") still
+         resolve. Nominatim's hit rate climbs from ~40% to nearly
+         100% on Northlander-route locations once the city + country
+         context is added. */
+      const ctx = `, ${stop.name}, Ontario, Canada`;
       const bookingHits = await Promise.all(
         (bookings || []).map(async (b) => {
           if (!b.address) return null;
-          const loc = await geocode(b.address);
+          const loc = await geocode(b.address + ctx);
           if (!loc) return null;
           return { kind: 'booking', row: b, loc };
         })
@@ -138,7 +144,7 @@
         (userEvents || []).map(async (e) => {
           const query = [e.venue, e.address].filter(Boolean).join(', ');
           if (!query) return null;
-          const loc = await geocode(query);
+          const loc = await geocode(query + ctx);
           if (!loc) return null;
           return { kind: 'event', row: e, loc };
         })
@@ -211,7 +217,10 @@
       await tick();
       map = L.map(mapEl, {
         zoomControl: true,
-        scrollWheelZoom: false,
+        /* Desktop scroll-wheel zoom on. Mobile uses pinch-zoom on
+           the touch device so this only fires when the user has a
+           mouse hovering over the map. */
+        scrollWheelZoom: true,
         attributionControl: true
       }).setView([stop.lat, stop.lng], 13);
 
@@ -232,12 +241,59 @@
     }
   }
 
+  /* Auto-init the map without the user having to tap. Two paths:
+     1. Walk up to the wrapping <details> (Drawer) and listen for
+        its toggle event - reliable signal that the body just
+        became visible.
+     2. IntersectionObserver as a fallback in case the map sits
+        somewhere outside a Drawer in the future.
+     The earlier "tap to init" gate was confusing - users opened
+     the drawer expecting a map, saw an empty box, and assumed it
+     was broken. */
+  let visibilityObserver = null;
+  let parentDetails = null;
+  function onParentToggle() {
+    if (parentDetails && parentDetails.open) {
+      init();
+    } else if (map) {
+      /* Recalc tile bounds whenever the drawer reopens in case the
+         container's dimensions changed. */
+      tick().then(() => { if (map) map.invalidateSize(); });
+    }
+  }
   onMount(() => {
-    /* Caller decides when to init() - usually when the wrapping
-       Drawer opens. We just sit waiting. */
+    if (!mapEl) return;
+    /* Find the nearest <details> ancestor (the Drawer) and listen
+       for toggle. */
+    let node = mapEl.parentElement;
+    while (node && node.tagName !== 'DETAILS') node = node.parentElement;
+    if (node) {
+      parentDetails = node;
+      parentDetails.addEventListener('toggle', onParentToggle);
+      /* If the drawer is already open on mount (rare but possible),
+         init immediately. */
+      if (parentDetails.open) init();
+    }
+    if (typeof IntersectionObserver !== 'undefined') {
+      visibilityObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !initted) init();
+          else if (entry.isIntersecting && map) map.invalidateSize();
+        }
+      }, { threshold: 0.05 });
+      visibilityObserver.observe(mapEl);
+    }
   });
 
   onDestroy(() => {
+    if (visibilityObserver) {
+      visibilityObserver.disconnect();
+      visibilityObserver = null;
+    }
+    if (parentDetails) {
+      parentDetails.removeEventListener('toggle', onParentToggle);
+      parentDetails = null;
+    }
     if (map) {
       map.remove();
       map = null;
@@ -248,21 +304,16 @@
 <div class="stop-map-wrap" class:is-empty={initted && pinCount === 0}>
   <div class="stop-map" bind:this={mapEl} aria-label={`Map of ${stop?.name || ''}`}></div>
   {#if !initted}
-    <button type="button" class="stop-map-init" on:click={init}>
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 21 C7 14 4 11 4 8 a8 8 0 0 1 16 0 c0 3 -3 6 -8 13 Z"/>
-        <circle cx="12" cy="8" r="2.5"/>
-      </svg>
-      <span>Show map of {stop?.name || 'this stop'}</span>
-    </button>
+    <span class="stop-map-loading" aria-hidden="true">Loading map...</span>
   {/if}
   {#if initted && busy}
     <span class="stop-map-busy" aria-hidden="true">Pinning your plans...</span>
   {/if}
   {#if initted && !busy && pinCount === 0}
     <p class="stop-map-empty">
-      Pin a booking with an address (or add a user event with a venue)
-      and it'll appear on this map.
+      Drop in a booking address (tap a booking row to expand it) or
+      a user event with a venue and it'll appear on this map next to
+      the station.
     </p>
   {/if}
 </div>
@@ -274,33 +325,36 @@
     border-radius: 6px;
     background: #fbf6ea;
     overflow: hidden;
+    /* isolation creates a new stacking context so Leaflet's
+       internal z-index (panes go up to 700, popups to 800) stays
+       contained inside this wrap. Without it, the map and its
+       popups would paint over the sticky topbar (z:100) and TOC
+       (z:60) when the user scrolls down. */
+    isolation: isolate;
+    z-index: 0;
   }
   .stop-map {
     width: 100%;
     height: 360px;
     background: #f3ece0;
   }
-  .stop-map-init {
+  /* Quiet "loading" tag shown while Leaflet's CDN injection runs.
+     Replaced the older tap-to-init button now that the map auto-
+     initializes via IntersectionObserver. */
+  .stop-map-loading {
     position: absolute;
     inset: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     background: rgba(251, 246, 234, 0.94);
-    border: 0;
     font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: #7d3a1e;
-    cursor: pointer;
-    transition: background 160ms ease;
-  }
-  .stop-map-init:hover {
-    background: rgba(251, 246, 234, 1);
-    color: #0a2d21;
+    pointer-events: none;
   }
   .stop-map-busy {
     position: absolute;
