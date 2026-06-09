@@ -201,11 +201,16 @@
 
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr || title || `${loc.lat},${loc.lng}`)}`;
 
-        /* When the pin sat at the station because no address /
-           title resolved, the popup tells the user how to refine
-           it instead of pretending we know where it is. */
-        const stationHint = resolvedBy === 'station'
-          ? `<span class="nl-pop-hint">Near the station - add an address to pin it exactly.</span>`
+        /* Only nudge the user about adding an address when they
+           genuinely haven't given us one yet. If they typed an
+           address but Nominatim just couldn't geocode it (rural
+           routes, brand-new venues, typos), don't second-guess
+           them - silently park the pin at the station. */
+        const noAddressYet = kind === 'event'
+          ? !row.address && !row.venue
+          : !row.address;
+        const stationHint = resolvedBy === 'station' && noAddressYet
+          ? `<span class="nl-pop-hint">Pinned at the station. Add an address on the booking to pin it exactly.</span>`
           : '';
 
         L.marker([loc.lat, loc.lng], { icon: rustIcon(letter) })
