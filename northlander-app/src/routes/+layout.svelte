@@ -143,6 +143,12 @@
   <p class="font-serif italic text-muted text-sm">
     Built for the Ontario Northland Northlander route. Independent, made by travellers.
   </p>
+  <p class="footer-disclaimer">
+    Independent &middot; Not affiliated with Ontario Northland Railway. Confirm all train times,
+    fares, addresses, and schedules at
+    <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>
+    before relying on them.
+  </p>
   <nav class="footer-legal" aria-label="Legal">
     <a href="/privacy">Privacy</a>
     <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
@@ -269,6 +275,27 @@
   }
   .footer-legal a:hover { color: #0a2d21; }
   .footer-legal-sep { color: rgba(125, 58, 30, 0.4); }
+
+  /* Permanent independence disclaimer below the tagline. Sits on
+     every page so users on the trip page or share preview always
+     see the "we are not the railway, verify with them" line. */
+  .footer-disclaimer {
+    margin-top: 14px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #5a4f3d;
+  }
+  .footer-disclaimer a {
+    color: #7d3a1e;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .footer-disclaimer a:hover { color: #0a2d21; }
 
   /* Floating scroll-to-top button. Anchored bottom-right with
      safe-area insets so iOS Safari's home indicator doesn't

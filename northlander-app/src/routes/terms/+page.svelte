@@ -26,6 +26,11 @@
 
 <main class="legal">
   <article class="legal-inner">
+    <aside class="legal-banner" role="note">
+      <strong>Independent &middot; Not affiliated with Ontario Northland.</strong>
+      Northlander.app and NorthlanderGuide.com are operated by independent travellers. We are <strong>not</strong> Ontario Northland Railway, the Northlander train service, the Ontario government, or any related agency. We do not sell train tickets and we cannot rebook, refund, or check you in. Confirm all train times, schedules, fares, station information, and service updates directly with <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a> before relying on anything you see here.
+    </aside>
+
     <p class="legal-lede">
       By using Northlander.app you agree to these terms. They're
       meant to be readable. If anything's unclear, write to us at
@@ -33,9 +38,10 @@
     </p>
 
     <section>
-      <h2>1. What this app is</h2>
-      <p>Northlander.app is a free, browser-based trip planner for the Ontario Northland Northlander train route between Toronto Union and Cochrane. It is independent of Ontario Northland and is not affiliated with, endorsed by, or operated by them.</p>
-      <p>The companion site NorthlanderGuide.com provides editorial content (stop descriptions, restaurants, attractions, events) that this app pulls in as suggestions. NorthlanderGuide.com is operated by the same independent travellers behind this app.</p>
+      <h2>1. What this app is &mdash; and is not</h2>
+      <p>Northlander.app is a free, independent, browser-based trip planner for travellers riding the Ontario Northland Northlander train route between Toronto Union and Cochrane.</p>
+      <p><strong>It is not operated, endorsed, sponsored, or affiliated with Ontario Northland Railway, the Northlander train service, the Ontario Northland Transportation Commission, the Government of Ontario, or any other railway or transit authority.</strong> The "Northlander" word is used purely to describe the train route this app helps you plan around, in the same way a third-party guidebook might reference a city or landmark.</p>
+      <p>The companion site NorthlanderGuide.com provides editorial content (stop descriptions, restaurants, attractions, events) that this app pulls in as suggestions. NorthlanderGuide.com is operated by the same independent travellers behind this app and is similarly not affiliated with Ontario Northland.</p>
     </section>
 
     <section>
@@ -72,24 +78,30 @@
     </section>
 
     <section>
-      <h2>6. Train times and trip information</h2>
-      <p>The schedule, station names, and route information are reproduced from the public Proposed Service Schedule on <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>. Times can change without notice. <strong>Always confirm with Ontario Northland Railway before boarding.</strong> We are not responsible for missed trains, schedule changes, service disruptions, or any consequence of relying on the times shown in the app.</p>
+      <h2>6. Train times, schedules, and trip information</h2>
+      <p>The train schedule, station names, route information, fares, and any other Ontario Northland data shown in the app are reproduced from publicly available sources. Schedules, fares, station status, and service can change without notice for any reason, including but not limited to weather, mechanical issues, track work, holidays, and operational decisions by the railway.</p>
+      <p><strong>Always confirm directly with Ontario Northland Railway (<a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a> or 1-800-461-8558) before booking, packing, leaving for the station, or making any decision based on the information shown in this app.</strong></p>
+      <p>We are NOT responsible for missed trains, missed connections, cancelled service, schedule changes, delays, fare surprises, station closures, or any other consequence of relying on the times, dates, fares, or station information shown in the app.</p>
     </section>
 
     <section>
-      <h2>7. Third-party content</h2>
-      <p>Listings, events, and suggestions pulled from NorthlanderGuide.com or other third-party sources are provided for convenience. We do not verify hours, prices, availability, or accuracy. Confirm directly with each venue before relying on the information.</p>
-      <p>External links open in a new tab; we have no control over the content or practices of linked sites.</p>
+      <h2>7. Third-party content, addresses, and venues</h2>
+      <p>Listings, events, addresses, phone numbers, hours, prices, ratings, descriptions, photos, and any other third-party content pulled from NorthlanderGuide.com, OpenStreetMap, Open-Meteo, Carto, or any other source are provided as starting points only. We do not verify accuracy, currency, hours of operation, pricing, address correctness, geographic location precision, business closure status, or any other detail.</p>
+      <p><strong>You are solely responsible for confirming addresses, dates, times, prices, hours, contact information, and any other detail directly with each venue, business, event organiser, or service provider before relying on it.</strong> Map pin locations are approximations and may be inaccurate.</p>
+      <p>External links open in a new tab. We have no control over the content, accuracy, or practices of linked sites.</p>
     </section>
 
     <section>
-      <h2>8. No warranty</h2>
-      <p>The app is provided "as is" and "as available", without warranty of any kind, express or implied. To the maximum extent permitted by law, we disclaim all warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+      <h2>8. No warranty &mdash; everything is "as is"</h2>
+      <p>The app, all of its features, all data shown in it, and any service provided through it are offered <strong>"as is" and "as available"</strong>, without warranty of any kind, express or implied. To the maximum extent permitted by law, we disclaim all warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, completeness, timeliness, reliability, and uninterrupted availability.</p>
+      <p>We make no representation that the information in the app is accurate, current, complete, or free of errors. Train times, addresses, dates, weather forecasts, geocoded map locations, listing details, event information, packing suggestions, and every other piece of data may contain errors, omissions, or inaccuracies. <strong>You use the app entirely at your own risk.</strong></p>
     </section>
 
     <section>
       <h2>9. Limitation of liability</h2>
-      <p>To the maximum extent permitted by law, we are not liable for any indirect, incidental, consequential, special, or punitive damages, or any loss of profits, revenue, data, or opportunity, arising from your use of the app &mdash; even if we were advised of the possibility of such damages. Our total liability to you for any claim arising from the app will not exceed the amount you paid us in the previous 12 months (which, on the free plan, is zero).</p>
+      <p>To the maximum extent permitted by law, neither the operators of Northlander.app nor anyone associated with the app are liable for any damages whatsoever &mdash; direct, indirect, incidental, consequential, special, exemplary, or punitive &mdash; arising from or in connection with your use of (or inability to use) the app. This includes, without limitation, liability for: missed trains, missed connections, cancelled or delayed travel, wasted bookings, lost reservations, incorrect addresses or directions, getting lost, weather-related decisions, errors in displayed train times or schedules, errors in venue or event information, loss of data, loss of photos, loss of profits, loss of revenue, or loss of opportunity &mdash; even if we were advised of the possibility of such damages and even if a remedy fails of its essential purpose.</p>
+      <p>If any of the above limitations are held unenforceable in your jurisdiction, our total aggregate liability to you for any and all claims arising from the app shall not exceed the amount you have paid us in the twelve (12) months preceding the claim &mdash; which, on the free plan, is zero dollars (CAD&nbsp;$0).</p>
+      <p>You agree to release, indemnify, and hold harmless the operators of Northlander.app, NorthlanderGuide.com, their volunteers, and contributors from any claim arising from your use of the app or your reliance on any information shown in it.</p>
     </section>
 
     <section>
@@ -146,6 +158,30 @@
     max-width: 760px;
     margin: 0 auto;
   }
+  /* Rust-bordered cream banner at the top of every legal page.
+     Makes the independence + "verify with the railway" message
+     impossible to miss before the user starts reading the body. */
+  .legal-banner {
+    background: rgba(125, 58, 30, 0.06);
+    border: 1.5px solid #c9a84c;
+    border-left: 4px solid #7d3a1e;
+    border-radius: 4px;
+    padding: 16px 18px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #241f1a;
+    margin: 0 0 22px;
+  }
+  .legal-banner strong {
+    color: #7d3a1e;
+  }
+  .legal-banner a {
+    color: #7d3a1e;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .legal-banner a:hover { color: #0a2d21; }
   .legal-lede {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
