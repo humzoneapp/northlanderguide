@@ -127,41 +127,29 @@ function pickCollageStops(stops) {
   return out;
 }
 
-/* Load an image off the Guide via fetch + createImageBitmap so the
-   canvas stays un-tainted (toBlob would fail otherwise). Using
-   fetch with explicit mode: 'cors' is more reliable than
-   <img crossorigin> because:
-     - it never reuses a non-CORS cached response (a previously
-       cached fetch without the Access-Control header would
-       silently fail when later requested via crossOrigin=anonymous)
-     - it bypasses any prior tainted entry in the disk cache
-     - createImageBitmap returns a canvas-drawable bitmap that
-       never taints regardless of source headers
-   Falls back to a tagged <img> from an object URL when
-   createImageBitmap isn't available. Returns null on any failure
-   so callers can drop in a placeholder polaroid.
-   The Guide's vercel.json sends Access-Control-Allow-Origin:*
-   for /images/*. */
-async function loadImage(url) {
+/* Load an image into a canvas-drawable bitmap. Tries the direct
+   Guide URL first (which works whenever the Guide's CORS headers
+   are live), then falls back to the free images.weserv.nl proxy
+   which re-serves any public image with permissive CORS headers.
+   The proxy keeps the share poster's polaroid photos rendering
+   reliably even if the Guide deploy is slow / CDN cache is cold /
+   the user's browser cached a non-CORS response from an earlier
+   visit. Returns null on total failure so the caller can drop in
+   a forest-tile placeholder. */
+async function fetchAsBitmap(url) {
   if (!url || typeof fetch === 'undefined') return null;
   try {
     const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
     if (!res.ok) return null;
     const blob = await res.blob();
     if (typeof createImageBitmap === 'function') {
-      try {
-        return await createImageBitmap(blob);
-      } catch (_) {
-        /* createImageBitmap can fail on some blob types; fall
-           through to the <img> path. */
-      }
+      try { return await createImageBitmap(blob); }
+      catch (_) { /* fall through to <img> path */ }
     }
     return await new Promise((resolve) => {
       const img = new Image();
       const objectUrl = URL.createObjectURL(blob);
       img.onload = () => {
-        /* The object URL stays referenced through draw time; revoked
-           lazily so the bitmap stays valid for the canvas paint. */
         setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
         resolve(img);
       };
@@ -171,6 +159,24 @@ async function loadImage(url) {
       };
       img.src = objectUrl;
     });
+  } catch (_) {
+    return null;
+  }
+}
+
+async function loadImage(url) {
+  if (!url) return null;
+  /* Attempt the direct URL first. */
+  let bitmap = await fetchAsBitmap(url);
+  if (bitmap) return bitmap;
+  /* Fall back to the public weserv proxy. Strip the protocol per
+     the proxy's URL spec. Any failure here returns null and the
+     caller drops in a placeholder polaroid. */
+  try {
+    const stripped = url.replace(/^https?:\/\//, '');
+    const proxied = `https://images.weserv.nl/?url=${encodeURIComponent(stripped)}`;
+    bitmap = await fetchAsBitmap(proxied);
+    return bitmap;
   } catch (_) {
     return null;
   }
@@ -362,8 +368,13 @@ export async function generatePosterBlob(trip) {
     : `Departure ${arrivalClock(0, departure, direction)}`;
   ctx.fillText(ellipsize(ctx, dateText, titleMaxW), W / 2, 320);
 
-  /* ----- stamp in the corner ----- */
-  drawStamp(ctx, W - PAD - 90, 200, 78, ['Boarding Pass', 'The North', 'All Seasons']);
+  /* ----- stamp in the corner -----
+     Sits ABOVE the trip-name title (which baselines around y=270
+     and can be up to 96px tall). Earlier placement at y=200 with
+     a 78px radius extended down to ~y=278, overlapping the title.
+     Lifted to y=145 so the stamp clears the title and sits inside
+     the top forest band's corner. */
+  drawStamp(ctx, W - PAD - 90, 145, 60, ['Boarding Pass', 'The North', 'All Seasons']);
 
   /* ----- route ----- */
   const routeTop = 400;
