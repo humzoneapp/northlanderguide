@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
-  import { trips, deleteTrip, getTripMood, listTrips } from '$lib/stores/trips.js';
+  import { trips, deleteTrip, listTrips } from '$lib/stores/trips.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
   import { STOPS, getStop, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
@@ -397,7 +397,6 @@
           {@const prog = packFraction(trip)}
           {@const initial = (trip.name || '?').trim().charAt(0).toUpperCase()}
           {@const ready = tripStats[trip.id]?.readyFraction}
-          {@const mood = getTripMood(trip.moodId)}
           <div
             class="polaroid-wrap"
             style="--rot:{tilts[i % tilts.length]}deg; --y:{offsets[i % offsets.length]}px; --i:{i}"
@@ -460,14 +459,7 @@
               </div>
 
               <div class="polaroid-paper">
-                <h3 class="polaroid-name">
-                  {trip.name}
-                  {#if mood}
-                    <span class="polaroid-mood" title={mood.label} aria-label={`Trip mood: ${mood.label}`}>
-                      {@html mood.glyph}
-                    </span>
-                  {/if}
-                </h3>
+                <h3 class="polaroid-name">{trip.name}</h3>
                 <p class="polaroid-meta">
                   {#if thumb}{thumb.name}{:else}No stops yet{/if}
                   {#if trip.departureDate}
@@ -1216,19 +1208,6 @@
     gap: 8px;
     justify-content: center;
   }
-  .polaroid-mood {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    color: #7d3a1e;
-    background: rgba(125, 58, 30, 0.1);
-    border-radius: 50%;
-    padding: 4px;
-    flex: 0 0 auto;
-  }
-  .polaroid-mood :global(svg) { width: 14px; height: 14px; }
   .polaroid-meta {
     font-family: 'Spline Sans', system-ui, sans-serif;
     font-size: 10.5px;

@@ -12,13 +12,11 @@
 
   import { createEventDispatcher, onMount, tick } from 'svelte';
   import { goto } from '$app/navigation';
-  import { createTrip, TRIP_MOODS } from '$lib/stores/trips.js';
+  import { createTrip } from '$lib/stores/trips.js';
 
   const dispatch = createEventDispatcher();
 
   let name = '';
-  /** @type {string} - trip mood id; '' means no mood set. */
-  let moodId = '';
   let submitting = false;
   /** @type {HTMLInputElement | undefined} */
   let nameInput;
@@ -46,7 +44,7 @@
     }
     submitting = true;
     try {
-      const trip = await createTrip({ name: trimmed, moodId: moodId || null });
+      const trip = await createTrip({ name: trimmed });
       dispatch('close');
       await goto(`/trips/${trip.id}`);
     } catch (err) {
@@ -99,42 +97,6 @@
         />
       </label>
 
-      <!-- Mood picker. Optional - skipping just stores no mood and
-           the home card falls back to the standard wax-seal initial.
-           Picking one stamps the home polaroid with a small mood
-           icon so the dashboard reads at a glance. -->
-      <div class="mb-6">
-        <span class="kicker block mb-2">What kind of trip?</span>
-        <div class="mood-row">
-          <button
-            type="button"
-            class="mood-chip"
-            class:is-active={moodId === ''}
-            on:click={() => (moodId = '')}
-          >
-            <span class="mood-glyph mood-glyph--blank" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"/>
-                <line x1="6" y1="18" x2="18" y2="6"/>
-              </svg>
-            </span>
-            <span>Skip</span>
-          </button>
-          {#each TRIP_MOODS as m}
-            <button
-              type="button"
-              class="mood-chip"
-              class:is-active={moodId === m.id}
-              on:click={() => (moodId = m.id)}
-              title={m.label}
-            >
-              <span class="mood-glyph" aria-hidden="true">{@html m.glyph}</span>
-              <span>{m.label}</span>
-            </button>
-          {/each}
-        </div>
-      </div>
-
       <div class="flex items-center justify-between gap-4 pt-2 border-t border-dashed border-[#8b6a3a]/45">
         <button
           type="button"
@@ -162,49 +124,5 @@
     mask-image:
       radial-gradient(circle 8px at 0% 50%, transparent 7px, black 8px),
       radial-gradient(circle 8px at 100% 50%, transparent 7px, black 8px);
-  }
-  .mood-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .mood-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #fffdf6;
-    color: #5a4f3d;
-    border: 1.5px solid rgba(139, 106, 58, 0.45);
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
-  }
-  .mood-chip:hover {
-    border-color: #7d3a1e;
-    color: #0a2d21;
-  }
-  .mood-chip.is-active {
-    background: #7d3a1e;
-    color: #fffdf6;
-    border-color: #7d3a1e;
-  }
-  .mood-glyph {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    color: currentColor;
-  }
-  .mood-glyph :global(svg) { width: 16px; height: 16px; }
-  .mood-glyph--blank {
-    /* Slashed-circle "no-mood" mark. Reads as Skip / opt out
-       without resorting to an ambiguous middot character. */
-    opacity: 0.75;
   }
 </style>

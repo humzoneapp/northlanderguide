@@ -130,7 +130,7 @@ export async function restoreTripBackup(payload) {
   const usedNames = new Set(existing.map((t) => t.name));
   const name = usedNames.has(baseName) ? `${baseName} (restored)` : baseName;
 
-  const created = await createTrip({ name, colorId: src.colorId || 'rust', moodId: src.moodId || null });
+  const created = await createTrip({ name, colorId: src.colorId || 'rust' });
 
   /* Carry over every field from the source trip row except those
      createTrip already owns (id, color, strap, colorId, createdAt). */
