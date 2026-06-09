@@ -5,9 +5,11 @@
      Sits at the bottom of the cover hero. When the trip is empty,
      it's a single primary "Pick your route" CTA. Once stops are
      saved, it expands into a horizontal row: Edit route, Logbook,
-     Export PDF, Share. The shared layout pattern (.it-actions) is
-     mirrored here under its own .cover-actions class so the
-     foot-of-page action row in the parent keeps its own styling.
+     Share. Export PDF used to live here too but the same link sat
+     in TripSignOff at the bottom of the page; the cover slot was
+     the noisier of the two and got dropped to thin the cover row
+     down from 4 buttons to 3. The Save-as-PDF link in TripSignOff
+     is now the canonical entry point.
 
      Lifted out of trip-page/+page.svelte on 2026-06-09 to break the
      cover into smaller pieces.
@@ -70,22 +72,6 @@
       <span>Logbook</span>
     </a>
 
-    <a
-      href={`/trips/${tripId}/print`}
-      target="_blank"
-      rel="noopener"
-      class="btn-primary cover-print"
-      aria-label="Open the print-ready version in a new tab"
-    >
-      <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 2 H6 a2 2 0 0 0 -2 2 v16 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V8 Z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="9" y1="13" x2="15" y2="13"/>
-        <line x1="9" y1="17" x2="13" y2="17"/>
-      </svg>
-      <span>Export PDF</span>
-    </a>
-
     <button
       type="button"
       class="btn-primary cover-share"
@@ -132,7 +118,6 @@
   }
   /* Quiet outline - secondary actions. */
   .cover-edit,
-  .cover-print,
   .cover-share {
     background: transparent;
     border: 2px solid rgba(201, 168, 76, 0.45);
@@ -147,7 +132,6 @@
     letter-spacing: 0.06em;
   }
   .cover-edit:hover,
-  .cover-print:hover,
   .cover-share:hover {
     background: rgba(201, 168, 76, 0.12);
     border-color: #c9a84c;
