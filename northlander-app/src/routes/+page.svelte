@@ -3,9 +3,6 @@
   import NewTripModal from '$lib/components/NewTripModal.svelte';
   import OnboardingOverlay from '$lib/components/OnboardingOverlay.svelte';
   import { trips, deleteTrip, getTripMood, listTrips } from '$lib/stores/trips.js';
-  import { restoreTripBackup } from '$lib/utils/backup.js';
-  import { pushToast } from '$lib/stores/toasts.js';
-  import { goto } from '$app/navigation';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
   import { STOPS, getStop, getStopsByIds, stopImageUrl, stopGuideUrl } from '$lib/data/stops.js';
   import { listBookings } from '$lib/stores/bookings.js';
@@ -23,31 +20,6 @@
     await loadTripStats(list);
   }
 
-  /* File input + handler for restoring a previously-downloaded
-     .northlander.json backup. Reads the file, parses, hands the
-     payload off to restoreTripBackup, and routes the user to the
-     restored trip page on success. */
-  let restoreFileInput;
-  async function onRestoreFile(ev) {
-    const file = ev?.target?.files?.[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const payload = JSON.parse(text);
-      const created = await restoreTripBackup(payload);
-      if (created) {
-        pushToast({ message: `Restored "${created.name}".`, kind: 'success' });
-        goto(`/trips/${created.id}`);
-      } else {
-        pushToast({ message: "That file didn't look like a Northlander backup.", kind: 'warn' });
-      }
-    } catch (err) {
-      console.error(err);
-      pushToast({ message: 'Could not read that file.', kind: 'warn' });
-    } finally {
-      if (restoreFileInput) restoreFileInput.value = '';
-    }
-  }
   /* The trips store populates from Dexie on first paint. We wait
      a short beat before deciding whether to mount the onboarding
      overlay so returning users (who have trips but the store
@@ -621,38 +593,10 @@
   </div>
 </section>
 
-<!-- Restore-a-backup band. Quiet section at the bottom of the
-     home so it doesn't compete with "Start a new trip" up top
-     but is still discoverable for users coming back to import a
-     .northlander.json file from another device. -->
-<section class="dash-restore-band">
-  <div class="dash-restore-inner">
-    <div>
-      <div class="kicker">Already have a backup?</div>
-      <p>Bring a trip back from a file you saved on another device. Pick up exactly where you left off.</p>
-    </div>
-    <button
-      type="button"
-      class="dash-restore"
-      on:click={() => restoreFileInput?.click()}
-      title="Restore a previously downloaded .northlander.json file"
-    >
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 12 V5 a2 2 0 0 1 2 -2 H18 a2 2 0 0 1 2 2 V12"/>
-        <polyline points="8 12 12 8 16 12"/>
-        <line x1="12" y1="3" x2="12" y2="16"/>
-      </svg>
-      <span>Restore a backup</span>
-    </button>
-    <input
-      type="file"
-      accept=".json,application/json"
-      bind:this={restoreFileInput}
-      on:change={onRestoreFile}
-      hidden
-    />
-  </div>
-</section>
+<!-- Restore-a-backup moved to the layout footer (2026-06-09) so
+     first-time visitors aren't asked to parse "what's a backup
+     file" on their first scroll. Power users on a new device still
+     find it next to Privacy + Terms. -->
 
 {#if showNewModal}
   <NewTripModal on:close={() => (showNewModal = false)} />
@@ -737,57 +681,6 @@
       repeating-linear-gradient(45deg, rgba(245, 240, 232, 0.025) 0, rgba(245, 240, 232, 0.025) 1px, transparent 1px, transparent 9px);
     pointer-events: none;
   }
-  /* Restore-a-backup band. Sits at the bottom of the home page as
-     a quiet secondary entry point - separate from "Start a new
-     trip" up top so it doesn't compete for attention but is still
-     discoverable for users coming back from a wiped device. */
-  .dash-restore-band {
-    background: #fbf6ea;
-    border-top: 1px dashed rgba(125, 58, 30, 0.3);
-    padding: 32px 24px 64px;
-  }
-  .dash-restore-inner {
-    max-width: 1080px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .dash-restore-inner p {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #5a4f3d;
-    margin: 4px 0 0;
-    max-width: 60ch;
-    font-size: 14px;
-  }
-  /* Restore-a-backup CTA. Rust on cream now that the band lives
-     on the cream paper footer, not the dark hero. */
-  .dash-restore {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: transparent;
-    border: 1.5px dashed #7d3a1e;
-    color: #7d3a1e;
-    padding: 9px 16px;
-    border-radius: 4px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
-  }
-  .dash-restore:hover {
-    background: #7d3a1e;
-    color: #fffdf6;
-    border-color: #7d3a1e;
-  }
-
   .dash-hero-inner {
     max-width: 1180px;
     margin: 0 auto;

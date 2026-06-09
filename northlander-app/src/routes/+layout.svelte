@@ -3,6 +3,36 @@
   import Toasts from '$lib/components/Toasts.svelte';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+  import { restoreTripBackup } from '$lib/utils/backup.js';
+  import { pushToast } from '$lib/stores/toasts.js';
+
+  /* "Restore a backup" lives in the legal-nav footer row instead
+     of the home page so a first-time visitor never has to wonder
+     what a .northlander.json file is. Power users coming back to
+     import a trip on a new device find it here next to Privacy +
+     Terms - present everywhere, invisible until needed. */
+  let restoreFileInput;
+  async function onRestoreFile(ev) {
+    const file = ev?.target?.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const created = await restoreTripBackup(payload);
+      if (created) {
+        pushToast({ message: `Restored "${created.name}".`, kind: 'success' });
+        goto(`/trips/${created.id}`);
+      } else {
+        pushToast({ message: "That file didn't look like a Northlander backup.", kind: 'warn' });
+      }
+    } catch (err) {
+      console.error(err);
+      pushToast({ message: 'Could not read that file.', kind: 'warn' });
+    } finally {
+      if (restoreFileInput) restoreFileInput.value = '';
+    }
+  }
 
   /* Mobile hamburger state. Inline links on desktop; collapsed
      into a hamburger button below 640px that opens a drop-down
@@ -154,6 +184,20 @@
     <a href="/terms">Terms</a>
     <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
     <a href="https://northlanderguide.com" target="_blank" rel="noopener">The Guide</a>
+    <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+    <button
+      type="button"
+      class="footer-restore"
+      on:click={() => restoreFileInput?.click()}
+      title="Restore a trip from a file you saved on another device"
+    >Restore a backup</button>
+    <input
+      type="file"
+      accept=".json,application/json"
+      bind:this={restoreFileInput}
+      on:change={onRestoreFile}
+      hidden
+    />
   </nav>
 </footer>
 
@@ -267,12 +311,21 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
-  .footer-legal a {
+  .footer-legal a,
+  .footer-restore {
     color: #7d3a1e;
     text-decoration: none;
     transition: color 140ms ease;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
   }
-  .footer-legal a:hover { color: #0a2d21; }
+  .footer-legal a:hover,
+  .footer-restore:hover { color: #0a2d21; }
   .footer-legal-sep { color: rgba(125, 58, 30, 0.4); }
 
   /* Permanent independence disclaimer below the tagline. Sits on
