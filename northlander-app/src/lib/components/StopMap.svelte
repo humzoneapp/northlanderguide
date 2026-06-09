@@ -90,6 +90,27 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* When the listing address already carries city + province (or a
+     Canadian postal code), don't append the "<stop name>, Ontario,
+     Canada" context: Nominatim treats the stop name as a place hint
+     and biases the result toward the train station's neighbourhood.
+     Hotel Victoria at 56 Yonge Street ended up pinned on Front
+     Street because "Toronto Union" pulled the match toward Union
+     Station. The suffix is still useful for sparse user-typed
+     addresses on user-events where the city is missing. */
+  function looksLikeCompleteAddress(addr) {
+    if (!addr || typeof addr !== 'string') return false;
+    const s = addr.trim();
+    if (!s) return false;
+    /* Canadian postal code (A1A 1A1 / A1A1A1) is the strongest
+       signal that we already have a precise address. */
+    if (/\b[A-Z]\d[A-Z]\s*\d[A-Z]\d\b/i.test(s)) return true;
+    /* Trailing ", Ontario" or ", ON" reads as "this address knows
+       where it is." */
+    if (/,\s*(Ontario|ON)\b/i.test(s)) return true;
+    return false;
+  }
+
   /* Older bookings (added via AddPlanModal before 2026-06-09) stored
      the listing's address inside the title as "Name - Address" with
      b.address left empty. Detect that shape and pull the address
@@ -268,6 +289,13 @@
         };
       }
 
+      /* Append the stop context only when the address is sparse
+         enough to need it. Listings from the Guide carry full
+         Google Places addresses (street + city + ON + postal code);
+         user-typed addresses on user-events often don't. */
+      const withCtx = (addr) =>
+        looksLikeCompleteAddress(addr) ? addr : addr + ctx;
+
       const bookingHits = await Promise.all(
         (bookings || []).map(async (b) => {
           /* Backward-compat split: older bookings added through
@@ -280,7 +308,7 @@
           const effectiveAddress = b.address || addressFromCombinedTitle(b.title);
           const resolved = await resolveLocation({
             row: b,
-            addressQuery: effectiveAddress ? effectiveAddress + ctx : null,
+            addressQuery: effectiveAddress ? withCtx(effectiveAddress) : null,
             titleQuery: b.title ? b.title + ctx : null,
             persist: (geo) => setBookingGeo(b.id, geo),
           });
@@ -292,7 +320,7 @@
           const venueAddress = [e.venue, e.address].filter(Boolean).join(', ');
           const resolved = await resolveLocation({
             row: e,
-            addressQuery: venueAddress ? venueAddress + ctx : null,
+            addressQuery: venueAddress ? withCtx(venueAddress) : null,
             titleQuery: e.name ? e.name + ctx : null,
             persist: (geo) => setUserEventGeo(e.id, geo),
           });
