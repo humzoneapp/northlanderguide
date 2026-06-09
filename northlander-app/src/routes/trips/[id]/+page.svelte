@@ -902,22 +902,43 @@
         {#each stops as s, i}
           {@const tripDir = trip.direction || 'northbound'}
           {@const stopTime = trainTimeFor(s.id, tripDir)}
+          {@const isFirst = i === 0}
+          {@const isLastOutbound = i === stops.length - 1}
+          {@const returnDirChip = (tripDir === 'northbound') ? 'southbound' : 'northbound'}
+          {@const onwardTime = isLastOutbound && returnStops.length > 0
+            ? trainTimeFor(s.id, returnDirChip)
+            : stopTime}
+          {@const onwardDate = isLastOutbound && returnStops.length > 0
+            ? returnStops[0].stayStart
+            : (i + 1 < stops.length ? stops[i + 1].stayStart : '')}
           <span class="cover-ticket-end">
             <span class="cover-ticket-kicker">
-              {#if i === 0}
+              {#if isFirst}
                 Depart
               {:else}
                 Stop {i}
               {/if}
             </span>
             <span class="cover-ticket-name">{s.name}</span>
-            {#if i === 0 && stopTime?.depart}
-              <span class="cover-ticket-time">{stopTime.depart}</span>
-            {:else if i > 0 && stopTime?.arrive}
-              <span class="cover-ticket-time">{stopTime.arrive}</span>
+            {#if !isFirst && stopTime?.arrive}
+              <span class="cover-ticket-line">
+                <span class="cover-ticket-tag">Arrive</span>
+                <span class="cover-ticket-time">{stopTime.arrive}</span>
+                {#if s.stayStart}
+                  <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
+                {/if}
+              </span>
             {/if}
-            {#if s.stayStart}
-              <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
+            {#if (isFirst || !isLastOutbound || (isLastOutbound && returnStops.length > 0)) && (onwardTime?.depart || onwardTime?.arrive)}
+              <span class="cover-ticket-line">
+                <span class="cover-ticket-tag">Depart</span>
+                <span class="cover-ticket-time">{onwardTime.depart || onwardTime.arrive}</span>
+                {#if isFirst && s.stayStart}
+                  <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
+                {:else if onwardDate}
+                  <span class="cover-ticket-date">{formatDateShort(onwardDate)}</span>
+                {/if}
+              </span>
             {/if}
           </span>
           {#if i < stops.length - 1 || returnStops.length > 0}
@@ -933,16 +954,31 @@
           {@const returnDir = (trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound'}
           {#each returnStops as rs, j}
             {@const returnTime = trainTimeFor(rs.id, returnDir)}
+            {@const isLastReturn = j === returnStops.length - 1}
+            {@const onwardReturnTime = isLastReturn ? null : trainTimeFor(rs.id, returnDir)}
+            {@const onwardReturnDate = isLastReturn ? '' : returnStops[j + 1].stayStart}
             <span class="cover-ticket-end cover-ticket-end--return">
               <span class="cover-ticket-kicker">
-                {j === returnStops.length - 1 ? 'Return' : `Return ${j + 1}`}
+                {isLastReturn ? 'Return' : `Return ${j + 1}`}
               </span>
               <span class="cover-ticket-name">{rs.name}</span>
               {#if returnTime?.arrive}
-                <span class="cover-ticket-time">{returnTime.arrive}</span>
+                <span class="cover-ticket-line">
+                  <span class="cover-ticket-tag">Arrive</span>
+                  <span class="cover-ticket-time">{returnTime.arrive}</span>
+                  {#if rs.stayStart}
+                    <span class="cover-ticket-date">{formatDateShort(rs.stayStart)}</span>
+                  {/if}
+                </span>
               {/if}
-              {#if rs.stayStart}
-                <span class="cover-ticket-date">{formatDateShort(rs.stayStart)}</span>
+              {#if onwardReturnTime && (onwardReturnTime.depart || onwardReturnTime.arrive)}
+                <span class="cover-ticket-line">
+                  <span class="cover-ticket-tag">Depart</span>
+                  <span class="cover-ticket-time">{onwardReturnTime.depart || onwardReturnTime.arrive}</span>
+                  {#if onwardReturnDate}
+                    <span class="cover-ticket-date">{formatDateShort(onwardReturnDate)}</span>
+                  {/if}
+                </span>
               {/if}
             </span>
             {#if j < returnStops.length - 1}
@@ -2305,8 +2341,27 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    min-width: 120px;
+    gap: 4px;
+    min-width: 160px;
+  }
+  /* Each chip now carries up to two timing lines (Arrive + Depart).
+     The tag sits in a small caps strip on the left so a glance
+     reads "what" first; the actual time + date follow inline. */
+  .cover-ticket-line {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .cover-ticket-tag {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c4860f;
   }
   .cover-ticket-kicker {
     font-family: 'Spline Sans', system-ui, sans-serif;
