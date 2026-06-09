@@ -16,8 +16,6 @@
   import { onMount, onDestroy } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { tweened } from 'svelte/motion';
-  import { cubicOut } from 'svelte/easing';
 
   /* ---------- Trip data ---------- */
   import {
@@ -35,7 +33,7 @@
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listPhotos } from '$lib/stores/photos.js';
   import { listPackingItems } from '$lib/stores/packing.js';
-  import { listBudgetEntries, totalOf, formatAmount } from '$lib/stores/budget.js';
+  import { listBudgetEntries, totalOf } from '$lib/stores/budget.js';
   import { listUserEvents } from '$lib/stores/user-events.js';
 
   /* ---------- Stop + schedule helpers ---------- */
@@ -69,6 +67,9 @@
   import WrapCta from '$lib/components/trip/WrapCta.svelte';
   import CoverCollage from '$lib/components/trip/CoverCollage.svelte';
   import CoverActions from '$lib/components/trip/CoverActions.svelte';
+  import CoverPhoto from '$lib/components/trip/CoverPhoto.svelte';
+  import CoverTitleEdit from '$lib/components/trip/CoverTitleEdit.svelte';
+  import CoverStats from '$lib/components/trip/CoverStats.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
   import { downloadTripBackup } from '$lib/utils/backup.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
@@ -106,20 +107,15 @@
   let addPlanFromReturn = false;
 
   /* Inline rename state on the cover H1 */
-  let editingName = false;
-  let nameDraft = '';
-  /** @type {HTMLInputElement | undefined} */
-  let nameInput;
-
   let confirmingDelete = false;
 
   /* Custom cover photo for the banner. Built from trip.coverBlob
      when present; revoked whenever the row swaps out or the page
-     unmounts so we don't leak object URLs across navigations. */
+     unmounts so we don't leak object URLs across navigations. The
+     CoverPhoto component owns its own file input - this state only
+     drives the banner background + the pill's Upload/Replace label. */
   let coverObjectUrl = '';
   let coverUploadBusy = false;
-  /** @type {HTMLInputElement | undefined} */
-  let coverFileInput;
 
   $: refreshCoverUrl(trip);
   function refreshCoverUrl(t) {
@@ -154,10 +150,8 @@
       ? stopImageUrl(arrivingStop)
       : '';
 
-  async function handleCoverUpload(event) {
-    if (!trip || coverUploadBusy) return;
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function handleCoverUpload(file) {
+    if (!trip || coverUploadBusy || !file) return;
     coverUploadBusy = true;
     try {
       const updated = await setTripCover(trip.id, file);
@@ -166,7 +160,6 @@
       console.error(err);
     } finally {
       coverUploadBusy = false;
-      if (coverFileInput) coverFileInput.value = '';
     }
   }
   async function handleCoverReset() {
@@ -236,23 +229,6 @@
       }
     });
   }
-
-  /* Animated count-up stores for the cover stats - each starts at
-     0 on first paint and tweens to the live value over 700ms.
-     Subsequent changes (user adds a booking) animate the delta so
-     the cover feels alive. */
-  const animStops = tweened(0, { duration: 700, easing: cubicOut });
-  const animPlans = tweened(0, { duration: 700, easing: cubicOut });
-  const animBooked = tweened(0, { duration: 700, easing: cubicOut });
-  const animPhotos = tweened(0, { duration: 700, easing: cubicOut });
-  const animNotes = tweened(0, { duration: 700, easing: cubicOut });
-  const animSpent = tweened(0, { duration: 800, easing: cubicOut });
-  $: animStops.set(stopsVisited);
-  $: animPlans.set(bookings.length);
-  $: animBooked.set(bookedCount);
-  $: animPhotos.set(photos.length);
-  $: animNotes.set(diary.length);
-  $: animSpent.set(budgetTotal || 0);
 
   /* Parallax: shift the cover banner image up at 25% of scroll so
      the photo feels like it sits behind glass. Listener attached
@@ -625,23 +601,12 @@
 
   /* ---------- Actions ---------- */
 
-  function startRename() {
-    if (!trip) return;
-    nameDraft = trip.name;
-    editingName = true;
-    queueMicrotask(() => nameInput?.focus());
-  }
-  async function saveRename() {
-    if (!trip) return;
-    const next = nameDraft.trim();
-    editingName = false;
-    if (!next || next === trip.name) return;
+  /* Inline trip rename. CoverTitleEdit owns the edit state + input
+     focus; this just persists the new name when the component asks. */
+  async function handleRename(next) {
+    if (!trip || !next || next === trip.name) return;
     const updated = await renameTrip(trip.id, next);
     if (updated) trip = updated;
-  }
-  function cancelRename() {
-    editingName = false;
-    nameDraft = '';
   }
 
   async function handleDelete() {
@@ -779,42 +744,12 @@
     />
 
     {#if stops.length > 0}
-      <div class="cover-photo-actions">
-        <!-- iOS Safari refuses to open the file picker when JS
-             calls .click() on a hidden file input, because the
-             input isn't in layout flow. A <label> wrapping the
-             input handles the tap natively and works on every
-             mobile browser. -->
-        <label
-          class="cover-photo-btn"
-          class:is-busy={coverUploadBusy}
-          aria-label={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
-          title={coverObjectUrl ? 'Replace cover photo' : 'Upload a cover photo'}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M14.5 4 H9.5 L7.5 6.5 H4 a1 1 0 0 0 -1 1 V18 a1 1 0 0 0 1 1 H20 a1 1 0 0 0 1 -1 V7.5 a1 1 0 0 0 -1 -1 H16.5 Z"/>
-            <circle cx="12" cy="13" r="3.5"/>
-          </svg>
-          <span>{coverUploadBusy ? 'Uploading...' : (coverObjectUrl ? 'Replace cover' : 'Upload cover')}</span>
-          <input
-            bind:this={coverFileInput}
-            type="file"
-            accept="image/*"
-            class="cover-file-input"
-            on:change={handleCoverUpload}
-            disabled={coverUploadBusy}
-          />
-        </label>
-        {#if coverObjectUrl}
-          <button
-            type="button"
-            class="cover-photo-reset"
-            on:click={handleCoverReset}
-            disabled={coverUploadBusy}
-            title="Use the arriving stop's photo instead"
-          >Reset</button>
-        {/if}
-      </div>
+      <CoverPhoto
+        hasCustomPhoto={!!coverObjectUrl}
+        busy={coverUploadBusy}
+        on:upload={(e) => handleCoverUpload(e.detail.file)}
+        on:reset={handleCoverReset}
+      />
     {/if}
 
     <!-- Wrapped-trip stamp: tilted passport cancellation pinned to
@@ -835,77 +770,27 @@
       <div class="cover-text">
         <div class="kicker kicker-light">A Northlander Itinerary</div>
 
-        {#if editingName}
-          <form class="cover-name-form" on:submit|preventDefault={saveRename}>
-            <input
-              bind:this={nameInput}
-              bind:value={nameDraft}
-              type="text"
-              maxlength="60"
-              class="cover-name-input"
-              on:blur={saveRename}
-              on:keydown={(e) => e.key === 'Escape' && cancelRename()}
-            />
-            <span class="cover-name-hint">Enter to save</span>
-          </form>
-        {:else}
-          <button
-            type="button"
-            on:click={startRename}
-            class="cover-name-btn"
-            aria-label="Rename trip"
-          >
-            <h1>{trip.name}</h1>
-            <span class="cover-name-hint">Tap to rename</span>
-          </button>
-        {/if}
+        <CoverTitleEdit
+          name={trip.name}
+          on:save={(e) => handleRename(e.detail.name)}
+        />
 
         {#if stops.length > 0}
-          {#if tripDateLine}
-            <div class="cover-date">{tripDateLine}  ·  {dirMeta?.label || 'Northbound'}</div>
-          {/if}
-
-          {#if countdown == null}
-            <div class="cover-countdown italic-soft">
-              Pick a departure date in Before You Board below and we'll count it down.
-            </div>
-          {:else if countdown.past}
-            <div class="cover-countdown italic-soft">
-              You've been. This is your record.
-            </div>
-          {:else}
-            {@const d = countdown.days}
-            {@const h = countdown.hours}
-            {@const m = countdown.minutes}
-            <div class="cover-countdown">
-              <strong>
-                {#if d > 0}{d} {d === 1 ? 'day' : 'days'}, {/if}
-                {#if d > 0 || h > 0}{h} {h === 1 ? 'hr' : 'hrs'}, {/if}
-                {m} {m === 1 ? 'min' : 'mins'}
-              </strong>
-              until you board
-            </div>
-          {/if}
-
-          <ul class="cover-stats">
-            <li>
-              <b>{Math.round($animStops)}</b>
-              <span>{stopsVisited === 1 ? 'Stop' : 'Stops'}</span>
-            </li>
-            <li><b>{Math.round($animPlans)}</b><span>Plans</span></li>
-            <li><b>{Math.round($animBooked)}</b><span>Booked</span></li>
-            <li><b>{Math.round($animPhotos)}</b><span>Photos</span></li>
-            <li><b>{Math.round($animNotes)}</b><span>Notes</span></li>
-            {#if budgetEntries.length > 0}
-              <li><b>{formatAmount($animSpent)}</b><span>Spent</span></li>
-            {/if}
-          </ul>
+          <CoverStats
+            {tripDateLine}
+            dirLabel={dirMeta?.label || 'Northbound'}
+            {countdown}
+            {stopsVisited}
+            plansCount={bookings.length}
+            {bookedCount}
+            photosCount={photos.length}
+            notesCount={diary.length}
+            spent={budgetTotal}
+            showSpent={budgetEntries.length > 0}
+          />
 
           <!-- Wrap-up CTA: surfaces after the trip's end date passes
-               and is dismissed once the user stamps it Wrapped. The
-               band frames the moment as ceremonial - last note,
-               favourite photo, lock in the spend total - rather
-               than just "delete the trip". -->
+               and disappears once the user stamps it Wrapped. -->
           {#if tripIsPast && !tripIsWrapped}
             <WrapCta endDate={tripEndDate} busy={wrapBusy} on:wrap={handleWrapTrip} />
           {/if}
@@ -1470,64 +1355,7 @@
 
   /* Boarding-pass ticket strip styles live in CoverTicket.svelte. */
 
-  /* Discreet "Change cover" label in the top-right corner. The
-     wrapping <label> contains a visually-hidden file input so iOS
-     opens the picker on tap without us needing to call .click() in
-     JS (which iOS Safari refuses on inputs that aren't in layout). */
-  .cover-file-input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  .cover-photo-actions {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    z-index: 4;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .cover-photo-btn {
-    background: rgba(10, 45, 33, 0.62);
-    color: #f5f0e8;
-    border: 1px dashed rgba(201, 168, 76, 0.65);
-    padding: 5px 12px 5px 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-weight: 700;
-    transition: background 0.15s, border-color 0.15s;
-    position: relative;
-  }
-  .cover-photo-btn svg { width: 14px; height: 14px; }
-  .cover-photo-btn:hover:not(.is-busy) {
-    background: rgba(10, 45, 33, 0.85);
-    border-color: #c9a84c;
-  }
-  .cover-photo-btn.is-busy { opacity: 0.6; cursor: progress; }
-  .cover-photo-reset {
-    background: transparent;
-    border: 0;
-    color: rgba(245, 240, 232, 0.78);
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 12px;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-  .cover-photo-reset:hover { color: #c9a84c; }
+  /* Cover photo upload pill + reset link styles live in CoverPhoto.svelte. */
   .cover-inner {
     max-width: 1180px;
     margin: 0 auto;
@@ -1587,53 +1415,7 @@
   }
   .kicker-light { color: #c4860f; }
 
-  /* H1 + inline rename */
-  .cover-name-btn {
-    background: transparent;
-    border: 0;
-    padding: 0;
-    text-align: left;
-    cursor: pointer;
-    color: inherit;
-    display: block;
-    width: 100%;
-  }
-  .cover-name-btn h1 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(2.6rem, 7vw, 5rem);
-    line-height: 0.95;
-    margin: 12px 0 6px;
-    letter-spacing: -0.015em;
-    overflow-wrap: anywhere;
-    color: #f5f0e8;
-    transition: color 160ms ease;
-  }
-  /* Cover trip-name stays white on hover; the underline below the
-     title is the only affordance that the H1 is editable. */
-  .cover-name-hint {
-    display: block;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10.5px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(202, 215, 207, 0.55);
-    margin-bottom: 10px;
-  }
-  .cover-name-form { margin: 12px 0 6px; }
-  .cover-name-input {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(2.4rem, 6vw, 4.4rem);
-    line-height: 1;
-    background: transparent;
-    color: #f5f0e8;
-    border: 0;
-    border-bottom: 2px solid #c4860f;
-    outline: none;
-    width: 100%;
-    padding-bottom: 6px;
-  }
+  /* H1 + inline rename styles live in CoverTitleEdit.svelte. */
 
   /* Direction leg + date + countdown */
   .cover-leg {
@@ -1649,61 +1431,8 @@
     margin: 0 8px;
     color: #c4860f;
   }
-  .cover-date {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: clamp(18px, 2.4vw, 22px);
-    color: #c9a84c;
-    margin: 10px 0 4px;
-  }
-  .cover-countdown {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: clamp(20px, 3vw, 28px);
-    /* "until you board" sits on the parent and reads in amber so
-       the bigger ivory numbers carry the visual weight. Was the
-       other way around until 2026-06-07; the amber numbers washed
-       out against the forest band. */
-    color: #c4860f;
-    line-height: 1.2;
-    margin: 14px 0 20px;
-  }
-  .cover-countdown strong {
-    font-weight: 900;
-    color: #f5f0e8;
-  }
-  .cover-countdown.italic-soft {
-    font-style: italic;
-    color: #cad7cf;
-    font-size: clamp(15px, 2vw, 18px);
-  }
-
-  /* Stats grid */
-  .cover-stats {
-    list-style: none;
-    padding: 22px 0 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 16px;
-    border-top: 1px dashed rgba(201, 168, 76, 0.45);
-  }
-  .cover-stats li { display: flex; flex-direction: column; }
-  .cover-stats b {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: clamp(26px, 3.6vw, 34px);
-    color: #c9a84c;
-    line-height: 1;
-  }
-  .cover-stats span {
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: #cad7cf;
-    margin-top: 4px;
-  }
+  /* Cover dateline + countdown + stats grid styles live in
+     CoverStats.svelte. */
 
   /* Cover action buttons (Edit route, Logbook, Export PDF, Share)
      live in CoverActions.svelte. The shared .it-actions layout is
