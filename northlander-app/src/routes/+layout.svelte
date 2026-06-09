@@ -143,6 +143,13 @@
   <p class="font-serif italic text-muted text-sm">
     Built for the Ontario Northland Northlander route. Independent, made by travellers.
   </p>
+  <nav class="footer-legal" aria-label="Legal">
+    <a href="/privacy">Privacy</a>
+    <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+    <a href="/terms">Terms</a>
+    <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+    <a href="https://northlanderguide.com" target="_blank" rel="noopener">The Guide</a>
+  </nav>
 </footer>
 
 <style>
@@ -238,6 +245,30 @@
     .topbar-nav { display: none; }
     .topbar-burger { display: inline-flex; }
   }
+
+  /* Tiny legal-link row under the footer tagline. Same italic
+     vocabulary; quiet rust links so they don't compete with the
+     editorial tagline above. */
+  .footer-legal {
+    margin-top: 12px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .footer-legal a {
+    color: #7d3a1e;
+    text-decoration: none;
+    transition: color 140ms ease;
+  }
+  .footer-legal a:hover { color: #0a2d21; }
+  .footer-legal-sep { color: rgba(125, 58, 30, 0.4); }
 
   /* Floating scroll-to-top button. Anchored bottom-right with
      safe-area insets so iOS Safari's home indicator doesn't
