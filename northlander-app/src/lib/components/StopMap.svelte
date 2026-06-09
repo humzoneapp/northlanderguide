@@ -37,6 +37,11 @@
   let busy = false;
   let initted = false;
   let pinCount = 0;
+  /* Flipped true when Leaflet's CDN injection or the tile layer
+     setup throws. Surfaces a visible "map unavailable" message in
+     place of the silent "Loading map..." that used to stay on
+     screen forever. */
+  let loadFailed = false;
 
   /* Bookings + user events refresh under our feet from the parent.
      Re-render markers whenever the data changes after init. */
@@ -282,6 +287,7 @@
     }
     if (!mapEl || !stop) return;
     try {
+      loadFailed = false;
       L = await loadLeaflet();
       await tick();
       map = L.map(mapEl, {
@@ -305,8 +311,12 @@
       initted = true;
       await renderMarkers();
     } catch (err) {
-      /* Map failed to load - leave the placeholder visible. */
+      /* Leaflet CDN injection failed or tile-layer setup threw.
+         Surface a quiet "map unavailable" message in place of the
+         loading placeholder so the user knows nothing more is
+         coming. The rest of the chapter still works. */
       initted = false;
+      loadFailed = true;
     }
   }
 
@@ -370,10 +380,18 @@
   });
 </script>
 
-<div class="stop-map-wrap" class:is-empty={initted && pinCount === 0}>
+<div class="stop-map-wrap" class:is-empty={initted && pinCount === 0} class:is-failed={loadFailed}>
   <div class="stop-map" bind:this={mapEl} aria-label={`Map of ${stop?.name || ''}`}></div>
-  {#if !initted}
+  {#if !initted && !loadFailed}
     <span class="stop-map-loading" aria-hidden="true">Loading map...</span>
+  {/if}
+  {#if loadFailed}
+    <p class="stop-map-unavailable" role="note">
+      <span class="stop-map-unavailable-kicker">Map unavailable</span>
+      <span class="stop-map-unavailable-body">
+        Leaflet or the tile server didn't respond. The rest of this chapter still works; try refreshing in a minute or two.
+      </span>
+    </p>
   {/if}
   {#if initted && busy}
     <span class="stop-map-busy" aria-hidden="true">Pinning your plans...</span>
@@ -451,6 +469,42 @@
     color: #5a4f3d;
     font-size: 13.5px;
     border-top: 1px dashed rgba(125, 58, 30, 0.3);
+  }
+  /* Visible "map unavailable" message shown when Leaflet or the
+     Carto tile server fails to load. Same cream + dashed rust
+     vocabulary as the empty-state hint above so it reads as a
+     known quiet state, not a system error. */
+  .stop-map-wrap.is-failed .stop-map {
+    /* Drop the loading-tile background so the unavailable card
+       sits on plain cream instead of a half-painted grey. */
+    display: none;
+  }
+  .stop-map-unavailable {
+    margin: 0;
+    padding: 22px 18px;
+    background: #fbf6ea;
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  .stop-map-unavailable-kicker {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+  }
+  .stop-map-unavailable-body {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    color: #5a4f3d;
+    font-size: 13.5px;
+    line-height: 1.5;
+    max-width: 60ch;
+    margin: 0 auto;
   }
 
   /* Custom marker chrome (the divIcon Leaflet draws). Inline-flex

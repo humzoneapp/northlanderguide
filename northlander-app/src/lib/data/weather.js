@@ -102,9 +102,15 @@ function writeCache(key, payload) {
   }
 }
 
-/* Fetch daily forecast for a single stop on a single date. Returns
-   `{ tempMax, tempMin, code, label, glyph }` or null. The caller is
-   expected to render nothing when it's null. */
+/* Fetch daily forecast for a single stop on a single date.
+   Return value is a discriminated union so callers can render the
+   right thing without re-deriving why we got nothing:
+     - `{ tempMax, tempMin, code, label, glyph }` on success
+     - `{ offline: true }` when navigator.onLine is false
+     - `{ unavailable: true }` when Open-Meteo refused / network failed
+     - `null` when there's no point asking (date out of window or
+       missing coords) - the caller should render nothing in that
+       case, not a "weather unavailable" message. */
 export async function getWeatherFor(lat, lng, date) {
   if (typeof lat !== 'number' || typeof lng !== 'number') return null;
   const day = date || todayLocal();
@@ -125,10 +131,12 @@ export async function getWeatherFor(lat, lng, date) {
 
   try {
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) return null;
+    if (!res.ok) return { unavailable: true };
     const json = await res.json();
     const daily = json?.daily;
-    if (!daily || !Array.isArray(daily.time) || daily.time.length === 0) return null;
+    if (!daily || !Array.isArray(daily.time) || daily.time.length === 0) {
+      return { unavailable: true };
+    }
     const code = Number(daily.weather_code?.[0]);
     const payload = {
       tempMax: Math.round(Number(daily.temperature_2m_max?.[0])),
@@ -137,10 +145,12 @@ export async function getWeatherFor(lat, lng, date) {
       label: labelForCode(code),
       glyph: glyphForCode(code)
     };
-    if (Number.isNaN(payload.tempMax) || Number.isNaN(payload.tempMin)) return null;
+    if (Number.isNaN(payload.tempMax) || Number.isNaN(payload.tempMin)) {
+      return { unavailable: true };
+    }
     writeCache(key, payload);
     return payload;
   } catch (_) {
-    return null;
+    return { unavailable: true };
   }
 }

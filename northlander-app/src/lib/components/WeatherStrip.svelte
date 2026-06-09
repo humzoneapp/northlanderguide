@@ -43,7 +43,16 @@
     </span>
     <span class="weather-text">weather offline</span>
   </span>
-{:else if forecast && !busy}
+{:else if forecast?.unavailable && !busy}
+  <span class="weather weather--offline" title="Open-Meteo didn't respond. The trip works, the forecast will be back next visit.">
+    <span class="weather-glyph" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 9 L19 9"/><path d="M3 13 L21 13"/><path d="M5 17 L19 17"/>
+      </svg>
+    </span>
+    <span class="weather-text">weather unavailable</span>
+  </span>
+{:else if forecast && !forecast.unavailable && !forecast.offline && !busy}
   <span class="weather" title={forecast.label}>
     <span class="weather-glyph" aria-hidden="true">
       {#if forecast.glyph === 'sun'}
