@@ -397,19 +397,33 @@
       </ul>
     {/if}
 
-    <!-- Single dashed-gold pill opens the QuickAddBookingModal so the
-         user can fill in name + address + kind in one focused form.
-         The inline kind/title/time row used to live here but had no
-         address field, so every booking added through it parked on
-         the train station instead of its real location. -->
-    <button
-      type="button"
-      class="book-add-open"
-      on:click={() => (showAdd = true)}
-    >
-      <span class="book-add-open-plus" aria-hidden="true">+</span>
-      Add a booking
-    </button>
+    <!-- Two stacked pills end the drawer. Browse-the-Guide is the
+         curated first move (real listings + addresses from the
+         Guide); Add a booking is the manual escape hatch for things
+         the Guide doesn't carry. Browse-the-Guide bubbles up to the
+         trip page via the parent TripChapter, which re-dispatches
+         with the `fromReturn` flag so the modal's direction badge
+         reads right for return chapters. -->
+    <div class="book-actions">
+      {#if stopFilter}
+        <button
+          type="button"
+          class="book-browse-guide"
+          on:click={() => dispatch('openAddPlan', { stopId: stopFilter, kind: 'all' })}
+        >
+          <span class="book-browse-guide-plus" aria-hidden="true">+</span>
+          Browse the Guide for {stopNameFor(stopFilter)}
+        </button>
+      {/if}
+      <button
+        type="button"
+        class="book-add-open"
+        on:click={() => (showAdd = true)}
+      >
+        <span class="book-add-open-plus" aria-hidden="true">+</span>
+        Add a booking
+      </button>
+    </div>
   {/if}
 </div>
 
@@ -533,6 +547,48 @@
     color: #7a4f0c;
   }
 
+  /* Two stacked pills at the bottom of the drawer. Browse-the-Guide
+     is the primary action (filled rust on cream) since it pulls
+     from the Guide's curated listings with real addresses; Add a
+     booking is the secondary dashed-gold pill for one-offs. */
+  .book-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px dashed rgba(139, 106, 58, 0.45);
+  }
+  .book-browse-guide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #7d3a1e;
+    border-radius: 999px;
+    background: #7d3a1e;
+    color: #fffdf6;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  }
+  .book-browse-guide:hover {
+    background: #0a2d21;
+    border-color: #0a2d21;
+  }
+  .book-browse-guide-plus {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 900;
+    font-size: 17px;
+    line-height: 1;
+  }
+
   /* Full-width dashed-gold pill that opens QuickAddBookingModal.
      Same vocabulary as the "+ Add another packing list" pill on
      the Before You Board section so the gesture grammar matches. */
@@ -542,7 +598,6 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    margin-top: 12px;
     padding: 10px 14px;
     border: 1.5px dashed rgba(196, 134, 15, 0.7);
     border-radius: 999px;

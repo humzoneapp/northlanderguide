@@ -148,6 +148,11 @@
           count={stopBookings.length}
           countLabel={stopBookings.length === 1 ? 'plan' : 'plans'}
         >
+          <!-- BookingChecklist owns its drawer-bottom action row:
+               Browse-the-Guide pill on top, Add-a-booking pill below.
+               Browse-the-Guide dispatches openAddPlan up through this
+               component so we can stamp the right `fromReturn` flag
+               for the AddPlanModal's direction badge. -->
           <BookingChecklist
             {tripId}
             {stopIds}
@@ -157,15 +162,16 @@
             {refreshKey}
             hideHeader={true}
             on:change
+            on:openAddPlan={(e) => dispatch('openAddPlan', {
+              stopId: e.detail.stopId || stop.id,
+              kind: e.detail.kind || 'all',
+              fromReturn: kind === 'return'
+            })}
           />
 
-          <!-- Map of this chapter's bookings + user events. Lives
-               inside the Bookings drawer so a freshly-added address
-               appears on the map the moment the row is saved,
-               without the user having to hop into a separate drawer.
-               StopMap takes both bookings and events at this stop -
-               same data the standalone "On the map" drawer used to
-               render. -->
+          <!-- Map of this chapter's bookings + user events sits below
+               the list + action pills so a freshly-added address pops
+               into view immediately under the checklist. -->
           <div class="booking-map">
             <div class="booking-map-head">Where they are</div>
             <StopMap
@@ -174,15 +180,6 @@
               userEvents={stopUserEvents}
             />
           </div>
-
-          <button
-            type="button"
-            class="browse-guide-btn"
-            on:click={() => dispatch('openAddPlan', { stopId: stop.id, kind: 'all', fromReturn: kind === 'return' })}
-          >
-            <span class="browse-guide-plus" aria-hidden="true">+</span>
-            Browse the Guide for {stop.name}
-          </button>
         </Drawer>
 
         <Drawer
@@ -382,37 +379,6 @@
     text-transform: uppercase;
     color: #7d3a1e;
     margin: 0 0 10px;
-  }
-
-  /* Browse-the-Guide CTA inside the Bookings drawer body. */
-  .browse-guide-btn {
-    margin-top: 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border: 1.5px dashed #7d3a1e;
-    color: #7d3a1e;
-    padding: 9px 16px;
-    border-radius: 4px;
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
-  }
-  .browse-guide-btn:hover {
-    background: #7d3a1e;
-    color: #fffdf6;
-    border-color: #7d3a1e;
-  }
-  .browse-guide-plus {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 15px;
-    line-height: 1;
   }
 
   /* Right-column aside: stop hero polaroid + italic hook + a small
