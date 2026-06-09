@@ -297,6 +297,15 @@
       loadFailed = false;
       L = await loadLeaflet();
       await tick();
+      /* The drawer's <details> just opened so its body content
+         (including this map container) became visible. The browser
+         hasn't necessarily computed layout for it yet - tick() only
+         flushes Svelte's pending DOM writes, not the browser's
+         layout pass. Wait one animation frame so mapEl has real
+         dimensions before Leaflet measures it. Without this the
+         very first chapter open often renders a zero-size map
+         that never recovers. */
+      await new Promise((resolve) => requestAnimationFrame(resolve));
       map = L.map(mapEl, {
         zoomControl: true,
         /* Desktop scroll-wheel zoom on. Mobile uses pinch-zoom on
@@ -323,6 +332,13 @@
          which caused two concurrent runs to race and double the
          pins. */
       initted = true;
+      /* One more invalidateSize after the next frame so any tile
+         that loaded mid-render gets a chance to redraw at the
+         correct size. Cheap belt-and-suspenders against the
+         "tiles missing or skewed on first open" failure mode. */
+      requestAnimationFrame(() => {
+        if (map) map.invalidateSize();
+      });
     } catch (err) {
       /* Leaflet CDN injection failed or tile-layer setup threw -
          the map itself can't render. Surface a quiet "map
