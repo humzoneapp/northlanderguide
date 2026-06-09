@@ -62,8 +62,8 @@
         <li><strong>OpenStreetMap Nominatim</strong> (nominatim.openstreetmap.org) : geocodes booking and event addresses into map coordinates. Sees the address text you submit and your IP address (standard for any web request). Their privacy policy is at <a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">osmfoundation.org/wiki/Privacy_Policy</a>.</li>
         <li><strong>Carto basemaps</strong> : supplies the map tiles you see on each chapter's map. Sees the map tile coordinates and your IP address.</li>
         <li><strong>images.weserv.nl</strong> : public image proxy used as a fallback to fetch stop photos for the share poster. Sees only the public image URL.</li>
-        <li><strong>QuickChart</strong> (quickchart.io) : renders the QR code on the Share modal from the share link you generate.</li>
       </ul>
+      <p>The QR code on the Share modal is encoded entirely in your browser (no external service in the critical path).</p>
       <p>We do not maintain analytics or logs of these calls. The third parties listed above may log standard web-server access information per their own policies.</p>
     </section>
 

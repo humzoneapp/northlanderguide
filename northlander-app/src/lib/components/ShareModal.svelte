@@ -7,6 +7,7 @@
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listBudgetEntries } from '$lib/stores/budget.js';
   import { listPhotos } from '$lib/stores/photos.js';
+  import { generateQrMatrix } from '$lib/utils/qr.js';
 
   /** @type {{ id: string, name: string, [key: string]: any }} */
   export let trip;
@@ -24,6 +25,12 @@
   let linkCopied = false;
   let linkError = '';
   let photoCount = 0;
+
+  /* Encode the share URL into a QR matrix client-side. Recomputed
+     whenever the URL changes (shouldn't happen mid-modal, but a
+     reactive declaration is cheap and means the first render
+     doesn't show a blank box for one tick). */
+  $: qr = shareUrl ? generateQrMatrix(shareUrl) : null;
 
   $: canShareFiles =
     typeof navigator !== 'undefined' &&
@@ -315,17 +322,31 @@
         {/if}
 
         <!-- QR code so anyone with a phone next to you can scan
-             instead of asking you to text the link. Uses the public
-             QuickChart QR endpoint (no key, returns a PNG). -->
-        {#if shareUrl}
+             instead of asking you to text the link. Encoded entirely
+             in-browser via qrcode-generator and rendered as inline
+             SVG - no external service in the critical path. -->
+        {#if qr}
+          {@const margin = 2}
+          {@const side = qr.size + margin * 2}
           <div class="qr-block">
-            <img
+            <svg
               class="qr-img"
-              src={`https://quickchart.io/qr?text=${encodeURIComponent(shareUrl)}&size=180&margin=2&dark=0a2d21&light=fbf6ea`}
-              alt="QR code for the shareable trip link"
-              loading="lazy"
-              decoding="async"
-            />
+              width="180"
+              height="180"
+              viewBox="0 0 {side} {side}"
+              role="img"
+              aria-label="QR code for the shareable trip link"
+              shape-rendering="crispEdges"
+            >
+              <rect width={side} height={side} fill="#fbf6ea" />
+              {#each qr.cells as row, r}
+                {#each row as cell, c}
+                  {#if cell}
+                    <rect x={c + margin} y={r + margin} width="1" height="1" fill="#0a2d21" />
+                  {/if}
+                {/each}
+              {/each}
+            </svg>
             <p class="qr-hint font-serif italic text-muted text-[12.5px]">
               Point a phone camera at this to open the trip on theirs.
             </p>
