@@ -25,11 +25,6 @@
 
 <main class="legal">
   <article class="legal-inner">
-    <aside class="legal-banner" role="note">
-      <strong>Independent &middot; Not affiliated with Ontario Northland.</strong>
-      Northlander.app and NorthlanderGuide.com are run by independent travellers. We are <strong>not</strong> Ontario Northland Railway, the Ontario Northland Transportation Commission, or any related agency. We do not sell tickets, hold reservations, or speak for the railway. For anything official (train times, fares, station information, service updates) go to <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
-    </aside>
-
     <p class="legal-lede">
       Northlander.app is built around the idea that your trip
       belongs to you. Today, the app runs entirely on your device.
@@ -149,30 +144,6 @@
     max-width: 760px;
     margin: 0 auto;
   }
-  /* Rust-bordered cream banner at the top of every legal page.
-     Makes the independence + "verify with the railway" message
-     impossible to miss before the user starts reading the body. */
-  .legal-banner {
-    background: rgba(125, 58, 30, 0.06);
-    border: 1.5px solid #c9a84c;
-    border-left: 4px solid #7d3a1e;
-    border-radius: 4px;
-    padding: 16px 18px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 14.5px;
-    line-height: 1.55;
-    color: #241f1a;
-    margin: 0 0 22px;
-  }
-  .legal-banner strong {
-    color: #7d3a1e;
-  }
-  .legal-banner a {
-    color: #7d3a1e;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .legal-banner a:hover { color: #0a2d21; }
   .legal-lede {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
