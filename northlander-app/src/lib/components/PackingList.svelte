@@ -348,16 +348,33 @@
   .pack-add-bullet-btn {
     cursor: pointer;
     transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 140ms ease;
+    /* Soft pulsing gold halo so the dashed-rust plus button reads
+       as the affordance for "browse packing suggestions" - small
+       enough to feel ambient, big enough that a user scanning the
+       list notices it without thinking. Cancels on hover so the
+       deliberate action doesn't compete with the ambient one. */
+    animation: pack-add-pulse 2.4s ease-in-out infinite;
   }
   .pack-add-bullet-btn:hover {
     background: #7d3a1e;
     color: #fffdf6;
     border-style: solid;
     transform: scale(1.06);
+    animation: none;
+    box-shadow: 0 0 0 6px rgba(201, 168, 76, 0);
   }
   .pack-add-bullet-btn:focus-visible {
     outline: 2px solid #c9a84c;
     outline-offset: 2px;
+    animation: none;
+  }
+  @keyframes pack-add-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.55); transform: scale(1); }
+    60%  { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pack-add-bullet-btn { animation: none; }
   }
   .pack-add-input {
     flex: 1;
