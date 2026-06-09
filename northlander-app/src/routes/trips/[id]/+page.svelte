@@ -65,18 +65,11 @@
   /* ---------- Components ---------- */
   import TripRoutePicker from '$lib/components/TripRoutePicker.svelte';
   import PackingList from '$lib/components/PackingList.svelte';
-  import BookingChecklist from '$lib/components/BookingChecklist.svelte';
-  import TravelDiary from '$lib/components/TravelDiary.svelte';
-  import EventsAlongRoute from '$lib/components/EventsAlongRoute.svelte';
-  import BudgetTracker from '$lib/components/BudgetTracker.svelte';
-  import PhotoAlbum from '$lib/components/PhotoAlbum.svelte';
   import ShareModal from '$lib/components/ShareModal.svelte';
   import AddPlanModal from '$lib/components/AddPlanModal.svelte';
   import Drawer from '$lib/components/Drawer.svelte';
-  import WeatherStrip from '$lib/components/WeatherStrip.svelte';
   import WeatherParticles from '$lib/components/WeatherParticles.svelte';
-  import DayPlan from '$lib/components/DayPlan.svelte';
-  import StopMap from '$lib/components/StopMap.svelte';
+  import TripChapter from '$lib/components/trip/TripChapter.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
   import { downloadTripBackup } from '$lib/utils/backup.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
@@ -1535,184 +1528,33 @@
       </div>
     </section>
 
-    <!-- ===== Stop scenes ===== -->
+    <!-- ===== Stop scenes =====
+         Each chapter is a TripChapter component instance; the
+         shared chapter markup lives in src/lib/components/trip/
+         TripChapter.svelte. Outbound chapters use the trip's
+         direction; the return block below uses the opposite. -->
     <section class="scenes">
       {#each stops as stop, i}
-        {@const isLast = i === stops.length - 1}
-        {@const tripDir = trip.direction || 'northbound'}
-        {@const stopTime = trainTimeFor(stop.id, tripDir)}
-        {@const trainLine = i === 0
-          ? (stopTime?.depart ? `Departs ${stopTime.depart}` : '')
-          : (stopTime?.arrive ? `Arrives ${stopTime.arrive}` : '')}
-        {@const dayCount = bookings.filter((b) => b.stopId === stop.id).length
-          + diary.filter((d) => d.stopId === stop.id).length
-          + budgetEntries.filter((e) => e.stopId === stop.id).length}
+        <TripChapter
+          {stop}
+          id={`scene-${i}`}
+          kicker={i === 0 ? 'Departure' : `Stop ${i}`}
+          kind="outbound"
+          direction={trip.direction || 'northbound'}
+          tripId={trip.id}
+          stopIds={trip.stopIds || []}
+          departureClock={depClock}
+          refreshKey={dataVersion}
+          {bookings}
+          {diary}
+          {photos}
+          {budgetEntries}
+          {userEventsAll}
+          on:change={load}
+          on:openAddPlan={(e) => openAddPlan(e.detail.stopId, e.detail.kind, e.detail.fromReturn)}
+        />
 
-        <article id="scene-{i}" class="scene">
-          <div class="scene-inner">
-            <header class="scene-head">
-              <div class="kicker">{i === 0 ? 'Departure' : `Stop ${i}`}</div>
-              <h2 class="scene-name">{stop.name}</h2>
-              <div class="scene-meta">
-                <span class="scene-meta-region">{stop.region}</span>
-                {#if stop.stayStart}
-                  <span class="scene-meta-sep" aria-hidden="true">·</span>
-                  <span class="scene-meta-date">{formatStayLabel(stop)}</span>
-                {/if}
-                {#if trainLine}
-                  <span class="scene-meta-sep" aria-hidden="true">·</span>
-                  <span class="scene-meta-time">{trainLine}</span>
-                {/if}
-                {#if stop.stayStart}
-                  <WeatherStrip {stop} date={stop.stayStart} />
-                {/if}
-              </div>
-            </header>
-
-            <div class="scene-grid">
-              <div class="scene-main">
-                <!-- Day plan timeline: stitches this chapter's bookings,
-                     diary entries and spending into one chronological
-                     view so the user can see their day at a glance.
-                     dayCount const is declared above as a direct
-                     child of the {#each} block (Svelte 4 rule). -->
-                <Drawer
-                  kicker="Day plan"
-                  title="What's happening"
-                  count={dayCount}
-                  countLabel={dayCount === 1 ? 'item' : 'items'}
-                >
-                  <DayPlan
-                    bookings={bookings.filter((b) => b.stopId === stop.id)}
-                    diary={diary.filter((d) => d.stopId === stop.id)}
-                    budgetEntries={budgetEntries.filter((e) => e.stopId === stop.id)}
-                  />
-                </Drawer>
-
-                <!-- Geo view of the chapter: every booking + user
-                     event with an address gets a rust pin on a
-                     Carto Voyager map centred on the train station.
-                     Lazy-loads Leaflet only when the drawer opens. -->
-                <Drawer
-                  kicker="On the map"
-                  title={`Where it is in ${stop.name}`}
-                >
-                  <StopMap
-                    {stop}
-                    bookings={bookings.filter((b) => b.stopId === stop.id)}
-                    userEvents={userEventsAll.filter((e) => !e.stopId || e.stopId === stop.id)}
-                  />
-                </Drawer>
-
-                <!-- Count expressions read `bookings` directly inside
-                     the prop so Svelte tracks the array as a reactive
-                     dep. {@const x = bookingsAt(stop.id)} only fires
-                     when the each block iterates, NOT when bookings
-                     changes, so the badge would lock to a stale count
-                     after the first render. -->
-                <Drawer
-                  kicker="Bookings"
-                  title="Booking checklist"
-                  count={bookings.filter((b) => b.stopId === stop.id).length}
-                  countLabel={bookings.filter((b) => b.stopId === stop.id).length === 1 ? 'plan' : 'plans'}
-                >
-                  <BookingChecklist
-                    tripId={trip.id}
-                    stopIds={trip.stopIds || []}
-                    stopFilter={stop.id}
-                    direction={trip.direction || 'northbound'}
-                    departureClock={depClock}
-                    refreshKey={dataVersion}
-                    hideHeader={true}
-                    on:change={load}
-                  />
-                  <button
-                    type="button"
-                    class="browse-guide-btn"
-                    on:click={() => openAddPlan(stop.id, 'all')}
-                  >
-                    <span class="browse-guide-plus" aria-hidden="true">+</span>
-                    Browse the Guide for {stop.name}
-                  </button>
-                </Drawer>
-
-                <Drawer
-                  kicker="Journey"
-                  title="Travel Diary"
-                  count={diary.filter((d) => d.stopId === stop.id).length}
-                  countLabel={diary.filter((d) => d.stopId === stop.id).length === 1 ? 'note' : 'notes'}
-                >
-                  <TravelDiary
-                    tripId={trip.id}
-                    stopIds={trip.stopIds || []}
-                    stopFilter={stop.id}
-                    refreshKey={dataVersion}
-                    hideHeader={true}
-                    on:change={load}
-                  />
-                </Drawer>
-
-                <Drawer
-                  kicker="Album"
-                  title="Polaroids"
-                  count={photos.filter((p) => p.stopId === stop.id).length}
-                  countLabel={photos.filter((p) => p.stopId === stop.id).length === 1 ? 'photo' : 'photos'}
-                >
-                  <PhotoAlbum
-                    tripId={trip.id}
-                    stopIds={trip.stopIds || []}
-                    stopFilter={stop.id}
-                    refreshKey={dataVersion}
-                    hideHeader={true}
-                    on:change={load}
-                  />
-                </Drawer>
-
-                <Drawer
-                  kicker="Ledger"
-                  title="Spending"
-                  count={budgetEntries.filter((e) => e.stopId === stop.id).length}
-                  countLabel={budgetEntries.filter((e) => e.stopId === stop.id).length === 1 ? 'entry' : 'entries'}
-                >
-                  <BudgetTracker
-                    tripId={trip.id}
-                    stopFilter={stop.id}
-                    refreshKey={dataVersion}
-                    hideHeader={true}
-                    on:change={load}
-                  />
-                </Drawer>
-
-                <Drawer
-                  kicker="From the Guide"
-                  title="Happening at {stop.name}"
-                >
-                  <EventsAlongRoute
-                    tripId={trip.id}
-                    stopIds={[stop.id]}
-                    departureDate={stop.stayStart || trip.departureDate || null}
-                    endDate={stop.stayEnd || trip.returnDate || null}
-                  />
-                </Drawer>
-              </div>
-
-              <aside class="scene-aside">
-                <figure class="scene-postcard">
-                  <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
-                </figure>
-                <p class="scene-aside-hook">{stop.hook}</p>
-                <a
-                  class="scene-aside-guide"
-                  href={`https://northlanderguide.com/stops/${stop.id}/`}
-                  target="_blank"
-                  rel="noopener"
-                >Open {stop.name} on the Guide  &rarr;</a>
-              </aside>
-            </div>
-          </div>
-        </article>
-
-        {#if !isLast}
+        {#if i < stops.length - 1}
           <div class="chapter-divider" aria-hidden="true">
             <div class="chapter-divider-rule"></div>
             <div class="chapter-divider-badge">
@@ -1749,167 +1591,26 @@
 
       <section class="scenes scenes--return">
         {#each returnStops as stop, j}
-          {@const isLastReturn = j === returnStops.length - 1}
-          {@const tripDir = trip.direction || 'northbound'}
-          {@const returnDir = tripDir === 'northbound' ? 'southbound' : 'northbound'}
-          {@const stopTime = trainTimeFor(stop.id, returnDir)}
-          {@const trainLine = stopTime?.arrive ? `Arrives ${stopTime.arrive}` : ''}
-          {@const dayCount = bookings.filter((b) => b.stopId === stop.id).length
-            + diary.filter((d) => d.stopId === stop.id).length
-            + budgetEntries.filter((e) => e.stopId === stop.id).length}
+          <TripChapter
+            {stop}
+            id={`scene-return-${j}`}
+            kicker={j === returnStops.length - 1 ? 'Return' : `Return ${j + 1}`}
+            kind="return"
+            direction={(trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound'}
+            tripId={trip.id}
+            stopIds={trip.stopIds || []}
+            departureClock={depClock}
+            refreshKey={dataVersion}
+            {bookings}
+            {diary}
+            {photos}
+            {budgetEntries}
+            {userEventsAll}
+            on:change={load}
+            on:openAddPlan={(e) => openAddPlan(e.detail.stopId, e.detail.kind, e.detail.fromReturn)}
+          />
 
-          <article id="scene-return-{j}" class="scene scene--return">
-            <div class="scene-inner">
-              <header class="scene-head">
-                <div class="kicker">
-                  {isLastReturn ? 'Return' : `Return ${j + 1}`}
-                </div>
-                <h2 class="scene-name">{stop.name}</h2>
-                <div class="scene-meta">
-                  <span class="scene-meta-region">{stop.region}</span>
-                  {#if stop.stayStart}
-                    <span class="scene-meta-sep" aria-hidden="true">·</span>
-                    <span class="scene-meta-date">{formatStayLabel(stop)}</span>
-                  {/if}
-                  {#if trainLine}
-                    <span class="scene-meta-sep" aria-hidden="true">·</span>
-                    <span class="scene-meta-time">{trainLine}</span>
-                  {/if}
-                  {#if stop.stayStart}
-                    <WeatherStrip {stop} date={stop.stayStart} />
-                  {/if}
-                </div>
-              </header>
-
-              <div class="scene-grid">
-                <div class="scene-main">
-                  <Drawer
-                    kicker="Day plan"
-                    title="What's happening"
-                    count={dayCount}
-                    countLabel={dayCount === 1 ? 'item' : 'items'}
-                  >
-                    <DayPlan
-                      bookings={bookings.filter((b) => b.stopId === stop.id)}
-                      diary={diary.filter((d) => d.stopId === stop.id)}
-                      budgetEntries={budgetEntries.filter((e) => e.stopId === stop.id)}
-                    />
-                  </Drawer>
-
-                  <Drawer
-                    kicker="On the map"
-                    title={`Where it is in ${stop.name}`}
-                  >
-                    <StopMap
-                      {stop}
-                      bookings={bookings.filter((b) => b.stopId === stop.id)}
-                      userEvents={userEventsAll.filter((e) => !e.stopId || e.stopId === stop.id)}
-                    />
-                  </Drawer>
-
-                  <Drawer
-                    kicker="Bookings"
-                    title="Booking checklist"
-                    count={bookings.filter((b) => b.stopId === stop.id).length}
-                    countLabel={bookings.filter((b) => b.stopId === stop.id).length === 1 ? 'plan' : 'plans'}
-                  >
-                    <BookingChecklist
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      direction={returnDir}
-                      departureClock={depClock}
-                      refreshKey={dataVersion}
-                      hideHeader={true}
-                      on:change={load}
-                    />
-                    <button
-                      type="button"
-                      class="browse-guide-btn"
-                      on:click={() => openAddPlan(stop.id, 'all', true)}
-                    >
-                      <span class="browse-guide-plus" aria-hidden="true">+</span>
-                      Browse the Guide for {stop.name}
-                    </button>
-                  </Drawer>
-
-                  <Drawer
-                    kicker="Journey"
-                    title="Travel Diary"
-                    count={diary.filter((d) => d.stopId === stop.id).length}
-                    countLabel={diary.filter((d) => d.stopId === stop.id).length === 1 ? 'note' : 'notes'}
-                  >
-                    <TravelDiary
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      refreshKey={dataVersion}
-                      hideHeader={true}
-                      on:change={load}
-                    />
-                  </Drawer>
-
-                  <Drawer
-                    kicker="Album"
-                    title="Polaroids"
-                    count={photos.filter((p) => p.stopId === stop.id).length}
-                    countLabel={photos.filter((p) => p.stopId === stop.id).length === 1 ? 'photo' : 'photos'}
-                  >
-                    <PhotoAlbum
-                      tripId={trip.id}
-                      stopIds={trip.stopIds || []}
-                      stopFilter={stop.id}
-                      refreshKey={dataVersion}
-                      hideHeader={true}
-                      on:change={load}
-                    />
-                  </Drawer>
-
-                  <Drawer
-                    kicker="Ledger"
-                    title="Spending"
-                    count={budgetEntries.filter((e) => e.stopId === stop.id).length}
-                    countLabel={budgetEntries.filter((e) => e.stopId === stop.id).length === 1 ? 'entry' : 'entries'}
-                  >
-                    <BudgetTracker
-                      tripId={trip.id}
-                      stopFilter={stop.id}
-                      refreshKey={dataVersion}
-                      hideHeader={true}
-                      on:change={load}
-                    />
-                  </Drawer>
-
-                  <Drawer
-                    kicker="From the Guide"
-                    title="Happening at {stop.name}"
-                  >
-                    <EventsAlongRoute
-                      tripId={trip.id}
-                      stopIds={[stop.id]}
-                      departureDate={stop.stayStart || null}
-                      endDate={stop.stayEnd || null}
-                    />
-                  </Drawer>
-                </div>
-
-                <aside class="scene-aside">
-                  <figure class="scene-postcard">
-                    <img src={stopImageUrl(stop)} alt={stop.name} loading="lazy" decoding="async" />
-                  </figure>
-                  <p class="scene-aside-hook">{stop.hook}</p>
-                  <a
-                    class="scene-aside-guide"
-                    href={`https://northlanderguide.com/stops/${stop.id}/`}
-                    target="_blank"
-                    rel="noopener"
-                  >Open {stop.name} on the Guide  &rarr;</a>
-                </aside>
-              </div>
-            </div>
-          </article>
-
-          {#if !isLastReturn}
+          {#if j < returnStops.length - 1}
             <div class="chapter-divider" aria-hidden="true">
               <div class="chapter-divider-rule"></div>
               <div class="chapter-divider-badge">
@@ -3027,26 +2728,14 @@
        exactly with "Pack the whole trip in one place." */
     padding: 0 24px;
   }
-  .scene {
-    position: relative;
-    color: #241f1a;
-    scroll-margin-top: 72px;
-    /* Default is visible. The reveal-on-scroll animation only runs
-       when JS adds .is-pre-reveal (immediately, then .is-revealed
-       on intersection). If JS or the observer fail, scenes still
-       show - they just don't animate in. Earlier opacity:0 default
-       hid scenes entirely when the observer didn't fire on time. */
-    transition: opacity 700ms cubic-bezier(.2,.7,.3,1), transform 700ms cubic-bezier(.2,.7,.3,1);
-  }
-  .scene.is-pre-reveal {
-    opacity: 0;
-    transform: translateY(28px);
-  }
-  .scene.is-pre-reveal.is-revealed {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  /* Same pattern for the return-divider + foot + narrative bands. */
+  /* Scene styles (.scene, .scene-head, .scene-name, .scene-meta,
+     .scene-grid, .scene-aside, .scene-postcard, .browse-guide-btn,
+     .scene-main > drawer spacing) all live in TripChapter.svelte
+     since the chapter markup moved there. The reveal-on-scroll
+     classes for .scene use :global() in TripChapter so the parent's
+     IntersectionObserver still drives the animation. The other three
+     bands (return divider, narrative, foot) still get their reveal
+     transition styles below since they remain in this file. */
   .return-divider,
   .narrative,
   .foot {
@@ -3065,7 +2754,6 @@
     transform: translateY(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .scene.is-pre-reveal,
     .return-divider.is-pre-reveal,
     .narrative.is-pre-reveal,
     .foot.is-pre-reveal {
@@ -3073,175 +2761,6 @@
       transform: none;
       transition: none;
     }
-  }
-  .scene-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 28px 0 56px;
-  }
-
-  /* Editorial section heading. Kicker (rust caps) + display H2 +
-     metadata row (region · date · train time). No bottom rule -
-     the Drawer accordions beneath provide their own visual
-     separators. */
-  .scene-head {
-    padding-bottom: 16px;
-    margin-bottom: 18px;
-  }
-  .scene-head .kicker {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    color: #7d3a1e;
-    font-size: 11px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-  .scene-name {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    font-size: clamp(2rem, 4.5vw, 3.2rem);
-    line-height: 1.02;
-    margin: 0 0 12px;
-    letter-spacing: -0.01em;
-    color: #0a2d21;
-  }
-  .scene-meta {
-    display: inline-flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 10px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .scene-meta-region { color: #c4860f; letter-spacing: 0.32em; }
-  .scene-meta-sep { color: rgba(125, 58, 30, 0.4); }
-  .scene-meta-date {
-    color: #7d3a1e;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 14.5px;
-    letter-spacing: 0;
-    text-transform: none;
-    font-weight: 600;
-  }
-  /* Train time slot on the chapter meta row. Inherits the same
-     italic Fraunces voice as the date so they read as a pair. */
-  .scene-meta-time {
-    color: #7d3a1e;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 14.5px;
-    letter-spacing: 0;
-    text-transform: none;
-    font-weight: 600;
-  }
-
-  /* Two-column body: 65/35 like stop-page.css:84. Main holds the
-     timeline (or empty state); aside holds a flat postcard and a
-     rust-rule sidebar with the stop's editorial hook. Mobile
-     collapses to a single column with the aside dropping below. */
-  .scene-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-  @media (min-width: 880px) {
-    .scene-grid {
-      grid-template-columns: 65% 35%;
-      gap: 48px;
-    }
-  }
-
-  .scene-aside {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .scene-postcard {
-    margin: 0;
-    background: #ede0cc;
-    border: 2px solid #0a2d21;
-  }
-  .scene-postcard img {
-    display: block;
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
-  .scene-aside-hook {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-weight: 500;
-    font-size: 17px;
-    line-height: 1.4;
-    color: #7d3a1e;
-    margin: 0;
-    padding-left: 18px;
-    border-left: 2px solid #7d3a1e;
-  }
-  .scene-aside-guide {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #6e2e17;
-    text-decoration: none;
-    border-bottom: 1.5px dashed #c4860f;
-    padding-bottom: 2px;
-    align-self: flex-start;
-  }
-  .scene-aside-guide:hover { color: #0a2d21; border-color: #0a2d21; }
-
-  /* Browse-the-Guide pill under each Schedule list. Opens the
-     AddPlanModal pre-scoped to this stop with the category tabs
-     (All / Eat / Sleep / Do / Shop) so the user can drop a Guide
-     listing straight into the chapter. */
-  .browse-guide-btn {
-    margin-top: 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border: 1.5px dashed #7d3a1e;
-    color: #7d3a1e;
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 140ms ease, color 140ms ease;
-  }
-  .browse-guide-btn:hover {
-    background: #7d3a1e;
-    color: #fffdf6;
-  }
-  .browse-guide-plus {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 16px;
-    line-height: 1;
-  }
-
-  /* Per-chapter Drawer stack. Each section (Booking checklist /
-     Travel notes / Polaroids / Spending / Happening) lives in its
-     own collapsed accordion so the chapter reads as five quiet
-     ledger lines instead of five stacked editorial sections with
-     dashed rules. The Drawer component handles its own border +
-     shadow; the .scene-main wrapper just needs to space them. */
-  .scene-main > :global(details.drawer) {
-    margin-bottom: 10px;
-  }
-  .scene-main > :global(details.drawer:last-of-type) {
-    margin-bottom: 0;
   }
 
   /* ===== Before You Board =====
