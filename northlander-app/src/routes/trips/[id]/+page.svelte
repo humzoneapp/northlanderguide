@@ -65,6 +65,10 @@
   import WeatherParticles from '$lib/components/WeatherParticles.svelte';
   import TripChapter from '$lib/components/trip/TripChapter.svelte';
   import TripBeforeBoard from '$lib/components/trip/TripBeforeBoard.svelte';
+  import CoverTicket from '$lib/components/trip/CoverTicket.svelte';
+  import WrapCta from '$lib/components/trip/WrapCta.svelte';
+  import CoverCollage from '$lib/components/trip/CoverCollage.svelte';
+  import CoverActions from '$lib/components/trip/CoverActions.svelte';
   import { pushToast } from '$lib/stores/toasts.js';
   import { downloadTripBackup } from '$lib/utils/backup.js';
   import { pullToRefresh } from '$lib/utils/pull-to-refresh.js';
@@ -286,13 +290,9 @@
   })();
   $: budgetTotal = totalOf(budgetEntries);
 
-  /* Cover collage starts open on desktop, collapsed on mobile.
-     Mobile users can tap the toggle pill to reveal. Default is set
-     reactively based on viewport width on first paint. */
-  let collageOpen = typeof window !== 'undefined' ? window.innerWidth >= 720 : true;
-
   /* First five stop photos for the cover collage. Tilts vary by
-     index so the cluster looks scattered. */
+     index so the cluster looks scattered. CoverCollage owns the
+     open/closed state internally. */
   $: collagePhotos = stops.slice(0, 5).map((s, idx) => ({
     src: stopImageUrl(s),
     name: s.name,
@@ -772,112 +772,11 @@
       <WeatherParticles stop={stops[0]} date={stops[0].stayStart} />
     {/if}
 
-    {#if stops.length > 0}
-      <div class="cover-ticket" aria-label="Route">
-        {#each stops as s, i}
-          {@const tripDir = trip.direction || 'northbound'}
-          {@const stopTime = trainTimeFor(s.id, tripDir)}
-          {@const isFirst = i === 0}
-          {@const isLastOutbound = i === stops.length - 1}
-          {@const returnDirChip = (tripDir === 'northbound') ? 'southbound' : 'northbound'}
-          {@const onwardTime = isLastOutbound && returnStops.length > 0
-            ? trainTimeFor(s.id, returnDirChip)
-            : stopTime}
-          {@const onwardDate = isLastOutbound && returnStops.length > 0
-            ? returnStops[0].stayStart
-            : (i + 1 < stops.length ? stops[i + 1].stayStart : '')}
-          <span class="cover-ticket-end">
-            <span class="cover-ticket-kicker">
-              {#if isFirst}
-                Depart
-              {:else}
-                Stop {i}
-              {/if}
-            </span>
-            <span class="cover-ticket-name">{s.name}</span>
-            {#if !isFirst && stopTime?.arrive}
-              <span class="cover-ticket-line">
-                <span class="cover-ticket-tag">Arrive</span>
-                <span class="cover-ticket-time">{stopTime.arrive}</span>
-                {#if s.stayStart}
-                  <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
-                {/if}
-              </span>
-            {/if}
-            {#if (isFirst || !isLastOutbound || (isLastOutbound && returnStops.length > 0)) && (onwardTime?.depart || onwardTime?.arrive)}
-              <span class="cover-ticket-line">
-                <span class="cover-ticket-tag">Depart</span>
-                <span class="cover-ticket-time">{onwardTime.depart || onwardTime.arrive}</span>
-                {#if isFirst && s.stayStart}
-                  <span class="cover-ticket-date">{formatDateShort(s.stayStart)}</span>
-                {:else if onwardDate}
-                  <span class="cover-ticket-date">{formatDateShort(onwardDate)}</span>
-                {/if}
-              </span>
-            {/if}
-          </span>
-          {#if i < stops.length - 1 || returnStops.length > 0}
-            <span class="cover-ticket-arrow" aria-hidden="true">
-              <svg viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-                <path d="M2 7 H48" stroke-dasharray="3 3"/>
-                <path d="M42 2 L52 7 L42 12"/>
-              </svg>
-            </span>
-          {/if}
-        {/each}
-        {#if returnStops.length > 0}
-          {@const returnDir = (trip.direction || 'northbound') === 'northbound' ? 'southbound' : 'northbound'}
-          {#each returnStops as rs, j}
-            {@const returnTime = trainTimeFor(rs.id, returnDir)}
-            {@const isLastReturn = j === returnStops.length - 1}
-            {@const onwardReturnTime = isLastReturn ? null : trainTimeFor(rs.id, returnDir)}
-            {@const onwardReturnDate = isLastReturn ? '' : returnStops[j + 1].stayStart}
-            <span class="cover-ticket-end cover-ticket-end--return">
-              <span class="cover-ticket-kicker">
-                {isLastReturn ? 'Return' : `Return ${j + 1}`}
-              </span>
-              <span class="cover-ticket-name">{rs.name}</span>
-              {#if returnTime?.arrive}
-                <span class="cover-ticket-line">
-                  <span class="cover-ticket-tag">Arrive</span>
-                  <span class="cover-ticket-time">{returnTime.arrive}</span>
-                  {#if rs.stayStart}
-                    <span class="cover-ticket-date">{formatDateShort(rs.stayStart)}</span>
-                  {/if}
-                </span>
-              {/if}
-              {#if onwardReturnTime && (onwardReturnTime.depart || onwardReturnTime.arrive)}
-                <span class="cover-ticket-line">
-                  <span class="cover-ticket-tag">Depart</span>
-                  <span class="cover-ticket-time">{onwardReturnTime.depart || onwardReturnTime.arrive}</span>
-                  {#if onwardReturnDate}
-                    <span class="cover-ticket-date">{formatDateShort(onwardReturnDate)}</span>
-                  {/if}
-                </span>
-              {/if}
-            </span>
-            {#if j < returnStops.length - 1}
-              <span class="cover-ticket-arrow" aria-hidden="true">
-                <svg viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-                  <path d="M2 7 H48" stroke-dasharray="3 3"/>
-                  <path d="M42 2 L52 7 L42 12"/>
-                </svg>
-              </span>
-            {/if}
-          {/each}
-        {/if}
-      </div>
-      <!-- Schedule reference. The Proposed Service Schedule on
-           ontarionorthland.ca is the source of truth; we surface a
-           small confirm-on-the-Guide link directly under the route
-           so users see it the same time they see the times. -->
-      <p class="cover-ticket-note">
-        Schedule subject to change.
-        <a href={OFFICIAL_SCHEDULE_URL} target="_blank" rel="noopener">
-          Confirm on ontarionorthland.ca &rarr;
-        </a>
-      </p>
-    {/if}
+    <CoverTicket
+      {stops}
+      {returnStops}
+      direction={trip.direction || 'northbound'}
+    />
 
     {#if stops.length > 0}
       <div class="cover-photo-actions">
@@ -1008,27 +907,7 @@
                favourite photo, lock in the spend total - rather
                than just "delete the trip". -->
           {#if tripIsPast && !tripIsWrapped}
-            <div class="wrap-cta" role="note">
-              <div class="wrap-cta-text">
-                <span class="wrap-cta-kicker">Your trip wrapped {tripEndDate ? formatDateShort(tripEndDate) : 'recently'}</span>
-                <p class="wrap-cta-body">
-                  Add a closing note, pick a favourite photo, lock in the spend total.
-                  Then stamp it <em>Wrapped</em> and it slides into your archive.
-                </p>
-              </div>
-              <button
-                type="button"
-                class="wrap-cta-btn"
-                on:click={handleWrapTrip}
-                disabled={wrapBusy}
-              >
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9"/>
-                  <path d="M7 12 L10 15 L17 8"/>
-                </svg>
-                <span>{wrapBusy ? 'Wrapping...' : 'Wrap up this trip'}</span>
-              </button>
-            </div>
+            <WrapCta endDate={tripEndDate} busy={wrapBusy} on:wrap={handleWrapTrip} />
           {/if}
         {:else}
           <!-- Empty-trip welcome. This is the entire page until
@@ -1047,117 +926,16 @@
           </div>
         {/if}
 
-        <div class="it-actions" class:it-actions--solo={stops.length === 0}>
-          {#if stops.length === 0}
-            <button
-              type="button"
-              class="btn-primary cover-add cover-pick-route"
-              on:click={() => (showStopPicker = true)}
-              aria-label="Pick where the journey begins and ends"
-            >
-              <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="6" cy="12" r="2.5"/>
-                <circle cx="18" cy="12" r="2.5"/>
-                <path d="M8.5 12 L15.5 12" stroke-dasharray="2 2"/>
-              </svg>
-              <span>Pick your route</span>
-            </button>
-          {:else}
-            <button
-              type="button"
-              class="btn-primary cover-edit"
-              on:click={() => (showStopPicker = true)}
-              aria-label="Edit the stops on this route"
-            >
-              <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="6" cy="6" r="2"/>
-                <circle cx="6" cy="18" r="2"/>
-                <circle cx="18" cy="12" r="2"/>
-                <path d="M6 8 L6 16"/>
-                <path d="M8 6 L16 11"/>
-                <path d="M8 18 L16 13"/>
-              </svg>
-              <span>Edit route</span>
-            </button>
-          {/if}
-          {#if stops.length > 0}
-          <a
-            href={`/trips/${trip.id}/logbook`}
-            class="btn-primary cover-recap"
-            aria-label="Open this trip's logbook"
-          >
-            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M5 4 H17 a2 2 0 0 1 2 2 V20 H7 a2 2 0 0 1 -2 -2 Z"/>
-              <path d="M5 18 V4"/>
-              <path d="M9 8 L15 8"/>
-              <path d="M9 12 L15 12"/>
-            </svg>
-            <span>Logbook</span>
-          </a>
-          <a
-            href={`/trips/${trip.id}/print`}
-            target="_blank"
-            rel="noopener"
-            class="btn-primary cover-print"
-            aria-label="Open the print-ready version in a new tab"
-          >
-            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M14 2 H6 a2 2 0 0 0 -2 2 v16 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V8 Z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="9" y1="13" x2="15" y2="13"/>
-              <line x1="9" y1="17" x2="13" y2="17"/>
-            </svg>
-            <span>Export PDF</span>
-          </a>
-          <button
-            type="button"
-            class="btn-primary cover-share"
-            on:click={() => (showShareModal = true)}
-            aria-label="Share your trip as a poster"
-          >
-            <svg viewBox="0 0 24 24" class="cover-edit-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="18" cy="5" r="3"/>
-              <circle cx="6" cy="12" r="3"/>
-              <circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span>Share</span>
-          </button>
-          {/if}
-        </div>
+        <CoverActions
+          tripId={trip.id}
+          stopCount={stops.length}
+          on:pickRoute={() => (showStopPicker = true)}
+          on:editRoute={() => (showStopPicker = true)}
+          on:share={() => (showShareModal = true)}
+        />
       </div>
 
-      <!-- Polaroid collage of stops. Collapsed behind a chip on
-           small viewports so the cover doesn't dominate scroll. -->
-      {#if collagePhotos.length > 0}
-        <button
-          type="button"
-          class="collage-toggle"
-          on:click={() => (collageOpen = !collageOpen)}
-          aria-expanded={collageOpen}
-          aria-controls="cover-collage"
-        >
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="14" height="14" rx="2"/>
-            <rect x="7" y="8" width="14" height="12" rx="2" fill="#fbf6ea"/>
-          </svg>
-          <span>{collageOpen ? 'Hide route photos' : 'See route photos'}</span>
-        </button>
-        <div
-          id="cover-collage"
-          class="collage"
-          class:is-open={collageOpen}
-          aria-hidden="true"
-        >
-          {#each collagePhotos as p, i}
-            <figure class="collage-card" style="--rot:{p.tilt}deg;--i:{i}">
-              <img src={p.src} alt="" loading="lazy" />
-              <figcaption>{p.name}</figcaption>
-            </figure>
-          {/each}
-        </div>
-      {/if}
+      <CoverCollage photos={collagePhotos} />
     </div>
   </header>
 
@@ -1690,126 +1468,7 @@
       radial-gradient(ellipse at 50% 12%, rgba(0, 0, 0, 0.35), transparent 70%);
   }
 
-  /* Boarding-pass ticket header at the top of the cover. Forest
-     dark band with gold dashed border and a dashed arrow between
-     the two stop names. */
-  .cover-ticket {
-    position: relative;
-    z-index: 3;
-    max-width: 1180px;
-    margin: 0 auto 28px;
-    background: rgba(10, 45, 33, 0.72);
-    border: 1.5px solid #c9a84c;
-    box-shadow: inset 0 0 0 2px rgba(10, 45, 33, 0.85);
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    color: #f5f0e8;
-    flex-wrap: wrap;
-  }
-  .cover-ticket-end {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    min-width: 160px;
-  }
-  /* Each chip now carries up to two timing lines (Arrive + Depart).
-     The tag sits in a small caps strip on the left so a glance
-     reads "what" first; the actual time + date follow inline. */
-  .cover-ticket-line {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 2px;
-  }
-  .cover-ticket-tag {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #c4860f;
-  }
-  .cover-ticket-kicker {
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.28em;
-    /* Floored at 12px so the kicker stays readable on phones;
-       was 10px which read as a thin caps strip. */
-    font-size: clamp(12px, 2.6vw, 13px);
-    font-weight: 800;
-    color: #c9a84c;
-  }
-  .cover-ticket-name {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 700;
-    /* Bigger floor on phones so station names read clearly within
-       the boarding-pass strip - was 1rem (16px) which was too
-       small alongside the kicker + time. */
-    font-size: clamp(1.25rem, 4.5vw, 1.4rem);
-    color: #f5f0e8;
-    text-align: center;
-    line-height: 1.15;
-  }
-  /* Same large font as the station name so the train time reads as
-     part of the boarding-pass identity, not as metadata. */
-  .cover-ticket-time {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 700;
-    font-style: italic;
-    font-size: clamp(1.15rem, 4vw, 1.3rem);
-    color: #c9a84c;
-    text-align: center;
-    line-height: 1.15;
-    margin-top: 2px;
-  }
-  .cover-ticket-date {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: clamp(13.5px, 3vw, 14.5px);
-    color: #ede0cc;
-    margin-top: 2px;
-  }
-  /* Schedule reference line beneath the cover ticket. Quiet italic
-     so it doesn't compete with the route summary; the link uses
-     gold to match the ticket frame. */
-  .cover-ticket-note {
-    position: relative;
-    z-index: 3;
-    max-width: 1180px;
-    margin: 10px auto 28px;
-    text-align: center;
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    /* Bigger floor so the schedule disclaimer reads on phones -
-       was 12.5px which was too tight under the ticket strip. */
-    font-size: clamp(14.5px, 2vw, 16px);
-    color: #ede0cc;
-    opacity: 0.92;
-    line-height: 1.4;
-  }
-  .cover-ticket-note a {
-    color: #c9a84c;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .cover-ticket-note a:hover { color: #f5f0e8; }
-  .cover-ticket-arrow {
-    color: #c9a84c;
-    width: 60px;
-    flex: none;
-  }
-  .cover-ticket-arrow svg { width: 100%; height: auto; display: block; }
-  @media (max-width: 720px) {
-    .cover-ticket { padding: 12px 14px; gap: 10px 12px; }
-    .cover-ticket-arrow { transform: rotate(90deg); width: 30px; }
-    .cover-ticket-end { min-width: 0; flex-basis: 100%; }
-  }
+  /* Boarding-pass ticket strip styles live in CoverTicket.svelte. */
 
   /* Discreet "Change cover" label in the top-right corner. The
      wrapping <label> contains a visually-hidden file input so iOS
@@ -2046,7 +1705,9 @@
     margin-top: 4px;
   }
 
-  /* Action row */
+  /* Cover action buttons (Edit route, Logbook, Export PDF, Share)
+     live in CoverActions.svelte. The shared .it-actions layout is
+     kept below for the sign-off section's foot row. */
   .it-actions {
     display: flex;
     gap: 12px;
@@ -2054,35 +1715,7 @@
     flex-wrap: wrap;
     margin-top: 26px;
   }
-  /* Primary gold - the main action. Matches the Recap button's
-     softer #c9a84c tone rather than the harsher amber, so the
-     primary CTA reads warm and editorial rather than aggressive. */
-  .cover-add {
-    background: #c9a84c;
-    border-color: #c9a84c;
-    color: #0a2d21;
-    font-weight: 700;
-    padding: 0.85rem 1.4rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 8px 18px rgba(201, 168, 76, 0.32);
-  }
-  .cover-add:hover {
-    background: #f5f0e8;
-    border-color: #f5f0e8;
-    color: #0a2d21;
-  }
-  .cover-add-plus {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 20px;
-    line-height: 1;
-  }
-  /* Quiet outline - secondary actions */
-  .cover-edit,
-  .cover-print,
-  .cover-share {
+  .cover-print {
     background: transparent;
     border: 2px solid rgba(201, 168, 76, 0.45);
     color: #c9a84c;
@@ -2095,104 +1728,13 @@
     font-size: 13px;
     letter-spacing: 0.06em;
   }
-  .cover-edit:hover,
-  .cover-print:hover,
-  .cover-share:hover {
+  .cover-print:hover {
     background: rgba(201, 168, 76, 0.12);
     border-color: #c9a84c;
     color: #f5f0e8;
   }
-  /* Recap pops in gold so the post-trip view is easy to spot */
-  .cover-recap {
-    background: #c9a84c;
-    border-color: #c9a84c;
-    color: #0a2d21;
-    padding: 0.7rem 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.06em;
-  }
-  .cover-recap:hover {
-    background: #f5f0e8;
-    border-color: #f5f0e8;
-    color: #0a2d21;
-  }
-  .cover-edit-icon {
-    width: 16px;
-    height: 16px;
-  }
 
-  /* Wrap-up CTA: ceremonial cream band on the cover after the
-     trip's end date. Single button stamps the trip Wrapped, slides
-     into the user's archive. Sits in the flow above the cover
-     action row so it's hard to miss. */
-  .wrap-cta {
-    margin: 22px 0 6px;
-    background: rgba(251, 246, 234, 0.92);
-    border: 1.5px solid #c9a84c;
-    border-radius: 6px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    box-shadow: 0 6px 16px rgba(40, 30, 15, 0.18);
-  }
-  .wrap-cta-text {
-    flex: 1 1 220px;
-    min-width: 0;
-  }
-  .wrap-cta-kicker {
-    display: block;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #7d3a1e;
-    margin-bottom: 4px;
-  }
-  .wrap-cta-body {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    color: #0a2d21;
-    font-size: 14px;
-    line-height: 1.45;
-    margin: 0;
-  }
-  .wrap-cta-body em {
-    font-style: normal;
-    font-weight: 700;
-    color: #7d3a1e;
-  }
-  .wrap-cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #c9a84c;
-    color: #0a2d21;
-    border: 2px solid #c9a84c;
-    padding: 9px 18px;
-    border-radius: 4px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 12.5px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
-    box-shadow: 0 3px 8px rgba(40, 30, 15, 0.22);
-  }
-  .wrap-cta-btn:hover:not(:disabled) {
-    background: #d8b863;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(40, 30, 15, 0.3);
-  }
-  .wrap-cta-btn:disabled { opacity: 0.6; cursor: progress; }
+  /* Wrap-up CTA styles live in WrapCta.svelte. */
 
   /* Wrapped stamp: tilted passport cancellation pinned to the
      cover's top-right corner. Larger than the chapter postmarks
@@ -2249,91 +1791,7 @@
     }
   }
 
-  /* Toggle pill that collapses the cover collage on mobile. Only
-     visible below 720px - desktop users always see the photos. */
-  .collage-toggle {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    margin: 12px auto 0;
-    background: transparent;
-    border: 1.5px dashed rgba(201, 168, 76, 0.7);
-    color: #c9a84c;
-    padding: 7px 14px;
-    border-radius: 999px;
-    font-family: 'Spline Sans', system-ui, sans-serif;
-    font-size: 11.5px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease;
-  }
-  .collage-toggle:hover {
-    background: #c9a84c;
-    color: #0a2d21;
-  }
-  @media (max-width: 720px) {
-    .collage-toggle { display: inline-flex; }
-    .collage:not(.is-open) {
-      display: none;
-    }
-  }
-
-  /* Polaroid collage */
-  .collage {
-    position: relative;
-    min-height: 280px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-  }
-  .collage-card {
-    background: #fbf6ea;
-    padding: 8px 8px 12px;
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
-    margin: 0;
-    --base-tilt: var(--rot, 0deg);
-    --base-lift: calc(var(--i, 0) * -4px);
-    transform: rotate(var(--base-tilt)) translateY(var(--base-lift));
-    transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
-    /* Gentle ambient sway: each card stagger-floats so the cluster
-       reads as something pinned to a board in a passing breeze.
-       The hover transform takes over by overriding `transform`. */
-    animation: cover-card-float 7s ease-in-out infinite;
-    animation-delay: calc(var(--i, 0) * -1.6s);
-    transform-origin: 50% 100%;
-  }
-  .collage-card:hover {
-    transform: rotate(0deg) translateY(-8px);
-    z-index: 4;
-    animation: none;
-  }
-  @keyframes cover-card-float {
-    0%   { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
-    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 6px)) rotate(0.8deg); }
-    100% { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .collage-card { animation: none; }
-  }
-  .collage-card img {
-    width: clamp(110px, 16vw, 180px);
-    height: clamp(110px, 16vw, 180px);
-    object-fit: cover;
-    background: #ede0cc;
-    display: block;
-  }
-  .collage-card figcaption {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
-    font-size: 13px;
-    color: #0a2d21;
-    text-align: center;
-    padding-top: 6px;
-  }
+  /* Cover collage styles live in CoverCollage.svelte. */
 
   /* ===== Narrative band ===== */
   .narrative {
@@ -2575,12 +2033,6 @@
     border: 1.5px solid #c9a84c;
     border-radius: 999px;
     white-space: nowrap;
-  }
-
-  /* Return cover-ticket chips wear a forest kicker so the user can
-     see which chips belong to the return leg at a glance. */
-  .cover-ticket-end--return .cover-ticket-kicker {
-    color: #c9a84c;
   }
 
   /* ===== Loose plans ===== */
