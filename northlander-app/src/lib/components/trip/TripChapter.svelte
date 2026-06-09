@@ -143,17 +143,6 @@
         </Drawer>
 
         <Drawer
-          kicker="On the map"
-          title={`Where it is in ${stop.name}`}
-        >
-          <StopMap
-            {stop}
-            bookings={stopBookings}
-            userEvents={stopUserEvents}
-          />
-        </Drawer>
-
-        <Drawer
           kicker="Bookings"
           title="Booking checklist"
           count={stopBookings.length}
@@ -169,6 +158,23 @@
             hideHeader={true}
             on:change
           />
+
+          <!-- Map of this chapter's bookings + user events. Lives
+               inside the Bookings drawer so a freshly-added address
+               appears on the map the moment the row is saved,
+               without the user having to hop into a separate drawer.
+               StopMap takes both bookings and events at this stop -
+               same data the standalone "On the map" drawer used to
+               render. -->
+          <div class="booking-map">
+            <div class="booking-map-head">Where they are</div>
+            <StopMap
+              {stop}
+              bookings={stopBookings}
+              userEvents={stopUserEvents}
+            />
+          </div>
+
           <button
             type="button"
             class="browse-guide-btn"
@@ -356,6 +362,26 @@
   }
   .scene-main > :global(details.drawer:last-child) {
     margin-bottom: 0;
+  }
+
+  /* Inline map inside the Bookings drawer (since 2026-06-09). Sits
+     between the booking list and the Browse-the-Guide pill so a row
+     the user just added shows up on the map immediately. The thin
+     dashed rust kicker frames it as a "look here too" subsection
+     without making it feel like a separate drawer. */
+  .booking-map {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.3);
+  }
+  .booking-map-head {
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #7d3a1e;
+    margin: 0 0 10px;
   }
 
   /* Browse-the-Guide CTA inside the Bookings drawer body. */
