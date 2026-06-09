@@ -243,11 +243,11 @@
     {/if}
   </section>
 
-  <!-- ===== Bookings page ===== -->
+  <!-- ===== Plans page ===== -->
   <section class="sheet">
-    <h2 class="sheet-title">Booking checklist</h2>
+    <h2 class="sheet-title">Plans</h2>
     {#if bookings.length === 0}
-      <p class="sheet-empty">Nothing booked yet.</p>
+      <p class="sheet-empty">Nothing planned yet.</p>
     {:else}
       <ul class="checklist">
         {#each bookings as item}

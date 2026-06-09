@@ -128,8 +128,8 @@
     <div class="scene-grid">
       <div class="scene-main">
         <Drawer
-          kicker="Bookings"
-          title="Booking checklist"
+          kicker="Plans"
+          title="What you're doing here"
           count={stopBookings.length}
           countLabel={stopBookings.length === 1 ? 'plan' : 'plans'}
         >

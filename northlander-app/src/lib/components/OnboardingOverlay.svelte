@@ -202,7 +202,7 @@
                Bookings / Diary / Polaroids / Spending / Events. -->
           <div class="ob-drawers">
             <div class="ob-drawer">
-              <span class="ob-drawer-kicker">Bookings</span>
+              <span class="ob-drawer-kicker">Plans</span>
               <span class="ob-drawer-arrow">&rsaquo;</span>
             </div>
             <div class="ob-drawer">

@@ -192,8 +192,8 @@
   {#if !hideHeader}
   <div class="flex items-baseline justify-between mb-2">
     <div>
-      <div class="kicker">Bookings</div>
-      <h3 class="font-serif font-bold text-forest text-xl">Booking checklist</h3>
+      <div class="kicker">Plans</div>
+      <h3 class="font-serif font-bold text-forest text-xl">What you're doing here</h3>
     </div>
     {#if total > 0}
       <span class="font-serif italic text-rust text-sm flex-none">
@@ -209,7 +209,7 @@
         {#if stopFilter}
           Nothing pinned to this stop yet. Add a plan below.
         {:else}
-          Train tickets, rooms, restaurants. Nothing booked yet.
+          Rooms, restaurants, hikes, train tickets. Nothing planned yet.
         {/if}
       </p>
     {:else}
@@ -399,7 +399,7 @@
 
     <!-- Two stacked pills end the drawer. Browse-the-Guide is the
          curated first move (real listings + addresses from the
-         Guide); Add a booking is the manual escape hatch for things
+         Guide); Add a plan is the manual escape hatch for things
          the Guide doesn't carry. Browse-the-Guide bubbles up to the
          trip page via the parent TripChapter, which re-dispatches
          with the `fromReturn` flag so the modal's direction badge
@@ -421,7 +421,7 @@
         on:click={() => (showAdd = true)}
       >
         <span class="book-add-open-plus" aria-hidden="true">+</span>
-        Add a booking
+        Add a plan
       </button>
     </div>
   {/if}

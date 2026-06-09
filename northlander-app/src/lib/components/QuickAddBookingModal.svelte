@@ -73,8 +73,8 @@
   <div class="qb-card">
     <header class="qb-head">
       <div>
-        <span id="qb-title" class="qb-title">Add a Booking</span>
-        <span class="qb-sub">Drop a plan onto your itinerary.</span>
+        <span id="qb-title" class="qb-title">Add a Plan</span>
+        <span class="qb-sub">Drop something onto your itinerary.</span>
       </div>
       <button type="button" class="qb-close" on:click={close} aria-label="Close">&times;</button>
     </header>
@@ -82,7 +82,7 @@
     <form class="qb-body" on:submit|preventDefault={save}>
       <!-- Kind row: 5 icon buttons mirroring the BookingChecklist
            inline picker so the vocabulary stays familiar. -->
-      <fieldset class="qb-kinds" aria-label="Booking kind">
+      <fieldset class="qb-kinds" aria-label="Plan kind">
         {#each BOOKING_KINDS as k}
           <button
             type="button"
@@ -99,7 +99,7 @@
       </fieldset>
 
       <label class="qb-field">
-        <span class="qb-kicker">What's the booking</span>
+        <span class="qb-kicker">What's the plan</span>
         <input
           bind:this={titleInput}
           bind:value={title}
@@ -122,7 +122,7 @@
           maxlength="240"
           placeholder="56 Yonge St, Toronto ON M5E 1G5"
         />
-        <span class="qb-hint">Used to pin the booking on the chapter map. Skip it and we'll park the pin at the train station.</span>
+        <span class="qb-hint">Used to pin the plan on the chapter map. Skip it and we'll park the pin at the train station.</span>
       </label>
 
       <div class="qb-grid">
@@ -152,7 +152,7 @@
 
       <footer class="qb-foot">
         <button type="button" class="qb-cancel" on:click={close}>Cancel</button>
-        <button type="submit" class="btn-primary" disabled={!canSave}>Save booking</button>
+        <button type="submit" class="btn-primary" disabled={!canSave}>Save plan</button>
       </footer>
     </form>
   </div>
