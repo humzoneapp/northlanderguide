@@ -76,11 +76,15 @@ export async function listBookings(tripId) {
     to the BookingChecklist drawer afterward. */
 export async function addBooking(
   tripId,
-  { title, kind = 'other', dueDate = null, stopId = null, listingKey = null, startTime = null } = {}
+  { title, kind = 'other', dueDate = null, stopId = null, listingKey = null, startTime = null, address = null } = {}
 ) {
   const clean = String(title || '').trim();
   if (!clean) return null;
   const now = Date.now();
+  /* Trim the address field too so an accidental " " doesn't read
+     as truthy downstream. Empty -> null so the map's "Add an
+     address" hint logic stays a clean falsy check. */
+  const cleanAddress = address == null ? null : String(address).trim() || null;
   return db.bookings.add({
     tripId,
     title: clean,
@@ -94,6 +98,7 @@ export async function addBooking(
     stopId: stopId || null,
     listingKey: listingKey || null,
     startTime: normalizeStartTime(startTime),
+    address: cleanAddress,
     createdAt: now,
     updatedAt: now
   });

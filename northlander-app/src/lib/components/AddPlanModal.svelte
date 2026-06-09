@@ -243,19 +243,19 @@
   async function handleAdd(row) {
     const key = listingKeyFor(row.stopId, row.listing.name);
     if (addedKeys.has(key)) return;
-    const title = row.listing.address
-      ? `${row.listing.name} - ${row.listing.address}`
-      : row.listing.name;
-    /* Pick up any time the user set on the pill before tapping +,
-       so the booking lands at the right slot in the cinematic
-       scenes on the trip page without a second edit. */
+    /* Title gets just the listing's name; the address rides in its
+       own field on the booking row. Earlier this jammed both into
+       title as "Name - Address", which left the map geocoder
+       seeing address=null and the popup nagging the user to "add
+       an address" they technically already provided. */
     const startTime = times.get(key) || null;
     const newId = await addBooking(tripId, {
-      title,
+      title: row.listing.name,
       kind: categoryToKind(row.catKey),
       stopId: row.stopId,
       listingKey: key,
-      startTime
+      startTime,
+      address: row.listing.address || null
     });
     if (newId != null) {
       bookingIdsByKey.set(key, newId);

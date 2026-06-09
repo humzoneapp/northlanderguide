@@ -65,6 +65,25 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* Older bookings (added via AddPlanModal before 2026-06-09) stored
+     the listing's address inside the title as "Name - Address" with
+     b.address left empty. Detect that shape and pull the address
+     half out. Returns null when the title is empty, has no " - ",
+     or the right-hand half doesn't look address-shaped (lacks a
+     digit or street keyword) - so a title like "Lunch with mom"
+     doesn't get split into a fake address. */
+  function addressFromCombinedTitle(title) {
+    if (!title || typeof title !== 'string') return null;
+    const idx = title.indexOf(' - ');
+    if (idx === -1) return null;
+    const right = title.slice(idx + 3).trim();
+    if (!right) return null;
+    const looksAddressShaped =
+      /\d/.test(right) ||
+      /\b(St|Ave|Avenue|Rd|Road|Blvd|Dr|Drive|Ln|Lane|Way|Hwy|Highway|Crescent|Cres|Court|Ct)\b/i.test(right);
+    return looksAddressShaped ? right : null;
+  }
+
   /* Format HH:MM 24h to a friendly 12h string for popups. */
   function formatTime(hhmm) {
     if (!hhmm || typeof hhmm !== 'string') return '';
@@ -196,13 +215,21 @@
 
       const bookingHits = await Promise.all(
         (bookings || []).map(async (b) => {
+          /* Backward-compat split: older bookings added through
+             AddPlanModal stored the listing's address inside the
+             title as "Name - Address" instead of on b.address.
+             Detect that pattern and use the address half for
+             geocoding so those rows pin in the right place without
+             a forced re-add. New AddPlanModal writes address on
+             its own field so the split is a no-op for new rows. */
+          const effectiveAddress = b.address || addressFromCombinedTitle(b.title);
           const resolved = await resolveLocation({
             row: b,
-            addressQuery: b.address ? b.address + ctx : null,
+            addressQuery: effectiveAddress ? effectiveAddress + ctx : null,
             titleQuery: b.title ? b.title + ctx : null,
             persist: (geo) => setBookingGeo(b.id, geo),
           });
-          return { kind: 'booking', row: b, ...resolved };
+          return { kind: 'booking', row: b, effectiveAddress, ...resolved };
         })
       );
       const eventHits = await Promise.all(
@@ -222,30 +249,41 @@
       pinCount = hits.length;
 
       for (const hit of hits) {
-        const { row, loc, kind, resolvedBy } = hit;
+        const { row, loc, kind, resolvedBy, effectiveAddress } = hit;
         const letter = kind === 'event'
           ? 'E'
           : (kindLabel(row.kind || 'other')[0] || '?');
-        const title = kind === 'event' ? row.name : row.title;
+        /* For old "Name - Address" bookings, show only the name in
+           the popup title so the address line below doesn't repeat
+           it. New bookings (name + separate address) already work
+           this way naturally. */
+        const cleanTitle = kind === 'event'
+          ? row.name
+          : (effectiveAddress && row.title && row.title.endsWith(' - ' + effectiveAddress)
+              ? row.title.slice(0, -(' - ' + effectiveAddress).length)
+              : row.title);
         const subtitle = kind === 'event'
           ? `${kindLabel('activity')} - ${row.venue || row.address || ''}`
           : kindLabel(row.kind || 'other');
-        const timeStr = kind === 'event'
-          ? formatTime(row.startTime)
-          : formatTime(row.startTime);
-        const addr = kind === 'event' ? (row.address || row.venue || '') : (row.address || '');
+        const timeStr = formatTime(row.startTime);
+        /* Prefer the dedicated address field; fall back to anything
+           we extracted from a combined title so the popup always
+           shows the address when one exists somewhere on the row. */
+        const addr = kind === 'event'
+          ? (row.address || row.venue || '')
+          : (row.address || effectiveAddress || '');
         const url = kind === 'event' ? row.url : null;
 
-        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr || title || `${loc.lat},${loc.lng}`)}`;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr || cleanTitle || `${loc.lat},${loc.lng}`)}`;
 
-        /* Only nudge the user about adding an address when they
-           genuinely haven't given us one yet. If they typed an
-           address but Nominatim just couldn't geocode it (rural
-           routes, brand-new venues, typos), don't second-guess
-           them - silently park the pin at the station. */
+        /* Only nudge the user about adding an address when we truly
+           don't have one. effectiveAddress covers both b.address and
+           the legacy "Name - Address" title pattern, so a user who
+           already typed the address - in either field - never sees
+           the prompt to type it again. */
         const noAddressYet = kind === 'event'
           ? !row.address && !row.venue
-          : !row.address;
+          : !row.address && !effectiveAddress;
         const stationHint = resolvedBy === 'station' && noAddressYet
           ? `<span class="nl-pop-hint">Pinned at the station. Add an address on the booking to pin it exactly.</span>`
           : '';
@@ -255,7 +293,7 @@
           .bindPopup(`
             <div class="nl-pop">
               <span class="nl-pop-kicker">${escapeHtml(subtitle)}</span>
-              <strong class="nl-pop-title">${escapeHtml(title || '')}</strong>
+              <strong class="nl-pop-title">${escapeHtml(cleanTitle || '')}</strong>
               ${timeStr ? `<span class="nl-pop-time">${escapeHtml(timeStr)}</span>` : ''}
               ${addr ? `<span class="nl-pop-addr">${escapeHtml(addr)}</span>` : ''}
               ${stationHint}
