@@ -10,9 +10,12 @@
           or a soft italic prompt when no departure date is set yet,
           or "You've been. This is your record." once the train has
           left and the trip's in the past.
-       3. Stats grid - six tweened figures (Stops / Plans / Booked /
-          Photos / Notes / Spent). Each animates from 0 to the latest
-          count whenever the parent's data refreshes.
+       3. Stats grid - three tweened figures: Stops, Plans, and
+          Spent (Spent only renders when at least one ledger row
+          exists). Trimmed down from six on 2026-06-09 - the older
+          Booked / Photos / Notes tiles were noise mid-trip; the
+          drawer counts already show those numbers in their
+          respective Drawer summary rows.
 
      Lifted out of trip-page/+page.svelte on 2026-06-09 as part of
      the cover-breakup pass. The tweened stores live here so the
@@ -35,9 +38,6 @@
      tweened store below. */
   export let stopsVisited = 0;
   export let plansCount = 0;
-  export let bookedCount = 0;
-  export let photosCount = 0;
-  export let notesCount = 0;
   export let spent = 0;
   /** Hide the Spent tile until at least one ledger row exists, so
       empty trips don't show a "$0.00 Spent" zero. */
@@ -45,16 +45,10 @@
 
   const animStops = tweened(0, { duration: 700, easing: cubicOut });
   const animPlans = tweened(0, { duration: 700, easing: cubicOut });
-  const animBooked = tweened(0, { duration: 700, easing: cubicOut });
-  const animPhotos = tweened(0, { duration: 700, easing: cubicOut });
-  const animNotes = tweened(0, { duration: 700, easing: cubicOut });
   const animSpent = tweened(0, { duration: 800, easing: cubicOut });
 
   $: animStops.set(stopsVisited);
   $: animPlans.set(plansCount);
-  $: animBooked.set(bookedCount);
-  $: animPhotos.set(photosCount);
-  $: animNotes.set(notesCount);
   $: animSpent.set(spent || 0);
 </script>
 
@@ -90,9 +84,6 @@
     <span>{stopsVisited === 1 ? 'Stop' : 'Stops'}</span>
   </li>
   <li><b>{Math.round($animPlans)}</b><span>Plans</span></li>
-  <li><b>{Math.round($animBooked)}</b><span>Booked</span></li>
-  <li><b>{Math.round($animPhotos)}</b><span>Photos</span></li>
-  <li><b>{Math.round($animNotes)}</b><span>Notes</span></li>
   {#if showSpent}
     <li><b>{formatAmount($animSpent)}</b><span>Spent</span></li>
   {/if}

@@ -244,8 +244,6 @@
   $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
   $: depClock = trip ? departureFor(trip.direction || 'northbound') : '09:00';
   $: unassigned = bookings.filter((b) => !b.stopId);
-  $: bookedCount = bookings.filter((b) => b.status === 'booked').length;
-  $: pendingCount = bookings.length - bookedCount;
   $: tripDateLine = trip && trip.departureDate ? formatTripDate(trip.departureDate) : '';
   /* Live countdown to the train's scheduled departure time. Updates
      once a minute via tickerNow so the display creeps in real time
@@ -774,9 +772,6 @@
             {countdown}
             {stopsVisited}
             plansCount={bookings.length}
-            {bookedCount}
-            photosCount={photos.length}
-            notesCount={diary.length}
             spent={budgetTotal}
             showSpent={budgetEntries.length > 0}
           />
