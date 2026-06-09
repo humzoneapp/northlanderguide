@@ -61,9 +61,8 @@
         <li><strong>Open-Meteo</strong> (open-meteo.com) : fetches the daily weather forecast for each stop on your route by latitude / longitude only. Open-Meteo is a free, no-key weather API; their privacy policy is at <a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener">open-meteo.com/en/terms</a>.</li>
         <li><strong>OpenStreetMap Nominatim</strong> (nominatim.openstreetmap.org) : geocodes booking and event addresses into map coordinates. Sees the address text you submit and your IP address (standard for any web request). Their privacy policy is at <a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">osmfoundation.org/wiki/Privacy_Policy</a>.</li>
         <li><strong>Carto basemaps</strong> : supplies the map tiles you see on each chapter's map. Sees the map tile coordinates and your IP address.</li>
-        <li><strong>images.weserv.nl</strong> : public image proxy used as a fallback to fetch stop photos for the share poster. Sees only the public image URL.</li>
       </ul>
-      <p>The QR code on the Share modal is encoded entirely in your browser (no external service in the critical path).</p>
+      <p>The QR code on the Share modal is encoded entirely in your browser. Stop hero photos (the share poster's polaroids) come through a same-origin <code>/stop-images/</code> path that's served by the Guide; no third-party image proxy is involved.</p>
       <p>We do not maintain analytics or logs of these calls. The third parties listed above may log standard web-server access information per their own policies.</p>
     </section>
 

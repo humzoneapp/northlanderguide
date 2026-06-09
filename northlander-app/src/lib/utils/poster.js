@@ -127,19 +127,15 @@ function pickCollageStops(stops) {
   return out;
 }
 
-/* Load an image into a canvas-drawable bitmap. Tries the direct
-   Guide URL first (which works whenever the Guide's CORS headers
-   are live), then falls back to the free images.weserv.nl proxy
-   which re-serves any public image with permissive CORS headers.
-   The proxy keeps the share poster's polaroid photos rendering
-   reliably even if the Guide deploy is slow / CDN cache is cold /
-   the user's browser cached a non-CORS response from an earlier
-   visit. Returns null on total failure so the caller can drop in
-   a forest-tile placeholder. */
-async function fetchAsBitmap(url) {
+/* Load an image into a canvas-drawable bitmap. Stop hero images
+   come from /stop-images/* which is a Vercel rewrite to the Guide
+   (see stops.js + vercel.json) so the fetch is same-origin and
+   never needs a CORS-friendly proxy. Returns null on any failure
+   so the caller can drop in a forest-tile placeholder. */
+async function loadImage(url) {
   if (!url || typeof fetch === 'undefined') return null;
   try {
-    const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+    const res = await fetch(url, { credentials: 'omit' });
     if (!res.ok) return null;
     const blob = await res.blob();
     if (typeof createImageBitmap === 'function') {
@@ -159,24 +155,6 @@ async function fetchAsBitmap(url) {
       };
       img.src = objectUrl;
     });
-  } catch (_) {
-    return null;
-  }
-}
-
-async function loadImage(url) {
-  if (!url) return null;
-  /* Attempt the direct URL first. */
-  let bitmap = await fetchAsBitmap(url);
-  if (bitmap) return bitmap;
-  /* Fall back to the public weserv proxy. Strip the protocol per
-     the proxy's URL spec. Any failure here returns null and the
-     caller drops in a placeholder polaroid. */
-  try {
-    const stripped = url.replace(/^https?:\/\//, '');
-    const proxied = `https://images.weserv.nl/?url=${encodeURIComponent(stripped)}`;
-    bitmap = await fetchAsBitmap(proxied);
-    return bitmap;
   } catch (_) {
     return null;
   }

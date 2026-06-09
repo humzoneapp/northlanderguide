@@ -74,11 +74,20 @@ export function routeIndex(id) {
   return STOPS.findIndex((s) => s.id === id);
 }
 
-/** Absolute URL for a stop's hero image, served by the Guide so the
-    app doesn't have to ship them. */
+/** Same-origin path for a stop's hero image. The /stop-images/*
+    route is a Vercel rewrite (see vercel.json) that proxies to the
+    Guide's image folder at the edge. Same-origin from the browser's
+    perspective so the share-poster canvas can drawImage() the photo
+    without a CORS preflight or proxy fallback. The fallback in
+    poster.js (images.weserv.nl) was retired with this change. */
 export function stopImageUrl(stop) {
   if (!stop || !stop.image) return '';
-  return `${GUIDE_BASE}/${stop.image.replace(/^\//, '')}`;
+  /* Strip a leading "images/" segment so the rewrite target's
+     /images/ prefix isn't doubled, and strip any leading slash so
+     the final path is /stop-images/<file>. Existing data uses
+     "images/northlander-<id>.jpeg". */
+  const file = stop.image.replace(/^\/+/, '').replace(/^images\//, '');
+  return `/stop-images/${file}`;
 }
 
 /** Link back to the stop's editorial guide on northlanderguide.com. */

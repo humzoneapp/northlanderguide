@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/stop-images/:path*",
+      "destination": "https://www.northlanderguide.com/images/:path*"
+    }
+  ]
+}
