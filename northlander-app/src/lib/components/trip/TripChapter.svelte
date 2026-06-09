@@ -22,7 +22,6 @@
   import { trainTimeFor } from '$lib/data/schedule.js';
 
   import Drawer from '$lib/components/Drawer.svelte';
-  import DayPlan from '$lib/components/DayPlan.svelte';
   import StopMap from '$lib/components/StopMap.svelte';
   import BookingChecklist from '$lib/components/BookingChecklist.svelte';
   import TravelDiary from '$lib/components/TravelDiary.svelte';
@@ -77,7 +76,6 @@
   $: stopPhotos = photos.filter((p) => p.stopId === stop.id);
   $: stopBudget = budgetEntries.filter((e) => e.stopId === stop.id);
   $: stopUserEvents = userEventsAll.filter((e) => !e.stopId || e.stopId === stop.id);
-  $: dayCount = stopBookings.length + stopDiary.length + stopBudget.length;
 
   /* Train clock for this chapter. For outbound chapters: arrive at
      middle stops, depart at the first stop. For return chapters:
@@ -129,19 +127,6 @@
 
     <div class="scene-grid">
       <div class="scene-main">
-        <Drawer
-          kicker="Day plan"
-          title="What's happening"
-          count={dayCount}
-          countLabel={dayCount === 1 ? 'item' : 'items'}
-        >
-          <DayPlan
-            bookings={stopBookings}
-            diary={stopDiary}
-            budgetEntries={stopBudget}
-          />
-        </Drawer>
-
         <Drawer
           kicker="Bookings"
           title="Booking checklist"

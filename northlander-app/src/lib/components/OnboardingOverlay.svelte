@@ -190,26 +190,17 @@
             </div>
             <div class="ob-trio-tile">
               <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="5" y="7" width="22" height="20" rx="3"/>
-                <line x1="5" y1="13" x2="27" y2="13"/>
-                <line x1="11" y1="3" x2="11" y2="9"/>
-                <line x1="21" y1="3" x2="21" y2="9"/>
-                <circle cx="11" cy="19" r="1.4" fill="currentColor"/>
-                <circle cx="16" cy="19" r="1.4" fill="currentColor"/>
-                <circle cx="21" cy="19" r="1.4" fill="currentColor"/>
+                <path d="M16 3 C10 3 5 8 5 14 c0 8 11 16 11 16 s11 -8 11 -16 c0 -6 -5 -11 -11 -11 Z"/>
+                <circle cx="16" cy="14" r="4"/>
               </svg>
-              <span>Day plan</span>
+              <span>Map</span>
             </div>
           </div>
         {:else if step === 2}
           <!-- Stack of chapter "drawer" pills - shows the per-stop
-               sections (Day plan / Bookings / Diary / Polaroids /
-               Spending / Events) the user gets at every stop. -->
+               sections the user actually gets at every stop:
+               Bookings / Diary / Polaroids / Spending / Events. -->
           <div class="ob-drawers">
-            <div class="ob-drawer">
-              <span class="ob-drawer-kicker">Day plan</span>
-              <span class="ob-drawer-arrow">&rsaquo;</span>
-            </div>
             <div class="ob-drawer">
               <span class="ob-drawer-kicker">Bookings</span>
               <span class="ob-drawer-arrow">&rsaquo;</span>
@@ -510,7 +501,7 @@
     margin: 16px 0 0;
   }
 
-  /* Step 2: trio of feature tiles (train / weather / day plan).
+  /* Step 2: trio of feature tiles (train / weather / map).
      Three cream paper chips with palette-tinted icons + caption
      so the user sees the three real-data hooks at a glance. */
   .ob-trio,
