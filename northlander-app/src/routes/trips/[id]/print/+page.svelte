@@ -12,7 +12,7 @@
     BUDGET_CATEGORIES
   } from '$lib/stores/budget.js';
   import { listDiaryEntries } from '$lib/stores/diary.js';
-  import { getStopsByIds, getStop } from '$lib/data/stops.js';
+  import { getStopsByIds, getStop, stopImageUrl } from '$lib/data/stops.js';
   import {
     arrivalClock,
     travelDuration,
@@ -20,7 +20,6 @@
     formatTripDate,
     DIRECTIONS
   } from '$lib/data/schedule.js';
-  import Suitcase from '$lib/components/Suitcase.svelte';
 
   let trip = null;
   let packing = [];
@@ -34,6 +33,19 @@
   $: stops = trip ? deriveStops(trip) : [];
   $: dirMeta = trip ? DIRECTIONS.find((d) => d.id === (trip.direction || 'northbound')) || DIRECTIONS[0] : null;
   $: depClock = trip ? departureFor(trip.direction || 'northbound') : '09:00';
+
+  /* Cover polaroids: first three outbound stops with a hero photo,
+     tilted to match the on-screen cover collage. Tilts mirror the
+     trip page's `((idx % 5) - 2) * 4` recipe so a Toronto -> Huntsville
+     -> Cochrane print looks like the cover the user just saved from. */
+  $: coverPolaroids = (stops || [])
+    .filter((s) => !s.isReturn && s.image)
+    .slice(0, 3)
+    .map((s, i) => ({
+      src: stopImageUrl(s),
+      name: s.name,
+      tilt: ((i % 5) - 1) * 4
+    }));
 
   /* Build the full chronological stop list including the return
      leg. Each entry carries an `isReturn` flag so the route sheet
@@ -115,6 +127,20 @@
     if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
       try { await document.fonts.ready; } catch (_) {}
     }
+    /* Preload the cover polaroid photos so the print dialog doesn't
+       capture the page mid-decode. Each image is best-effort - a
+       missed photo leaves a cream tile, which still prints cleanly. */
+    await Promise.all(
+      coverPolaroids.map(
+        (p) =>
+          new Promise((resolve) => {
+            if (!p.src) return resolve();
+            const img = new Image();
+            img.onload = img.onerror = () => resolve();
+            img.src = p.src;
+          })
+      )
+    );
     /* Small delay so the screen-preview renders for a beat before
        the dialog opens. The Save as PDF flow lives in the browser
        print sheet from here on. */
@@ -168,8 +194,13 @@
     </header>
 
     <div class="cover-stage">
-      <div class="cover-suitcase">
-        <Suitcase color={trip.color} strap={trip.strap} label="" />
+      <div class="cover-polaroids" class:is-empty={coverPolaroids.length === 0}>
+        {#each coverPolaroids as p, i}
+          <figure class="cover-polaroid" style="--rot:{p.tilt}deg;--i:{i}">
+            <img src={p.src} alt="" />
+            <figcaption>{p.name}</figcaption>
+          </figure>
+        {/each}
       </div>
       <div class="cover-title">
         <div class="cover-kicker">Boarding Pass</div>
@@ -485,13 +516,58 @@
   .cover-stage {
     flex: 1;
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 220px 1fr;
     gap: 32px;
     align-items: center;
     padding: 24px 0;
   }
-  .cover-suitcase {
-    max-width: 180px;
+  /* Cover polaroid cluster - mirrors the on-screen CoverCollage but
+     tuned for ink: thin shadows, no animation, fixed lift via --i so
+     the stack reads as scrapbook-style on paper. */
+  .cover-polaroids {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+  .cover-polaroids.is-empty {
+    /* Reserve the column so the headline doesn't reflow when the trip
+       has no stop photos yet. */
+    min-height: 200px;
+  }
+  .cover-polaroid {
+    background: #ffffff;
+    padding: 6px 6px 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+    margin: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(calc(var(--i, 0) * -4px));
+    transform-origin: 50% 100%;
+  }
+  .cover-polaroid img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    background: #ede0cc;
+    display: block;
+  }
+  .cover-polaroid figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 11px;
+    color: #0a2d21;
+    text-align: center;
+    padding-top: 4px;
+    max-width: 110px;
+  }
+  @media print {
+    /* Browsers strip box-shadow on print by default. Drop a 1px gold
+       border so the polaroid edges still read as cards in the PDF. */
+    .cover-polaroid {
+      box-shadow: none;
+      border: 1px solid #c9a84c;
+    }
   }
   .cover-kicker {
     font-family: 'Spline Sans', sans-serif;
