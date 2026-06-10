@@ -22,9 +22,13 @@ const FIELD_BOOKING = [
   'startTime', 'checkIn', 'checkOut', 'address',
   'contact', 'confirmation', 'notes'
 ];
-const FIELD_PACKING = ['name', 'packed', 'listName'];
-const FIELD_DIARY   = ['text', 'stopId', 'createdAt'];
-const FIELD_BUDGET  = ['label', 'amount', 'category', 'stopId', 'spentDate', 'createdAt'];
+const FIELD_PACKING    = ['name', 'packed', 'listName'];
+const FIELD_DIARY      = ['text', 'stopId', 'createdAt', 'entryDate'];
+const FIELD_BUDGET     = ['label', 'amount', 'category', 'stopId', 'spentDate', 'createdAt'];
+const FIELD_USER_EVENT = [
+  'name', 'stopId', 'startDate', 'startTime',
+  'venue', 'address', 'url', 'description'
+];
 const FIELD_TRIP    = [
   'name', 'stopIds', 'color', 'strap', 'colorId',
   'departureDate', 'direction',
@@ -51,14 +55,17 @@ function pickFields(row, fields) {
 /** Build the plain payload object that will get serialised. Keeps it
     deterministic: same input always produces the same JSON, so two
     users sharing the same trip get the same link. */
-export function buildSharePayload({ trip, packing = [], bookings = [], diary = [], budget = [] }) {
+export function buildSharePayload({
+  trip, packing = [], bookings = [], diary = [], budget = [], userEvents = []
+}) {
   return {
     v: 1,
     trip: pickFields(trip || {}, FIELD_TRIP),
     packing: packing.map((r) => pickFields(r, FIELD_PACKING)),
     bookings: bookings.map((r) => pickFields(r, FIELD_BOOKING)),
     diary: diary.map((r) => pickFields(r, FIELD_DIARY)),
-    budget: budget.map((r) => pickFields(r, FIELD_BUDGET))
+    budget: budget.map((r) => pickFields(r, FIELD_BUDGET)),
+    userEvents: userEvents.map((r) => pickFields(r, FIELD_USER_EVENT))
   };
 }
 

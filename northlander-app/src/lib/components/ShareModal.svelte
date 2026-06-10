@@ -7,6 +7,7 @@
   import { listDiaryEntries } from '$lib/stores/diary.js';
   import { listBudgetEntries } from '$lib/stores/budget.js';
   import { listPhotos } from '$lib/stores/photos.js';
+  import { listUserEvents } from '$lib/stores/user-events.js';
   import { generateQrMatrix } from '$lib/utils/qr.js';
 
   /** @type {{ id: string, name: string, [key: string]: any }} */
@@ -61,16 +62,17 @@
        count photos so we can warn the sender that those won't travel
        with the link. */
     try {
-      const [packing, bookings, diary, budget, photos] = await Promise.all([
+      const [packing, bookings, diary, budget, photos, userEvents] = await Promise.all([
         listPackingItems(trip.id),
         listBookings(trip.id),
         listDiaryEntries(trip.id),
         listBudgetEntries(trip.id),
-        listPhotos(trip.id)
+        listPhotos(trip.id),
+        listUserEvents(trip.id)
       ]);
       photoCount = photos.length;
       const token = await encodePayload(
-        buildSharePayload({ trip, packing, bookings, diary, budget })
+        buildSharePayload({ trip, packing, bookings, diary, budget, userEvents })
       );
       shareUrl = buildShareUrl(token);
     } catch (err) {

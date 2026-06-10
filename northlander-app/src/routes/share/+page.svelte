@@ -47,7 +47,8 @@
         packing: payload.packing.length,
         bookings: payload.bookings.length,
         diary: payload.diary.length,
-        budget: payload.budget.length
+        budget: payload.budget.length,
+        userEvents: Array.isArray(payload.userEvents) ? payload.userEvents.length : 0
       }
     : null;
 
@@ -58,7 +59,15 @@
       return;
     }
     const decoded = await decodePayload(token);
-    if (decoded && decoded.trip && Array.isArray(decoded.trip.stopIds || [])) {
+    /* A usable trip needs a name and at least one route entry, either
+       the dated `stops` shape or the legacy `stopIds`. Anything else
+       falls through to the "didn't decode" error state. */
+    const t = decoded?.trip;
+    const hasName = typeof t?.name === 'string' && t.name.trim().length > 0;
+    const hasRoute =
+      (Array.isArray(t?.stops) && t.stops.length > 0) ||
+      (Array.isArray(t?.stopIds) && t.stopIds.length > 0);
+    if (hasName && hasRoute) {
       payload = decoded;
       valid = true;
     }
@@ -180,6 +189,25 @@
           }))
         );
       }
+      if (Array.isArray(payload.userEvents) && payload.userEvents.length) {
+        await db.userEvents.bulkAdd(
+          payload.userEvents
+            .filter((r) => r && r.name && r.startDate)
+            .map((r) => ({
+              tripId: created.id,
+              stopId: r.stopId || null,
+              name: String(r.name || '').trim(),
+              startDate: r.startDate,
+              startTime: r.startTime || null,
+              venue: r.venue || null,
+              address: r.address || null,
+              url: r.url || null,
+              description: r.description || null,
+              createdAt: now,
+              updatedAt: now
+            }))
+        );
+      }
 
       trips.set(await listTrips());
       imported = true;
@@ -264,7 +292,10 @@
         {#if counts.diary > 0}
           <span class="share-stat"><strong>{counts.diary}</strong> note{counts.diary === 1 ? '' : 's'}</span>
         {/if}
-        {#if counts.bookings + counts.packing + counts.budget + counts.diary === 0}
+        {#if counts.userEvents > 0}
+          <span class="share-stat"><strong>{counts.userEvents}</strong> event{counts.userEvents === 1 ? '' : 's'}</span>
+        {/if}
+        {#if counts.bookings + counts.packing + counts.budget + counts.diary + counts.userEvents === 0}
           <span class="share-stat italic text-muted">Just the route - nothing else packed yet</span>
         {/if}
       </div>
