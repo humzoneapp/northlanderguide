@@ -1155,6 +1155,15 @@ a{color:inherit}
   background:var(--card);border:1.5px solid var(--line);
   border-radius:4px;overflow:hidden;cursor:pointer;
   text-align:left;font-family:inherit;padding:0;width:100%;
+  /* Without an explicit color on the <button>, iOS Safari falls back
+     to its system-button label colour (which can render as blue,
+     especially when iOS data-detection guesses the listing name is
+     an address). Locking the colour and disabling tap-callout +
+     extending format-detection in <head> stops the title text from
+     ever being tinted by the OS. */
+  color:var(--poster-ink);
+  -webkit-text-fill-color:var(--poster-ink);
+  -webkit-touch-callout:none;
   display:flex;flex-direction:column;
   box-shadow:0 4px 14px rgba(36,31,26,.08);
   transition:transform .22s cubic-bezier(.2,.7,.2,1),
