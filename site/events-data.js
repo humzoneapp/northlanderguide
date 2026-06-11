@@ -2001,7 +2001,7 @@ const EVENTS_DATA = {
       "venue": "Santa's Village",
       "address": "Santa's Village, 1624 Golden Beach Rd, Bracebridge, ON P1L 1W8",
       "description": "Muskoka's beloved family amusement park set on a bend of the Muskoka River returns for its 70th season. 22 rides including the classic Candy Cane Express train, carousel, roller coaster, Sky Ride, and the waterpark SplashWorks. Meet Santa and his elves, explore live reindeer, enjoy daily shows, and celebrate Canada Day, Halloween, and the Christmas season. Kids 2 and under free.",
-      "imageUrl": "https://www.santasvillage.ca/wp-content/uploads/2024/04/HOME-INTRO.png",
+      "imageUrl": "https://v5.airtableusercontent.com/v3/u/54/54/1781200800000/mEDQcAcU-ElSX7s8ZDOkaw/IqHcmdPPeiw_i0SC6NiB4oWlyOz7NyW0z3pbd8W-9PBnAeqZxGqUCfH_HsFKBK5-FjI0ggGsYgwyxmhVHR35up1uY-UbLEVSwzi4wIJmENroEq_luLL5J6y-tsX2PtKJW55FVggq0DoF_Q3S2E8qvbYmWUvSBVobK8Zt1NjQ22xc43YKype3SBHee6t1v7WK/CjKu0e5akch7q5AmDJLH9qTTBXtlZEs_Ynp6FEAWPGw",
       "eventUrl": "https://www.santasvillage.ca",
       "ticketUrl": null,
       "price": "From $35/day; season passes available",
