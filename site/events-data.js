@@ -2341,7 +2341,7 @@ const EVENTS_DATA = {
       "venue": "Various venues across Huntsville",
       "address": "Various venues - Algonquin Theatre, Deerhurst Resort, Canvas Brewing, Hillside Farm, River Mill Park, Town Docks, Huntsville, ON P1H",
       "description": "Muskoka's largest multi-arts festival returns for its 34th season with the theme 'The Arts Are In Our Nature.' 30+ events June through August across downtown Huntsville, Deerhurst Resort, Algonquin Theatre, Canvas Brewing, Hillside Farm, and the Town Docks. The 2026 lineup features Jim Cuddy (2 shows), Holly Cole, Steven Page, Ron James, The Good Brothers, William Prince, the Rheostatics, Delhi 2 Dublin, Nuit Blanche North (Jul 18), weekly Dancing on the Docks (Thu evenings), Movie on the Docks, and the beloved Huntsville Art CRAWL running all summer.",
-      "imageUrl": "https://northlanderguide.com/images/northlander-events-and-markets.jpeg",
+      "imageUrl": "https://v5.airtableusercontent.com/v3/u/54/54/1781200800000/sIKcqr0YPE0FpyThlIDKwg/lT2PiErKlN_bChB9ICv2JPiFsLGY3RH04hiN048fWshgV48J4GkiK50KBtiCLX3YPGfL8NOegMEtXQIX0TdqJBUFnOUlrQN1GBRc-TwQPLzvHqT6O5l6P_J4YBpFArKUUcCdlsE9mkCzCeCGh5U86An26_FWvrVW1hfGzuG0VgUZvoFFhozxZtHu31wVhcON4wwOAhOeSVz7_zM7BSUjiA/RbXw935QChWdtG3kbYcrlEkDiESJVpJkFSC21ZPrrzE",
       "eventUrl": "https://www.huntsvillefestival.ca",
       "ticketUrl": null,
       "price": "Free and ticketed events, from $25",
