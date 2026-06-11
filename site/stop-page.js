@@ -372,6 +372,15 @@
        ships without one, fall back to the same image client-side so
        a card never renders with an empty image slot. */
     const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+    /* Map button: only when venue or address is set. Universal Maps
+       URL works on iOS (Apple Maps deep-link via OS handler), Android
+       (Google Maps), desktop (new tab). preventDefault stops the
+       outer card link from also firing when the pin is tapped. */
+    const mapParts = [ev.venue, ev.address].filter(s => s && String(s).trim());
+    const mapUrl = mapParts.length ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapParts.join(', ')) : '';
+    const mapBtn = mapUrl
+      ? '<button type="button" class="sp-event-mapbtn" data-mapurl="' + esc(mapUrl) + '" aria-label="View this event on Google Maps"><i class="ph-light ph-map-pin" aria-hidden="true"></i> Map</button>'
+      : '';
     return '<' + tag + ' class="sp-event"' + href + '>'
       + '<div class="sp-event-img" style="background-image:url(\'' + esc(imgSrc) + '\')"></div>'
       + '<div class="sp-event-body">'
@@ -382,7 +391,9 @@
       + metaRow
       + '<div class="sp-event-foot">'
       + (priceLabel ? '<span class="sp-event-price">' + esc(priceLabel) + '</span>' : '<span></span>')
-      + (link ? '<span class="sp-event-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
+      + '<span class="sp-event-foot-actions">' + mapBtn
+      +   (link ? '<span class="sp-event-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
+      + '</span>'
       + '</div>'
       + '</div></' + tag + '>';
   }
@@ -729,6 +740,19 @@
     else heroEl.addEventListener('load', () => heroEl.classList.add('loaded'));
     heroEl.addEventListener('error', () => heroEl.classList.add('loaded'));
   }
+
+  /* Delegated map-button handler for every .sp-event-mapbtn in the
+     What's On grid. preventDefault + stopPropagation so the outer
+     card link (when an event has eventUrl set) doesn't also fire.
+     Capture phase so it runs before the card's default navigation. */
+  document.addEventListener('click', function (e) {
+    const btn = e.target && e.target.closest && e.target.closest('.sp-event-mapbtn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const url = btn.getAttribute('data-mapurl');
+    if (url) window.open(url, '_blank', 'noopener');
+  }, true);
 
   /* Deep links to a section (and screenshot testing): scroll once the
      content has been injected, since the fragment cannot resolve before. */

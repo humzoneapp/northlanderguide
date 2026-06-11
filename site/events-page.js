@@ -109,6 +109,12 @@
        a generic events photo still renders so the card never feels
        broken. Same URL the sync uses. */
     const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+    /* Map button only when we have venue or address to send to Maps. */
+    const mapParts = [ev.venue, ev.address].filter(s => s && String(s).trim());
+    const mapUrl = mapParts.length ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapParts.join(', ')) : '';
+    const mapBtn = mapUrl
+      ? '<button type="button" class="hev-mapbtn" data-mapurl="' + escHtml(mapUrl) + '" aria-label="View this event on Google Maps"><i class="ph-light ph-map-pin" aria-hidden="true"></i> Map</button>'
+      : '';
     return '<' + tag + ' class="hev-card"' + href + '>'
       + '<div class="hev-img" style="background-image:url(\'' + escHtml(imgSrc) + '\')"></div>'
       + '<div class="hev-body">'
@@ -119,11 +125,25 @@
       +   metaRow
       +   '<div class="hev-foot">'
       +     (priceLabel ? '<span class="hev-price">' + escHtml(priceLabel) + '</span>' : '<span></span>')
-      +     (link ? '<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
+      +     '<span class="hev-foot-actions">' + mapBtn
+      +       (link ? '<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>' : '')
+      +     '</span>'
       +   '</div>'
       + '</div>'
       + '</' + tag + '>';
   }
+
+  /* Delegated map-button handler. preventDefault + stopPropagation so
+     the outer card <a> doesn't also fire. Capture phase so it runs
+     before the card link's default navigation. */
+  document.addEventListener('click', function (e) {
+    const btn = e.target && e.target.closest && e.target.closest('.hev-mapbtn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const url = btn.getAttribute('data-mapurl');
+    if (url) window.open(url, '_blank', 'noopener');
+  }, true);
 
   function eventMatchesFilters(ev, f) {
     if (f.month !== 'all') {

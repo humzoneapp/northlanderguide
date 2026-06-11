@@ -338,8 +338,19 @@ a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
 .sp-event-family .ph-light{font-size:14px}
 .sp-event-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:12px}
 .sp-event-price{font-size:12px;font-weight:700;color:var(--sp-ink);letter-spacing:.02em}
+/* Foot actions group: Map pin + More info sit together on the right. */
+.sp-event-foot-actions{display:inline-flex;align-items:center;gap:11px}
 .sp-event-cta{font-size:12px;font-weight:700;color:var(--sp-rust);display:inline-flex;align-items:center;gap:4px}
 .sp-event-cta .ph-light{font-size:14px}
+/* Map pin button: peer to "More info" but on its own click target so
+   it can open Google Maps without firing the outer card link. */
+.sp-event-mapbtn{font-size:12px;font-weight:700;color:var(--sp-rust);
+  display:inline-flex;align-items:center;gap:4px;
+  background:transparent;border:0;padding:0;cursor:pointer;
+  font-family:'Spline Sans',sans-serif;letter-spacing:.02em;
+  transition:color .15s ease}
+.sp-event-mapbtn .ph-light{font-size:14px}
+.sp-event-mapbtn:hover{color:var(--sp-ink)}
 
 .sp-events-empty{background:var(--sp-offivory);border:1px solid #d9cfba;padding:46px 28px;text-align:left}
 .sp-events-empty .ph-light,.sp-events-empty .ph{font-size:46px;color:var(--sp-rust);display:block;margin-bottom:14px}

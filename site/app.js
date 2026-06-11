@@ -2090,6 +2090,17 @@ function eventCardHtml(ev){
      without one, fall back to the same image client-side so a card
      never renders with an empty image slot. */
   const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+  /* Map button: only renders when we have a real address or venue to
+     send to Google Maps. Same Universal Maps URL the App uses so
+     iOS deep-links to Apple Maps via the OS handler, Android opens
+     Google Maps, desktop opens in a new tab. The button is rendered
+     inside the card's outer <a> link, and its click handler stops
+     propagation so tapping the pin doesn't also fire the card link. */
+  const mapParts = [ev.venue, ev.address].filter(s => s && String(s).trim());
+  const mapUrl = mapParts.length ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapParts.join(', ')) : '';
+  const mapBtn = mapUrl
+    ? `<button type="button" class="hev-mapbtn" data-mapurl="${escHtml(mapUrl)}" aria-label="View this event on Google Maps"><i class="ph-light ph-map-pin" aria-hidden="true"></i> Map</button>`
+    : '';
   return `<${tag} class="hev-card"${href}>
     <div class="hev-img" style="background-image:url('${escHtml(imgSrc)}')"></div>
     <div class="hev-body">
@@ -2100,11 +2111,28 @@ function eventCardHtml(ev){
       ${metaRow}
       <div class="hev-foot">
         ${priceLabel ? `<span class="hev-price">${escHtml(priceLabel)}</span>` : '<span></span>'}
-        ${link ? `<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>` : ''}
+        <span class="hev-foot-actions">
+          ${mapBtn}
+          ${link ? `<span class="hev-cta">More info <i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span>` : ''}
+        </span>
       </div>
     </div>
   </${tag}>`;
 }
+
+/* Delegated handler for every "Map" button on the page. Lives on
+   document so it covers cards in the homepage events grid, in the
+   stop-panel events block, and any future surface that reuses the
+   .hev-card markup. preventDefault + stopPropagation so the outer
+   card link (when present) doesn't also fire. */
+document.addEventListener('click', function (e) {
+  const btn = e.target && e.target.closest && e.target.closest('.hev-mapbtn');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const url = btn.getAttribute('data-mapurl');
+  if (url) window.open(url, '_blank', 'noopener');
+}, true);
 
 /* The nine Airtable categories. Order matches the picker so the
    chip / dropdown reads the same as the submission form. */
