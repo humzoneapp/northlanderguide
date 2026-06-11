@@ -340,12 +340,14 @@ a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
 .sp-event-price{font-size:12px;font-weight:700;color:var(--sp-ink);letter-spacing:.02em}
 /* Foot actions group: Map pin + More info sit together on the right. */
 .sp-event-foot-actions{display:inline-flex;align-items:center;gap:11px}
-.sp-event-cta{font-size:12px;font-weight:700;color:var(--sp-rust);display:inline-flex;align-items:center;gap:4px}
+/* nowrap on the action labels so long prices never push Map or
+   More info onto two lines. */
+.sp-event-cta{font-size:12px;font-weight:700;color:var(--sp-rust);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .sp-event-cta .ph-light{font-size:14px}
 /* Map pin button: peer to "More info" but on its own click target so
    it can open Google Maps without firing the outer card link. */
 .sp-event-mapbtn{font-size:12px;font-weight:700;color:var(--sp-rust);
-  display:inline-flex;align-items:center;gap:4px;
+  display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
   background:transparent;border:0;padding:0;cursor:pointer;
   font-family:'Spline Sans',sans-serif;letter-spacing:.02em;
   transition:color .15s ease}

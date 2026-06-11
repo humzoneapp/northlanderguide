@@ -1588,13 +1588,17 @@ a{color:inherit}
 /* Foot actions group: Map pin + More info sit together on the right
    so price stays anchored on the left. */
 .hev-foot-actions{display:inline-flex;align-items:center;gap:.7rem}
-.hev-cta{font-size:.78rem;font-weight:700;color:var(--poster-crimson);display:inline-flex;align-items:center;gap:.2rem}
+/* white-space:nowrap on the action labels so a long price (e.g.
+   "From $45/day, season passes from $89") never forces Map or
+   More info onto two lines. The price itself can wrap freely since
+   it already lives in its own column. */
+.hev-cta{font-size:.78rem;font-weight:700;color:var(--poster-crimson);display:inline-flex;align-items:center;gap:.2rem;white-space:nowrap}
 .hev-cta .ph-light{font-size:.95rem}
 /* Map pin button: small inline action that opens the universal
    Maps URL in a new tab. Sized to read as a peer to "More info"
    without competing visually. */
 .hev-mapbtn{font-size:.78rem;font-weight:700;color:var(--poster-crimson);
-  display:inline-flex;align-items:center;gap:.2rem;
+  display:inline-flex;align-items:center;gap:.2rem;white-space:nowrap;
   background:transparent;border:0;padding:0;cursor:pointer;
   font-family:'Spline Sans',sans-serif;letter-spacing:.02em;
   transition:color .15s ease}
