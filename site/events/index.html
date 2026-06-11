@@ -85,7 +85,7 @@
 </head>
 <body class="events-page">
 
-<div class="topbar">
+<div class="topbar" id="top">
   <a href="/" class="brand">
     <span class="brand-mark" aria-hidden="true">
       <svg viewBox="0 0 32 32" width="26" height="26">
@@ -210,7 +210,39 @@
   </div>
 </footer>
 
+<!-- Floating back-to-home + back-to-top buttons, matching the pattern
+     on every stop page. .toback fades in after scrolling 360px so it
+     doesn't crowd the hero; .totop is visible from page load since
+     the events grid can run several screens long. -->
+<a href="/" class="toback" aria-label="Back to home">
+  <i class="ph-light ph-arrow-left" aria-hidden="true"></i>
+</a>
+<a href="#top" class="totop" aria-label="Back to top">
+  <i class="ph-light ph-arrow-up" aria-hidden="true"></i>
+</a>
+
 <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+<script>
+  /* Wire the floating buttons. .totop smooth-scrolls to top reliably
+     (href="#top" can stutter behind sticky URL bars on mobile);
+     .toback fades in once the visitor has scrolled past the hero. */
+  (function () {
+    const toTop = document.querySelector('.totop');
+    const toBack = document.querySelector('.toback');
+    if (toTop) {
+      toTop.classList.add('show');
+      toTop.addEventListener('click', e => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+    if (toBack) {
+      window.addEventListener('scroll', () => {
+        toBack.classList.toggle('show', window.scrollY > 360);
+      }, { passive: true });
+    }
+  })();
+</script>
 <!-- STOPS used by the stop-explorer overlay + the Where filter dropdown. -->
 <script src="/data.js?v=3"></script>
 <!-- Approved events keyed by stop slug. -->
