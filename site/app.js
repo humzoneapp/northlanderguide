@@ -1654,6 +1654,11 @@ function renderStop(){
         <button data-share="copy">${icon('link')}Copy link to this stop</button>
         <button data-share="x">${icon('share')}Share</button>
       </div>
+      ${stopHasEvents(s) ? `<a class="jump-to-events" href="#stopEventsBlock" data-jump="events">
+        <i class="ph-light ph-calendar" aria-hidden="true"></i>
+        <span>See what's on in ${escHtml(s.name)}</span>
+        <i class="ph-light ph-arrow-down" aria-hidden="true"></i>
+      </a>` : ''}
       <div class="catfilter" id="catFilter">
         ${CATS.map(c=>{
           const count=(s[c.key]||[]).length;
@@ -1700,6 +1705,12 @@ function renderStop(){
   });
   renderCards();
   bindStopEventsFilters();
+  const jumpBtn = document.querySelector('[data-jump="events"]');
+  if (jumpBtn) jumpBtn.addEventListener('click', e => {
+    e.preventDefault();
+    const block = document.getElementById('stopEventsBlock');
+    if (block) block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   observeReveals();
 }
 
@@ -1961,6 +1972,13 @@ function monthLabel(key){
    slate. */
 const STOP_EV_CAP = 6;
 let stopEvFilters = { stopId: null, month: null, familyOnly: false, sortClosest: false };
+
+/* True when the active stop has at least one approved event in the
+   synced data file. Used to gate the jump-to-events pill at the top
+   of the stop panel and the events section at the bottom. */
+function stopHasEvents(stop){
+  return !!(stop && window.EVENTS_DATA && (window.EVENTS_DATA[stop.id] || []).length);
+}
 
 function renderStopEventsBlock(stop){
   if (!stop || !window.EVENTS_DATA) return '';

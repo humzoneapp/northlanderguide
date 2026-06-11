@@ -1485,6 +1485,19 @@ a{color:inherit}
 .hev-month-label{font-family:'Fraunces',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--poster-ink);
   margin:0 0 1rem;padding:0 0 .5rem;border-bottom:1.5px solid var(--line);letter-spacing:.01em}
 .hev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.1rem}
+/* Jump-to-events pill near the top of the stop panel, between the
+   share row and the category filter. Only renders when the stop has
+   at least one event in the synced data. Dashed gold border + rust
+   text on cream, flips to ivory-on-rust on hover. */
+.jump-to-events{display:inline-flex;align-items:center;gap:.45rem;
+  margin:.4rem 0 1.1rem;padding:.5rem .9rem;border-radius:4px;
+  border:1.5px dashed var(--poster-gold);background:transparent;
+  font-family:'Spline Sans',system-ui,sans-serif;font-weight:600;font-size:.85rem;
+  color:var(--poster-rust);text-decoration:none;
+  transition:background .15s ease,color .15s ease,border-color .15s ease}
+.jump-to-events i{font-size:1rem;line-height:1}
+.jump-to-events:hover{background:#6e2e17;color:#fbf6ea;border-color:#6e2e17}
+
 /* Stop-panel events block: sits at the bottom of the slab beneath
    the listings grid. Reuses .hev-grid + .hev-card markup but caps
    to one tile per row in the narrower slab so the cards stay
@@ -1505,12 +1518,16 @@ a{color:inherit}
   justify-content:space-between;margin:0 0 1rem}
 .se-month-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
 .se-pill-row{display:flex;flex-wrap:nowrap;gap:.4rem;align-items:center}
-.se-month-chip{font-family:'Spline Sans',system-ui,sans-serif;font-weight:700;font-size:.72rem;
-  letter-spacing:.08em;text-transform:uppercase;padding:.35rem .7rem;border-radius:999px;
-  border:1.5px solid var(--line);background:transparent;color:var(--poster-ink);cursor:pointer;
-  transition:border-color .15s ease,background .15s ease,color .15s ease}
-.se-month-chip:hover{border-color:var(--poster-rust);color:var(--poster-rust)}
-.se-month-chip.active{background:var(--poster-rust);border-color:var(--poster-rust);color:#fbf6ea}
+/* Month chips read as a tab row, not a button row: no uppercase, no
+   border by default, just rust text on cream that fills in on hover
+   and reverses to ivory-on-rust when active. Keeps the filter strip
+   from competing with the listings sort-bar visually. */
+.se-month-chip{font-family:'Spline Sans',system-ui,sans-serif;font-weight:500;font-size:.85rem;
+  padding:.25rem .55rem;border-radius:3px;border:1px solid transparent;background:transparent;
+  color:var(--poster-rust);cursor:pointer;letter-spacing:0;text-transform:none;
+  transition:background .15s ease,color .15s ease}
+.se-month-chip:hover{background:rgba(125,58,30,.1);color:var(--poster-ink)}
+.se-month-chip.active{background:var(--poster-rust);color:#fbf6ea}
 .se-filter-pill{display:inline-flex;align-items:center;gap:.3rem;font-family:'Spline Sans',system-ui,sans-serif;
   font-weight:600;font-size:.78rem;padding:.35rem .8rem;border-radius:999px;
   border:1.5px solid var(--line);background:transparent;color:var(--poster-ink);cursor:pointer;
