@@ -1438,11 +1438,15 @@ a{color:inherit}
   font-size:1.15rem;color:var(--rail);margin-bottom:.9rem;
 }
 
-/* ---------- events ---------- */
-.eventsection{padding:2.4rem 0 2.8rem;max-width:1080px;margin:0 auto}
+/* ---------- events ----------
+   Max-width + horizontal gutter match the .stopnav section above so
+   "Events Along the Route" lines up edge-to-edge with the rail and
+   the ticker band. The 1280 / 1.5rem combo is the homepage's shared
+   content column. */
+.eventsection{padding:2.4rem 1.5rem 2.8rem;max-width:1280px;margin:0 auto}
 
 /* ---------- homepage events grid (route-wide, grouped by month) ---------- */
-#eventPanel{padding:0 1.1rem}
+#eventPanel{padding:0}
 
 /* Filter card above the grid. Two-tier layout: a top "When" section
    spans the full width with month chips (the dimension visitors use
@@ -1604,16 +1608,16 @@ a{color:inherit}
    separator. 80s linear loop with the items duplicated in markup so
    the seam never shows. Pauses on hover for legibility. Whole band
    is an <a> so tapping anywhere lands on northlander.app. */
-/* Constrained to the same 1080px content column as the events section
-   directly below so the band has visible left/right boundaries on
-   wide viewports instead of pasting itself across the full screen.
-   1.2rem horizontal margin on narrower viewports keeps it from
-   touching the page edge on mobile. */
+/* Bounded to the same 1280px content column as the .stopnav section
+   above, with the same 1.5rem horizontal gutter on desktop so the
+   ticker's left/right edges line up exactly with the rail above and
+   the events section below. Narrower viewports keep the gutter so
+   the band never touches the page edge. */
 .home-ticker{display:block;background:var(--rail-deep);color:#fbf6ea;
-  overflow:hidden;margin:0 1.2rem;padding:18px 0;white-space:nowrap;
+  overflow:hidden;margin:0 1.5rem;padding:18px 0;white-space:nowrap;
   text-decoration:none;cursor:pointer;
-  max-width:1080px;border-radius:4px}
-@media (min-width:1120px){
+  max-width:1280px;border-radius:4px}
+@media (min-width:1312px){
   .home-ticker{margin:0 auto}
 }
 .home-ticker-track{display:inline-flex;align-items:center;gap:0;
