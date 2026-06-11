@@ -1679,6 +1679,7 @@ function renderStop(){
         <div class="cat-header-label">${catLabel(activeCat)}</div>
       </div>
       <div class="cards" id="cards"></div>
+      ${renderStopEventsBlock(s)}
     </div>`;
   document.querySelectorAll('#catFilter button').forEach(b=>
     b.addEventListener('click',()=>{activeCat=b.dataset.cat;activeDetail=null;renderStop();}));
@@ -1945,6 +1946,35 @@ function monthLabel(key){
   const m = key % 100;
   const dt = new Date(Date.UTC(y, m-1, 1));
   return dt.toLocaleDateString('en-CA', { month:'long', year:'numeric', timeZone:'UTC' });
+}
+
+/* Bottom-of-the-stop-panel events block. Shows up to four events
+   for the active stop (Featured first, then ascending start date),
+   with a "See all" link out to the stop page's full What's On
+   section. Hides itself entirely when the stop has zero events so
+   the panel doesn't end on an awkward empty card. */
+function renderStopEventsBlock(stop){
+  if (!stop || !window.EVENTS_DATA) return '';
+  const all = (window.EVENTS_DATA[stop.id] || []).slice().sort((a, b) => {
+    if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
+    return String(a.startDate || '9999') < String(b.startDate || '9999') ? -1 : 1;
+  });
+  if (!all.length) return '';
+  const shown = all.slice(0, 4);
+  const moreCopy = all.length > 4
+    ? 'See all ' + all.length + ' events at ' + stop.name
+    : 'Open ' + stop.name + "'s full schedule";
+  return '<section class="stop-events" aria-label="What\'s on in ' + escHtml(stop.name) + '">'
+    + '<div class="stop-events-head">'
+    +   '<span class="stop-events-kicker">What\'s On</span>'
+    +   '<h3>Events in ' + escHtml(stop.name) + '</h3>'
+    + '</div>'
+    + '<div class="hev-grid stop-events-grid">' + shown.map(eventCardHtml).join('') + '</div>'
+    + '<a class="stop-events-see-all" href="/stops/' + stop.id + '#sp-events">'
+    +   escHtml(moreCopy)
+    +   '<i class="ph-light ph-arrow-up-right" aria-hidden="true"></i>'
+    + '</a>'
+    + '</section>';
 }
 
 function eventCardHtml(ev){
