@@ -252,50 +252,67 @@
   .sp-toc-link{padding:7px 12px;font-size:12.5px}
 }
 
-/* ---------- event filter card ----------
-   Two-tier layout: When chips span the full width, then a three-column
-   grid for What / Price / Walk time. Icons sit beside friendly section
-   labels so the bar reads as a question, not a form. */
-.sp-evfilters{background:var(--sp-ivory);border:1px solid #d9cfba;border-radius:10px;
-  padding:14px 18px 16px;margin:0 0 22px;box-shadow:0 4px 14px rgba(74,52,30,.06)}
-.sp-evfilters-head{display:flex;justify-content:space-between;align-items:center;
-  margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid #e3d8c0}
-.sp-evfilters-title{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:600;color:var(--sp-ink);margin:0;line-height:1}
-.sp-evreset{background:transparent;border:0;color:var(--sp-rust);font-size:12.5px;font-weight:700;
+/* ---------- event filter, editorial pass ----------
+   Mirrors the homepage .hev-filters lightening (2026-06-12). No card
+   chrome, no big "Find events" title row, no heavy chip borders.
+   Bracketed above and below with a thin dashed rust rule so it reads
+   as a navigation rest stop rather than a form. Section labels are
+   inline italic Fraunces ("when", "what", "price", "walk time") so
+   the vocabulary matches the editorial tone of the rest of the page.
+   No Where filter here - the page is already scoped to one stop. */
+.sp-evfilters{background:transparent;border:0;border-top:1px dashed rgba(125,58,30,.35);
+  border-bottom:1px dashed rgba(125,58,30,.35);border-radius:0;
+  padding:14px 0;margin:0 0 22px;box-shadow:none}
+.sp-evfilters-head{display:flex;justify-content:flex-end;align-items:center;
+  margin:0;padding:0;border-bottom:0;min-height:0}
+.sp-evfilters-title{display:none}
+.sp-evreset{background:transparent;border:0;color:var(--sp-rust);font-size:12.5px;font-weight:600;
   cursor:pointer;padding:3px 7px;display:inline-flex;align-items:center;gap:4px;
-  border-radius:4px;font-family:inherit;transition:background .15s ease}
-.sp-evreset .ph-light{font-size:14px}
-.sp-evreset:hover{background:rgba(141,61,34,.08)}
-.sp-evfilter-section{display:flex;flex-direction:column;gap:6px;margin:10px 0 0}
+  border-radius:4px;font-family:'Fraunces',Georgia,serif;font-style:italic;
+  transition:background .15s ease}
+.sp-evreset .ph-light{font-size:14px;font-style:normal}
+.sp-evreset:hover{background:rgba(125,58,30,.08)}
+.sp-evfilter-section{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;
+  gap:8px;margin:9px 0 0}
 .sp-evfilter-section--full{margin-top:0}
-.sp-evfilter-section-label{display:inline-flex;align-items:center;gap:6px;
-  font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--sp-muted)}
-.sp-evfilter-section-label .ph-light{font-size:15px;color:var(--sp-rust)}
-/* Match the homepage layout: flex row with equal gap between the
-   three sections, content-sized so Walk time stays on one line. */
-.sp-evfilter-grid{display:flex;justify-content:space-between;align-items:flex-start;
-  flex-wrap:wrap;gap:14px 22px;margin-top:6px}
+.sp-evfilter-section-label{display:inline-flex;align-items:center;gap:5px;
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;font-weight:500;
+  letter-spacing:0;text-transform:none;color:var(--sp-rust);
+  white-space:nowrap;margin-right:3px}
+.sp-evfilter-section-label .ph-light{font-size:15px;color:var(--sp-rust);font-style:normal}
+.sp-evfilter-grid{display:flex;justify-content:flex-start;align-items:flex-start;
+  flex-wrap:wrap;gap:8px 24px;margin-top:5px}
 .sp-evfilter-section{flex:0 1 auto;min-width:0}
-.sp-evchip-row{display:flex;flex-wrap:wrap;gap:6px}
-.sp-evchip{background:transparent;border:1.5px solid #d9cfba;border-radius:999px;
-  padding:5px 13px;font-size:13px;font-weight:600;color:var(--sp-ink);cursor:pointer;
-  font-family:inherit;line-height:1.2;
+.sp-evchip-row{display:flex;flex-wrap:wrap;gap:5px}
+.sp-evchip{background:transparent;border:1px solid transparent;border-radius:4px;
+  padding:4px 11px;font-size:13px;font-weight:500;color:var(--sp-ink);cursor:pointer;
+  font-family:'Spline Sans',sans-serif;line-height:1.2;letter-spacing:0;
   transition:background .15s ease,color .15s ease,border-color .15s ease}
-.sp-evchip:hover{border-color:var(--sp-rust);color:var(--sp-rust)}
-.sp-evchip.is-active{background:var(--sp-rust);border-color:var(--sp-rust);color:var(--sp-ivory);
-  box-shadow:0 2px 7px rgba(141,61,34,.22)}
-.sp-evselect{background:var(--sp-offivory);border:1.5px solid #d9cfba;border-radius:6px;
-  padding:7px 10px;font-size:13px;font-family:'Spline Sans',sans-serif;color:var(--sp-ink);
-  width:100%;max-width:280px;cursor:pointer;
+.sp-evchip:hover{background:rgba(125,58,30,.08);color:var(--sp-rust)}
+.sp-evchip.is-active,
+.sp-evchip.is-active:hover{background:#6e2e17;border-color:#6e2e17;color:var(--sp-ivory);box-shadow:none}
+/* Dropdowns inherit the chip vocabulary: pill shape, rust border,
+   italic Fraunces displayed value with a rust chevron. Native open
+   menu still uses OS chrome (necessary for accessibility), but the
+   closed state stops looking like a browser form widget. */
+.sp-evselect{background:transparent;border:1px solid var(--sp-rust);border-radius:999px;
+  padding:5px 28px 5px 13px;
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:13.5px;
+  color:var(--sp-ink);line-height:1.2;
+  width:auto;min-width:170px;max-width:260px;cursor:pointer;
   appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23736749'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
-  background-repeat:no-repeat;background-position:right 9px center;background-size:14px;padding-right:28px}
-.sp-evselect:focus{outline:none;border-color:var(--sp-rust)}
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%237d3a1e'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
+  background-repeat:no-repeat;background-position:right 11px center;background-size:11px;
+  transition:background-color .15s ease,color .15s ease}
+.sp-evselect:hover{background-color:rgba(125,58,30,.08);color:var(--sp-rust)}
+.sp-evselect:focus{outline:none;background-color:var(--sp-ivory)}
+.sp-evselect option{font-family:'Spline Sans',sans-serif;font-style:normal;color:var(--sp-ink)}
 @media (max-width:720px){
-  .sp-evfilter-grid{grid-template-columns:1fr;gap:12px}
+  .sp-evfilter-grid{flex-direction:column;align-items:flex-start;gap:9px}
+  .sp-evfilter-section{width:100%}
 }
 @media (max-width:480px){
-  .sp-evfilters{padding:12px 14px}
+  .sp-evfilters{padding:11px 0}
 }
 
 /* ---------- events ---------- */
