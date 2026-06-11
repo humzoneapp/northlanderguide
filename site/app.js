@@ -1699,6 +1699,7 @@ function renderStop(){
     renderCards();
   });
   renderCards();
+  bindStopEventsFilters();
   observeReveals();
 }
 
@@ -1948,33 +1949,143 @@ function monthLabel(key){
   return dt.toLocaleDateString('en-CA', { month:'long', year:'numeric', timeZone:'UTC' });
 }
 
-/* Bottom-of-the-stop-panel events block. Shows up to four events
-   for the active stop (Featured first, then ascending start date),
-   with a "See all" link out to the stop page's full What's On
-   section. Hides itself entirely when the stop has zero events so
-   the panel doesn't end on an awkward empty card. */
+/* Bottom-of-the-stop-panel events block. Up to six event cards with
+   month chips + Family Friendly + Closest pills above. Featured-first
+   sort by default, swap to walkMins-ascending when Closest is active.
+   Hides itself entirely when the stop has zero events so the panel
+   doesn't end on an awkward empty section.
+
+   Filter state lives in stopEvFilters (module-level so re-rendering
+   the events block alone preserves the choices) and resets whenever
+   the active stop changes - switching stops should feel like a clean
+   slate. */
+const STOP_EV_CAP = 6;
+let stopEvFilters = { stopId: null, month: null, familyOnly: false, sortClosest: false };
+
 function renderStopEventsBlock(stop){
   if (!stop || !window.EVENTS_DATA) return '';
-  const all = (window.EVENTS_DATA[stop.id] || []).slice().sort((a, b) => {
-    if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
-    return String(a.startDate || '9999') < String(b.startDate || '9999') ? -1 : 1;
-  });
+  const all = window.EVENTS_DATA[stop.id] || [];
   if (!all.length) return '';
-  const shown = all.slice(0, 4);
-  const moreCopy = all.length > 4
+
+  if (stopEvFilters.stopId !== stop.id) {
+    stopEvFilters = { stopId: stop.id, month: null, familyOnly: false, sortClosest: false };
+  }
+
+  /* Discover the month chips this stop deserves: every month any
+     event spans, plus a Recurring chip when any event is marked
+     recurring. Sorted chronologically so the chip row reads
+     left-to-right earliest-to-latest. */
+  const monthSet = new Set();
+  let hasRecurring = false;
+  for (const ev of all) {
+    if (ev.recurring) hasRecurring = true;
+    for (const k of monthKeysForEvent(ev)) monthSet.add(k);
+  }
+  const sortedMonths = Array.from(monthSet).sort((a, b) => a - b);
+
+  /* Apply the active month / family-friendly filters. Recurring chip
+     matches events with recurring=true regardless of month. */
+  let filtered = all.filter(ev => {
+    if (stopEvFilters.familyOnly && !ev.familyFriendly) return false;
+    if (stopEvFilters.month == null) return true;
+    if (stopEvFilters.month === 'recurring') return !!ev.recurring;
+    return monthKeysForEvent(ev).includes(stopEvFilters.month);
+  });
+
+  /* Sort: Closest pin sorts by walkMins ascending (events without
+     walkMins sink to the bottom). Default is Featured first, then
+     ascending start date - same as the homepage grid. */
+  if (stopEvFilters.sortClosest) {
+    filtered = filtered.slice().sort((a, b) => {
+      const aw = typeof a.walkMins === 'number' ? a.walkMins : Infinity;
+      const bw = typeof b.walkMins === 'number' ? b.walkMins : Infinity;
+      if (aw !== bw) return aw - bw;
+      return String(a.startDate || '9999') < String(b.startDate || '9999') ? -1 : 1;
+    });
+  } else {
+    filtered = filtered.slice().sort((a, b) => {
+      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
+      return String(a.startDate || '9999') < String(b.startDate || '9999') ? -1 : 1;
+    });
+  }
+
+  const shown = filtered.slice(0, STOP_EV_CAP);
+  const moreCopy = all.length > STOP_EV_CAP
     ? 'See all ' + all.length + ' events at ' + stop.name
     : 'Open ' + stop.name + "'s full schedule";
-  return '<section class="stop-events" aria-label="What\'s on in ' + escHtml(stop.name) + '">'
+
+  const monthChips = sortedMonths.map(k => {
+    const active = stopEvFilters.month === k ? ' active' : '';
+    return '<button type="button" class="se-month-chip' + active + '" data-month="' + k + '">'
+      + escHtml(monthLabel(k)) + '</button>';
+  }).join('');
+  const recurringChip = hasRecurring
+    ? '<button type="button" class="se-month-chip' + (stopEvFilters.month === 'recurring' ? ' active' : '')
+      + '" data-month="recurring">Recurring</button>'
+    : '';
+
+  const familyPill = '<button type="button" class="se-filter-pill'
+    + (stopEvFilters.familyOnly ? ' active' : '') + '" data-evfilter="family" aria-pressed="'
+    + stopEvFilters.familyOnly + '"><i class="ph-light ph-users-three" aria-hidden="true"></i>'
+    + '<span>Family</span></button>';
+  const closestPill = '<button type="button" class="se-filter-pill'
+    + (stopEvFilters.sortClosest ? ' active' : '') + '" data-evfilter="closest" aria-pressed="'
+    + stopEvFilters.sortClosest + '"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>'
+    + '<span>Closest</span></button>';
+
+  const gridOrEmpty = shown.length
+    ? '<div class="hev-grid stop-events-grid">' + shown.map(eventCardHtml).join('') + '</div>'
+    : '<div class="stop-events-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>'
+      + ' No events match these filters.</div>';
+
+  return '<section class="stop-events" id="stopEventsBlock" aria-label="What\'s on in ' + escHtml(stop.name) + '">'
     + '<div class="stop-events-head">'
     +   '<span class="stop-events-kicker">What\'s On</span>'
     +   '<h3>Events in ' + escHtml(stop.name) + '</h3>'
     + '</div>'
-    + '<div class="hev-grid stop-events-grid">' + shown.map(eventCardHtml).join('') + '</div>'
+    + '<div class="stop-events-filters">'
+    +   '<div class="se-month-row">' + monthChips + recurringChip + '</div>'
+    +   '<div class="se-pill-row">' + familyPill + closestPill + '</div>'
+    + '</div>'
+    + gridOrEmpty
     + '<a class="stop-events-see-all" href="/stops/' + stop.id + '#sp-events">'
     +   escHtml(moreCopy)
     +   '<i class="ph-light ph-arrow-up-right" aria-hidden="true"></i>'
     + '</a>'
     + '</section>';
+}
+
+/* Replace the existing events block in-place on filter clicks so the
+   visitor's scroll position doesn't snap back to the top of the panel
+   (full renderStop() would). Re-binds the new buttons' click handlers
+   since outerHTML replacement throws away the old listeners. */
+function rerenderStopEventsBlock(){
+  const old = document.getElementById('stopEventsBlock');
+  if (!old || !activeStop) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderStopEventsBlock(activeStop);
+  const fresh = tmp.firstElementChild;
+  if (!fresh) return;
+  old.replaceWith(fresh);
+  bindStopEventsFilters();
+}
+
+function bindStopEventsFilters(){
+  document.querySelectorAll('#stopEventsBlock [data-month]').forEach(b => {
+    b.addEventListener('click', () => {
+      const raw = b.dataset.month;
+      const next = raw === 'recurring' ? 'recurring' : Number(raw);
+      stopEvFilters.month = stopEvFilters.month === next ? null : next;
+      rerenderStopEventsBlock();
+    });
+  });
+  document.querySelectorAll('#stopEventsBlock [data-evfilter]').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.dataset.evfilter === 'family') stopEvFilters.familyOnly = !stopEvFilters.familyOnly;
+      else if (b.dataset.evfilter === 'closest') stopEvFilters.sortClosest = !stopEvFilters.sortClosest;
+      rerenderStopEventsBlock();
+    });
+  });
 }
 
 function eventCardHtml(ev){

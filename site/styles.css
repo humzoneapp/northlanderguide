@@ -1497,6 +1497,32 @@ a{color:inherit}
 .stop-events-head h3{font-family:'Fraunces',Georgia,serif;font-weight:700;
   font-size:1.5rem;color:var(--poster-ink);margin:0}
 .stop-events-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem}
+/* Filter row above the events grid. Month chips wrap onto multiple
+   rows when there are many months; the pill row stays single-row and
+   right-aligns on desktop so the filter UI mirrors the listings'
+   sort-bar pattern above. */
+.stop-events-filters{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;
+  justify-content:space-between;margin:0 0 1rem}
+.se-month-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.se-pill-row{display:flex;flex-wrap:nowrap;gap:.4rem;align-items:center}
+.se-month-chip{font-family:'Spline Sans',system-ui,sans-serif;font-weight:700;font-size:.72rem;
+  letter-spacing:.08em;text-transform:uppercase;padding:.35rem .7rem;border-radius:999px;
+  border:1.5px solid var(--line);background:transparent;color:var(--poster-ink);cursor:pointer;
+  transition:border-color .15s ease,background .15s ease,color .15s ease}
+.se-month-chip:hover{border-color:var(--poster-rust);color:var(--poster-rust)}
+.se-month-chip.active{background:var(--poster-rust);border-color:var(--poster-rust);color:#fbf6ea}
+.se-filter-pill{display:inline-flex;align-items:center;gap:.3rem;font-family:'Spline Sans',system-ui,sans-serif;
+  font-weight:600;font-size:.78rem;padding:.35rem .8rem;border-radius:999px;
+  border:1.5px solid var(--line);background:transparent;color:var(--poster-ink);cursor:pointer;
+  transition:border-color .15s ease,background .15s ease,color .15s ease}
+.se-filter-pill i{font-size:1rem;line-height:1}
+.se-filter-pill:hover{border-color:var(--poster-rust);color:var(--poster-rust)}
+.se-filter-pill.active{background:var(--poster-rust);border-color:var(--poster-rust);color:#fbf6ea;
+  box-shadow:0 0 0 3px rgba(125,58,30,.15)}
+.stop-events-empty{padding:1rem 1.2rem;background:#fbf6ea;border:1.5px dashed rgba(125,58,30,.45);
+  border-radius:4px;font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--poster-ink);
+  display:flex;align-items:center;gap:.5rem}
+.stop-events-empty i{font-size:1.1rem;color:var(--poster-rust)}
 .stop-events-see-all{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.1rem;
   font-family:'Spline Sans',system-ui,sans-serif;font-weight:600;font-size:.85rem;
   letter-spacing:.02em;color:var(--poster-rust);text-decoration:none}
