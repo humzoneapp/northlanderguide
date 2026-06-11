@@ -1648,6 +1648,30 @@ a{color:inherit}
 .submit-event-footer p{margin:.2rem 0}
 .submit-event-footer a{color:var(--poster-crimson)}
 
+/* ---------- /events page chrome ----------
+   Dedicated route-wide events catalogue. Topbar + footer reuse the
+   homepage's shared chrome; only the breadcrumb, hero, and main
+   container are page-specific. Wider max-width than submit-event
+   because the events grid needs the room to flow three cards across
+   on desktop. */
+.events-page-main{max-width:1100px;width:100%;margin:0 auto;padding:1.4rem 1.2rem 2rem}
+.events-page-breadcrumb{font-family:'Spline Sans',sans-serif;font-size:.82rem;color:var(--poster-mute);
+  display:flex;align-items:center;gap:.4rem;margin:0 0 1.4rem}
+.events-page-breadcrumb a{color:var(--poster-crimson);text-decoration:none;font-weight:600}
+.events-page-breadcrumb a:hover{color:var(--poster-ink)}
+.events-page-breadcrumb span[aria-current]{color:var(--poster-ink);font-weight:600}
+.events-page-hero{text-align:left;margin:0 0 1.8rem;max-width:780px}
+.events-page-hero .kicker{color:var(--poster-crimson);font-size:.78rem;letter-spacing:.28em;
+  text-transform:uppercase;font-weight:700;margin:0 0 .7rem}
+.events-page-hero h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,2.7rem);
+  font-weight:700;color:var(--poster-ink);margin:0 0 .8rem;line-height:1.1}
+.events-page-hero p{color:var(--poster-mute);max-width:640px;margin:0;
+  font-size:1.02rem;line-height:1.55}
+@media (max-width:600px){
+  .events-page-main{padding:1rem 1rem 1.6rem}
+  .events-page-hero{margin-bottom:1.4rem}
+}
+
 /* ---------- event submission form ---------- */
 .event-submit{margin:3rem 1.1rem 0;padding:2rem 1.5rem 2.2rem;
   background:var(--card);border:1.5px solid var(--line);border-radius:6px}
