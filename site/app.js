@@ -1968,7 +1968,7 @@ function monthLabel(key){
    the active stop changes - switching stops should feel like a clean
    slate. */
 const STOP_EV_CAP = 6;
-let stopEvFilters = { stopId: null, month: null, familyOnly: false, sortClosest: false };
+let stopEvFilters = { stopId: null, familyOnly: false, sortClosest: false };
 
 /* True when the active stop has at least one approved event in the
    synced data file. Used to gate the jump-to-events pill at the top
@@ -1983,28 +1983,15 @@ function renderStopEventsBlock(stop){
   if (!all.length) return '';
 
   if (stopEvFilters.stopId !== stop.id) {
-    stopEvFilters = { stopId: stop.id, month: null, familyOnly: false, sortClosest: false };
+    stopEvFilters = { stopId: stop.id, familyOnly: false, sortClosest: false };
   }
 
-  /* Discover the month chips this stop deserves: every month any
-     event spans, plus a Recurring chip when any event is marked
-     recurring. Sorted chronologically so the chip row reads
-     left-to-right earliest-to-latest. */
-  const monthSet = new Set();
-  let hasRecurring = false;
-  for (const ev of all) {
-    if (ev.recurring) hasRecurring = true;
-    for (const k of monthKeysForEvent(ev)) monthSet.add(k);
-  }
-  const sortedMonths = Array.from(monthSet).sort((a, b) => a - b);
-
-  /* Apply the active month / family-friendly filters. Recurring chip
-     matches events with recurring=true regardless of month. */
+  /* Apply the family-friendly filter. Date-range filtering lives on
+     the dedicated /events page, not here - the stop panel is the
+     highlights preview, /events is the full catalogue. */
   let filtered = all.filter(ev => {
     if (stopEvFilters.familyOnly && !ev.familyFriendly) return false;
-    if (stopEvFilters.month == null) return true;
-    if (stopEvFilters.month === 'recurring') return !!ev.recurring;
-    return monthKeysForEvent(ev).includes(stopEvFilters.month);
+    return true;
   });
 
   /* Sort: Closest pin sorts by walkMins ascending (events without
@@ -2029,16 +2016,6 @@ function renderStopEventsBlock(stop){
     ? 'See all ' + all.length + ' events at ' + stop.name
     : 'Open ' + stop.name + "'s full schedule";
 
-  const monthChips = sortedMonths.map(k => {
-    const active = stopEvFilters.month === k ? ' active' : '';
-    return '<button type="button" class="se-month-chip' + active + '" data-month="' + k + '">'
-      + escHtml(monthLabel(k)) + '</button>';
-  }).join('');
-  const recurringChip = hasRecurring
-    ? '<button type="button" class="se-month-chip' + (stopEvFilters.month === 'recurring' ? ' active' : '')
-      + '" data-month="recurring">Recurring</button>'
-    : '';
-
   const familyPill = '<button type="button" class="se-filter-pill'
     + (stopEvFilters.familyOnly ? ' active' : '') + '" data-evfilter="family" aria-pressed="'
     + stopEvFilters.familyOnly + '"><i class="ph-light ph-users-three" aria-hidden="true"></i>Family</button>';
@@ -2056,10 +2033,7 @@ function renderStopEventsBlock(stop){
     +   '<span class="stop-events-kicker">What\'s On</span>'
     +   '<h3>Events in ' + escHtml(stop.name) + '</h3>'
     + '</div>'
-    + '<div class="stop-events-filters">'
-    +   '<div class="se-month-row">' + monthChips + recurringChip + '</div>'
-    +   '<div class="se-pill-row">' + familyPill + closestPill + '</div>'
-    + '</div>'
+    + '<div class="stop-events-filters">' + familyPill + closestPill + '</div>'
     + gridOrEmpty
     + '<a class="stop-events-see-all" href="/stops/' + stop.id + '#sp-events">'
     +   escHtml(moreCopy)
@@ -2084,14 +2058,6 @@ function rerenderStopEventsBlock(){
 }
 
 function bindStopEventsFilters(){
-  document.querySelectorAll('#stopEventsBlock [data-month]').forEach(b => {
-    b.addEventListener('click', () => {
-      const raw = b.dataset.month;
-      const next = raw === 'recurring' ? 'recurring' : Number(raw);
-      stopEvFilters.month = stopEvFilters.month === next ? null : next;
-      rerenderStopEventsBlock();
-    });
-  });
   document.querySelectorAll('#stopEventsBlock [data-evfilter]').forEach(b => {
     b.addEventListener('click', () => {
       if (b.dataset.evfilter === 'family') stopEvFilters.familyOnly = !stopEvFilters.familyOnly;

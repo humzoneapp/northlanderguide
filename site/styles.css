@@ -1497,24 +1497,11 @@ a{color:inherit}
 .stop-events-head h3{font-family:'Fraunces',Georgia,serif;font-weight:700;
   font-size:1.5rem;color:var(--poster-ink);margin:0}
 .stop-events-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem}
-/* Filter row above the events grid. Month chips wrap onto multiple
-   rows when there are many months; the pill row stays single-row and
-   right-aligns on desktop so the filter UI mirrors the listings'
-   sort-bar pattern above. */
-.stop-events-filters{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;
-  justify-content:space-between;margin:0 0 1rem}
-.se-month-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
-.se-pill-row{display:flex;flex-wrap:nowrap;gap:.4rem;align-items:center}
-/* Month chips read as a tab row, not a button row: no uppercase, no
-   border by default, just rust text on cream that fills in on hover
-   and reverses to ivory-on-rust when active. Keeps the filter strip
-   from competing with the listings sort-bar visually. */
-.se-month-chip{font-family:'Spline Sans',system-ui,sans-serif;font-weight:500;font-size:.85rem;
-  padding:.25rem .55rem;border-radius:3px;border:1px solid transparent;background:transparent;
-  color:var(--poster-rust);cursor:pointer;letter-spacing:0;text-transform:none;
-  transition:background .15s ease,color .15s ease}
-.se-month-chip:hover{background:rgba(125,58,30,.1);color:var(--poster-ink)}
-.se-month-chip.active{background:var(--poster-rust);color:#fbf6ea}
+/* Filter row above the events grid. Two pills only (Family +
+   Closest); date-range filtering lives on the dedicated /events
+   page, not here, so the row stays light and left-aligned. */
+.stop-events-filters{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;
+  margin:0 0 1rem}
 /* Family / Closest pills. The active state pins background + text +
    icon colour explicitly (rather than letting :hover collide on the
    same specificity and turn the text rust-on-rust = invisible). */
