@@ -149,26 +149,27 @@
 </nav>
 
 <main class="events-page-main">
-  <nav class="events-page-breadcrumb" aria-label="Breadcrumb">
-    <a href="/">Home</a>
-    <span aria-hidden="true">/</span>
-    <span aria-current="page">Events</span>
-  </nav>
-
-  <header class="events-page-hero">
+  <section class="events-page-hero" aria-label="Events along the Northlander route">
     <div class="events-page-hero-frame">
       <img class="events-page-hero-img"
            src="/images/northlander-events-and-markets.jpeg"
            alt="Outdoor market under string lights with crowds, tents and live music at a small Northern Ontario town along the Northlander route"
            fetchpriority="high" loading="eager" decoding="async">
-      <div class="events-page-hero-vignette" aria-hidden="true"></div>
     </div>
-    <div class="events-page-hero-titlewrap">
-      <div class="kicker">What's On</div>
-      <h1>Events Along the Route</h1>
-      <p>Markets, festivals, live music, art crawls, community gatherings. Everything happening at every Northlander stop, in one place. Filter by month, stop, category, price and walking distance from the station to find your weekend.</p>
-    </div>
-  </header>
+  </section>
+
+  <div class="events-page-hero-titlewrap">
+    <h1 class="events-page-hero-title">Events Along the Route</h1>
+    <p class="events-page-hero-tagline">Markets, festivals, live music and community gatherings, at every Northlander stop.</p>
+  </div>
+
+  <nav class="events-page-breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <i class="ph-light ph-train" aria-hidden="true"></i>
+    <span aria-current="page">Events</span>
+  </nav>
+
+  <p class="events-page-intro">Filter by month, stop, category, price and walking distance from the station to find your weekend. Stale events drop off automatically the day after they wrap.</p>
 
   <div id="eventPanel"></div>
 
