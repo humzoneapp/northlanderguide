@@ -2195,9 +2195,15 @@ function eventsFilterBarHtml(allEvents, f) {
   }
   const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
 
+  /* Suffix the year on a chip ("Mar '27") only when the data spans
+     more than one calendar year. Otherwise "Mar" alone is unambiguous
+     and reads cleaner. Walks the chip key set once to decide. */
+  const yearsInSet = new Set(monthKeys.map(k => Math.floor(k/100)));
+  const showYearOnChips = yearsInSet.size > 1;
   const monthShort = key => {
     const y = Math.floor(key/100), m = key%100;
-    return new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
+    const m_str = new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
+    return showYearOnChips ? m_str + " '" + String(y).slice(-2) : m_str;
   };
   const chip = (group, value, label, active) =>
     `<button type="button" class="hev-chip${active ? ' is-active' : ''}" data-filter-group="${group}" data-filter-value="${escHtml(String(value))}">${escHtml(label)}</button>`;
