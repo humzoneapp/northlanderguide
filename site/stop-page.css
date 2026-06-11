@@ -548,6 +548,22 @@ a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
 /* (.sp-section is a structural hook; individual sections like .sp-intro
    set their own margin-top so the page rhythm stays explicit.) */
 
+/* Cross-page hash navigation (eg. clicking "See all 28 events at
+   Toronto Union" on the homepage stop panel, which sends the browser
+   to /stops/toronto-union#sp-events) uses the browser's default
+   scroll-to-anchor behaviour. That doesn't know about the sticky
+   topbar (~58px) plus the sticky TOC bar (~52px) overlapping the
+   top of the viewport, so the section's title scrolls underneath
+   them and the visitor lands on the chip row a hundred pixels in.
+   scroll-margin-top tells the browser to offset its hash scroll
+   target so the section h2 stays visible just below the sticky
+   chrome. The TOC's own JS click handler already offsets manually,
+   so this doesn't double up on in-page TOC navigation. */
+.sp-section[id]{scroll-margin-top:120px}
+@media (max-width:720px){
+  .sp-section[id]{scroll-margin-top:104px}
+}
+
 /* ---------- responsive ---------- */
 @media (max-width:860px){
   .sp-intro{grid-template-columns:1fr;gap:28px}
