@@ -269,9 +269,9 @@
     <h1>Every stop has a <em>story</em></h1>
     <p class="hero-sub">Your independent guide to the towns, trails, food, stays and hidden gems along Ontario's Northlander route</p>
     <div class="hero-cta">
-      <a href="#stopnav" class="btn btn-primary">Browse the Route</a>
+      <a href="#stopnav" class="btn btn-ghost">Browse the Route</a>
       <a href="#" onclick="openStopExplorer();return false;" class="btn btn-ghost">Explore Stops</a>
-      <a href="/events/" class="btn btn-ghost"><i class="ph-light ph-calendar" aria-hidden="true"></i> Events</a>
+      <a href="/events/" class="btn btn-ghost">Events</a>
     </div>
   </div>
 </header>
@@ -306,6 +306,30 @@
     <div class="adslot inline" data-ad>Advertisement</div>
   </div>
 </section>
+
+<!-- ===== APP TICKER BAND =====
+     Forest-green scrolling band that bridges the stops directory and
+     the events grid. Atmospheric copy that nudges the visitor toward
+     northlander.app for trip planning. Pattern mirrors the /plan
+     page's pl-ticker; pauses on hover. Whole band is a link so a
+     desktop or mobile tap anywhere lands on northlander.app. -->
+<a class="home-ticker" href="https://northlander.app" target="_blank" rel="noopener" aria-label="Plan your Northlander trip on northlander.app">
+  <div class="home-ticker-track" aria-hidden="true">
+    <span class="home-ticker-item"><span class="home-ticker-cat">Northlander.app</span><span class="home-ticker-fact">Plan, pack and share your Northlander trip.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Pack Smart</span><span class="home-ticker-fact">Bring what you need. Skip what you don't.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Drop Favourites</span><span class="home-ticker-fact">Add stops and listings as you browse. They wait in your suitcase.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Travel Diary</span><span class="home-ticker-fact">A journal that follows the train, photo by photo.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Share the Line</span><span class="home-ticker-fact">Send your whole itinerary in one link. No login required.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Free to Ride</span><span class="home-ticker-fact">Build your first suitcase free at northlander.app.</span><span class="home-ticker-dot"></span></span>
+    <!-- Duplicate the same six items so the linear scroll loops without a visible seam. -->
+    <span class="home-ticker-item"><span class="home-ticker-cat">Northlander.app</span><span class="home-ticker-fact">Plan, pack and share your Northlander trip.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Pack Smart</span><span class="home-ticker-fact">Bring what you need. Skip what you don't.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Drop Favourites</span><span class="home-ticker-fact">Add stops and listings as you browse. They wait in your suitcase.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Travel Diary</span><span class="home-ticker-fact">A journal that follows the train, photo by photo.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Share the Line</span><span class="home-ticker-fact">Send your whole itinerary in one link. No login required.</span><span class="home-ticker-dot"></span></span>
+    <span class="home-ticker-item"><span class="home-ticker-cat">Free to Ride</span><span class="home-ticker-fact">Build your first suitcase free at northlander.app.</span><span class="home-ticker-dot"></span></span>
+  </div>
+</a>
 
 <!-- ===== EVENTS ===== -->
 <section class="eventsection" id="events">

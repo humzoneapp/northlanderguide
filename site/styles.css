@@ -1596,6 +1596,41 @@ a{color:inherit}
   transition:color .15s ease}
 .hev-mapbtn .ph-light{font-size:1rem}
 .hev-mapbtn:hover{color:var(--poster-ink)}
+
+/* Homepage app ticker: forest-green scrolling band that sits between
+   the stops directory and the events grid, nudging the visitor
+   toward northlander.app. Mirrors the /plan page's pl-ticker idiom:
+   amber small-caps category, italic Fraunces fact line, amber dot
+   separator. 80s linear loop with the items duplicated in markup so
+   the seam never shows. Pauses on hover for legibility. Whole band
+   is an <a> so tapping anywhere lands on northlander.app. */
+.home-ticker{display:block;background:var(--rail-deep);color:#fbf6ea;
+  overflow:hidden;margin:0;padding:18px 0;white-space:nowrap;
+  text-decoration:none;cursor:pointer}
+.home-ticker-track{display:inline-flex;align-items:center;gap:0;
+  animation:home-ticker-scroll 80s linear infinite;will-change:transform}
+.home-ticker:hover .home-ticker-track,
+.home-ticker:focus-within .home-ticker-track{animation-play-state:paused}
+.home-ticker-item{display:inline-flex;align-items:center;gap:14px;padding:0 28px}
+.home-ticker-cat{text-transform:uppercase;letter-spacing:.18em;
+  font-family:'Spline Sans',system-ui,sans-serif;
+  font-size:11px;font-weight:700;color:var(--poster-gold)}
+.home-ticker-fact{font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:17px;color:#fbf6ea;letter-spacing:.005em}
+.home-ticker-dot{width:5px;height:5px;border-radius:50%;
+  background:var(--poster-gold);flex:none}
+@keyframes home-ticker-scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+@media (prefers-reduced-motion: reduce){
+  .home-ticker-track{animation:none}
+}
+@media (max-width:640px){
+  .home-ticker{padding:14px 0}
+  .home-ticker-fact{font-size:15px}
+  .home-ticker-item{gap:11px;padding:0 20px}
+}
 /* Pagination below the homepage event grid. Centred row of buttons
    with a clear active state. Prev / Next gain a subtle caret. */
 .hev-pagination{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
