@@ -72,7 +72,8 @@ const ICONS = {
   'phone':      'ph-phone',
   'bus':        'ph-bus',
   'shop':       'ph-shopping-bag',
-  'tag':        'ph-tag'
+  'tag':        'ph-tag',
+  'calendar':   'ph-calendar'
 };
 function icon(name){ const c = ICONS[name]; return c ? `<i class="ph-light ${c}" aria-hidden="true"></i>` : ''; }
 
@@ -1651,14 +1652,10 @@ function renderStop(){
       </div>
       <p class="stop-blurb">${s.blurb}</p>
       <div class="share-row">
+        ${stopHasEvents(s) ? `<button type="button" data-jump="events">${icon('calendar')}What's On</button>` : ''}
         <button data-share="copy">${icon('link')}Copy link to this stop</button>
         <button data-share="x">${icon('share')}Share</button>
       </div>
-      ${stopHasEvents(s) ? `<a class="jump-to-events" href="#stopEventsBlock" data-jump="events">
-        <i class="ph-light ph-calendar" aria-hidden="true"></i>
-        <span>See what's on in ${escHtml(s.name)}</span>
-        <i class="ph-light ph-arrow-down" aria-hidden="true"></i>
-      </a>` : ''}
       <div class="catfilter" id="catFilter">
         ${CATS.map(c=>{
           const count=(s[c.key]||[]).length;
@@ -2044,12 +2041,10 @@ function renderStopEventsBlock(stop){
 
   const familyPill = '<button type="button" class="se-filter-pill'
     + (stopEvFilters.familyOnly ? ' active' : '') + '" data-evfilter="family" aria-pressed="'
-    + stopEvFilters.familyOnly + '"><i class="ph-light ph-users-three" aria-hidden="true"></i>'
-    + '<span>Family</span></button>';
+    + stopEvFilters.familyOnly + '"><i class="ph-light ph-users-three" aria-hidden="true"></i>Family</button>';
   const closestPill = '<button type="button" class="se-filter-pill'
     + (stopEvFilters.sortClosest ? ' active' : '') + '" data-evfilter="closest" aria-pressed="'
-    + stopEvFilters.sortClosest + '"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>'
-    + '<span>Closest</span></button>';
+    + stopEvFilters.sortClosest + '"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>Closest</button>';
 
   const gridOrEmpty = shown.length
     ? '<div class="hev-grid stop-events-grid">' + shown.map(eventCardHtml).join('') + '</div>'
