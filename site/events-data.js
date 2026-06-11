@@ -2445,7 +2445,7 @@ const EVENTS_DATA = {
       "venue": "Algonquin Theatre",
       "address": "Algonquin Theatre, 37 Main St E, Huntsville, ON P1H 2C2",
       "description": "One of Canada's most acclaimed arts festivals presents Ashley MacIsaac, the seven-time JUNO-nominated Cape Breton fiddle virtuoso, at the Algonquin Theatre on August 15. The summer series also includes 30+ concerts, dance, theatre, and cultural events across Huntsville through the season.",
-      "imageUrl": "https://www.huntsvillefestival.ca/wp-content/uploads/2026/04/huntsville-festival-arts-summer-2026.jpg",
+      "imageUrl": "https://v5.airtableusercontent.com/v3/u/54/54/1781200800000/BaqjT_q3L11Db7dH4Dd7eA/8s08wRk6-cZUjkL2cGupYBv5J9A3TwAo0eJIdfzU3-3bqj3jYQxuLrH0EAz8LI2XG6Le1zzk2KufDV10xFLo2qk4wpL4G2e1gEmdsGxoSM0PM2E3WGnHNEO1um5-inooGw3zy4Kt4gpVheWHvnusFy-r_3jTpl753nAx14KDEq7bIq0SHgIDyRmZJeXux9LmI8drKDUev8VxAeLVN-ib6g/3JrCWyLFR5AHYZFlPrMxKMO9n523NzjwPyj5bNCJvTo",
       "eventUrl": "https://www.huntsvillefestival.ca",
       "ticketUrl": null,
       "price": "From $25 youth, $50 general",
