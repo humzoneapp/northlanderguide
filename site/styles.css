@@ -1604,9 +1604,18 @@ a{color:inherit}
    separator. 80s linear loop with the items duplicated in markup so
    the seam never shows. Pauses on hover for legibility. Whole band
    is an <a> so tapping anywhere lands on northlander.app. */
+/* Constrained to the same 1080px content column as the events section
+   directly below so the band has visible left/right boundaries on
+   wide viewports instead of pasting itself across the full screen.
+   1.2rem horizontal margin on narrower viewports keeps it from
+   touching the page edge on mobile. */
 .home-ticker{display:block;background:var(--rail-deep);color:#fbf6ea;
-  overflow:hidden;margin:0;padding:18px 0;white-space:nowrap;
-  text-decoration:none;cursor:pointer}
+  overflow:hidden;margin:0 1.2rem;padding:18px 0;white-space:nowrap;
+  text-decoration:none;cursor:pointer;
+  max-width:1080px;border-radius:4px}
+@media (min-width:1120px){
+  .home-ticker{margin:0 auto}
+}
 .home-ticker-track{display:inline-flex;align-items:center;gap:0;
   animation:home-ticker-scroll 80s linear infinite;will-change:transform}
 .home-ticker:hover .home-ticker-track,
