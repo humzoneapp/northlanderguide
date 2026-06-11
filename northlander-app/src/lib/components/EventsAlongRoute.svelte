@@ -365,22 +365,21 @@
     <ul class="events-grid">
       {#each events as ev (ev.id)}
         <li class="event-card">
-          {#if ev.imageUrl}
-            <div class="event-img-wrap">
-              <img src={ev.imageUrl} alt={ev.name} loading="lazy" decoding="async" />
-              {#if ev.featured}
-                <span class="event-featured" aria-label="Featured">Featured</span>
-              {/if}
-            </div>
-          {:else}
-            <div class="event-img-wrap event-img-blank" aria-hidden="true">
-              <svg viewBox="0 0 24 24" class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="5" width="18" height="16" rx="2"/>
-                <path d="M3 9 L21 9"/>
-                <path d="M8 3 L8 7 M16 3 L16 7"/>
-              </svg>
-            </div>
-          {/if}
+          <!-- Defense in depth: the events sync already bakes a
+               placeholder URL into every row, but if the data file
+               ever ships without one, fall back to the same image
+               client-side so the card never renders empty. -->
+          <div class="event-img-wrap">
+            <img
+              src={ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg'}
+              alt={ev.name}
+              loading="lazy"
+              decoding="async"
+            />
+            {#if ev.featured}
+              <span class="event-featured" aria-label="Featured">Featured</span>
+            {/if}
+          </div>
 
           <div class="event-body">
             <div class="event-when">{formatEventDate(ev)}</div>
@@ -499,12 +498,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-  }
-  .event-img-blank {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #7d3a1e;
   }
   .event-featured {
     position: absolute;

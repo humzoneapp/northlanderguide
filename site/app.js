@@ -1965,10 +1965,13 @@ function eventCardHtml(ev){
   const metaRow = (walk || family)
     ? `<div class="hev-meta">${walk}${family}</div>`
     : '';
+  /* Defense in depth: the events sync already bakes a placeholder URL
+     into every row, but if an older cached events-data.js ever ships
+     without one, fall back to the same image client-side so a card
+     never renders with an empty image slot. */
+  const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
   return `<${tag} class="hev-card"${href}>
-    ${ev.imageUrl
-      ? `<div class="hev-img" style="background-image:url('${escHtml(ev.imageUrl)}')"></div>`
-      : `<div class="hev-img hev-img--blank"><i class="ph-light ph-calendar" aria-hidden="true"></i></div>`}
+    <div class="hev-img" style="background-image:url('${escHtml(imgSrc)}')"></div>
     <div class="hev-body">
       ${when ? `<div class="hev-when">${escHtml(when)}</div>` : ''}
       <h4 class="hev-name">${escHtml(ev.name)}</h4>

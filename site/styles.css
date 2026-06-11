@@ -1493,8 +1493,6 @@ a{color:inherit}
     border-color:var(--poster-crimson)}
 }
 .hev-img{width:100%;aspect-ratio:16/9;background:#e8e0cd center/cover no-repeat}
-.hev-img--blank{display:flex;align-items:center;justify-content:center;color:var(--poster-crimson)}
-.hev-img--blank .ph-light,.hev-img--blank .ph{font-size:48px}
 .hev-body{padding:1rem 1.1rem 1.1rem;display:flex;flex-direction:column;flex:1;gap:.35rem}
 .hev-when{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--poster-crimson)}
 .hev-name{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin:.1rem 0 0;color:var(--poster-ink);line-height:1.25}

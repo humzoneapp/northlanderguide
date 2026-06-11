@@ -47,6 +47,14 @@ const BASE = process.env.AIRTABLE_BASE_ID;
 const TABLE = 'tblPPmCZ7gBlvNGk2';
 const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
 
+/* Generic fallback image for events that don't have a hand-picked
+   photo. Uses the existing "events and markets" hero already in
+   site/images/ so the look is on-brand and the cards never render
+   with an empty image slot. Absolute URL so both the Guide and the
+   App (cross-origin) can resolve it. */
+const EVENT_PLACEHOLDER_URL =
+  'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
+
 if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');
   process.exit(1);
@@ -259,10 +267,13 @@ function mapRecord(rec) {
     address: f[FIELD.address] || null,
     description: f[FIELD.description] || null,
     /* Prefer an uploaded image attachment when present, fall back to
-       the manually-entered Image URL. Airtable attachment URLs are
-       served from a CDN and embed safely as <img src=...>. */
-    imageUrl: (Array.isArray(f[FIELD.imageUpload]) && f[FIELD.imageUpload][0] && f[FIELD.imageUpload][0].url)
-      || f[FIELD.imageUrl] || null,
+       the manually-entered Image URL, then to a generic events photo
+       so a card without either field still renders cleanly. Airtable
+       attachment URLs are served from a CDN and embed safely as
+       <img src=...>. */
+    imageUrl: f[FIELD.imageUpload]?.[0]?.url
+      || f[FIELD.imageUrl]
+      || EVENT_PLACEHOLDER_URL,
     eventUrl: f[FIELD.eventUrl] || null,
     ticketUrl: f[FIELD.ticketUrl] || null,
     price: f[FIELD.price] || null,

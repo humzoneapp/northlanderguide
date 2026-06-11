@@ -305,8 +305,6 @@
 a.sp-event:hover{border-color:var(--sp-rust);transform:translateY(-2px);
   box-shadow:0 6px 24px rgba(0,0,0,.06)}
 .sp-event-img{width:100%;aspect-ratio:16/9;background:#e8e0cd center/cover no-repeat}
-.sp-event-img--blank{display:flex;align-items:center;justify-content:center;color:var(--sp-rust)}
-.sp-event-img--blank .ph-light,.sp-event-img--blank .ph{font-size:48px}
 .sp-event-body{padding:16px;display:flex;flex-direction:column;flex:1;gap:6px}
 .sp-event-when{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--sp-rust)}
 .sp-event-name{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;margin:2px 0 0;color:var(--sp-ink);line-height:1.25}

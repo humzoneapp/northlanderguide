@@ -362,10 +362,13 @@
     const metaRow = (walk || family)
       ? '<div class="sp-event-meta">' + walk + family + '</div>'
       : '';
+    /* Defense in depth: the events sync already bakes a placeholder
+       URL into every row, but if an older cached events-data.js ever
+       ships without one, fall back to the same image client-side so
+       a card never renders with an empty image slot. */
+    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
     return '<' + tag + ' class="sp-event"' + href + '>'
-      + (ev.imageUrl
-          ? '<div class="sp-event-img" style="background-image:url(\'' + esc(ev.imageUrl) + '\')"></div>'
-          : '<div class="sp-event-img sp-event-img--blank"><i class="ph-light ph-calendar" aria-hidden="true"></i></div>')
+      + '<div class="sp-event-img" style="background-image:url(\'' + esc(imgSrc) + '\')"></div>'
       + '<div class="sp-event-body">'
       + (when ? '<div class="sp-event-when">' + esc(when) + '</div>' : '')
       + '<h4 class="sp-event-name">' + esc(ev.name) + '</h4>'
