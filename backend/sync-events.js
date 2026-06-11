@@ -53,7 +53,7 @@ const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
    with an empty image slot. Absolute URL so both the Guide and the
    App (cross-origin) can resolve it. */
 const EVENT_PLACEHOLDER_URL =
-  'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
+  'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
 
 if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');

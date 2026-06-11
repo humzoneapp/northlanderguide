@@ -371,7 +371,7 @@
                client-side so the card never renders empty. -->
           <div class="event-img-wrap">
             <img
-              src={ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg'}
+              src={ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg'}
               alt={ev.name}
               loading="lazy"
               decoding="async"

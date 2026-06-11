@@ -108,7 +108,7 @@
        into every row, but if a stale data file ever ships without one
        a generic events photo still renders so the card never feels
        broken. Same URL the sync uses. */
-    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
+    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
     return '<' + tag + ' class="hev-card"' + href + '>'
       + '<div class="hev-img" style="background-image:url(\'' + escHtml(imgSrc) + '\')"></div>'
       + '<div class="hev-body">'

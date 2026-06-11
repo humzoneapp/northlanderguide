@@ -2089,7 +2089,7 @@ function eventCardHtml(ev){
      into every row, but if an older cached events-data.js ever ships
      without one, fall back to the same image client-side so a card
      never renders with an empty image slot. */
-  const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-markets.jpeg';
+  const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
   return `<${tag} class="hev-card"${href}>
     <div class="hev-img" style="background-image:url('${escHtml(imgSrc)}')"></div>
     <div class="hev-body">
