@@ -2118,6 +2118,7 @@ const EVENT_CATEGORIES = [
    clicked on every dimension. */
 window.eventFilters = window.eventFilters || {
   month: 'all',     // 'all' | numeric key (YYYYMM) | 'recurring'
+  stop: 'all',      // 'all' | a stop id slug (e.g. 'toronto-union')
   category: 'all',  // 'all' | one of EVENT_CATEGORIES
   price: 'all',     // 'all' | 'free' | 'paid'
   walk: 'all',      // 'all' | 15 | 30 | 60
@@ -2170,6 +2171,7 @@ function eventMatchesFilters(ev, f) {
       if (!monthKeysForEvent(ev).includes(f.month)) return false;
     }
   }
+  if (f.stop !== 'all' && ev.stopId !== f.stop) return false;
   if (f.category !== 'all' && ev.category !== f.category) return false;
   if (f.price === 'free' && !ev.free) return false;
   if (f.price === 'paid' && ev.free) return false;
@@ -2209,6 +2211,18 @@ function eventsFilterBarHtml(allEvents, f) {
     .concat(EVENT_CATEGORIES.map(c => `<option value="${escHtml(c)}"${f.category === c ? ' selected' : ''}>${escHtml(c)}</option>`))
     .join('');
 
+  /* Build the Where dropdown only from stops that actually have at
+     least one event. Keeps the menu compact (no padding with
+     event-less stops) and ordered south-to-north along the route. */
+  const stopsWithEvents = new Set(allEvents.map(ev => ev.stopId).filter(Boolean));
+  const stopOpts = ['<option value="all">Anywhere on the route</option>']
+    .concat(
+      (window.STOPS || [])
+        .filter(s => stopsWithEvents.has(s.id))
+        .map(s => `<option value="${escHtml(s.id)}"${f.stop === s.id ? ' selected' : ''}>${escHtml(s.name)}</option>`)
+    )
+    .join('');
+
   const priceChips = [
     chip('price', 'all', 'Any', f.price === 'all'),
     chip('price', 'free', 'Free', f.price === 'free'),
@@ -2222,7 +2236,7 @@ function eventsFilterBarHtml(allEvents, f) {
     chip('walk', 60, 'Under 1 hr', f.walk === 60)
   ].join('');
 
-  const anyActive = f.month !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
+  const anyActive = f.month !== 'all' || f.stop !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
 
   return `
     <div class="hev-filters" id="eventFilters">
@@ -2240,6 +2254,14 @@ function eventsFilterBarHtml(allEvents, f) {
       </section>
 
       <div class="hev-filter-grid">
+        <section class="hev-filter-section">
+          <div class="hev-filter-section-label">
+            <i class="ph-light ph-map-pin" aria-hidden="true"></i>
+            <span>Where</span>
+          </div>
+          <select class="hev-select" id="eventStopSelect">${stopOpts}</select>
+        </section>
+
         <section class="hev-filter-section">
           <div class="hev-filter-section-label">
             <i class="ph-light ph-tag" aria-hidden="true"></i>
@@ -2383,13 +2405,19 @@ function renderEvents(){
       return;
     }
     if (e.target.id === 'eventFiltersReset') {
-      window.eventFilters = { month:'all', category:'all', price:'all', walk:'all', page:1 };
+      window.eventFilters = { month:'all', stop:'all', category:'all', price:'all', walk:'all', page:1 };
       renderEvents();
     }
   });
   const sel = document.getElementById('eventCategorySelect');
   if (sel) sel.addEventListener('change', () => {
     window.eventFilters.category = sel.value;
+    window.eventFilters.page = 1;
+    renderEvents();
+  });
+  const stopSel = document.getElementById('eventStopSelect');
+  if (stopSel) stopSel.addEventListener('change', () => {
+    window.eventFilters.stop = stopSel.value;
     window.eventFilters.page = 1;
     renderEvents();
   });

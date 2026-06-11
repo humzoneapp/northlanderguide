@@ -997,7 +997,7 @@ a{color:inherit}
    subtle rust halo every few seconds so the eye finds it without
    resizing the row. Filled-rust default so it leads visually. */
 .share-row button[data-jump="events"]{
-  background:var(--poster-rust);border-color:var(--poster-rust);color:#fbf6ea;
+  background:var(--poster-crimson);border-color:var(--poster-crimson);color:#fbf6ea;
   animation:whats-on-pulse 3s ease-in-out infinite}
 .share-row button[data-jump="events"]:hover{background:#6e2e17;border-color:#6e2e17;color:#fbf6ea}
 @keyframes whats-on-pulse{
@@ -1462,7 +1462,7 @@ a{color:inherit}
 .hev-filters-head{display:flex;justify-content:flex-end;align-items:center;
   margin:0;padding:0;border-bottom:0;min-height:0}
 .hev-filters-title{display:none}
-.hev-reset{background:transparent;border:0;color:var(--poster-rust);font-size:.82rem;font-weight:600;
+.hev-reset{background:transparent;border:0;color:var(--poster-crimson);font-size:.82rem;font-weight:600;
   cursor:pointer;padding:.2rem .4rem;display:inline-flex;align-items:center;gap:.25rem;
   border-radius:3px;font-family:'Fraunces',Georgia,serif;font-style:italic;
   transition:background .15s ease}
@@ -1473,9 +1473,9 @@ a{color:inherit}
 .hev-filter-section--full{margin-top:0}
 .hev-filter-section-label{display:inline-flex;align-items:center;gap:.35rem;
   font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.95rem;font-weight:500;
-  letter-spacing:0;text-transform:none;color:var(--poster-rust);
+  letter-spacing:0;text-transform:none;color:var(--poster-crimson);
   white-space:nowrap;margin-right:.2rem}
-.hev-filter-section-label .ph-light{font-size:1rem;color:var(--poster-rust);font-style:normal}
+.hev-filter-section-label .ph-light{font-size:1rem;color:var(--poster-crimson);font-style:normal}
 .hev-filter-grid{display:flex;justify-content:flex-start;align-items:flex-start;
   flex-wrap:wrap;gap:.6rem 1.6rem;margin-top:.3rem}
 .hev-filter-section{flex:0 1 auto;min-width:0}
@@ -1484,17 +1484,27 @@ a{color:inherit}
   padding:.25rem .65rem;font-size:.85rem;font-weight:500;color:var(--poster-ink);cursor:pointer;
   font-family:'Spline Sans',sans-serif;line-height:1.2;letter-spacing:0;
   transition:background .15s ease,color .15s ease,border-color .15s ease}
-.hev-chip:hover{background:rgba(125,58,30,.08);color:var(--poster-rust)}
+.hev-chip:hover{background:rgba(125,58,30,.08);color:var(--poster-crimson)}
 .hev-chip.is-active,
 .hev-chip.is-active:hover{background:#6e2e17;border-color:#6e2e17;color:#fbf6ea;box-shadow:none}
-.hev-select{background:transparent;border:1px solid rgba(125,58,30,.3);border-radius:3px;
-  padding:.3rem .65rem;font-size:.85rem;font-family:'Spline Sans',sans-serif;color:var(--poster-ink);
-  width:auto;min-width:160px;max-width:260px;cursor:pointer;
+/* Dropdowns are styled to match the chip vocabulary: pill shape,
+   crimson border, italic Fraunces face on the displayed value so
+   they read as editorial cards rather than browser-default form
+   widgets. The native open menu still uses OS chrome (necessary
+   for accessibility), but the closed state looks like part of the
+   filter row. */
+.hev-select{background:transparent;border:1px solid var(--poster-crimson);border-radius:999px;
+  padding:.3rem 1.8rem .3rem .85rem;
+  font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.9rem;
+  color:var(--poster-ink);line-height:1.2;
+  width:auto;min-width:170px;max-width:260px;cursor:pointer;
   appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%237d3a1e'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
-  background-repeat:no-repeat;background-position:right .55rem center;background-size:12px;padding-right:1.8rem}
-.hev-select:hover{border-color:var(--poster-rust)}
-.hev-select:focus{outline:none;border-color:var(--poster-rust)}
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%238e3d22'><path d='M4 6 L8 10 L12 6 Z'/></svg>");
+  background-repeat:no-repeat;background-position:right .7rem center;background-size:11px;
+  transition:background-color .15s ease,color .15s ease}
+.hev-select:hover{background-color:rgba(142,61,34,.08);color:var(--poster-crimson)}
+.hev-select:focus{outline:none;background-color:#fbf6ea}
+.hev-select option{font-family:'Spline Sans',sans-serif;font-style:normal;color:var(--poster-ink)}
 @media (max-width:720px){
   .hev-filter-grid{flex-direction:column;align-items:flex-start;gap:.6rem}
   .hev-filter-section{width:100%}
@@ -1515,7 +1525,7 @@ a{color:inherit}
 .stop-events-head{margin-bottom:1rem}
 .stop-events-kicker{display:inline-block;font-family:'Spline Sans',system-ui,sans-serif;
   font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;
-  color:var(--poster-rust);margin-bottom:.25rem}
+  color:var(--poster-crimson);margin-bottom:.25rem}
 .stop-events-head h3{font-family:'Fraunces',Georgia,serif;font-weight:700;
   font-size:1.5rem;color:var(--poster-ink);margin:0}
 .stop-events-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem}
@@ -1532,7 +1542,7 @@ a{color:inherit}
   border:1.5px solid var(--line);background:transparent;color:var(--poster-ink);cursor:pointer;
   transition:border-color .15s ease,background .15s ease,color .15s ease}
 .se-filter-pill i{font-size:1rem;line-height:1;color:inherit}
-.se-filter-pill:hover{border-color:var(--poster-rust);color:var(--poster-rust)}
+.se-filter-pill:hover{border-color:var(--poster-crimson);color:var(--poster-crimson)}
 .se-filter-pill.active,
 .se-filter-pill.active:hover{background:#6e2e17;border-color:#6e2e17;color:#fbf6ea;
   box-shadow:0 0 0 3px rgba(125,58,30,.15)}
@@ -1541,10 +1551,10 @@ a{color:inherit}
 .stop-events-empty{padding:1rem 1.2rem;background:#fbf6ea;border:1.5px dashed rgba(125,58,30,.45);
   border-radius:4px;font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--poster-ink);
   display:flex;align-items:center;gap:.5rem}
-.stop-events-empty i{font-size:1.1rem;color:var(--poster-rust)}
+.stop-events-empty i{font-size:1.1rem;color:var(--poster-crimson)}
 .stop-events-see-all{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.1rem;
   font-family:'Spline Sans',system-ui,sans-serif;font-weight:600;font-size:.85rem;
-  letter-spacing:.02em;color:var(--poster-rust);text-decoration:none}
+  letter-spacing:.02em;color:var(--poster-crimson);text-decoration:none}
 .stop-events-see-all:hover{color:var(--poster-ink)}
 .stop-events-see-all i{font-size:1rem;line-height:1}
 .hev-card{background:var(--card);border:1.5px solid var(--line);border-radius:4px;
