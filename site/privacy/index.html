@@ -214,6 +214,35 @@
   </div>
 </footer>
 
+<!-- Floating back-to-home + back-to-top buttons, matching the pattern
+     on every stop page and /events. .toback fades in after the
+     visitor scrolls 360px; .totop is visible from page load since
+     the legal text runs long. -->
+<a href="/" class="toback" aria-label="Back to home">
+  <i class="ph-light ph-arrow-left" aria-hidden="true"></i>
+</a>
+<a href="#top" class="totop" aria-label="Back to top">
+  <i class="ph-light ph-arrow-up" aria-hidden="true"></i>
+</a>
+
 <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+<script>
+  (function () {
+    const toTop = document.querySelector('.totop');
+    const toBack = document.querySelector('.toback');
+    if (toTop) {
+      toTop.classList.add('show');
+      toTop.addEventListener('click', e => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+    if (toBack) {
+      window.addEventListener('scroll', () => {
+        toBack.classList.toggle('show', window.scrollY > 360);
+      }, { passive: true });
+    }
+  })();
+</script>
 </body>
 </html>
