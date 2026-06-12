@@ -103,7 +103,7 @@
       <ul>
         <li><strong>Airtable.</strong> Newsletter subscribers, tip submissions, event submissions, and business submissions are stored in our private Airtable workspace, which is restricted to our team. Airtable's privacy policy is at <a href="https://www.airtable.com/company/privacy" target="_blank" rel="noopener">airtable.com/company/privacy</a>.</li>
         <li><strong>Vercel.</strong> The site itself is hosted on Vercel, which records the server logs described above. Vercel's privacy policy is at <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">vercel.com/legal/privacy-policy</a>.</li>
-        <li><strong>Your browser.</strong> Right now the site doesn't use cookies to track you, and stores nothing in your browser's local storage beyond what the OS naturally caches (images, CSS, fonts). If we ever add a cookie banner or analytics, we'll update this section first.</li>
+        <li><strong>Your browser.</strong> The site uses small amounts of essential browser storage (specifically <em>localStorage</em>) to remember your filter preferences on the events page, the dismissal of the cookie notice, and similar functional settings. We do not use cookies or storage for analytics, advertising, profiling, fingerprinting, or any form of cross-site tracking. Third-party services we load (Google Fonts and Phosphor Icons via their CDNs, Vercel for hosting) may set their own cookies under their own privacy policies; we have no control over those. A cookie notice is shown to first-time visitors with equal-prominence Accept and Reject buttons; the choice is stored in your browser's localStorage and respected on return visits. Clearing site data for northlanderguide.com will resurface the notice.</li>
       </ul>
     </section>
 
@@ -208,9 +208,7 @@
     </div>
   </div>
   <div class="disc">
-    &copy; <span id="yr"></span> NorthlanderGuide.com. All Rights Reserved. Independent. Not affiliated with Ontario Northland Railway. Confirm all train times, fares and schedules at <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
-    <br>
-    All editorial content, illustrations and code on this site are protected by copyright. Reproduction without prior written permission is not permitted. <a href="/terms/">See Terms</a>.
+    &copy; <span id="yr"></span> NorthlanderGuide.com. All Rights Reserved. Independent. Not affiliated with Ontario Northland Railway. Schedule details are based on Ontario Northland's proposed timetable and may change. Confirm before travelling. All editorial content, illustrations and code on this site are protected by copyright. Reproduction without prior written permission is not permitted. <a href="/terms/">See Terms</a>.
   </div>
 </footer>
 
@@ -244,5 +242,6 @@
     }
   })();
 </script>
+<script src="/cookie-consent.js"></script>
 </body>
 </html>
