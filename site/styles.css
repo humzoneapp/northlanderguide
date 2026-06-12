@@ -1215,7 +1215,11 @@ a{color:inherit}
 .card .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
 .card .tag{
   font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
-  font-weight:700;color:#fff;background:var(--poster-crimson);
+  font-weight:700;color:#fbf6ea;background:var(--poster-crimson);
+  /* Re-state the fill colour because the .card iOS-blue fix sets
+     -webkit-text-fill-color on the button parent, which would
+     otherwise inherit down and paint the tag text dark-ink. */
+  -webkit-text-fill-color:#fbf6ea;
   padding:.2rem .55rem;border-radius:2px;white-space:nowrap;
 }
 /* Featured tag: warm gold instead of crimson, dark ink text so the
@@ -1225,6 +1229,7 @@ a{color:inherit}
 .detail-body .tag.tag-featured{
   background:var(--poster-gold);
   color:var(--poster-ink);
+  -webkit-text-fill-color:var(--poster-ink);
 }
 .card-featured{
   /* Subtle gold accent on the card frame so featured items read as
