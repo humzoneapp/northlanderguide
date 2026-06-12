@@ -1792,9 +1792,18 @@ a{color:inherit}
 .cookie-banner-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 .cookie-banner-btn{padding:.55rem 1.1rem;border:1.5px solid #fbf6ea;background:transparent;color:#fbf6ea;
   font-family:'Spline Sans',system-ui,sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.02em;
-  border-radius:4px;cursor:pointer;transition:background .15s ease,color .15s ease}
+  border-radius:4px;cursor:pointer;
+  text-decoration:none;box-shadow:none;outline:none;
+  -webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none;
+  transition:background .15s ease,color .15s ease,border-color .15s ease}
+/* Replace the browser default focus ring (which can render right next
+   to the existing border and read as a double line) with an offset
+   amber ring that only shows on keyboard navigation. */
+.cookie-banner-btn:focus{outline:none}
+.cookie-banner-btn:focus-visible{outline:2px solid var(--poster-gold);outline-offset:3px}
+.cookie-banner-btn:-moz-focus-inner{border:0;padding:0}
 .cookie-banner-accept{background:var(--poster-gold);color:var(--rail-deep);border-color:var(--poster-gold)}
-.cookie-banner-reject:hover{background:#fbf6ea;color:var(--rail-deep)}
+.cookie-banner-reject:hover{background:#fbf6ea;color:var(--rail-deep);border-color:#fbf6ea}
 .cookie-banner-accept:hover{background:#fbf6ea;color:var(--rail-deep);border-color:#fbf6ea}
 @keyframes cookie-in{
   from{transform:translateY(100%)}
