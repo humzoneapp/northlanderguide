@@ -1530,6 +1530,33 @@ a{color:inherit}
 .hev-month-label{font-family:'Fraunces',Georgia,serif;font-size:1.35rem;font-weight:600;color:var(--poster-ink);
   margin:0 0 1rem;padding:0 0 .5rem;border-bottom:1.5px solid var(--line);letter-spacing:.01em}
 .hev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.1rem}
+
+/* Homepage curated events strip (step 3 of the events surface plan).
+   Six handpicked cards, an italic Fraunces intro line above, and an
+   editorial "See all events" CTA below that links to the dedicated
+   /events page. .hev-strip inherits the .hev-grid auto-fill so it
+   stays three across on desktop, two across at mid-widths, and one
+   on phones. */
+.hev-intro{font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:1.05rem;line-height:1.55;color:var(--poster-ink);
+  text-align:center;max-width:680px;margin:0 auto 1.8rem}
+.hev-intro a{color:var(--poster-crimson);font-weight:600;text-decoration:none}
+.hev-intro a:hover{color:var(--poster-ink);text-decoration:underline;
+  text-decoration-thickness:1px;text-underline-offset:3px}
+.hev-strip{margin:0 auto;max-width:1180px}
+.hev-seeall{display:flex;align-items:center;justify-content:center;gap:.5rem;
+  margin:2.4rem auto 0;padding:.9rem 1.4rem;
+  font-family:'Fraunces',Georgia,serif;font-style:italic;
+  font-size:1.15rem;color:var(--poster-crimson);text-decoration:none;
+  border:1.5px dashed rgba(142,61,34,.4);border-radius:4px;
+  max-width:540px;width:fit-content;
+  transition:background .15s ease,color .15s ease,border-color .15s ease}
+.hev-seeall:hover{background:var(--poster-crimson);color:#fbf6ea;border-color:var(--poster-crimson)}
+.hev-seeall i{font-size:1.2rem;line-height:1}
+@media (max-width:520px){
+  .hev-seeall{font-size:1rem;padding:.75rem 1.1rem}
+}
+
 /* Stop-panel events block: sits at the bottom of the slab beneath
    the listings grid. Reuses .hev-grid + .hev-card markup but caps
    to one tile per row in the narrower slab so the cards stay

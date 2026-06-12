@@ -1921,42 +1921,6 @@ function formatEventDate(ev){
   return start + end + time;
 }
 
-function monthKeyForEvent(ev){
-  if(!ev.startDate) return 'recurring';
-  const [y, m] = ev.startDate.split('-').map(Number);
-  return y * 100 + m;
-}
-
-/* Every month an event spans, from Start Date through End Date. A
-   May-Sept run returns [202605, 202606, 202607, 202608, 202609]. Used
-   for both filter matching ("show me everything happening in July",
-   even if it started in May) and for month-chip discovery so a chip
-   appears for every relevant month. */
-function monthKeysForEvent(ev){
-  if(!ev.startDate) return [];
-  const [sy, sm] = ev.startDate.split('-').map(Number);
-  const endIso = ev.endDate || ev.startDate;
-  const [ey, em] = endIso.split('-').map(Number);
-  const keys = [];
-  let y = sy, m = sm;
-  /* Hard guard on a runaway loop in case bad data lands a > 5-year
-     span: cap at 60 iterations and stop. */
-  for (let i = 0; i < 60; i++) {
-    keys.push(y * 100 + m);
-    if (y > ey || (y === ey && m >= em)) break;
-    m++;
-    if (m > 12) { y++; m = 1; }
-  }
-  return keys;
-}
-
-function monthLabel(key){
-  const y = Math.floor(key / 100);
-  const m = key % 100;
-  const dt = new Date(Date.UTC(y, m-1, 1));
-  return dt.toLocaleDateString('en-CA', { month:'long', year:'numeric', timeZone:'UTC' });
-}
-
 /* Bottom-of-the-stop-panel events block. Up to six event cards with
    month chips + Family Friendly + Closest pills above. Featured-first
    sort by default, swap to walkMins-ascending when Closest is active.
@@ -2134,345 +2098,51 @@ document.addEventListener('click', function (e) {
   if (url) window.open(url, '_blank', 'noopener');
 }, true);
 
-/* The nine Airtable categories. Order matches the picker so the
-   chip / dropdown reads the same as the submission form. */
-const EVENT_CATEGORIES = [
-  'Music & Live Performance', 'Food & Drink', 'Outdoor & Adventure',
-  'Arts & Culture', 'Festivals & Fairs', 'Markets & Shopping',
-  'Sports & Recreation', 'Community & Family', 'History & Heritage'
-];
-
-/* Filter state for the homepage event grid. Reset when "All" is
-   clicked on every dimension. */
-window.eventFilters = window.eventFilters || {
-  month: 'all',     // 'all' | numeric key (YYYYMM) | 'recurring'
-  stop: 'all',      // 'all' | a stop id slug (e.g. 'toronto-union')
-  category: 'all',  // 'all' | one of EVENT_CATEGORIES
-  price: 'all',     // 'all' | 'free' | 'paid'
-  walk: 'all',      // 'all' | 15 | 30 | 60
-  page: 1           // 1-indexed current page of dated events
-};
-
-const HEV_PAGE_SIZE = 9;
-
-/* Smart page list: show all when <= 7 total. Otherwise compress with
-   ellipsis around the current page so the bar stays one line. */
-function eventsPageList(current, total) {
-  if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
-  const pages = new Set([1, total, current - 1, current, current + 1]);
-  const ordered = Array.from(pages).filter(n => n >= 1 && n <= total).sort((a,b) => a-b);
-  const out = [];
-  for (let i = 0; i < ordered.length; i++) {
-    if (i && ordered[i] - ordered[i-1] > 1) out.push('...');
-    out.push(ordered[i]);
-  }
-  return out;
-}
-
-function eventsPaginationHtml(current, total) {
-  if (total <= 1) return '';
-  const items = eventsPageList(current, total);
-  const btns = items.map(p => {
-    if (p === '...') return '<span class="hev-pageellipsis">...</span>';
-    return `<button type="button" class="hev-pagebtn${p === current ? ' is-active' : ''}" data-page="${p}">${p}</button>`;
-  }).join('');
-  return `<nav class="hev-pagination" aria-label="Event pagination">
-    <button type="button" class="hev-pagebtn hev-pagenav" data-page="${current - 1}" ${current === 1 ? 'disabled' : ''} aria-label="Previous page">
-      <i class="ph-light ph-caret-left" aria-hidden="true"></i> Prev
-    </button>
-    ${btns}
-    <button type="button" class="hev-pagebtn hev-pagenav" data-page="${current + 1}" ${current === total ? 'disabled' : ''} aria-label="Next page">
-      Next <i class="ph-light ph-caret-right" aria-hidden="true"></i>
-    </button>
-  </nav>`;
-}
-
-function eventMatchesFilters(ev, f) {
-  if (f.month !== 'all') {
-    if (f.month === 'recurring') {
-      if (!(ev.recurring || !ev.startDate)) return false;
-    } else {
-      if (ev.recurring || !ev.startDate) return false;
-      /* Multi-month events appear in every month they span, not just
-         their start month. An event running May through September
-         shows up under June / July / August chips too. */
-      if (!monthKeysForEvent(ev).includes(f.month)) return false;
-    }
-  }
-  if (f.stop !== 'all' && ev.stopId !== f.stop) return false;
-  if (f.category !== 'all' && ev.category !== f.category) return false;
-  if (f.price === 'free' && !ev.free) return false;
-  if (f.price === 'paid' && ev.free) return false;
-  if (f.walk !== 'all') {
-    if (typeof ev.walkMins !== 'number') return false;
-    if (ev.walkMins > f.walk) return false;
-  }
-  return true;
-}
-
-function eventsFilterBarHtml(allEvents, f) {
-  /* Build the set of month keys that actually have events, sorted asc.
-     Includes every month an event spans (not just start month) so a
-     chip appears for every relevant month of long-running events.
-     Recurring is its own pseudo-month chip when present. */
-  const monthSet = new Set();
-  let hasRecurring = false;
-  for (const ev of allEvents) {
-    if (ev.recurring || !ev.startDate) { hasRecurring = true; continue; }
-    for (const k of monthKeysForEvent(ev)) monthSet.add(k);
-  }
-  const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
-
-  /* Suffix the year on a chip ("Mar '27") only when the data spans
-     more than one calendar year. Otherwise "Mar" alone is unambiguous
-     and reads cleaner. Walks the chip key set once to decide. */
-  const yearsInSet = new Set(monthKeys.map(k => Math.floor(k/100)));
-  const showYearOnChips = yearsInSet.size > 1;
-  const monthShort = key => {
-    const y = Math.floor(key/100), m = key%100;
-    const m_str = new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
-    return showYearOnChips ? m_str + " '" + String(y).slice(-2) : m_str;
-  };
-  const chip = (group, value, label, active) =>
-    `<button type="button" class="hev-chip${active ? ' is-active' : ''}" data-filter-group="${group}" data-filter-value="${escHtml(String(value))}">${escHtml(label)}</button>`;
-
-  const monthChips = [chip('month', 'all', 'Any time', f.month === 'all')]
-    .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
-    .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
-    .join('');
-
-  const categoryOpts = ['<option value="all">Any category</option>']
-    .concat(EVENT_CATEGORIES.map(c => `<option value="${escHtml(c)}"${f.category === c ? ' selected' : ''}>${escHtml(c)}</option>`))
-    .join('');
-
-  /* Build the Where dropdown only from stops that actually have at
-     least one event. Keeps the menu compact (no padding with
-     event-less stops) and ordered south-to-north along the route. */
-  const stopsWithEvents = new Set(allEvents.map(ev => ev.stopId).filter(Boolean));
-  const stopOpts = ['<option value="all">Anywhere on the route</option>']
-    .concat(
-      (window.STOPS || [])
-        .filter(s => stopsWithEvents.has(s.id))
-        .map(s => `<option value="${escHtml(s.id)}"${f.stop === s.id ? ' selected' : ''}>${escHtml(s.name)}</option>`)
-    )
-    .join('');
-
-  const priceChips = [
-    chip('price', 'all', 'Any', f.price === 'all'),
-    chip('price', 'free', 'Free', f.price === 'free'),
-    chip('price', 'paid', 'Paid', f.price === 'paid')
-  ].join('');
-
-  const walkChips = [
-    chip('walk', 'all', 'Any', f.walk === 'all'),
-    chip('walk', 15, 'Under 15 min', f.walk === 15),
-    chip('walk', 30, 'Under 30 min', f.walk === 30),
-    chip('walk', 60, 'Under 1 hr', f.walk === 60)
-  ].join('');
-
-  const anyActive = f.month !== 'all' || f.stop !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
-
-  return `
-    <div class="hev-filters" id="eventFilters">
-      <div class="hev-filters-head">
-        <h3 class="hev-filters-title">Find events</h3>
-        ${anyActive ? `<button type="button" class="hev-reset" id="eventFiltersReset"><i class="ph-light ph-x" aria-hidden="true"></i> Clear filters</button>` : ''}
-      </div>
-
-      <section class="hev-filter-section hev-filter-section--full">
-        <div class="hev-filter-section-label">
-          <i class="ph-light ph-calendar-blank" aria-hidden="true"></i>
-          <span>When</span>
-        </div>
-        <div class="hev-chip-row">${monthChips}</div>
-      </section>
-
-      <div class="hev-filter-grid">
-        <section class="hev-filter-section">
-          <div class="hev-filter-section-label">
-            <i class="ph-light ph-map-pin" aria-hidden="true"></i>
-            <span>Where</span>
-          </div>
-          <select class="hev-select" id="eventStopSelect">${stopOpts}</select>
-        </section>
-
-        <section class="hev-filter-section">
-          <div class="hev-filter-section-label">
-            <i class="ph-light ph-tag" aria-hidden="true"></i>
-            <span>What</span>
-          </div>
-          <select class="hev-select" id="eventCategorySelect">${categoryOpts}</select>
-        </section>
-
-        <section class="hev-filter-section">
-          <div class="hev-filter-section-label">
-            <i class="ph-light ph-currency-circle-dollar" aria-hidden="true"></i>
-            <span>Price</span>
-          </div>
-          <div class="hev-chip-row">${priceChips}</div>
-        </section>
-
-        <section class="hev-filter-section">
-          <div class="hev-filter-section-label">
-            <i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>
-            <span>Walk time</span>
-          </div>
-          <div class="hev-chip-row">${walkChips}</div>
-        </section>
-      </div>
-    </div>`;
-}
-
-/* Sort an array of events: featured first, then start date asc, then
-   name. Used for both the flat dated list and each month bucket. */
-function sortEventsList(arr) {
-  return arr.sort((a,b) => {
-    if (a.featured !== b.featured) return a.featured ? -1 : 1;
-    const ad = a.startDate || '9999-12-31';
-    const bd = b.startDate || '9999-12-31';
-    if (ad !== bd) return ad < bd ? -1 : 1;
-    return (a.name || '').localeCompare(b.name || '');
-  });
-}
-
-/* Render a filtered + paginated event set into `target`. Recurring
-   events live outside the page window so they are always visible at
-   the bottom; only the dated events paginate. Returns the page count
-   needed for pagination controls. */
-function renderEventsGridInto(target, events, page, activeMonthFilter) {
-  const dated = [];
-  const recurring = [];
-  for (const ev of events) {
-    if (ev.recurring || !ev.startDate) recurring.push(ev);
-    else dated.push(ev);
-  }
-  sortEventsList(dated);
-  sortEventsList(recurring);
-
-  const totalPages = Math.max(1, Math.ceil(dated.length / HEV_PAGE_SIZE));
-  const clamped = Math.min(Math.max(1, page), totalPages);
-  const slice = dated.slice((clamped - 1) * HEV_PAGE_SIZE, clamped * HEV_PAGE_SIZE);
-
-  /* Bucket key: if the user picked a specific month, use that month
-     as the header for every event in the slice (multi-month events
-     get listed under the chosen month). With no month filter, use the
-     event's start month so the timeline reads naturally. */
-  const buckets = new Map();
-  for (const ev of slice) {
-    const k = (typeof activeMonthFilter === 'number') ? activeMonthFilter : monthKeyForEvent(ev);
-    if (!buckets.has(k)) buckets.set(k, []);
-    buckets.get(k).push(ev);
-  }
-  const monthKeys = Array.from(buckets.keys()).sort((a,b) => a - b);
-
-  const monthsHtml = monthKeys.map(k => `
-    <div class="hev-month">
-      <h3 class="hev-month-label">${escHtml(monthLabel(k))}</h3>
-      <div class="hev-grid">${buckets.get(k).map(eventCardHtml).join('')}</div>
-    </div>
-  `).join('');
-  const recurringHtml = recurring.length ? `
-    <div class="hev-month">
-      <h3 class="hev-month-label">Ongoing &amp; Recurring</h3>
-      <div class="hev-grid">${recurring.map(eventCardHtml).join('')}</div>
-    </div>
-  ` : '';
-  target.innerHTML = monthsHtml + recurringHtml + eventsPaginationHtml(clamped, totalPages);
-  return { totalPages, page: clamped };
-}
+/* Homepage events block: a curated handful of six highlight cards
+   with a "See all events" CTA underneath that links to the dedicated
+   /events page (where the full filterable catalogue lives). The
+   filter bar + grouped-month grid + pagination that used to live
+   here all moved to events-page.js when step 2 shipped. Featured
+   sort puts the Airtable "Featured" rows first, then everything
+   else by start date ascending; we take the top six and stop. */
+const HOME_EVENTS_STRIP_CAP = 6;
 
 function renderEvents(){
   const wrap = document.getElementById('eventPanel');
-  if(!wrap) return;
+  if (!wrap) return;
 
-  /* Flatten every stop's events into a single array. window.EVENTS_DATA
-     is keyed by stop slug, each value is an array of event objects. */
   const data = window.EVENTS_DATA || {};
   const all = [];
   for (const sid of Object.keys(data)) {
     for (const ev of (data[sid] || [])) all.push(ev);
   }
 
-  if(!all.length){
+  if (!all.length) {
     wrap.innerHTML = `<div class="hev-empty">
       <i class="ph-light ph-calendar" aria-hidden="true"></i>
       <p>No events listed yet. Know about something happening along the route?</p>
-      <a href="#submit-event">Submit an event</a>
+      <a class="btn btn-primary" href="/submit-event/">Submit an event</a>
     </div>`;
     return;
   }
 
-  /* First render: filter bar + grid container. Subsequent filter
-     changes only touch #eventGrid so the bar's interaction state is
-     preserved. */
-  const filtered = all.filter(ev => eventMatchesFilters(ev, window.eventFilters));
-  wrap.innerHTML = eventsFilterBarHtml(all, window.eventFilters)
-    + '<div id="eventGrid">'
-    + (filtered.length
-        ? ''
-        : `<div class="hev-empty"><i class="ph-light ph-funnel" aria-hidden="true"></i>
-            <p>No events match these filters. Try widening your selection.</p></div>`)
-    + '</div>';
-  if (filtered.length) {
-    const activeMonth = (typeof window.eventFilters.month === 'number') ? window.eventFilters.month : null;
-    const result = renderEventsGridInto(document.getElementById('eventGrid'), filtered, window.eventFilters.page || 1, activeMonth);
-    /* If the user landed on a stale page (filter narrowed the list),
-       snap eventFilters.page back to the clamped value so the active
-       pagination button reflects reality. */
-    window.eventFilters.page = result.page;
-  }
+  const sorted = all.slice().sort((a, b) => {
+    if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
+    return String(a.startDate || '9999') < String(b.startDate || '9999') ? -1 : 1;
+  });
+  const top = sorted.slice(0, HOME_EVENTS_STRIP_CAP);
+  const total = all.length;
+  const seeAllCopy = total > top.length
+    ? 'See all ' + total + ' events along the route'
+    : 'Open the full events page';
+
+  wrap.innerHTML = '<p class="hev-intro">A handful of highlights from along the Northlander route. The full catalogue, filterable by month, stop, category, price and walking distance from the station, lives at <a href="/events/">Events along the Route</a>.</p>'
+    + '<div class="hev-grid hev-strip">' + top.map(eventCardHtml).join('') + '</div>'
+    + '<a class="hev-seeall" href="/events/">'
+    +   escHtml(seeAllCopy)
+    +   '<i class="ph-light ph-arrow-up-right" aria-hidden="true"></i>'
+    + '</a>';
   observeReveals();
-
-  /* Delegated handlers for chips + dropdown + reset + pagination. */
-  const bar = document.getElementById('eventFilters');
-  if (!bar) return;
-  bar.addEventListener('click', e => {
-    const chip = e.target.closest('button[data-filter-group]');
-    if (chip) {
-      const group = chip.getAttribute('data-filter-group');
-      let val = chip.getAttribute('data-filter-value');
-      if (group === 'month' && val !== 'all' && val !== 'recurring') val = parseInt(val, 10);
-      if (group === 'walk' && val !== 'all') val = parseInt(val, 10);
-      window.eventFilters[group] = val;
-      window.eventFilters.page = 1; /* filter change resets pagination */
-      renderEvents();
-      return;
-    }
-    if (e.target.id === 'eventFiltersReset') {
-      window.eventFilters = { month:'all', stop:'all', category:'all', price:'all', walk:'all', page:1 };
-      renderEvents();
-    }
-  });
-  const sel = document.getElementById('eventCategorySelect');
-  if (sel) sel.addEventListener('change', () => {
-    window.eventFilters.category = sel.value;
-    window.eventFilters.page = 1;
-    renderEvents();
-  });
-  const stopSel = document.getElementById('eventStopSelect');
-  if (stopSel) stopSel.addEventListener('change', () => {
-    window.eventFilters.stop = stopSel.value;
-    window.eventFilters.page = 1;
-    renderEvents();
-  });
-
-  /* Pagination handler: page buttons live inside #eventGrid, so the
-     delegated listener has to sit on the wrap (not the bar). Scroll
-     the events section to the top of the grid on page change so the
-     visitor sees the new first card without manual scrolling. */
-  const grid = document.getElementById('eventGrid');
-  if (grid) {
-    grid.addEventListener('click', e => {
-      const btn = e.target.closest('button.hev-pagebtn');
-      if (!btn || btn.disabled) return;
-      const p = parseInt(btn.getAttribute('data-page'), 10);
-      if (!Number.isFinite(p) || p < 1) return;
-      window.eventFilters.page = p;
-      renderEvents();
-      const head = document.querySelector('#events .section-head');
-      if (head) head.scrollIntoView({ behavior:'smooth', block:'start' });
-    });
-  }
 }
 
 /* ------------------------------------------------------------------
