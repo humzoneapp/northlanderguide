@@ -1722,6 +1722,47 @@ a{color:inherit}
 .submit-event-footer p{margin:.2rem 0}
 .submit-event-footer a{color:var(--poster-crimson)}
 
+/* ---------- legal pages (/privacy, /terms) ----------
+   Utility chrome: small breadcrumb, modest hero, single-column
+   article with numbered sections. No image, no decoration; the
+   content carries the page. Mirrors the App's /privacy and /terms
+   editorial vocabulary so the brand stays consistent across both
+   codebases. */
+.legal-main{max-width:760px;width:100%;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.legal-breadcrumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:600;
+  color:var(--poster-mute);margin:0 0 1.4rem}
+.legal-breadcrumb a{color:var(--poster-crimson);text-decoration:none}
+.legal-breadcrumb a:hover{color:var(--poster-ink)}
+.legal-breadcrumb i{font-size:14px;color:var(--poster-crimson)}
+.legal-breadcrumb span[aria-current]{color:var(--poster-ink)}
+.legal-hero{margin:0 0 1.6rem;border-bottom:1px solid var(--line);padding-bottom:1.4rem}
+.legal-hero .kicker{color:var(--poster-crimson);font-size:.78rem;letter-spacing:.28em;
+  text-transform:uppercase;font-weight:700;margin:0 0 .6rem}
+.legal-hero h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(1.9rem,3.5vw,2.4rem);
+  font-weight:700;color:var(--poster-ink);margin:0 0 .5rem;line-height:1.15}
+.legal-eyebrow{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--poster-mute);
+  font-size:.95rem;margin:0}
+.legal-inner{color:var(--poster-ink);font-size:.98rem;line-height:1.65}
+.legal-lede{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:1.08rem;
+  color:var(--poster-ink);margin:0 0 1.8rem;line-height:1.55}
+.legal-inner section{margin:0 0 1.5rem}
+.legal-inner h2{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;
+  color:var(--poster-ink);margin:1.4rem 0 .55rem;line-height:1.25}
+.legal-inner p{margin:0 0 .8rem}
+.legal-inner ul{margin:.4rem 0 1rem;padding-left:1.2rem}
+.legal-inner li{margin:.25rem 0}
+.legal-inner a{color:var(--poster-crimson);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+.legal-inner a:hover{color:var(--poster-ink)}
+.legal-inner strong{color:var(--poster-ink)}
+.legal-seealso{font-family:'Fraunces',Georgia,serif;font-style:italic;color:var(--poster-mute);
+  font-size:.95rem;margin:2rem 0 0;padding-top:1.2rem;border-top:1px dashed rgba(125,58,30,.3)}
+@media (max-width:540px){
+  .legal-main{padding:1.2rem 1rem 2.4rem}
+  .legal-hero{margin-bottom:1.2rem;padding-bottom:1.2rem}
+  .legal-inner{font-size:.95rem}
+}
+
 /* ---------- /events page chrome ----------
    Mirrors the per-stop page layout: full-bleed cinematic hero image
    under the topbar, huge editorial title in forest green sitting
