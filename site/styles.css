@@ -1772,6 +1772,28 @@ a{color:inherit}
   .legal-inner{font-size:.95rem}
 }
 
+/* ---------- soft copy-protect ----------
+   Locks text selection + the long-press selection menu on the
+   editorial copy that's most worth scraping (hero text, card titles,
+   descriptions, stop blurbs, plan + events hero copy). Inputs,
+   addresses, phone numbers, links, the legal-page body and
+   everything inside form labels stay fully selectable. SEO is
+   unaffected: Googlebot ignores user-select entirely. */
+.hero-inner h1, .hero-inner .hero-sub, .hero-inner .kicker,
+.section-head h2, .section-head .kicker,
+.card h4, .card .description, .card .desc,
+.hev-name, .hev-desc, .hev-stop, .hev-when,
+.sp-event-name, .sp-event-desc, .sp-event-venue, .sp-event-when,
+.sp-h2, .sp-hero-title, .sp-hero-tagline, .sp-intro-body,
+.stop-blurb, .stop .hook, .stop-meta,
+.events-page-hero-title, .events-page-hero-tagline, .events-page-intro,
+.eventsection .section-head h2, .eventsection .section-head .kicker,
+.home-ticker-fact, .home-ticker-cat,
+.pl-hero-title, .pl-hero-tagline,
+.legal-hero h1, .legal-hero .kicker, .legal-eyebrow{
+  -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+  -webkit-touch-callout:none}
+
 /* ---------- /events page chrome ----------
    Mirrors the per-stop page layout: full-bleed cinematic hero image
    under the topbar, huge editorial title in forest green sitting
