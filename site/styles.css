@@ -1652,15 +1652,19 @@ a{color:inherit}
    separator. 80s linear loop with the items duplicated in markup so
    the seam never shows. Pauses on hover for legibility. Whole band
    is an <a> so tapping anywhere lands on northlander.app. */
-/* Bounded to the same 1280px content column as the .stopnav section
-   above, with the same 1.5rem horizontal gutter on desktop so the
-   ticker's left/right edges line up exactly with the rail above and
-   the events section below. Narrower viewports keep the gutter so
-   the band never touches the page edge. */
+/* Mobile default: full-bleed band so the dark green spans the whole
+   viewport. The scrolling .home-ticker-item children carry their own
+   28px internal padding so the text never touches the screen edges.
+   At tablet width and above the ticker pulls inward to the 1280px
+   content column with a 1.5rem horizontal gutter, matching the
+   .stopnav directory above and the .eventsection below. Centered
+   above 1312px. */
 .home-ticker{display:block;background:var(--rail-deep);color:#fbf6ea;
-  overflow:hidden;margin:0 1.5rem;padding:18px 0;white-space:nowrap;
-  text-decoration:none;cursor:pointer;
-  max-width:1280px;border-radius:4px}
+  overflow:hidden;margin:0;padding:18px 0;white-space:nowrap;
+  text-decoration:none;cursor:pointer;border-radius:0}
+@media (min-width:720px){
+  .home-ticker{margin:0 1.5rem;max-width:1280px;border-radius:4px}
+}
 @media (min-width:1312px){
   .home-ticker{margin:0 auto}
 }
