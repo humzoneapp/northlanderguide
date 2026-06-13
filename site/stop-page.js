@@ -644,7 +644,7 @@
     +   '<div class="sp-plan-trip-cta-kicker">Northlander.app</div>'
     +   '<h3>Add ' + esc(displayName) + ' to your trip</h3>'
     +   '<p>Pack your route, train times, accommodations and packing list around ' + esc(displayName) + ' in one place. Free to start.</p>'
-    +   '<a class="sp-plan-trip-cta-btn" href="/plan">Plan Your Trip <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>'
+    +   '<a class="sp-plan-trip-cta-btn" href="/plan-a-trip/">Plan Your Trip <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>'
     + '</div>'
     + '</article>'
     + '</section>';
@@ -1231,7 +1231,7 @@
          connect every stop guide back to the trip planner. */
       {
         '@type': 'SoftwareApplication',
-        '@id': SITE + '/plan#app',
+        '@id': SITE + '/plan-a-trip#app',
         name: 'Northlander.app',
         url: 'https://northlander.app',
         applicationCategory: 'TravelApplication'

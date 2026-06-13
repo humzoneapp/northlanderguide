@@ -3,6 +3,10 @@
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/plan", "destination": "/plan-a-trip", "permanent": true },
+    { "source": "/plan/", "destination": "/plan-a-trip", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/stops/:slug", "destination": "/stops" }
   ],
