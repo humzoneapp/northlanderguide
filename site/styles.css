@@ -1497,6 +1497,16 @@ a{color:inherit}
   flex-wrap:wrap;gap:.6rem 1.6rem;margin-top:.3rem}
 .hev-filter-section{flex:0 1 auto;min-width:0}
 .hev-chip-row{display:flex;flex-wrap:wrap;gap:.3rem}
+/* Desktop layout: two explicit rows so the When/Where/What dropdowns
+   sit alone on row 1 and the Price + Walk time chip groups share row
+   2. Without this the five sections wrap unpredictably whenever the
+   widest dropdown grows, and "Price" lands wherever there's room. */
+@media (min-width:721px){
+  .hev-filter-grid{display:grid;grid-template-columns:auto auto auto;
+    column-gap:1.6rem;row-gap:.9rem;justify-content:start;align-items:start}
+  .hev-filter-section:nth-of-type(4){grid-column:1;grid-row:2}
+  .hev-filter-section:nth-of-type(5){grid-column:2 / -1;grid-row:2}
+}
 .hev-chip{background:transparent;border:1px solid transparent;border-radius:4px;
   padding:.25rem .65rem;font-size:.85rem;font-weight:500;color:var(--poster-ink);cursor:pointer;
   font-family:'Spline Sans',sans-serif;line-height:1.2;letter-spacing:0;
@@ -1611,7 +1621,13 @@ a{color:inherit}
 .hev-img{width:100%;aspect-ratio:16/9;background:#e8e0cd center/cover no-repeat}
 .hev-body{padding:1rem 1.1rem 1.1rem;display:flex;flex-direction:column;flex:1;gap:.35rem}
 .hev-when{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--poster-crimson)}
-.hev-name{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin:.1rem 0 0;color:var(--poster-ink);line-height:1.25}
+/* overflow-wrap:normal + word-break:keep-all + hyphens:manual lock
+   wrapping to whitespace boundaries only, so an event title like
+   "National Bank Open - Women's Tennis" never breaks the word "Open"
+   across lines on a narrow mobile card. text-wrap:pretty (Safari 17,
+   Chrome 117+) avoids the orphan-letter look on the last line. */
+.hev-name{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin:.1rem 0 0;color:var(--poster-ink);line-height:1.25;
+  overflow-wrap:normal;word-break:keep-all;hyphens:manual;text-wrap:pretty}
 .hev-stop{font-size:.82rem;color:var(--poster-mute)}
 .hev-desc{font-size:.88rem;line-height:1.45;color:var(--poster-ink);opacity:.82;margin:.4rem 0 0;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
