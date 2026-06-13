@@ -426,6 +426,7 @@
 
     {#if $trips.length === 0}
       {@const heroStop = STOPS.find((s) => s.id === 'union')}
+      {@const sampleStop = STOPS.find((s) => s.id === 'gravenhurst')}
       <div class="desk-blank">
         <button
           type="button"
@@ -446,6 +447,30 @@
             <p class="polaroid-next">Pick a name, pick your route, pack the rest later.</p>
           </div>
         </button>
+
+        <!-- Second polaroid: take the worked-example route instead of
+             building from scratch. Lands on /sample-trip which renders
+             a read-only walkthrough of "A Long Weekend North". Rust
+             default stamp (not gold) so it visually distinguishes the
+             "explore" path from the "start" path next to it. -->
+        <a
+          href="/sample-trip"
+          class="polaroid polaroid-cta"
+          aria-label="Explore a sample trip"
+        >
+          <span class="polaroid-tape" aria-hidden="true"></span>
+          <span class="polaroid-stamp" aria-hidden="true">Sample Trip</span>
+          <div class="polaroid-photo polaroid-photo-faded">
+            {#if sampleStop}
+              <img src={stopImageUrl(sampleStop)} alt="" loading="lazy" decoding="async" />
+            {/if}
+          </div>
+          <div class="polaroid-paper polaroid-paper--centered">
+            <h3 class="polaroid-name">A long weekend north.</h3>
+            <p class="polaroid-meta">Three stops, three days.</p>
+            <p class="polaroid-next">Tap to peek at the whole trip.</p>
+          </div>
+        </a>
       </div>
     {:else}
       <div class="desk-scrapbook">
@@ -891,8 +916,12 @@
   .dash-feature {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    /* Flush-left so the leftmost tile's icon sits exactly under
+       "Pack a trip" in the hero above. Centered icons sat roughly
+       a column's-worth right of the hero text, which read as a
+       random offset rather than a deliberate strip. */
+    align-items: flex-start;
+    text-align: left;
     gap: 8px;
     color: #0a2d21;
     font-family: 'Spline Sans', system-ui, sans-serif;
@@ -1013,14 +1042,21 @@
     gap: 44px 24px;
     margin-top: 32px;
   }
+  /* Two polaroids sit side-by-side on desktop ("Start a Trip" +
+     "Sample Trip") and stack on narrow screens. flex-wrap means the
+     second polaroid drops below the first on mobile without needing
+     a media query. */
   .desk-blank {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: flex-start;
+    gap: 32px;
     margin-top: 32px;
   }
   .desk-blank .polaroid {
     width: 100%;
-    max-width: 380px;
+    max-width: 360px;
   }
 
   /* Each trip is a polaroid taped to the page: cream paper, soft
