@@ -1,17 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Northlander.com favicon. Transparent background so the train
-       silhouette sits on any browser tab colour cleanly. Same train
-       glyph as northlander.app for brand consistency: rust body,
-       cream windows, forest wheels, gold rail line. -->
-  <path d="M5 20 L5 11 Q5 8 8 8 L24 8 Q27 8 27 11 L27 20 Z" fill="#7d3a1e"/>
-  <rect x="7" y="11" width="6" height="6" rx="1" fill="#f3ece0"/>
-  <rect x="15" y="11" width="6" height="6" rx="1" fill="#f3ece0"/>
-  <rect x="22" y="11" width="3.5" height="6" rx="0.6" fill="#f3ece0"/>
-  <rect x="5.5" y="19" width="21" height="1.5" fill="#c9a84c"/>
-  <circle cx="10" cy="24" r="2.2" fill="#0a2d21"/>
-  <circle cx="16" cy="24" r="2.2" fill="#0a2d21"/>
-  <circle cx="22" cy="24" r="2.2" fill="#0a2d21"/>
-  <circle cx="10" cy="24" r="0.6" fill="#c9a84c"/>
-  <circle cx="16" cy="24" r="0.6" fill="#c9a84c"/>
-  <circle cx="22" cy="24" r="0.6" fill="#c9a84c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="NorthlanderGuide.com">
+  <!-- NorthlanderGuide.com favicon, vintage-railway brand mark.
+
+       The previous version was a transparent side-view train silhouette
+       with three windows, three wheels and a rail line: at 16x16 every
+       wheel's gold dot disappeared and the whole thing crushed into a
+       rust blob with no recognizable shape.
+
+       This version uses the same vocabulary as the topbar brand mark
+       so the icon reads as "Northlander Guide" to anyone already on
+       the site: a gold-rimmed rust disc carrying a cream train cab
+       with two oversized forest-green windows. Everything is sized
+       to stay legible at 16x16 (~3px window after downscale) while
+       still reading as crafted at 180x180 on iOS.
+
+       Palette uses the site's poster vocabulary:
+         poster-crimson #8e3d22  rust disc
+         poster-gold    #c9a84c  rim + rail line
+         poster-ivory   #f3ece0  train cab
+         rail           #0e3b2c  forest-green windows -->
+
+  <!-- Thin gold rim - 0.5 SVG units, intentionally subtle. Reads as
+       a finishing edge at favicon scale and as a vintage railway
+       ring at touch-icon scale. -->
+  <circle cx="16" cy="16" r="15.5" fill="#c9a84c"/>
+
+  <!-- Rust disc inside the rim. -->
+  <circle cx="16" cy="16" r="14.7" fill="#8e3d22"/>
+
+  <!-- Cream train cab. Rounded shoulders, flat bottom. Slightly
+       wider than the topbar version so the windows have breathing
+       room without crowding the rim. -->
+  <path d="M6 22 L6 11 Q6 8 9 8 L23 8 Q26 8 26 11 L26 22 Z" fill="#f3ece0"/>
+
+  <!-- Two forest-green windows. 6.5 x 6.5 SVG units = ~3.25 x 3.25
+       at the 16x16 favicon, which is the smallest size that still
+       reads as a distinct shape rather than a smudge. -->
+  <rect x="8.5" y="11" width="6.5" height="6.5" rx="1" fill="#0e3b2c"/>
+  <rect x="17" y="11" width="6.5" height="6.5" rx="1" fill="#0e3b2c"/>
+
+  <!-- Gold rail line under the cab, with a tiny rounded radius so
+       the ends read soft. Sits just below the train; reinforces
+       the "on rails" idea at touch-icon scale and dissolves into
+       a thin warm line at favicon scale. -->
+  <rect x="6.5" y="22.7" width="19" height="1.5" rx="0.5" fill="#c9a84c"/>
 </svg>
