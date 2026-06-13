@@ -115,36 +115,33 @@
     });
   }
 
-  /* Hardcoded sample packing list - 22 items, ~half checked. Drives
-     the read-only accordion below. The shape mirrors the real
-     packingItems table (name + packed) but lives inline because the
-     sample doesn't read from Dexie. */
-  const samplePackingItems = [
-    { name: 'Train ticket (printout + on phone)', packed: true },
-    { name: 'Wallet + ID',                         packed: true },
-    { name: 'Phone + charger',                     packed: true },
-    { name: 'Headphones',                          packed: true },
-    { name: 'Toothbrush + toothpaste',             packed: true },
-    { name: 'Toiletries pouch',                    packed: true },
-    { name: 'Two changes of clothes',              packed: false },
-    { name: 'Wool sweater (Muskoka evenings)',     packed: false },
-    { name: 'Light rain jacket',                   packed: false },
-    { name: 'Walking shoes',                       packed: true },
-    { name: 'Pyjamas',                             packed: false },
-    { name: 'Hat',                                 packed: false },
-    { name: 'Sunglasses',                          packed: true },
-    { name: 'Reusable water bottle',               packed: true },
-    { name: 'Snack pouch for the train',           packed: false },
-    { name: 'Camera + spare battery',              packed: true },
-    { name: 'Charger cables',                      packed: true },
-    { name: 'Book or journal',                     packed: false },
-    { name: 'Hotel confirmation printouts',        packed: false },
-    { name: 'Spare cash for Gravenhurst',          packed: false },
-    { name: 'Layers (the lake gets cool)',         packed: false },
-    { name: 'Pen + small notebook',                packed: false }
+  /* Per-list packed counts for the accordion summary lines. Reading
+     straight from SAMPLE_TRIP.packingLists so the data source stays
+     single-truth. */
+  function packedIn(list) {
+    return list.items.filter((it) => it.packed).length;
+  }
+
+  /* Budget breakdown by category. Categories match BUDGET_CATEGORIES
+     (transport / lodging / food / activities / other). The chip row
+     in the accordion uses these totals; the ledger below shows each
+     row. */
+  const BUDGET_CATS = [
+    { id: 'transport',  label: 'Transport',  color: '#7d3a1e' },
+    { id: 'lodging',    label: 'Lodging',    color: '#0a2d21' },
+    { id: 'food',       label: 'Food',       color: '#c4860f' },
+    { id: 'activities', label: 'Activities', color: '#6b1d2e' },
+    { id: 'other',      label: 'Other',      color: '#5a4f3d' }
   ];
-  $: packedCount = samplePackingItems.filter((i) => i.packed).length;
-  $: packingTotal = samplePackingItems.length;
+  $: budgetBreakdown = BUDGET_CATS.map((c) => ({
+    ...c,
+    total: SAMPLE_TRIP.budget
+      .filter((e) => e.category === c.id)
+      .reduce((sum, e) => sum + (e.amount || 0), 0)
+  })).filter((c) => c.total > 0);
+  function catFor(id) {
+    return BUDGET_CATS.find((c) => c.id === id) || BUDGET_CATS[BUDGET_CATS.length - 1];
+  }
 
   function handleMakeMine() {
     pushToast({
@@ -239,48 +236,61 @@
     </ol>
   </section>
 
-  <!-- ===== Packing accordion =====
-       Native <details> so screen readers get accordion semantics for
-       free. Looks like the real PackingList from /trips/[id] (.pack-row,
-       check tokens, dashed separators, line-through on packed) but
-       reading from samplePackingItems instead of Dexie - tapping a
-       check or item name doesn't do anything. -->
+  <!-- ===== Packing: two named lists =====
+       The real app supports multiple packing lists per trip - a
+       default one that can be renamed, plus extra named lists for
+       a co-traveller, a camera bag, the kids' bag, etc. Each list
+       is its own accordion on the trip page (Drawer component) and
+       we mirror that here with native <details>. The default list
+       wears the traveller's name ("Sarah's bag") to show the rename
+       feature; the second ("Camera + lakes gear") shows you can
+       maintain more than one list side by side. -->
   <section class="sample-section">
-    <details class="sample-packing" open>
-      <summary class="sample-packing-head">
-        <div class="sample-packing-head-text">
-          <div class="kicker kicker-dark">Packing</div>
-          <h2>Packing list</h2>
-        </div>
-        <span class="sample-packing-count">{packedCount} of {packingTotal} packed</span>
-        <span class="sample-packing-chev" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </span>
-      </summary>
+    <header class="sample-section-head">
+      <div class="kicker kicker-dark">Before You Board</div>
+      <h2>Pack the whole trip in one place</h2>
+    </header>
 
-      <ul class="pack-list">
-        {#each samplePackingItems as item, i (item.name + i)}
-          <li class="pack-row" class:is-packed={item.packed}>
-            <span class="check-token" aria-hidden="true">
-              {#if item.packed}
-                <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 8 7 12 13 4"/>
-                </svg>
-              {/if}
-            </span>
-            <span class="pack-name">{item.name}</span>
-          </li>
-        {/each}
-      </ul>
+    {#each SAMPLE_TRIP.packingLists as list, listIdx (list.name)}
+      {@const packed = packedIn(list)}
+      {@const total = list.items.length}
+      <details class="sample-packing" open={listIdx === 0}>
+        <summary class="sample-packing-head">
+          <div class="sample-packing-head-text">
+            <div class="kicker kicker-dark">{list.kicker}</div>
+            <h3 class="sample-packing-title">{list.name}</h3>
+          </div>
+          <span class="sample-packing-count">{packed} of {total} packed</span>
+          <span class="sample-packing-chev" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </summary>
 
-      <p class="sample-packing-note">
-        Read-only preview. In your own trip, tap a circle to mark an item packed,
-        tap the item name to rename, and use the <strong>+</strong> picker to pull
-        suggestions from the Guide.
-      </p>
-    </details>
+        <ul class="pack-list">
+          {#each list.items as item, i (item.name + i)}
+            <li class="pack-row" class:is-packed={item.packed}>
+              <span class="check-token" aria-hidden="true">
+                {#if item.packed}
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 8 7 12 13 4"/>
+                  </svg>
+                {/if}
+              </span>
+              <span class="pack-name">{item.name}</span>
+            </li>
+          {/each}
+        </ul>
+      </details>
+    {/each}
+
+    <p class="sample-packing-note">
+      Read-only preview. In your own trip, tap a circle to mark an item packed,
+      tap the item name to rename, use the <strong>+</strong> picker to pull
+      suggestions from the Guide, and add a second list any time the trip needs
+      one (a partner's bag, the kids' bag, the camera bag).
+    </p>
   </section>
 
   <!-- ===== Bookings ===== -->
@@ -308,25 +318,65 @@
   <!-- ===== Budget ===== -->
   <section class="sample-section">
     <header class="sample-section-head">
-      <div class="kicker kicker-dark">Budget</div>
-      <h2>${SAMPLE_TRIP.budgetTotal} for one traveller, three days</h2>
+      <div class="kicker kicker-dark">Money</div>
+      <h2>What the trip cost - tracked as you go</h2>
     </header>
 
-    <table class="sample-budget">
-      <tbody>
-        {#each SAMPLE_TRIP.budget as line, i (line.category + i)}
-          <tr>
-            <td class="sample-budget-cat">{line.category}</td>
-            <td class="sample-budget-label">{line.label}</td>
-            <td class="sample-budget-amt">${line.amount}</td>
-          </tr>
+    <!-- Same accordion shape as the packing lists above, same shape as
+         the Drawer-wrapped Budget tracker on /trips/[id]. Header carries
+         the running total on the right; body opens to a per-category
+         breakdown chip row and a coloured-dot ledger of every spend.
+         Read-only - the real app lets you tap a row to edit or add a
+         new line from the foot. -->
+    <details class="sample-packing sample-budget-acc" open>
+      <summary class="sample-packing-head">
+        <div class="sample-packing-head-text">
+          <div class="kicker kicker-dark">Ledger</div>
+          <h3 class="sample-packing-title">Budget tracker</h3>
+        </div>
+        <span class="sample-packing-count sample-budget-total-pill">${SAMPLE_TRIP.budgetTotal} spent</span>
+        <span class="sample-packing-chev" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+      </summary>
+
+      <!-- Per-category breakdown chips. Same chip vocabulary as the
+           real BudgetTracker: each chip carries the category colour
+           as its border + text so the eye can sort the ledger below
+           by colour. -->
+      <div class="sample-budget-breakdown">
+        {#each budgetBreakdown as c (c.id)}
+          <span class="sample-budget-chip" style="border-color:{c.color};color:{c.color}">
+            <strong>{c.label}</strong>
+            <span>${c.total}</span>
+          </span>
         {/each}
-        <tr class="sample-budget-total">
-          <td colspan="2">Total</td>
-          <td>${SAMPLE_TRIP.budgetTotal}</td>
-        </tr>
-      </tbody>
-    </table>
+      </div>
+
+      <!-- Ledger: one row per spend with the category dot, label,
+           and amount. Same row shape as the real BudgetTracker .row. -->
+      <ul class="sample-budget-ledger">
+        {#each SAMPLE_TRIP.budget as line, i (line.label + i)}
+          {@const c = catFor(line.category)}
+          <li class="sample-budget-row">
+            <span class="sample-budget-dot" style="background:{c.color}" aria-hidden="true"></span>
+            <div class="sample-budget-line">
+              <span class="sample-budget-line-label">{line.label}</span>
+              <span class="sample-budget-line-date">{fmtDate(line.spentDate)}</span>
+            </div>
+            <span class="sample-budget-line-amt">${line.amount}</span>
+          </li>
+        {/each}
+      </ul>
+
+      <p class="sample-packing-note">
+        Read-only preview. In your own trip, tap a row to edit the amount or
+        category, log a new spend from the form at the bottom, and watch the
+        chips re-balance as you go.
+      </p>
+    </details>
   </section>
 
   <!-- ===== Diary preview ===== -->
@@ -557,6 +607,12 @@
     border-radius: 6px;
     padding: 18px 22px 20px;
   }
+  /* Two or more stacked accordions (default packing list + named
+     extras + budget): space them out so they don't read as one
+     run-on block. */
+  .sample-packing + .sample-packing {
+    margin-top: 14px;
+  }
   .sample-packing > summary {
     list-style: none;
     cursor: pointer;
@@ -566,7 +622,10 @@
   }
   .sample-packing > summary::-webkit-details-marker { display: none; }
   .sample-packing-head-text { flex: 1; min-width: 0; }
-  .sample-packing-head-text h2 {
+  /* Title accepts h2 (single-list legacy) and h3 (stacked named
+     accordions) so the same head styles cover both. */
+  .sample-packing-head-text h2,
+  .sample-packing-title {
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
     font-size: 22px;
@@ -695,55 +754,95 @@
     margin-top: 2px;
   }
 
-  /* ---------- Budget table ---------- */
-  .sample-budget {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fbf6ea;
-    border: 1.5px solid rgba(125, 58, 30, 0.18);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .sample-budget td {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(125, 58, 30, 0.12);
-    font-family: 'Spline Sans', sans-serif;
-    font-size: 14px;
-    color: #0a2d21;
-    vertical-align: top;
-  }
-  .sample-budget tr:last-child td { border-bottom: none; }
-  .sample-budget-cat {
+  /* ---------- Budget accordion ----------
+     Reuses the .sample-packing accordion chrome. The total in the
+     summary head wears a forest pill so it pops against the cream
+     paper, and the body adds a breakdown chip row + a coloured-dot
+     ledger that visually maps to BudgetTracker.svelte's .breakdown
+     and .ledger sections on /trips/[id]. */
+  .sample-budget-total-pill {
+    background: #0a2d21;
+    color: #c9a84c;
+    font-style: normal;
     font-weight: 700;
-    color: #7d3a1e;
-    width: 22%;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.14em;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 0.02em;
   }
-  .sample-budget-label {
+  .sample-budget-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 4px;
+  }
+  .sample-budget-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid #7d3a1e;
+    color: #7d3a1e;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 12px;
+  }
+  .sample-budget-chip strong {
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 10.5px;
+  }
+  .sample-budget-chip span {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .sample-budget-ledger {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+  }
+  .sample-budget-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(139, 106, 58, 0.35);
+  }
+  .sample-budget-row:last-child { border-bottom: 0; }
+  .sample-budget-dot {
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .sample-budget-line {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sample-budget-line-label {
+    font-family: 'Spline Sans', sans-serif;
+    font-size: 14.5px;
+    color: #241f1a;
+  }
+  .sample-budget-line-date {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
-    font-size: 15px;
+    font-size: 12px;
+    color: #6b5c4a;
   }
-  .sample-budget-amt {
-    text-align: right;
+  .sample-budget-line-amt {
+    flex: none;
     font-family: 'Fraunces', Georgia, serif;
     font-weight: 700;
     font-size: 16px;
     color: #0a2d21;
-    width: 90px;
   }
-  .sample-budget-total td {
-    background: rgba(125, 58, 30, 0.08);
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 900;
-    font-size: 17px;
-    color: #0a2d21;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-  .sample-budget-total td:last-child { text-align: right; }
 
   /* ---------- Diary ---------- */
   .sample-diary {

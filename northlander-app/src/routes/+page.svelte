@@ -852,9 +852,12 @@
     transition: transform 0.35s cubic-bezier(.2,.7,.3,1);
     /* Ambient sway so the dashboard reads as alive even when the
        user hasn't reached for the cursor. Staggered per-index so
-       all four polaroids don't dip on the same beat. */
-    animation: dash-polaroid-float 7.5s ease-in-out infinite;
-    animation-delay: calc(var(--i, 0) * -1.7s);
+       all four polaroids don't dip on the same beat. Amplitude
+       bumped from 7px / 0.9deg over 7.5s to 14px / 1.6deg over 6s
+       because the previous sway was so subtle it was unclear
+       whether motion was happening at all. */
+    animation: dash-polaroid-float 6s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -1.5s);
     transform-origin: 50% 100%;
   }
   .dash-polaroid:hover {
@@ -864,7 +867,7 @@
   }
   @keyframes dash-polaroid-float {
     0%   { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
-    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 7px)) rotate(0.9deg); }
+    50%  { transform: rotate(var(--base-tilt)) translateY(calc(var(--base-lift) - 14px)) rotate(1.6deg); }
     100% { transform: rotate(var(--base-tilt)) translateY(var(--base-lift)) rotate(0deg); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1057,6 +1060,30 @@
   .desk-blank .polaroid {
     width: 100%;
     max-width: 360px;
+    /* Pinned-by-tape sway so the two CTA polaroids ("Start a Trip"
+       and "Sample Trip") feel alive the same way the hero collage
+       polaroids above and the trip scrapbook polaroids below do.
+       Pivot from the top so the motion looks like the polaroid is
+       hanging from its washi tape rather than rotating in place. */
+    transform-origin: 50% 0;
+    animation: desk-polaroid-sway 9s ease-in-out infinite;
+  }
+  /* Stagger the second polaroid so the two never dip on the same
+     beat - same idea as the --i delay on the hero collage. */
+  .desk-blank .polaroid:nth-child(2) {
+    animation-delay: -4.5s;
+  }
+  .desk-blank .polaroid:hover {
+    animation: none;
+    transform: rotate(0deg) translateY(-6px);
+    z-index: 2;
+  }
+  @keyframes desk-polaroid-sway {
+    0%, 100% { transform: rotate(-1.4deg) translateY(0); }
+    50%      { transform: rotate(1.2deg) translateY(-2px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .desk-blank .polaroid { animation: none; }
   }
 
   /* Each trip is a polaroid taped to the page: cream paper, soft

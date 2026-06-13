@@ -83,14 +83,18 @@ export const SAMPLE_TRIP = {
     }
   ],
 
-  /* Five-line budget summing to $620 (rounded for a believable solo
-     weekend). budgetEntries table schema: category / label / amount. */
+  /* Six-line budget summing to $620 - rounded for a believable solo
+     weekend. category ids match BUDGET_CATEGORIES (transport / lodging
+     / food / activities / other) so the breakdown chips on the sample
+     preview render with the right colour swatch and so the future
+     duplication flow can write these straight to budgetEntries. */
   budget: [
-    { category: 'Train',      label: 'Round-trip Toronto Union → North Bay', amount: 200 },
-    { category: 'Lodging',    label: 'Two nights, two inns',                  amount: 300 },
-    { category: 'Food',       label: 'Three days, casual mid-range',          amount: 80  },
-    { category: 'Activities', label: 'Steamship + small-town museum',         amount: 30  },
-    { category: 'Buffer',     label: 'Whatever you forget to plan',           amount: 10  }
+    { category: 'transport',  label: 'Train fare, Toronto Union → North Bay return', amount: 200, spentDate: '2026-08-20' },
+    { category: 'lodging',    label: 'Muskoka Inn, Gravenhurst',                     amount: 145, spentDate: '2026-09-04' },
+    { category: 'lodging',    label: 'Northern Trail B&B, North Bay',                amount: 155, spentDate: '2026-09-05' },
+    { category: 'food',       label: 'Three days, casual mid-range',                 amount: 80,  spentDate: '2026-09-04' },
+    { category: 'activities', label: 'Steamship cruise + small-town museum',         amount: 30,  spentDate: '2026-09-04' },
+    { category: 'other',      label: 'Whatever you forget to plan',                  amount: 10,  spentDate: '2026-09-06' }
   ],
 
   /* Three short diary preview notes - one per day - so the visitor
@@ -113,13 +117,52 @@ export const SAMPLE_TRIP = {
     }
   ],
 
-  /* Headline numbers used by the polaroid cover + the Guide preview.
-     Packing-list isn't fully expanded out into individual items here;
-     it just exposes the count so the preview can claim "22 packing
-     items" the same way the Guide does. The duplicate flow will
-     seed a real default packing list at clone time. */
+  /* Headline numbers used by the polaroid cover + the Guide preview. */
   packingCount: 22,
   bookingCount: 4,
   budgetTotal: 620,
-  diaryCount: 3
+  diaryCount: 3,
+
+  /* Two packing lists so the sample demonstrates both the rename
+     feature (the default list carries the traveller's name instead
+     of "Packing list") and the multi-list feature (a second named
+     list sits alongside it). Counts sum to packingCount above. The
+     real packingItems table uses one row per item with a listName
+     field; the duplication flow walks these arrays and inserts. */
+  packingLists: [
+    {
+      name: "Sarah's bag",
+      kicker: 'Pack the bag',
+      items: [
+        { name: 'Train ticket (printout + on phone)', packed: true },
+        { name: 'Wallet + ID',                         packed: true },
+        { name: 'Phone + charger',                     packed: true },
+        { name: 'Headphones',                          packed: true },
+        { name: 'Toothbrush + toothpaste',             packed: true },
+        { name: 'Toiletries pouch',                    packed: true },
+        { name: 'Two changes of clothes',              packed: false },
+        { name: 'Wool sweater (Muskoka evenings)',     packed: false },
+        { name: 'Light rain jacket',                   packed: false },
+        { name: 'Walking shoes',                       packed: true },
+        { name: 'Pyjamas',                             packed: false },
+        { name: 'Sunglasses',                          packed: true },
+        { name: 'Reusable water bottle',               packed: true },
+        { name: 'Snack pouch for the train',           packed: false },
+        { name: 'Hat',                                 packed: false },
+        { name: 'Pen + small notebook',                packed: false }
+      ]
+    },
+    {
+      name: 'Camera + lakes gear',
+      kicker: 'Another bag',
+      items: [
+        { name: 'DSLR + 35mm lens',           packed: true },
+        { name: 'Spare camera battery',       packed: true },
+        { name: 'SD cards (x2)',              packed: true },
+        { name: 'Lens cloth',                 packed: false },
+        { name: 'Small tripod',               packed: false },
+        { name: 'Polarising filter',          packed: false }
+      ]
+    }
+  ]
 };
