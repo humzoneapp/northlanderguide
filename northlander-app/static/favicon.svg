@@ -1,7 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <circle cx="16" cy="16" r="15" fill="#8e3d22"/>
-  <path d="M8 21 L8 12 Q8 9 11 9 L21 9 Q24 9 24 12 L24 21 Z" fill="#f3ece0"/>
-  <rect x="10" y="12" width="5" height="5" rx="1" fill="#0a2d21"/>
-  <rect x="17" y="12" width="5" height="5" rx="1" fill="#0a2d21"/>
-  <rect x="9" y="22" width="14" height="2" rx="1" fill="#f3ece0"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Northlander.app">
+  <!-- Northlander.app favicon, sibling to NorthlanderGuide.com's
+       favicon. Same gold-rim + cream-cab + gold-rail-line vocabulary
+       so the two icons read as a pair, but with the palette flipped
+       to make them instantly distinguishable when a visitor has both
+       sites open in the same browser:
+
+         Guide:  rust disc with forest-green windows
+         App:    forest-green disc with rust windows
+
+       The App leans forest as its primary brand colour throughout
+       (topbar, ticker, trip cover, footer band) so the favicon
+       finally matches that primary instead of inheriting the
+       Guide's rust.
+
+       Palette uses the App's poster vocabulary:
+         rail-deep      #0a2d21  forest disc
+         poster-crimson #8e3d22  rust windows
+         poster-gold    #c9a84c  rim + rail line
+         poster-ivory   #f3ece0  train cab
+
+       Window dimensions match the Guide version (6.5 x 6.5 SVG units
+       in a 32 viewBox = ~3.25 x 3.25 at the 16x16 favicon), which is
+       the smallest size that still reads as a distinct shape rather
+       than a smudge. -->
+
+  <!-- Thin gold rim. -->
+  <circle cx="16" cy="16" r="15.5" fill="#c9a84c"/>
+
+  <!-- Forest-green disc inside the rim. -->
+  <circle cx="16" cy="16" r="14.7" fill="#0a2d21"/>
+
+  <!-- Cream train cab. -->
+  <path d="M6 22 L6 11 Q6 8 9 8 L23 8 Q26 8 26 11 L26 22 Z" fill="#f3ece0"/>
+
+  <!-- Two rust windows. -->
+  <rect x="8.5" y="11" width="6.5" height="6.5" rx="1" fill="#8e3d22"/>
+  <rect x="17" y="11" width="6.5" height="6.5" rx="1" fill="#8e3d22"/>
+
+  <!-- Gold rail line under the cab. -->
+  <rect x="6.5" y="22.7" width="19" height="1.5" rx="0.5" fill="#c9a84c"/>
 </svg>
