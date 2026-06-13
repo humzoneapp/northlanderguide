@@ -27,9 +27,7 @@
 <main class="legal">
   <article class="legal-inner">
     <p class="legal-lede">
-      By using Northlander.app you agree to these terms. They're
-      meant to be readable. If anything's unclear, write to us at
-      <a href="mailto:hello@northlanderguide.com">hello@northlanderguide.com</a>.
+      By accessing or using Northlander.app in any way (browsing, building a trip, signing up for an account, or purchasing a plan), you agree to be bound by these terms. <strong>If you do not agree, do not use the app.</strong> They're meant to be readable, but please pay particular attention to sections 8, 10, 11, 14 and 15: they affect your legal rights. If anything's unclear, write to us at <a href="mailto:hello@northlanderguide.com">hello@northlanderguide.com</a>.
     </p>
 
     <section>
@@ -87,35 +85,96 @@
     </section>
 
     <section>
-      <h2>8. No warranty. Everything is "as is"</h2>
-      <p>The app, all of its features, all data shown in it, and any service provided through it are offered <strong>"as is" and "as available"</strong>, without warranty of any kind, express or implied. To the maximum extent permitted by law, we disclaim all warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, completeness, timeliness, reliability, and uninterrupted availability.</p>
+      <h2>8. Assumption of risk for trips planned with the app</h2>
+      <p>Travelling involves inherent risks that we do not control and cannot inspect. Outdoor activities, trail walks, parks, restaurants, accommodations, transportation, tours, festivals, events, and any other business or experience you reach using a trip you planned with the app carry physical, financial, and logistical risks that are entirely your own.</p>
+      <p>By using Northlander.app to plan or carry out any trip, you assume all such risks and release the operators of Northlander.app, NorthlanderGuide.com, their owners, employees, volunteers, contributors, licensors, agents and suppliers from any responsibility for, including but not limited to:</p>
+      <ul>
+        <li>Personal injury, illness, allergic reaction, food-borne illness, slip-and-fall, accident, or death suffered by you or anyone joining you on the trip.</li>
+        <li>Property damage, theft, loss, or vandalism while travelling, staying or visiting.</li>
+        <li>Cancellation, non-honour, or other breach by a railway, business, host, organizer, transport provider, or other third party.</li>
+        <li>Inaccurate or out-of-date allergen, accessibility, safety, age-restriction, dress-code or capacity information.</li>
+        <li>Trail closures, hazardous conditions, dangerous wildlife, weather events, or any other natural hazard.</li>
+        <li>Disputes with any third party about quality, refund, refusal of service, or any other matter.</li>
+      </ul>
+      <p><strong>You are solely responsible</strong> for exercising independent judgment, taking appropriate safety precautions, carrying appropriate insurance, and confirming conditions directly with each business or operator before your visit. If you have a medical condition, allergy, accessibility need, or any other concern, contact the relevant business or operator to verify.</p>
+    </section>
+
+    <section>
+      <h2>9. No warranty. Everything is "as is"</h2>
+      <p>The app, all of its features, all data shown in it, and any service provided through it are offered <strong>"AS IS" and "AS AVAILABLE"</strong>, with all faults, and without warranty or representation of any kind, whether express, implied, statutory, or otherwise, including without limitation the implied warranties of merchantability, fitness for a particular purpose, title, quiet enjoyment, non-infringement, accuracy, currency, completeness, reliability, security, availability, and uninterrupted operation. <strong>To the maximum extent permitted by applicable law, we disclaim ALL such warranties and representations.</strong></p>
       <p>We make no representation that the information in the app is accurate, current, complete, or free of errors. Train times, addresses, dates, weather forecasts, geocoded map locations, listing details, event information, packing suggestions, and every other piece of data may contain errors, omissions, or inaccuracies. <strong>You use the app entirely at your own risk.</strong></p>
     </section>
 
     <section>
-      <h2>9. Limitation of liability</h2>
-      <p>To the maximum extent permitted by law, neither the operators of Northlander.app nor anyone associated with the app are liable for any damages whatsoever (direct, indirect, incidental, consequential, special, exemplary, or punitive) arising from or in connection with your use of (or inability to use) the app. This includes, without limitation, liability for: missed trains, missed connections, cancelled or delayed travel, wasted bookings, lost reservations, incorrect addresses or directions, getting lost, weather-related decisions, errors in displayed train times or schedules, errors in venue or event information, loss of data, loss of photos, loss of profits, loss of revenue, or loss of opportunity. This applies even if we were advised of the possibility of such damages and even if a remedy fails of its essential purpose.</p>
-      <p>If any of the above limitations are held unenforceable in your jurisdiction, our total aggregate liability to you for any and all claims arising from the app shall not exceed the amount you have paid us in the twelve (12) months preceding the claim, which, on the free plan, is zero dollars (CAD&nbsp;$0).</p>
-      <p>You agree to release, indemnify, and hold harmless the operators of Northlander.app, NorthlanderGuide.com, their volunteers, and contributors from any claim arising from your use of the app or your reliance on any information shown in it.</p>
+      <h2>10. Limitation of liability + indemnification</h2>
+      <p>To the maximum extent permitted by applicable law, the operators of Northlander.app and NorthlanderGuide.com, their owners, employees, volunteers, contributors, licensors, agents, suppliers and affiliates (the "Released Parties") will not be liable for any direct, indirect, incidental, special, consequential, exemplary, punitive, statutory, or any other damages, or for any loss of profits, revenues, data, photos, business opportunities, goodwill, anticipated savings, or any other loss whatsoever, however caused, and whether arising under contract, tort (including negligence), strict liability, statute, or any other legal theory, even if a Released Party has been advised of the possibility of such damages, and even if a remedy fails of its essential purpose. This applies to all claims arising from or related to your use of the app, including but not limited to:</p>
+      <ul>
+        <li>Missed trains, missed connections, cancelled or delayed travel, wasted bookings, lost reservations, missed deadlines.</li>
+        <li>Inaccurate addresses, schedules, weather forecasts, listing details, event information, packing suggestions, or any other data shown.</li>
+        <li>Personal injury, illness, allergic reaction, food-borne illness, or property damage suffered by you or anyone joining you on a trip planned with the app.</li>
+        <li>Loss, theft, or unauthorized disclosure of any data you create in the app, including trip data, photos and diary entries.</li>
+        <li>Downtime, data loss, or service interruption, including any failure of a third-party service the app relies on (Vercel, NorthlanderGuide.com, Open-Meteo, OpenStreetMap, Carto, payment processors, email senders).</li>
+        <li>Any act, omission, default, or misconduct by any railway, business, host, organizer, or other third party referenced or linked from the app.</li>
+      </ul>
+      <p><strong>Aggregate cap.</strong> Where applicable law does not permit the complete exclusion of certain liabilities, the Released Parties' aggregate liability for all claims, in aggregate, arising from or related to your use of the app will not exceed the greater of CAD&nbsp;$50 or the total amount you have actually paid us in the twelve (12) months immediately preceding the event giving rise to the claim. On the free plan, that amount is zero dollars (CAD&nbsp;$0). This cap is a fundamental basis of these terms; without it, we would not be able to offer the app.</p>
+      <p><strong>Indemnification.</strong> You agree to defend, indemnify and hold harmless the Released Parties from and against any and all claims, demands, losses, liabilities, damages, judgments, settlements, fines, penalties, costs and expenses (including reasonable legal fees and court costs) arising out of or related to: (a) any content or data you submit, upload, post or transmit to or through the app; (b) your use of or activity on the app; (c) your violation of these terms; (d) your violation of any law, regulation, or third-party right (including privacy, intellectual property, and publicity rights); (e) any personal injury, illness, property damage, or other harm sustained by you or anyone accompanying you on a trip planned with the app; or (f) any dispute between you and any third-party business, host, or organizer. We may, at our option and at your expense, assume the exclusive defence and control of any matter for which you are obligated to indemnify us, and you agree to cooperate with our defence.</p>
     </section>
 
     <section>
-      <h2>10. Changes to the service or these terms</h2>
-      <p>We may update the app, add or remove features, or change these terms at any time. If we make a material change to these terms, we'll surface it inside the app on your next visit and update the "Last reviewed" date at the top of this page.</p>
+      <h2>11. Intellectual property</h2>
+      <p>The app's design, illustrations, layouts, source code, editorial copy, logos, illustrations, and other original assets are owned by the operators of Northlander.app unless otherwise noted (see section 18 for credits to upstream services). You may not reproduce, redistribute, decompile, reverse-engineer, or commercially use any part of the app or its assets without our prior written permission. You may link to any page in the app freely.</p>
+      <p>NorthlanderGuide.com editorial content (listing names, descriptions, hooks, fun facts, packing suggestions, stop pages) is the property of its publisher and is licensed to this app for display only. Don't scrape it, mirror it, or repackage it.</p>
+      <p>You retain ownership of the trip content you create inside the app (trip names, packing lists, bookings, diary entries, photos, ledger rows). We claim no ownership over your content. By using the app you grant us a non-exclusive, royalty-free, worldwide licence to process and display your own content back to you on your device(s).</p>
     </section>
 
     <section>
-      <h2>11. Governing law</h2>
-      <p>These terms are governed by the laws of the Province of Ontario, Canada. Any dispute relating to the app or these terms will be brought exclusively in the courts of Ontario.</p>
+      <h2>12. Force majeure</h2>
+      <p>We will not be liable for any failure or delay in providing the app, syncing data (when accounts launch), processing a payment, sending an email, or providing any other service, or for any data loss, downtime, or interruption, caused by any event or condition beyond our reasonable control. This includes without limitation: failures or outages of hosting providers, payment processors, email senders, or other third-party services; natural disasters; fires; floods; earthquakes; severe weather; pandemics, epidemics, or other public health emergencies; internet, telecommunications, or power failures; government actions, sanctions, embargoes, or orders; civil disturbance; labour disputes; war; terrorism; sabotage; or acts of God.</p>
     </section>
 
     <section>
-      <h2>12. Contact</h2>
+      <h2>13. Time limit on bringing a claim</h2>
+      <p><strong>You must commence any claim, action or proceeding against the Released Parties arising out of or related to your use of the app within one (1) year</strong> of the date the underlying event giving rise to the claim occurred or was first discoverable, whichever is later, or the claim will be permanently and irrevocably barred and waived. This shortened limitation period replaces any longer limitation period that might otherwise apply under statute or common law, to the maximum extent permitted by applicable law.</p>
+    </section>
+
+    <section>
+      <h2>14. Individual claims only; class-action waiver</h2>
+      <p>To the maximum extent permitted by applicable law, <strong>you and we agree that any dispute will be brought in your individual capacity only</strong>, and not as a plaintiff or class member in any purported class action, collective action, consolidated action, mass action, or representative proceeding. You waive any right to participate in a class action or representative proceeding against any of the Released Parties.</p>
+      <p><strong>Consumer-protection carve-out.</strong> This section does not limit any rights you may have under the Ontario <em>Consumer Protection Act, 2002</em>, or under equivalent consumer-protection legislation in your jurisdiction, where that legislation, despite anything in these terms, allows you to participate in a class proceeding for a claim it protects.</p>
+    </section>
+
+    <section>
+      <h2>15. Notices</h2>
+      <p>Any legal notice to us must be sent in writing to <a href="mailto:hello@northlanderguide.com">hello@northlanderguide.com</a>, with subject line "Legal Notice", and is deemed received only when we acknowledge it in writing. We may give you notice by posting on the app, by emailing the address on your account (when accounts launch), or by emailing the address you provided when interacting with the app. Notice we give is deemed received within forty-eight (48) hours of being posted or sent.</p>
+    </section>
+
+    <section>
+      <h2>16. Changes to the service or these terms</h2>
+      <p>We may update the app, add or remove features, or change these terms at any time. If we make a material change to these terms (for example, the launch of accounts, the paid plan, or any change to the limitation of liability), we'll surface it inside the app on your next visit and update the "Last reviewed" date at the top of this page. Your continued use of the app after a change is published constitutes your acceptance of the updated terms. If you do not accept them, your sole remedy is to stop using the app.</p>
+    </section>
+
+    <section>
+      <h2>17. Governing law, jurisdiction, and venue</h2>
+      <p>These terms, and any non-contractual obligations arising out of or related to them or to your use of the app, are governed by and construed in accordance with the laws of the Province of Ontario, Canada, and the federal laws of Canada applicable in Ontario, without regard to any conflict-of-laws principles. You and we agree that any dispute, claim, action or proceeding arising out of or related to these terms or your use of the app will be brought exclusively in the courts of Ontario, Canada (city of Toronto), and you irrevocably consent and submit to the exclusive personal jurisdiction and venue of those courts.</p>
+      <p>The United Nations Convention on Contracts for the International Sale of Goods does not apply to these terms.</p>
+    </section>
+
+    <section>
+      <h2>18. Assignment, no waiver, severability, and entire agreement</h2>
+      <p><strong>Assignment.</strong> You may not assign or transfer these terms, or any rights or obligations under them, without our prior written consent. We may assign or transfer these terms to an affiliate or to a successor in connection with a merger, acquisition, restructuring, financing, or sale of all or substantially all of our assets, without your consent and without notice to you.</p>
+      <p><strong>No waiver.</strong> Our failure to enforce any provision of these terms is not a waiver of that provision or of any other provision. A waiver will only be effective if it is in writing and signed by us, and even then operates as a waiver only in the specific instance for which it is granted.</p>
+      <p><strong>Severability.</strong> If any provision of these terms is found by a court of competent jurisdiction to be unenforceable, the remaining provisions remain in full force and effect. The unenforceable provision will be modified to the minimum extent necessary to make it enforceable while preserving its original intent, or, if modification is not possible, severed entirely.</p>
+      <p><strong>Survival.</strong> Sections 8 (Assumption of risk), 9 ("As is"), 10 (Limitation of liability + indemnification), 11 (IP), 13 (Time limit), 14 (Class-action waiver), 15 (Notices), 17 (Governing law) and this section 18 survive any termination or expiration of these terms or of your use of the app.</p>
+      <p><strong>Entire agreement.</strong> These terms, together with our <a href="/privacy">Privacy Policy</a>, are the complete and exclusive agreement between you and the operators of Northlander.app regarding the app, and supersede any prior or contemporaneous agreements, representations, warranties or understandings, written or oral, regarding the same subject matter.</p>
+    </section>
+
+    <section>
+      <h2>19. Contact</h2>
       <p>Anything legal-shaped, billing-related (once that exists), or just confusing: <a href="mailto:hello@northlanderguide.com">hello@northlanderguide.com</a>.</p>
     </section>
 
     <section>
-      <h2>13. Services and credits</h2>
+      <h2>20. Services and credits</h2>
       <p>Northlander.app stands on a small set of free, open services. We pay none of them, so we owe them visibility:</p>
       <ul>
         <li><strong>Maps</strong> by <a href="https://carto.com/" target="_blank" rel="noopener">Carto</a> (Voyager basemap tiles).</li>

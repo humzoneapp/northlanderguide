@@ -199,6 +199,9 @@
       hidden
     />
   </nav>
+  <p class="footer-copyright">
+    &copy; {new Date().getFullYear()} Northlander.app. All Rights Reserved. All design, illustrations and code on this site are protected by copyright. Reproduction without prior written permission is not permitted. <a href="/terms">See Terms</a>.
+  </p>
 </footer>
 
 <style>
@@ -348,6 +351,28 @@
     text-underline-offset: 2px;
   }
   .footer-disclaimer a:hover { color: #0a2d21; }
+
+  /* Copyright notice + reproduction-prohibition line. Quiet rust on
+     ivory, smallest type in the footer so it doesn't compete with
+     the editorial tagline but is always present for legal cover. */
+  .footer-copyright {
+    margin-top: 14px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: #7e6a52;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(125, 58, 30, 0.25);
+  }
+  .footer-copyright a {
+    color: #7d3a1e;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .footer-copyright a:hover { color: #0a2d21; }
 
   /* Floating scroll-to-top button. Anchored bottom-right with
      safe-area insets so iOS Safari's home indicator doesn't
