@@ -16,10 +16,14 @@
   /** @type {{ src: string, name: string, tilt: number }[]} */
   export let photos = [];
 
-  /* Default to open on desktop, closed on mobile. The collapse is
-     handled by CSS at 720px, but the toggle still flips the class so
-     keyboard / SR users can also expand or collapse. */
-  let open = typeof window !== 'undefined' ? window.innerWidth >= 720 : true;
+  /* Default to open everywhere so the polaroid cluster reads as
+     part of the cover on phones too - previously the collage hid
+     behind a "See route photos" toggle below 720px, which meant the
+     mobile cover carried strictly less information than the desktop
+     one. The toggle pill stays available on mobile (CSS shows it
+     below 720px) so the user can still collapse the cluster when
+     they want to scroll past it. */
+  let open = true;
 </script>
 
 {#if photos.length > 0}
@@ -134,5 +138,26 @@
     color: #0a2d21;
     text-align: center;
     padding-top: 6px;
+  }
+  /* Compact mobile cluster: smaller cards, tighter gap, no min-height
+     so the collage doesn't double the cover's vertical footprint now
+     that it ships open by default on phones. */
+  @media (max-width: 720px) {
+    .collage {
+      min-height: 0;
+      gap: 10px;
+      padding: 4px 0 2px;
+    }
+    .collage-card {
+      padding: 5px 5px 8px;
+    }
+    .collage-card img {
+      width: clamp(82px, 22vw, 110px);
+      height: clamp(82px, 22vw, 110px);
+    }
+    .collage-card figcaption {
+      font-size: 11.5px;
+      padding-top: 4px;
+    }
   }
 </style>
