@@ -901,12 +901,16 @@
   .dash-features-grid {
     /* Match the .dash-hero-inner max-width (1180px) so the strip's
        left edge sits exactly where "Pack a trip" begins in the hero
-       above, instead of being inset by an extra ~50px on each side. */
+       above, instead of being inset by an extra ~50px on each side.
+       Mobile keeps the six tiles on two rows (3 columns x 2 rows)
+       so the strip never grows taller than the hero stat band; the
+       longer labels ("Build an itinerary", "Sync with the Guide")
+       wrap inside their tile and the row heights equalise. */
     max-width: 1180px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 22px 14px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 10px;
     list-style: none;
     padding: 0;
   }
