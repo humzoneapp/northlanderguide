@@ -2105,7 +2105,7 @@ document.addEventListener('click', function (e) {
    here all moved to events-page.js when step 2 shipped. Featured
    sort puts the Airtable "Featured" rows first, then everything
    else by start date ascending; we take the top six and stop. */
-const HOME_EVENTS_STRIP_CAP = 6;
+const HOME_EVENTS_STRIP_CAP = 8;
 
 function renderEvents(){
   const wrap = document.getElementById('eventPanel');
