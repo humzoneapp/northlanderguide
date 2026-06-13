@@ -871,7 +871,10 @@
     padding: 26px 24px 28px;
   }
   .dash-features-grid {
-    max-width: 1080px;
+    /* Match the .dash-hero-inner max-width (1180px) so the strip's
+       left edge sits exactly where "Pack a trip" begins in the hero
+       above, instead of being inset by an extra ~50px on each side. */
+    max-width: 1180px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
