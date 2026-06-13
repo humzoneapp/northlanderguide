@@ -81,6 +81,17 @@
               <span class="cover-ticket-date">{formatDateShort(onwardDate)}</span>
             {/if}
           </span>
+          <!-- Once-a-day service hint: when the user is staying
+               overnight at an intermediate stop, the "Depart" line
+               renders the next day's pass-through time of the same
+               train. Without this hint a glance reads "Arrive 20:45 /
+               Depart 20:45" as a typo. Only fires when there is no
+               separate scheduled depart time AND the depart date is
+               later than the arrive date - i.e. genuinely the next
+               day's same service. -->
+          {#if !isFirst && !onwardTime?.depart && onwardDate && s.stayStart && onwardDate !== s.stayStart}
+            <span class="cover-ticket-hint">Same train, next day</span>
+          {/if}
         {/if}
       </span>
       {#if i < stops.length - 1 || returnStops.length > 0}
@@ -221,6 +232,20 @@
     font-size: clamp(13.5px, 3vw, 14.5px);
     color: #ede0cc;
     margin-top: 2px;
+  }
+  /* Quiet italic hint that appears under the Depart line when the
+     user is staying overnight at an intermediate stop. Smaller +
+     dimmer than the date so it reads as a footnote, not as more
+     boarding-pass info. */
+  .cover-ticket-hint {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 11.5px;
+    color: #ede0cc;
+    opacity: 0.75;
+    letter-spacing: 0.02em;
+    margin-top: 1px;
+    text-align: center;
   }
   /* Schedule reference line under the ticket. Quiet italic so it
      doesn't compete; gold link to match the ticket frame. */

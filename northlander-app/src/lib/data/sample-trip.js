@@ -31,21 +31,27 @@ export const SAMPLE_TRIP = {
   departureDate: '2026-09-04',
   returnDate: '2026-09-06',
   returnStopId: 'union',
+  /* Notes match the real Northlander schedule: once-daily evening
+     departure from Union (18:30), late-evening arrival in Gravenhurst
+     (20:45), late-night arrival in North Bay (23:30), pre-dawn
+     southbound return (05:55 out of North Bay, 10:55 into Union).
+     Overnights happen at Gravenhurst and North Bay; the Gravenhurst
+     stay has a full daytime window before the next evening train. */
   stops: [
     {
       stopId: 'union',
       date: '2026-09-04',
-      note: 'Morning train north. Coffee + croissant from the food court before the 9:35 boarding.'
+      note: 'Board the 18:30 northbound at Union - the Northlander runs once a day, so be on the platform by 18:00. Coffee + croissant from the food court while you wait.'
     },
     {
       stopId: 'gravenhurst',
       date: '2026-09-04',
-      note: "Pull into the Muskoka stop in the afternoon. RMS Segwun docked at the wharf if you're early enough."
+      note: 'Pull in at 20:45. The lake is dark by then but the Muskoka air is the point. Walk to the inn, late dinner across the wharf, the RMS Segwun lit up beside the dock. Full day in town the next morning before the 20:45 train rolls through again.'
     },
     {
       stopId: 'northbay',
       date: '2026-09-05',
-      note: 'Arrive mid-afternoon. Walk the Lake Nipissing boardwalk before dinner.'
+      note: 'Arrive 23:30 - straight to bed at the B&B. Up before dawn for the 05:55 southbound back to Union. Two nights, two stops, one evening service that does both.'
     }
   ],
 
@@ -107,12 +113,12 @@ export const SAMPLE_TRIP = {
     },
     {
       stopId: 'northbay',
-      title: 'Morning along Lake Nipissing',
-      body: 'Empty boardwalk except for a heron and one early jogger. Coffee from the kiosk by the marina.'
+      title: 'Half-hour by the lake before dawn',
+      body: 'Walked the boardwalk to the station with one heron and the lake fog for company. Caught the 05:55 south on time.'
     },
     {
       stopId: 'union',
-      title: 'Back home before sunset',
+      title: 'Back at Union by lunch',
       body: 'Train was on time both ways. We would do this again next September.'
     }
   ],
