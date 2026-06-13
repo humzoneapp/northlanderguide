@@ -1487,8 +1487,7 @@ a{color:inherit}
 .hev-reset .ph-light{font-size:.9rem;font-style:normal}
 .hev-reset:hover{background:rgba(125,58,30,.08)}
 .hev-filter-section{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;
-  gap:.5rem;margin:.6rem 0 0}
-.hev-filter-section--full{margin-top:0}
+  gap:.5rem;margin:0}
 .hev-filter-section-label{display:inline-flex;align-items:center;gap:.35rem;
   font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.95rem;font-weight:500;
   letter-spacing:0;text-transform:none;color:var(--poster-crimson);

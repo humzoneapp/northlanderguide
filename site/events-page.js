@@ -174,21 +174,26 @@
     }
     const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
 
-    /* Suffix the year on a chip ("Mar '27") only when the data spans
-       more than one calendar year. Otherwise "Mar" alone reads cleaner. */
+    /* When is now a dropdown rather than a chip row. The chip row
+       blew out to 10+ pills once a season's worth of months landed,
+       and on mobile the row crowded out the rest of the filter
+       bar. A dropdown reads as one slot regardless of how many
+       months are loaded. Year is suffixed in the option label only
+       when the data spans more than one calendar year. */
     const yearsInSet = new Set(monthKeys.map(k => Math.floor(k/100)));
-    const showYearOnChips = yearsInSet.size > 1;
-    const monthShort = key => {
+    const showYearInLabel = yearsInSet.size > 1;
+    const monthLongLabel = key => {
       const y = Math.floor(key/100), m = key%100;
-      const m_str = new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
-      return showYearOnChips ? m_str + " '" + String(y).slice(-2) : m_str;
+      const dt = new Date(Date.UTC(y, m-1, 1));
+      const m_str = dt.toLocaleDateString('en-CA', {month:'long', timeZone:'UTC'});
+      return showYearInLabel ? m_str + ' ' + y : m_str;
     };
     const chip = (group, value, label, active) =>
       '<button type="button" class="hev-chip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + escHtml(String(value)) + '">' + escHtml(label) + '</button>';
 
-    const monthChips = [chip('month', 'all', 'Any time', f.month === 'all')]
-      .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
-      .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
+    const monthOpts = ['<option value="all">Any time</option>']
+      .concat(hasRecurring ? ['<option value="recurring"' + (f.month === 'recurring' ? ' selected' : '') + '>Recurring</option>'] : [])
+      .concat(monthKeys.map(k => '<option value="' + k + '"' + (f.month === k ? ' selected' : '') + '>' + escHtml(monthLongLabel(k)) + '</option>'))
       .join('');
 
     const categoryOpts = ['<option value="all">Any category</option>']
@@ -227,11 +232,11 @@
       +   '<div class="hev-filters-head">'
       +     (anyActive ? '<button type="button" class="hev-reset" id="eventFiltersReset"><i class="ph-light ph-x" aria-hidden="true"></i> Clear filters</button>' : '')
       +   '</div>'
-      +   '<section class="hev-filter-section hev-filter-section--full">'
-      +     '<div class="hev-filter-section-label"><i class="ph-light ph-calendar-blank" aria-hidden="true"></i><span>When</span></div>'
-      +     '<div class="hev-chip-row">' + monthChips + '</div>'
-      +   '</section>'
       +   '<div class="hev-filter-grid">'
+      +     '<section class="hev-filter-section">'
+      +       '<div class="hev-filter-section-label"><i class="ph-light ph-calendar-blank" aria-hidden="true"></i><span>When</span></div>'
+      +       '<select class="hev-select" id="eventMonthSelect">' + monthOpts + '</select>'
+      +     '</section>'
       +     '<section class="hev-filter-section">'
       +       '<div class="hev-filter-section-label"><i class="ph-light ph-map-pin" aria-hidden="true"></i><span>Where</span></div>'
       +       '<select class="hev-select" id="eventStopSelect">' + stopOpts + '</select>'
@@ -400,6 +405,13 @@
       const stopSel = document.getElementById('eventStopSelect');
       if (stopSel) stopSel.addEventListener('change', () => {
         window.eventFilters.stop = stopSel.value;
+        window.eventFilters.page = 1;
+        renderEvents();
+      });
+      const monthSel = document.getElementById('eventMonthSelect');
+      if (monthSel) monthSel.addEventListener('change', () => {
+        const v = monthSel.value;
+        window.eventFilters.month = (v === 'all' || v === 'recurring') ? v : Number(v);
         window.eventFilters.page = 1;
         renderEvents();
       });

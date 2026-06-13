@@ -273,8 +273,7 @@
 .sp-evreset .ph-light{font-size:14px;font-style:normal}
 .sp-evreset:hover{background:rgba(125,58,30,.08)}
 .sp-evfilter-section{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;
-  gap:8px;margin:9px 0 0}
-.sp-evfilter-section--full{margin-top:0}
+  gap:8px;margin:0}
 .sp-evfilter-section-label{display:inline-flex;align-items:center;gap:5px;
   font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;font-weight:500;
   letter-spacing:0;text-transform:none;color:var(--sp-rust);

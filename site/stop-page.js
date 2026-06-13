@@ -215,21 +215,25 @@
       for (const k of spMonthKeys(ev)) monthSet.add(k);
     }
     const monthKeys = Array.from(monthSet).sort((a,b)=>a-b);
-    /* Suffix the year on a chip ("Mar '27") only when the data spans
-       more than one calendar year. Otherwise "Mar" alone reads cleaner. */
+    /* When is now a dropdown rather than a chip row - the chip row
+       blew out to 10+ pills once a season's worth of months landed,
+       and on mobile crowded out the rest of the filter bar. Year
+       is suffixed in the option label only when the data spans more
+       than one calendar year. */
     const yearsInSet = new Set(monthKeys.map(k => Math.floor(k/100)));
-    const showYearOnChips = yearsInSet.size > 1;
-    const monthShort = key => {
+    const showYearInLabel = yearsInSet.size > 1;
+    const monthLongLabel = key => {
       const y = Math.floor(key/100), m = key%100;
-      const m_str = new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('en-CA', {month:'short', timeZone:'UTC'});
-      return showYearOnChips ? m_str + " '" + String(y).slice(-2) : m_str;
+      const dt = new Date(Date.UTC(y, m-1, 1));
+      const m_str = dt.toLocaleDateString('en-CA', {month:'long', timeZone:'UTC'});
+      return showYearInLabel ? m_str + ' ' + y : m_str;
     };
     const chip = (group, value, label, active) =>
       '<button type="button" class="sp-evchip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + esc(String(value)) + '">' + esc(label) + '</button>';
 
-    const monthChips = [chip('month', 'all', 'Any time', f.month === 'all')]
-      .concat(monthKeys.map(k => chip('month', k, monthShort(k), f.month === k)))
-      .concat(hasRecurring ? [chip('month', 'recurring', 'Recurring', f.month === 'recurring')] : [])
+    const monthOpts = ['<option value="all">Any time</option>']
+      .concat(hasRecurring ? ['<option value="recurring"' + (f.month === 'recurring' ? ' selected' : '') + '>Recurring</option>'] : [])
+      .concat(monthKeys.map(k => '<option value="' + k + '"' + (f.month === k ? ' selected' : '') + '>' + esc(monthLongLabel(k)) + '</option>'))
       .join('');
     const categoryOpts = ['<option value="all">Any category</option>']
       .concat(SP_EVENT_CATEGORIES.map(c => '<option value="' + esc(c) + '"' + (f.category === c ? ' selected' : '') + '>' + esc(c) + '</option>'))
@@ -252,11 +256,11 @@
         + '<h3 class="sp-evfilters-title">Find events</h3>'
         + (anyActive ? '<button type="button" class="sp-evreset" id="spEventFiltersReset"><i class="ph-light ph-x" aria-hidden="true"></i> Clear filters</button>' : '')
       + '</div>'
-      + '<section class="sp-evfilter-section sp-evfilter-section--full">'
-        + '<div class="sp-evfilter-section-label"><i class="ph-light ph-calendar-blank" aria-hidden="true"></i><span>When</span></div>'
-        + '<div class="sp-evchip-row">' + monthChips + '</div>'
-      + '</section>'
       + '<div class="sp-evfilter-grid">'
+        + '<section class="sp-evfilter-section">'
+          + '<div class="sp-evfilter-section-label"><i class="ph-light ph-calendar-blank" aria-hidden="true"></i><span>When</span></div>'
+          + '<select class="sp-evselect" id="spEventMonthSelect">' + monthOpts + '</select>'
+        + '</section>'
         + '<section class="sp-evfilter-section">'
           + '<div class="sp-evfilter-section-label"><i class="ph-light ph-tag" aria-hidden="true"></i><span>What</span></div>'
           + '<select class="sp-evselect" id="spEventCategorySelect">' + categoryOpts + '</select>'
@@ -316,6 +320,13 @@
       const sel = document.getElementById('spEventCategorySelect');
       if (sel) sel.addEventListener('change', () => {
         spEventFilters.category = sel.value;
+        spEventFilters.page = 1;
+        rerender();
+      });
+      const monthSel = document.getElementById('spEventMonthSelect');
+      if (monthSel) monthSel.addEventListener('change', () => {
+        const v = monthSel.value;
+        spEventFilters.month = (v === 'all' || v === 'recurring') ? v : Number(v);
         spEventFilters.page = 1;
         rerender();
       });
