@@ -334,6 +334,66 @@
   </div>
 </header>
 
+<!-- ===== Plain-language feature strip =====
+     Six icon + label tiles that answer "what does this app actually
+     do?" for a first-time visitor who hasn't started a trip yet.
+     Sits between the cinematic hero (forest gradient) and the
+     Itinerary Desk (cream paper), bridging the two with a cream
+     band of its own. 2-up grid on mobile, 1x6 row above 720px. No
+     descriptions under the labels - brevity is the value. -->
+<section class="dash-features" aria-label="What this app does">
+  <ul class="dash-features-grid">
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 3 L17 3 L17 21 L12 17.5 L7 21 Z" />
+      </svg>
+      <span>Save stops</span>
+    </li>
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 5.5 L4.5 7 L7 4" />
+        <path d="M3 11.5 L4.5 13 L7 10" />
+        <path d="M3 17.5 L4.5 19 L7 16" />
+        <path d="M10 6 L21 6" />
+        <path d="M10 12 L21 12" />
+        <path d="M10 18 L21 18" />
+      </svg>
+      <span>Build an itinerary</span>
+    </li>
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 8 L4 6 Q4 4 6 4 L18 4 Q20 4 20 6 L20 8 Q18 8 18 10 Q18 12 20 12 L20 18 Q20 20 18 20 L6 20 Q4 20 4 18 L4 12 Q6 12 6 10 Q6 8 4 8 Z" />
+        <path d="M12 4 L12 8 M12 11 L12 13 M12 16 L12 20" />
+      </svg>
+      <span>Track bookings</span>
+    </li>
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="6" width="18" height="14" rx="2" />
+        <path d="M21 11 L17 11 Q15 11 15 13 Q15 15 17 15 L21 15" />
+        <path d="M3 6 Q3 4 5 4 L17 4 L17 6" />
+      </svg>
+      <span>Set a budget</span>
+    </li>
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 18 Q4 18 4 15 Q4 12 7 12 Q7 8 11 8 Q13 8 14 9.5 Q15 7 17 7 Q20 7 20 10 Q20 13 17 13 L9 13" />
+        <path d="M4 4 L20 20" />
+      </svg>
+      <span>Use offline</span>
+    </li>
+    <li class="dash-feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 10 Q4 5 10 5 Q14 5 16 7.5" />
+        <path d="M13 4 L16 7.5 L12.5 8.5" />
+        <path d="M20 14 Q20 19 14 19 Q10 19 8 16.5" />
+        <path d="M11 20 L8 16.5 L11.5 15.5" />
+      </svg>
+      <span>Sync with the Guide</span>
+    </li>
+  </ul>
+</section>
+
 <!-- ===== The Itinerary Desk =====
      Editorial dashboard, not a SaaS list. The user's trips are
      polaroids taped to a cream paper page: each one a stop photo,
@@ -799,6 +859,49 @@
     color: #0a2d21;
     text-align: center;
     padding-top: 6px;
+  }
+
+  /* ===== Feature strip =====
+     Six icon + label tiles bridging the forest hero band and the
+     cream Itinerary Desk below. Cream background matches the desk
+     so the strip and desk read as one continuous cream section in
+     two beats. Mobile 2-up; desktop 6-up single row. */
+  .dash-features {
+    background: #f5f0e8;
+    padding: 26px 24px 28px;
+  }
+  .dash-features-grid {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 14px;
+    list-style: none;
+    padding: 0;
+  }
+  @media (min-width: 720px) {
+    .dash-features-grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px 18px;
+    }
+  }
+  .dash-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    color: #0a2d21;
+    font-family: 'Spline Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.005em;
+  }
+  .dash-feature svg {
+    width: 26px;
+    height: 26px;
+    color: #7d3a1e;
   }
 
   /* ===== Section heads ===== */
