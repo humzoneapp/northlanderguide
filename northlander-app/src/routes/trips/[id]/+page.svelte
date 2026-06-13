@@ -232,10 +232,22 @@
 
   /* Parallax: shift the cover banner image up at 25% of scroll so
      the photo feels like it sits behind glass. Listener attached
-     in onMount, torn down on destroy. */
+     in onMount, torn down on destroy.
+
+     Disabled below 720px because iOS Safari's URL bar collapses
+     and re-expands during scroll, which jumps window.scrollY by
+     60-80px on every direction change. With parallax on, the
+     translateY transform fought the 80ms CSS transition on each
+     URL-bar tick and the background image visibly twitched/
+     vibrated. Decorative effect, not worth the seasickness on
+     phones. Desktop is unaffected. */
   let coverParallax = 0;
   function handleScroll() {
     if (typeof window === 'undefined') return;
+    if (window.innerWidth < 720) {
+      coverParallax = 0;
+      return;
+    }
     coverParallax = Math.min(window.scrollY * 0.25, 240);
   }
   /* Trip-wide packing + budget UI (add/rename/delete lists, edit
