@@ -220,9 +220,9 @@
 
     const walkChips = [
       chip('walk', 'all', 'Any', f.walk === 'all'),
-      chip('walk', 15, 'Under 15 min', f.walk === 15),
-      chip('walk', 30, 'Under 30 min', f.walk === 30),
-      chip('walk', 60, 'Under 1 hr', f.walk === 60)
+      chip('walk', 15, '15 min', f.walk === 15),
+      chip('walk', 30, '30 min', f.walk === 30),
+      chip('walk', 60, '1 hr', f.walk === 60)
     ].join('');
 
     const anyActive = f.month !== 'all' || f.stop !== 'all' || f.category !== 'all' || f.price !== 'all' || f.walk !== 'all';
