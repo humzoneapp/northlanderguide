@@ -323,12 +323,20 @@
   }
   .scene-meta-sep { color: rgba(125, 58, 30, 0.4); }
 
-  /* Two-column main + aside on wide viewports; single column with
-     the aside underneath on phones. */
+  /* Two-column main + aside on wide viewports; single column on
+     phones. On mobile the aside (postcard photo + italic hook +
+     Guide link) is reordered ABOVE the drawers so the chapter opens
+     with the stop's photo - same as the editorial rhythm of the
+     cover. On desktop the explicit 65/35 columns place main left +
+     aside right regardless of DOM order, so the mobile re-order
+     doesn't bleed up. */
   .scene-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+  @media (max-width: 879px) {
+    .scene-aside { order: -1; }
   }
   @media (min-width: 880px) {
     .scene-grid {
