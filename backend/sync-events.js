@@ -52,8 +52,21 @@ const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
    site/images/ so the look is on-brand and the cards never render
    with an empty image slot. Absolute URL so both the Guide and the
    App (cross-origin) can resolve it. */
+const SITE_BASE_URL = 'https://northlanderguide.com';
 const EVENT_PLACEHOLDER_URL =
-  'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+  `${SITE_BASE_URL}/images/northlander-events-and-festivals.jpeg`;
+
+/* Where Airtable attachment images get downloaded to. Same convention
+   as backend/build-static.js for listing photos, just a separate folder
+   so cleanup logic is scoped. */
+const EVENTS_IMG_DIR = path.join(__dirname, '..', 'site', 'images', 'events');
+const MIME_EXT = {
+  'image/jpeg': 'jpg',
+  'image/jpg':  'jpg',
+  'image/png':  'png',
+  'image/webp': 'webp',
+  'image/gif':  'gif'
+};
 
 if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');
@@ -130,6 +143,29 @@ async function fetchWithRetry(fn, retries = 3, delay = 1500) {
       console.warn(`retry ${i + 1}: ${err.message}`);
       await sleep(delay);
     }
+  }
+}
+
+/* Download an Airtable attachment to site/images/events/ and return
+   the permanent local URL + filename. Airtable signs attachment URLs
+   for ~2 hours, so embedding them directly in events-data.js means the
+   image goes dead before the next sync. Mirroring the listings-photo
+   pattern (backend/build-static.js) keeps card images stable forever
+   once committed. Returns null on any failure so the caller can fall
+   back to a cached file or the placeholder. */
+async function downloadEventImage(att, eventId) {
+  if (!att || !att.url) return null;
+  try {
+    const r = await fetch(att.url);
+    if (!r.ok) return null;
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (!buf.length) return null;
+    const ext = MIME_EXT[att.type] || 'jpg';
+    const file = `${eventId}.${ext}`;
+    fs.writeFileSync(path.join(EVENTS_IMG_DIR, file), buf);
+    return { url: `${SITE_BASE_URL}/images/events/${file}`, file };
+  } catch (e) {
+    return null;
   }
 }
 
@@ -266,14 +302,14 @@ function mapRecord(rec) {
     venue: f[FIELD.venue] || null,
     address: f[FIELD.address] || null,
     description: f[FIELD.description] || null,
-    /* Prefer an uploaded image attachment when present, fall back to
-       the manually-entered Image URL, then to a generic events photo
-       so a card without either field still renders cleanly. Airtable
-       attachment URLs are served from a CDN and embed safely as
-       <img src=...>. */
-    imageUrl: f[FIELD.imageUpload]?.[0]?.url
-      || f[FIELD.imageUrl]
-      || EVENT_PLACEHOLDER_URL,
+    /* Default to the manually-entered Image URL (permanent) or the
+       generic events photo. When an Image Upload attachment is present
+       the post-mapping download pass overwrites this with the local
+       /images/events/ URL after fetching the attachment to disk. We do
+       NOT embed the raw attachment URL here because Airtable signs
+       attachment URLs for ~2 hours and they go dead well before the
+       next sync. */
+    imageUrl: f[FIELD.imageUrl] || EVENT_PLACEHOLDER_URL,
     eventUrl: f[FIELD.eventUrl] || null,
     ticketUrl: f[FIELD.ticketUrl] || null,
     price: f[FIELD.price] || null,
@@ -300,6 +336,10 @@ function mapRecord(rec) {
 
   let kept = 0, droppedStale = 0, droppedNoStop = 0, walkComputed = 0, walkSkipped = 0;
   const eventsToKeep = [];
+  /* Track the raw Image Upload attachment per kept event so the
+     image-download pass below can fetch it. Kept separate from the
+     event object so the published JSON stays minimal. */
+  const attachmentByEventId = {};
   for (const rec of records) {
     const ev = mapRecord(rec);
     if (!ev) { droppedNoStop++; continue; }
@@ -310,8 +350,50 @@ function mapRecord(rec) {
       if (cutoff && cutoff < today) { droppedStale++; continue; }
     }
     eventsToKeep.push(ev);
+    const att = (rec.fields || {})[FIELD.imageUpload]?.[0];
+    if (att) attachmentByEventId[ev.id] = att;
     kept++;
   }
+
+  /* Image download pass: pull every Airtable attachment to disk so the
+     published URL is a permanent /images/events/ link. On a transient
+     download failure, fall back to the previously-cached file for the
+     same event (kept across syncs) before degrading to placeholder.
+     Tracks the set of files that should remain on disk for orphan
+     cleanup below. */
+  fs.mkdirSync(EVENTS_IMG_DIR, { recursive: true });
+  const existingImgFiles = new Set(
+    fs.readdirSync(EVENTS_IMG_DIR).filter(f => !f.startsWith('.'))
+  );
+  const cachedFileByEventId = {};
+  for (const f of existingImgFiles) {
+    const m = f.match(/^(rec[A-Za-z0-9]+)\.[a-z]+$/);
+    if (m) cachedFileByEventId[m[1]] = f;
+  }
+  const expectedImgFiles = new Set();
+  let imgDownloaded = 0, imgReused = 0, imgFailed = 0;
+  for (const ev of eventsToKeep) {
+    const att = attachmentByEventId[ev.id];
+    if (!att) continue;
+    const result = await downloadEventImage(att, ev.id);
+    if (result) {
+      ev.imageUrl = result.url;
+      expectedImgFiles.add(result.file);
+      imgDownloaded++;
+    } else {
+      const cached = cachedFileByEventId[ev.id];
+      if (cached) {
+        ev.imageUrl = `${SITE_BASE_URL}/images/events/${cached}`;
+        expectedImgFiles.add(cached);
+        imgReused++;
+        console.warn(`event image download failed, reusing cached ${cached}: ${ev.id} ${ev.name}`);
+      } else {
+        imgFailed++;
+        console.warn(`event image download failed: ${ev.id} ${ev.name}`);
+      }
+    }
+  }
+  console.log(`Event images: downloaded=${imgDownloaded}, reused-cache=${imgReused}, failed=${imgFailed}.`);
 
   /* Walk-time pass: for any kept event with no cached walkMins but
      with a usable address, ask Google Distance Matrix once and cache
@@ -376,6 +458,19 @@ function mapRecord(rec) {
   }
   fs.renameSync(tmp, OUT_FILE);
   console.log(`SYNC COMPLETE: ${kept} events written to ${OUT_FILE} (${Math.round(fs.statSync(OUT_FILE).size / 1024)}kb)`);
+
+  /* Orphan image cleanup: any file in images/events/ that no current
+     event points at is left over from a deleted event or a replaced
+     attachment. Drop it so the repo doesn't grow forever. */
+  let imgOrphans = 0;
+  for (const f of fs.readdirSync(EVENTS_IMG_DIR)) {
+    if (f.startsWith('.')) continue;
+    if (!expectedImgFiles.has(f)) {
+      fs.unlinkSync(path.join(EVENTS_IMG_DIR, f));
+      imgOrphans++;
+    }
+  }
+  if (imgOrphans) console.log(`Event images: removed ${imgOrphans} orphan file(s).`);
 
   /* Cleanup pass: remove stale rows from Airtable. Wrapped in try/catch
      so a failure here does not mask the already-successful publish. */

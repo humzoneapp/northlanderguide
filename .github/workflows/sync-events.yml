@@ -56,8 +56,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet site/events-data.js; then
-            git add site/events-data.js
+          git add site/events-data.js site/images/events
+          if ! git diff --cached --quiet; then
             git commit -m "chore: refresh events from Airtable"
             git pull --rebase
             git push
