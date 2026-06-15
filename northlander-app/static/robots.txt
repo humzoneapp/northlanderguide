@@ -1,0 +1,12 @@
+# Northlander.app is the trip-planning companion. Marketing-style
+# routes are public and indexable; user-data routes hold per-device
+# trip state and should not be indexed (also, /share/<token> URLs
+# carry a base64 payload in the fragment, which crawlers can ignore).
+
+User-agent: *
+Disallow: /trips/
+Disallow: /share/
+Disallow: /add
+Disallow: /bucket
+
+Sitemap: https://northlander.app/sitemap.xml

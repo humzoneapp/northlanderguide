@@ -1,0 +1,8 @@
+# NorthlanderGuide.com is fully public. Allow every crawler.
+# Sitemap below lists the 16 stop pages plus seven surface pages
+# (home, events, stops index, plan-a-trip, submit-event, privacy, terms).
+
+User-agent: *
+Disallow:
+
+Sitemap: https://northlanderguide.com/sitemap.xml
