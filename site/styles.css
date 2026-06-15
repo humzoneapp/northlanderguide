@@ -2292,24 +2292,6 @@ a.topnav-plan:hover{
   background:#6e2e17;color:#f3ece0;border-color:#6e2e17;
 }
 
-/* ===== "Get the App" nav pill (shared across all pages) =====
-   Companion to .topnav-plan but inverted: filled gold so it reads
-   as a primary CTA next to the dashed-outline "Plan a Trip" pill.
-   Cross-links the Guide to Northlander.app's /install page. */
-a.topnav-app{
-  font-family:'Spline Sans',sans-serif;
-  font-size:.82rem;font-weight:700;letter-spacing:.02em;
-  color:#0a2d21;text-decoration:none;
-  display:inline-flex;align-items:center;gap:.35rem;
-  padding:.35rem .8rem;border-radius:3px;
-  background:var(--poster-gold);border:1px solid var(--poster-gold);
-  transition:background .15s, border-color .15s, color .15s;
-}
-a.topnav-app:hover{
-  background:#d8b75a;border-color:#d8b75a;color:#0a2d21;
-}
-a.topnav-app .ph{font-size:1rem;line-height:1;}
-
 /* ===== Stop-page "Plan Your Trip" CTA =====
    Rendered by stop-page.js between the "Continue Your Journey" and
    "Before You Board" sections. Mirrors the /plan boarding-pass
