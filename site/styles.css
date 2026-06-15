@@ -148,10 +148,15 @@ a{color:inherit}
 .brand span{color:var(--poster-gold);font-style:normal}
 .brand-mark{display:flex;flex-shrink:0;line-height:0;margin-right:.5rem}
 .brand-mark svg{display:block}
-.topnav{display:flex;align-items:baseline;column-gap:1.1rem}
+/* Spacing intent: column-gap is the single source of truth for the
+   distance between topnav items. An earlier rule added margin-left
+   on top of column-gap, which doubled the space between consecutive
+   <a> elements (e.g. "Plan a Trip" -> "Get the App") while leaving
+   <a>-to-<button> gaps untouched, so the row read uneven. */
+.topnav{display:flex;align-items:baseline;column-gap:.85rem}
 .topnav a{
   color:#f3ece0;text-decoration:none;font-size:.82rem;font-weight:600;
-  margin-left:1.1rem;letter-spacing:.02em;
+  letter-spacing:.02em;
   transition:color .15s ease;
 }
 .topnav a:hover{color:var(--gold)}
