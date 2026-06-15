@@ -1,6 +1,7 @@
 <script>
   import '../app.css';
   import Toasts from '$lib/components/Toasts.svelte';
+  import InstallHint from '$lib/components/InstallHint.svelte';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
@@ -103,6 +104,17 @@
       <span>Bucket</span>
     </a>
     <a
+      href="/install"
+      class="topbar-link inline-flex items-center gap-1.5"
+      aria-label="Install Northlander on your phone"
+    >
+      <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="6" y="2" width="12" height="20" rx="2"/>
+        <path d="M11 19 H13"/>
+      </svg>
+      <span>Install</span>
+    </a>
+    <a
       href="https://northlanderguide.com"
       target="_blank"
       rel="noopener"
@@ -147,6 +159,13 @@
       </svg>
       <span>Bucket</span>
     </a>
+    <a href="/install" class="topbar-sheet-link" role="menuitem" on:click={closeMenu}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="6" y="2" width="12" height="20" rx="2"/>
+        <path d="M11 19 H13"/>
+      </svg>
+      <span>Install</span>
+    </a>
     <a
       href="https://northlanderguide.com"
       target="_blank"
@@ -179,6 +198,8 @@
     <a href="https://www.ontarionorthland.ca/en/northlander" target="_blank" rel="noopener">ontarionorthland.ca</a>.
   </p>
   <nav class="footer-legal" aria-label="Legal">
+    <a href="/install">Install</a>
+    <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
     <a href="/privacy">Privacy</a>
     <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
     <a href="/terms">Terms</a>
@@ -451,3 +472,8 @@
 <!-- Mounted once at the root so every page can pushToast() without
      needing its own toast container. -->
 <Toasts />
+
+<!-- Install hint: self-suppresses on /install, when already in
+     standalone mode, when previously dismissed, and on non-installable
+     platforms. Stays bottom-fixed across every other route. -->
+<InstallHint />
