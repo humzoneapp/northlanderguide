@@ -383,12 +383,15 @@
        ships without one, fall back to the same image client-side so
        a card never renders with an empty image slot. */
     const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
-    /* Map button: only when venue or address is set. Universal Maps
-       URL works on iOS (Apple Maps deep-link via OS handler), Android
-       (Google Maps), desktop (new tab). preventDefault stops the
-       outer card link from also firing when the pin is tapped. */
-    const mapParts = [ev.venue, ev.address].filter(s => s && String(s).trim());
-    const mapUrl = mapParts.length ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapParts.join(', ')) : '';
+    /* Map button: prefer the full address over the venue name (sharper
+       Google search hit), falling back to venue when no address is set.
+       Universal Maps URL works on iOS (Apple Maps deep-link), Android
+       (Google Maps), desktop (new tab). preventDefault stops the outer
+       card link from also firing when the pin is tapped. */
+    const mapQ = (ev.address && String(ev.address).trim())
+              || (ev.venue && String(ev.venue).trim())
+              || '';
+    const mapUrl = mapQ ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapQ) : '';
     const mapBtn = mapUrl
       ? '<button type="button" class="sp-event-mapbtn" data-mapurl="' + esc(mapUrl) + '" aria-label="View this event on Google Maps"><i class="ph-light ph-map-pin" aria-hidden="true"></i> Map</button>'
       : '';

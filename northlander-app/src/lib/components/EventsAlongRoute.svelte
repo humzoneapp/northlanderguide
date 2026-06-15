@@ -203,13 +203,15 @@
 
   /* Universal Google Maps search URL. Works on iOS (deep-links to
      Apple Maps via the OS handler), Android (Google Maps), and
-     desktop (opens in a tab). Falls back to '' when neither venue
-     nor address is present so the icon can hide. */
+     desktop (opens in a tab). Prefers the full address (sharper hit
+     than a venue name alone) and falls back to venue when no address
+     is set. Returns '' when neither is present so the icon hides. */
   function mapUrlFor(ev) {
-    const parts = [ev.venue, ev.address].filter((s) => s && String(s).trim());
-    if (parts.length === 0) return '';
-    const q = encodeURIComponent(parts.join(', '));
-    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+    const q = (ev.address && String(ev.address).trim())
+           || (ev.venue && String(ev.venue).trim())
+           || '';
+    if (!q) return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
   }
 
   async function saveToTrip(ev) {

@@ -401,25 +401,52 @@ function mapRecord(rec) {
      destination; prefer "Venue, Address" when both exist for better
      geocoding. Recurring events benefit most from caching since they
      keep their value across every future sync. */
+  /* Per-event geocode candidates, in order of precision:
+       1. Address with the venue prefix stripped ("51 Fifth St, ...").
+          Many Airtable addresses look like "Englehart Fairgrounds,
+          51 Fifth St, Englehart, ON P0J 1H0" - Nominatim chokes on
+          the leading non-numeric token but resolves the stripped
+          street address cleanly.
+       2. Full address as entered.
+       3. Venue alone, for named landmarks (parks, downtown areas) that
+          have no postable street address.
+     Joining venue+address into one query was the previous strategy and
+     was rejecting ~94/129 events because the venue name typically
+     duplicates inside the address. Stop at the first hit. */
+  const unresolved = [];
   for (const ev of eventsToKeep) {
     if (ev.walkMins != null) continue;
     const station = STATION_COORDS[ev.stopId];
     if (!station) { walkSkipped++; continue; }
-    const dest = [ev.venue, ev.address].filter(Boolean).join(', ').trim();
-    if (!dest) { walkSkipped++; continue; }
-    const mins = await walkMinutesFromStation(station, dest);
+    const rawAddress = (ev.address && String(ev.address).trim()) || '';
+    const rawVenue = (ev.venue && String(ev.venue).trim()) || '';
+    const stripped = rawAddress.match(/^[^,]+,\s*(\d[^,].*?)$/);
+    const ordered = [];
+    if (stripped) ordered.push(stripped[1]);
+    if (rawAddress) ordered.push(rawAddress);
+    if (rawVenue) ordered.push(rawVenue);
+    const candidates = [...new Set(ordered)];
+    if (!candidates.length) { walkSkipped++; continue; }
+    let mins = null;
+    for (const q of candidates) {
+      mins = await walkMinutesFromStation(station, q);
+      /* Nominatim usage policy: <= 1 req/sec. 1100ms is a comfortable
+         margin even when multiple candidates fire for one event. */
+      await sleep(1100);
+      if (mins != null) break;
+    }
     if (mins != null) {
       ev.walkMins = mins;
       walkComputed++;
       await cacheWalkMins(ev.id, mins);
     } else {
       walkSkipped++;
+      unresolved.push(`${ev.stopId} | ${ev.name} | ${ev.address || ev.venue}`);
     }
-    /* Nominatim's usage policy caps free use at 1 request per second.
-       Sleep 1100ms after every attempt (success or miss) so we stay
-       well clear of the rate limit even when many events need a
-       fresh geocode in the same run. */
-    await sleep(1100);
+  }
+  if (unresolved.length) {
+    console.log(`Walk time still unresolved (${unresolved.length} events). Tighten the Airtable address to fix:`);
+    for (const u of unresolved) console.log('  -', u);
   }
 
   for (const ev of eventsToKeep) {

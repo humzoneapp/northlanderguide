@@ -2054,14 +2054,15 @@ function eventCardHtml(ev){
      without one, fall back to the same image client-side so a card
      never renders with an empty image slot. */
   const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
-  /* Map button: only renders when we have a real address or venue to
-     send to Google Maps. Same Universal Maps URL the App uses so
-     iOS deep-links to Apple Maps via the OS handler, Android opens
-     Google Maps, desktop opens in a new tab. The button is rendered
-     inside the card's outer <a> link, and its click handler stops
-     propagation so tapping the pin doesn't also fire the card link. */
-  const mapParts = [ev.venue, ev.address].filter(s => s && String(s).trim());
-  const mapUrl = mapParts.length ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapParts.join(', ')) : '';
+  /* Map button: prefer the full address over the venue name (sharper
+     Google search hit), falling back to venue when no address is set.
+     Universal Maps URL deep-links to Apple Maps on iOS, Google Maps on
+     Android, opens a tab on desktop. Click handler stops propagation
+     so tapping the pin doesn't also fire the outer card link. */
+  const mapQ = (ev.address && String(ev.address).trim())
+            || (ev.venue && String(ev.venue).trim())
+            || '';
+  const mapUrl = mapQ ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapQ) : '';
   const mapBtn = mapUrl
     ? `<button type="button" class="hev-mapbtn" data-mapurl="${escHtml(mapUrl)}" aria-label="View this event on Google Maps"><i class="ph-light ph-map-pin" aria-hidden="true"></i> Map</button>`
     : '';

@@ -808,7 +808,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 112,
       "familyFriendly": true
     },
     {
@@ -860,7 +860,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 112,
       "familyFriendly": true
     },
     {
@@ -886,7 +886,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 73,
       "familyFriendly": true
     },
     {
@@ -912,7 +912,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 83,
       "familyFriendly": true
     },
     {
@@ -938,7 +938,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 112,
       "familyFriendly": true
     },
     {
@@ -964,7 +964,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 115,
       "familyFriendly": true
     },
     {
@@ -990,7 +990,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 156,
       "familyFriendly": true
     },
     {
@@ -1016,7 +1016,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 155,
       "familyFriendly": true
     },
     {
@@ -1042,7 +1042,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 43,
       "familyFriendly": true
     },
     {
@@ -1068,7 +1068,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 73,
       "familyFriendly": false
     },
     {
@@ -1094,7 +1094,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 73,
       "familyFriendly": false
     },
     {
@@ -1172,7 +1172,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 156,
       "familyFriendly": false
     },
     {
@@ -1224,7 +1224,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 155,
       "familyFriendly": true
     },
     {
@@ -1250,7 +1250,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 156,
       "familyFriendly": true
     },
     {
@@ -1305,7 +1305,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 276,
       "familyFriendly": true
     },
     {
@@ -1331,7 +1331,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 275,
       "familyFriendly": true
     },
     {
@@ -1357,7 +1357,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 259,
       "familyFriendly": true
     },
     {
@@ -1383,7 +1383,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 542,
       "familyFriendly": true
     },
     {
@@ -1409,7 +1409,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 265,
       "familyFriendly": true
     },
     {
@@ -1435,7 +1435,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 265,
       "familyFriendly": true
     },
     {
@@ -1461,7 +1461,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 272,
       "familyFriendly": true
     }
   ],
@@ -1489,7 +1489,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     },
     {
@@ -1515,7 +1515,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     },
     {
@@ -1541,7 +1541,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     },
     {
@@ -1567,7 +1567,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1593,7 +1593,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     },
     {
@@ -1619,7 +1619,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1645,7 +1645,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 531,
       "familyFriendly": true
     },
     {
@@ -1671,7 +1671,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1697,7 +1697,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 531,
       "familyFriendly": true
     },
     {
@@ -1723,7 +1723,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1749,7 +1749,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1775,7 +1775,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1827,7 +1827,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1853,7 +1853,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1905,7 +1905,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     },
     {
@@ -1931,7 +1931,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": false
     },
     {
@@ -1983,7 +1983,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 6,
       "familyFriendly": true
     }
   ],
@@ -2011,7 +2011,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 77,
       "familyFriendly": true
     },
     {
@@ -2037,7 +2037,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 2441,
       "familyFriendly": true
     },
     {
@@ -2089,7 +2089,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 4,
       "familyFriendly": true
     },
     {
@@ -2115,7 +2115,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 71,
       "familyFriendly": true
     },
     {
@@ -2141,7 +2141,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 27,
       "familyFriendly": true
     },
     {
@@ -2193,7 +2193,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 77,
       "familyFriendly": true
     },
     {
@@ -2297,7 +2297,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 77,
       "familyFriendly": true
     },
     {
@@ -2377,7 +2377,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12,
       "familyFriendly": true
     },
     {
@@ -2403,7 +2403,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12,
       "familyFriendly": true
     },
     {
@@ -2429,7 +2429,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 14,
       "familyFriendly": true
     },
     {
@@ -2455,7 +2455,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12,
       "familyFriendly": false
     },
     {
@@ -2481,7 +2481,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 33,
       "familyFriendly": true
     },
     {
@@ -2533,7 +2533,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12,
       "familyFriendly": true
     },
     {
@@ -2559,7 +2559,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 18,
       "familyFriendly": true
     }
   ],
@@ -2614,7 +2614,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 615,
       "familyFriendly": true
     }
   ],
@@ -2642,7 +2642,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 34,
       "familyFriendly": true
     },
     {
@@ -2668,7 +2668,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 34,
       "familyFriendly": true
     },
     {
@@ -2694,7 +2694,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12556,
       "familyFriendly": true
     },
     {
@@ -2746,7 +2746,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 12556,
       "familyFriendly": true
     },
     {
@@ -2850,7 +2850,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 911,
       "familyFriendly": true
     },
     {
@@ -2902,7 +2902,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": true
     },
     {
@@ -2928,7 +2928,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 50529,
       "familyFriendly": false
     },
     {
@@ -2954,7 +2954,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 942,
       "familyFriendly": false
     },
     {
@@ -2980,7 +2980,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": false
     },
     {
@@ -3006,7 +3006,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": false
     },
     {
@@ -3032,7 +3032,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": true
     },
     {
@@ -3058,7 +3058,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": false
     },
     {
@@ -3110,7 +3110,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 31,
       "familyFriendly": true
     }
   ],
@@ -3139,7 +3139,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 8,
       "familyFriendly": true
     }
   ],
@@ -3193,7 +3193,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 100,
       "familyFriendly": true
     },
     {
@@ -3219,7 +3219,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 465,
       "familyFriendly": false
     }
   ],
@@ -3247,7 +3247,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 2,
       "familyFriendly": true
     },
     {
@@ -3302,7 +3302,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 14,
       "familyFriendly": true
     },
     {
@@ -3354,7 +3354,7 @@ const EVENTS_DATA = {
       "recurring": false,
       "recurrencePattern": null,
       "submittedBy": null,
-      "walkMins": null,
+      "walkMins": 1163,
       "familyFriendly": true
     },
     {
