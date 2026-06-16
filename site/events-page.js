@@ -194,8 +194,14 @@
       const m_str = dt.toLocaleDateString('en-CA', {month:'long', timeZone:'UTC'});
       return showYearInLabel ? m_str + ' ' + y : m_str;
     };
+    /* aria-pressed mirrors the .is-active visual so screen readers
+       (and high-contrast Windows users where the crimson glow is
+       invisible) get a non-visual signal that the chip is selected. */
     const chip = (group, value, label, active) =>
-      '<button type="button" class="hev-chip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + escHtml(String(value)) + '">' + escHtml(label) + '</button>';
+      '<button type="button" class="hev-chip' + (active ? ' is-active' : '')
+      + '" aria-pressed="' + (active ? 'true' : 'false') + '"'
+      + ' data-filter-group="' + group + '" data-filter-value="' + escHtml(String(value)) + '">'
+      + escHtml(label) + '</button>';
 
     const monthOpts = ['<option value="all">Any time</option>']
       .concat(hasRecurring ? ['<option value="recurring"' + (f.month === 'recurring' ? ' selected' : '') + '>Recurring</option>'] : [])
@@ -290,7 +296,12 @@
     const items = eventsPageList(current, total);
     const btns = items.map(p => {
       if (p === '...') return '<span class="hev-pageellipsis">...</span>';
-      return '<button type="button" class="hev-pagebtn' + (p === current ? ' is-active' : '') + '" data-page="' + p + '">' + p + '</button>';
+      /* aria-current="page" is the WAI-ARIA pattern for the active
+         page in a paginated control; pairs with .is-active for
+         the visual state. */
+      return '<button type="button" class="hev-pagebtn' + (p === current ? ' is-active' : '')
+        + '"' + (p === current ? ' aria-current="page"' : '')
+        + ' data-page="' + p + '">' + p + '</button>';
     }).join('');
     return '<nav class="hev-pagination" aria-label="Event pagination">'
       + '<button type="button" class="hev-pagebtn hev-pagenav" data-page="' + (current - 1) + '"' + (current === 1 ? ' disabled' : '') + ' aria-label="Previous page">'

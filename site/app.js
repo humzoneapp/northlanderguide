@@ -1665,11 +1665,11 @@ function renderStop(){
       </div>
       <div class="sort-bar" id="sortBar" role="toolbar" aria-label="Sort and filter listings">
         <span class="sort-label">Show</span>
-        ${hasFeaturedListings(s, activeCat) ? `<button class="sort-pill${activeSort==='featured'?' active':''}" data-sort="featured" type="button">
+        ${hasFeaturedListings(s, activeCat) ? `<button class="sort-pill${activeSort==='featured'?' active':''}" aria-pressed="${activeSort==='featured'}" data-sort="featured" type="button">
           <i class="ph-light ph-star" aria-hidden="true"></i><span>Featured</span></button>` : ''}
-        <button class="sort-pill${activeSort==='closest'?' active':''}" data-sort="closest" type="button">
+        <button class="sort-pill${activeSort==='closest'?' active':''}" aria-pressed="${activeSort==='closest'}" data-sort="closest" type="button">
           <i class="ph-light ph-person-simple-walk" aria-hidden="true"></i><span>Closest</span></button>
-        <button class="sort-pill${activeSort==='rated'?' active':''}" data-sort="rated" type="button">
+        <button class="sort-pill${activeSort==='rated'?' active':''}" aria-pressed="${activeSort==='rated'}" data-sort="rated" type="button">
           <i class="ph-light ph-trophy" aria-hidden="true"></i><span>Top Rated</span></button>
         <span class="sort-divider" aria-hidden="true"></span>
         <button class="deals-pill${activeDealsOnly?' active':''}" data-filter="deals" type="button" aria-pressed="${activeDealsOnly}">
@@ -1690,7 +1690,14 @@ function renderStop(){
   document.querySelectorAll('#sortBar .sort-pill').forEach(b=>
     b.addEventListener('click',()=>{
       activeSort=b.dataset.sort;
-      document.querySelectorAll('#sortBar .sort-pill').forEach(x=>x.classList.toggle('active',x.dataset.sort===activeSort));
+      /* Keep .active (visual) and aria-pressed (screen-reader) in
+         sync. Without the second pass, AT users wouldn't be told
+         the selected sort changed. */
+      document.querySelectorAll('#sortBar .sort-pill').forEach(x=>{
+        const isActive = x.dataset.sort===activeSort;
+        x.classList.toggle('active',isActive);
+        x.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
       renderCards();
     }));
   const dealsBtn=document.querySelector('#sortBar .deals-pill');
@@ -2470,24 +2477,45 @@ function mergeStaticListings(){
   const closeBtn = document.getElementById('evModalClose');
   if (!modal || typeof modal.showModal !== 'function') return; // no <dialog> support: links fall through to /submit-event/
 
-  function open(){
+  /* Track the element that opened the modal so closing returns focus
+     where it came from. Native <dialog> handles the Tab trap and
+     Escape for us; only focus restore is missing. */
+  let lastTrigger = null;
+
+  function open(trigger){
+    lastTrigger = trigger || document.activeElement;
     modal.showModal();
-    /* Focus the first input for keyboard users. */
+    /* Focus the first input so keyboard users land on something
+       useful instead of the dialog backdrop. */
     const first = modal.querySelector('input, select, textarea');
     if (first) try { first.focus(); } catch(e){}
   }
-  function close(){ try { modal.close(); } catch(e){} }
+  function close(){
+    try { modal.close(); } catch(e){}
+    if (lastTrigger && typeof lastTrigger.focus === 'function') {
+      try { lastTrigger.focus(); } catch(e){}
+    }
+    lastTrigger = null;
+  }
 
   /* Intercept any .submit-event-trigger anchor click, open the modal,
-     prevent the navigation. */
+     prevent the navigation. Pass the anchor as the trigger so focus
+     returns to that exact link on close. */
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('.submit-event-trigger');
     if (!a) return;
     e.preventDefault();
-    open();
+    open(a);
   });
 
   if (closeBtn) closeBtn.addEventListener('click', close);
+  /* Native <dialog> also fires 'close' on Escape; restore focus there too. */
+  modal.addEventListener('close', () => {
+    if (lastTrigger && typeof lastTrigger.focus === 'function') {
+      try { lastTrigger.focus(); } catch(e){}
+    }
+    lastTrigger = null;
+  });
   /* Click on the dialog backdrop (the <dialog> itself, not its inner card) closes it. */
   modal.addEventListener('click', e => {
     if (e.target === modal) close();

@@ -39,7 +39,13 @@
   function injectBanner() {
     const banner = document.createElement('div');
     banner.className = 'cookie-banner';
-    banner.setAttribute('role', 'dialog');
+    /* Non-modal: the page underneath stays interactive while the
+       user decides. role="region" + aria-label identify the banner
+       without promising dialog-style focus management (which a
+       non-modal notice shouldn't trap). aria-live="polite" lets
+       screen readers announce the banner on inject without rudely
+       interrupting whatever else is being read. */
+    banner.setAttribute('role', 'region');
     banner.setAttribute('aria-live', 'polite');
     banner.setAttribute('aria-label', 'Cookie and storage notice');
     banner.innerHTML =

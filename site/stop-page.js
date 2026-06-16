@@ -154,7 +154,11 @@
     const items = spPageList(current, total);
     const btns = items.map(p => {
       if (p === '...') return '<span class="sp-evpageellipsis">...</span>';
-      return '<button type="button" class="sp-evpagebtn' + (p === current ? ' is-active' : '') + '" data-page="' + p + '">' + p + '</button>';
+      /* aria-current="page" marks the active page in a paginated
+         control; pairs with .is-active for the visual cue. */
+      return '<button type="button" class="sp-evpagebtn' + (p === current ? ' is-active' : '')
+        + '"' + (p === current ? ' aria-current="page"' : '')
+        + ' data-page="' + p + '">' + p + '</button>';
     }).join('');
     return '<nav class="sp-evpagination" aria-label="Event pagination">'
       + '<button type="button" class="sp-evpagebtn sp-evpagenav" data-page="' + (current - 1) + '"' + (current === 1 ? ' disabled' : '') + ' aria-label="Previous page"><i class="ph-light ph-caret-left" aria-hidden="true"></i> Prev</button>'
@@ -228,8 +232,14 @@
       const m_str = dt.toLocaleDateString('en-CA', {month:'long', timeZone:'UTC'});
       return showYearInLabel ? m_str + ' ' + y : m_str;
     };
+    /* aria-pressed mirrors .is-active so screen readers and
+       high-contrast users get a non-visual signal that the chip
+       is the active selection in its filter group. */
     const chip = (group, value, label, active) =>
-      '<button type="button" class="sp-evchip' + (active ? ' is-active' : '') + '" data-filter-group="' + group + '" data-filter-value="' + esc(String(value)) + '">' + esc(label) + '</button>';
+      '<button type="button" class="sp-evchip' + (active ? ' is-active' : '')
+      + '" aria-pressed="' + (active ? 'true' : 'false') + '"'
+      + ' data-filter-group="' + group + '" data-filter-value="' + esc(String(value)) + '">'
+      + esc(label) + '</button>';
 
     const monthOpts = ['<option value="all">Any time</option>']
       .concat(hasRecurring ? ['<option value="recurring"' + (f.month === 'recurring' ? ' selected' : '') + '>Recurring</option>'] : [])
@@ -863,19 +873,30 @@
       return (stopListings[currentCatKey] || []).some(l => l && l.featured === true);
     }
     function tabsHtml() {
+      /* aria-pressed pairs with .active so screen readers and
+         high-contrast users get a non-visual cue for the current
+         sort. Category tabs use aria-current="true" instead because
+         they switch the listings *panel*, not a toggle. */
+      const sortPressed = (s) => 'aria-pressed="' + (currentSort === s ? 'true' : 'false') + '"';
       const featuredPill = hasFeaturedHere()
-        ? '<button class="sp-sort-pill' + (currentSort === 'featured' ? ' active' : '') + '" data-sort="featured" type="button">'
+        ? '<button class="sp-sort-pill' + (currentSort === 'featured' ? ' active' : '') + '" '
+          + sortPressed('featured') + ' data-sort="featured" type="button">'
           + '<i class="ph-light ph-star" aria-hidden="true"></i>Featured</button>'
         : '';
-      return '<div class="sp-tabs-row">' + present.map(c =>
-        '<button class="sp-tab' + (c.key === currentCatKey ? ' active' : '') + '" data-cat="' + c.key + '">&mdash; ' + c.label + '</button>'
-      ).join('') + '</div>'
+      return '<div class="sp-tabs-row" role="tablist">' + present.map(c => {
+        const isActive = c.key === currentCatKey;
+        return '<button class="sp-tab' + (isActive ? ' active' : '') + '"'
+          + ' role="tab" aria-selected="' + (isActive ? 'true' : 'false') + '"'
+          + ' data-cat="' + c.key + '">&mdash; ' + c.label + '</button>';
+      }).join('') + '</div>'
       + '<div class="sp-sort-bar" role="toolbar" aria-label="Sort and filter">'
       + '<span class="sp-sort-label">Show</span>'
       + featuredPill
-      + '<button class="sp-sort-pill' + (currentSort === 'closest' ? ' active' : '') + '" data-sort="closest" type="button">'
+      + '<button class="sp-sort-pill' + (currentSort === 'closest' ? ' active' : '') + '" '
+      + sortPressed('closest') + ' data-sort="closest" type="button">'
       + '<i class="ph-light ph-person-simple-walk" aria-hidden="true"></i>Closest</button>'
-      + '<button class="sp-sort-pill' + (currentSort === 'rated' ? ' active' : '') + '" data-sort="rated" type="button">'
+      + '<button class="sp-sort-pill' + (currentSort === 'rated' ? ' active' : '') + '" '
+      + sortPressed('rated') + ' data-sort="rated" type="button">'
       + '<i class="ph-light ph-trophy" aria-hidden="true"></i>Top Rated</button>'
       + '<span class="sp-sort-divider" aria-hidden="true"></span>'
       + '<button class="sp-deals-pill' + (currentDealsOnly ? ' active' : '') + '" data-filter="deals" type="button" aria-pressed="' + currentDealsOnly + '">'
