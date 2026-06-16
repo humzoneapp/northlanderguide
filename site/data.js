@@ -12,7 +12,7 @@
 const STOPS = [
   /* ---- 1. UNION STATION (TORONTO) ---- */
   {
-    id:"union", lat:43.6453, lng:-79.3806, hook:"Canada's grandest railway hall, where your journey north begins.", name:"Toronto Union", region:"Toronto", time:"0:00", image:"images/northlander-toronto-union.jpeg",
+    id:"union", lat:43.6453, lng:-79.3806, hook:"Canada's grandest railway hall, where your journey north begins.", name:"Toronto Union", region:"Toronto", time:"0:00", image:"images/northlander-toronto-union.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -70,7 +70,7 @@ const STOPS = [
 
   /* ---- 2. LANGSTAFF ---- */
   {
-    id:"langstaff", lat:43.84, lng:-79.428, hook:"A kettle-lake boardwalk and a century-old observatory.", name:"Langstaff", region:"Richmond Hill", time:"0:35", image:"images/northlander-langstaff.jpeg",
+    id:"langstaff", lat:43.84, lng:-79.428, hook:"A kettle-lake boardwalk and a century-old observatory.", name:"Langstaff", region:"Richmond Hill", time:"0:35", image:"images/northlander-langstaff.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -125,7 +125,7 @@ const STOPS = [
 
   /* ---- 3. GORMLEY ---- */
   {
-    id:"gormley", lat:43.946, lng:-79.365, hook:"Pick-your-own orchards on the rim of the Oak Ridges Moraine.", name:"Gormley", region:"Whitchurch-Stouffville", time:"0:50", image:"images/northlander-gormley.jpeg",
+    id:"gormley", lat:43.946, lng:-79.365, hook:"Pick-your-own orchards on the rim of the Oak Ridges Moraine.", name:"Gormley", region:"Whitchurch-Stouffville", time:"0:50", image:"images/northlander-gormley.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -179,7 +179,7 @@ const STOPS = [
 
   /* ---- 4. WASHAGO ---- */
   {
-    id:"washago", lat:44.735, lng:-79.345, hook:"Where two rivers meet, the doorstep of cottage country.", name:"Washago", region:"Gateway to Muskoka", time:"2:00", image:"images/northlander-washago.jpeg",
+    id:"washago", lat:44.735, lng:-79.345, hook:"Where two rivers meet, the doorstep of cottage country.", name:"Washago", region:"Gateway to Muskoka", time:"2:00", image:"images/northlander-washago.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -232,7 +232,7 @@ const STOPS = [
 
   /* ---- 5. GRAVENHURST ---- */
   {
-    id:"gravenhurst", lat:44.917, lng:-79.37, hook:"Home of North America's oldest working steamship.", name:"Gravenhurst", region:"Muskoka", time:"2:25", image:"images/northlander-gravenhurst.jpeg",
+    id:"gravenhurst", lat:44.917, lng:-79.37, hook:"Home of North America's oldest working steamship.", name:"Gravenhurst", region:"Muskoka", time:"2:25", image:"images/northlander-gravenhurst.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -290,7 +290,7 @@ const STOPS = [
 
   /* ---- 6. BRACEBRIDGE ---- */
   {
-    id:"bracebridge", lat:45.04, lng:-79.31, hook:"A town built around an illuminated waterfall.", name:"Bracebridge", region:"Muskoka", time:"2:50", image:"images/northlander-bracebridge.jpeg",
+    id:"bracebridge", lat:45.04, lng:-79.31, hook:"A town built around an illuminated waterfall.", name:"Bracebridge", region:"Muskoka", time:"2:50", image:"images/northlander-bracebridge.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -347,7 +347,7 @@ const STOPS = [
 
   /* ---- 7. HUNTSVILLE ---- */
   {
-    id:"huntsville", lat:45.327, lng:-79.216, hook:"100+ Group of Seven murals, and the gateway to Algonquin.", name:"Huntsville", region:"Muskoka", time:"3:25", image:"images/northlander-huntsville.jpeg",
+    id:"huntsville", lat:45.327, lng:-79.216, hook:"100+ Group of Seven murals, and the gateway to Algonquin.", name:"Huntsville", region:"Muskoka", time:"3:25", image:"images/northlander-huntsville.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -406,7 +406,7 @@ const STOPS = [
 
   /* ---- 8. SOUTH RIVER ---- */
   {
-    id:"southriver", lat:45.837, lng:-79.38, hook:"The quiet back door into Algonquin's wild west side.", name:"South River", region:"Almaguin Highlands", time:"4:20", image:"images/northlander-south-river.jpeg",
+    id:"southriver", lat:45.837, lng:-79.38, hook:"The quiet back door into Algonquin's wild west side.", name:"South River", region:"Almaguin Highlands", time:"4:20", image:"images/northlander-south-river.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -464,7 +464,7 @@ const STOPS = [
        northbound train hits it first. Stop ordering corrected
        2026-06-08. */
   {
-    id:"northbay", lat:46.309, lng:-79.461, hook:"A carousel, a beach and a heritage train on Lake Nipissing.", name:"North Bay", region:"Lake Nipissing", time:"5:00", image:"images/northlander-north-bay.jpeg",
+    id:"northbay", lat:46.309, lng:-79.461, hook:"A carousel, a beach and a heritage train on Lake Nipissing.", name:"North Bay", region:"Lake Nipissing", time:"5:00", image:"images/northlander-north-bay.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -523,7 +523,7 @@ const STOPS = [
 
   /* ---- 10. TEMAGAMI ---- */
   {
-    id:"temagami", lat:47.064, lng:-79.79, hook:"Paddle beneath 400-year-old red and white pines.", name:"Temagami", region:"Lake Temagami", time:"6:55", image:"images/northlander-temagami.jpeg",
+    id:"temagami", lat:47.064, lng:-79.79, hook:"Paddle beneath 400-year-old red and white pines.", name:"Temagami", region:"Lake Temagami", time:"6:55", image:"images/northlander-temagami.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -579,7 +579,7 @@ const STOPS = [
 
   /* ---- 11. TEMISKAMING SHORES (NEW LISKEARD) ---- */
   {
-    id:"temiskaming", lat:47.509, lng:-79.677, hook:"Northern dairy country beneath a 100-metre cliff.", name:"Temiskaming Shores", region:"New Liskeard", time:"8:00", image:"images/northlander-temiskaming-shores.jpeg",
+    id:"temiskaming", lat:47.509, lng:-79.677, hook:"Northern dairy country beneath a 100-metre cliff.", name:"Temiskaming Shores", region:"New Liskeard", time:"8:00", image:"images/northlander-temiskaming-shores.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -635,7 +635,7 @@ const STOPS = [
 
   /* ---- 12. ENGLEHART ---- */
   {
-    id:"englehart", lat:47.821, lng:-79.868, hook:"A town the railway itself built, gorge falls nearby.", name:"Englehart", region:"Timiskaming District", time:"8:35", image:"images/northlander-englehart.jpeg",
+    id:"englehart", lat:47.821, lng:-79.868, hook:"A town the railway itself built, gorge falls nearby.", name:"Englehart", region:"Timiskaming District", time:"8:35", image:"images/northlander-englehart.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -689,7 +689,7 @@ const STOPS = [
 
   /* ---- 13. KIRKLAND LAKE (SWASTIKA) ---- */
   {
-    id:"kirklandlake", lat:48.108, lng:-80.1045, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.jpeg",
+    id:"kirklandlake", lat:48.108, lng:-80.1045, hook:"The town that gold built, and a hockey legend factory.", name:"Kirkland Lake", region:"Swastika stop", time:"9:10", image:"images/northlander-kirkland-lake.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -744,7 +744,7 @@ const STOPS = [
 
   /* ---- 14. MATHESON ---- */
   {
-    id:"matheson", lat:48.534, lng:-80.464, hook:"22 spring-fed kettle lakes and the coach north to Cochrane.", name:"Matheson", region:"Black River-Matheson", time:"9:55", image:"images/northlander-matheson.jpeg",
+    id:"matheson", lat:48.534, lng:-80.464, hook:"22 spring-fed kettle lakes and the coach north to Cochrane.", name:"Matheson", region:"Black River-Matheson", time:"9:55", image:"images/northlander-matheson.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -798,7 +798,7 @@ const STOPS = [
 
   /* ---- 15. TIMMINS-PORCUPINE ---- */
   {
-    id:"timmins", lat:48.4758, lng:-81.3305, hook:"Descend a real gold mine at the northern end of the line.", name:"Timmins-Porcupine", region:"Timmins", time:"10:40", image:"images/northlander-timmins-porcupine.jpeg",
+    id:"timmins", lat:48.4758, lng:-81.3305, hook:"Descend a real gold mine at the northern end of the line.", name:"Timmins-Porcupine", region:"Timmins", time:"10:40", image:"images/northlander-timmins-porcupine.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},
@@ -857,7 +857,7 @@ const STOPS = [
 
   /* ---- 16. COCHRANE (RAIL CONNECTION) ---- */
   {
-    id:"cochrane", lat:49.066, lng:-81.015, hook:"Meet polar bears, then ride the rails to James Bay.", name:"Cochrane", region:"Polar Bear Express link", time:"+ connection", image:"images/northlander-cochrane.jpeg",
+    id:"cochrane", lat:49.066, lng:-81.015, hook:"Meet polar bears, then ride the rails to James Bay.", name:"Cochrane", region:"Polar Bear Express link", time:"+ connection", image:"images/northlander-cochrane.webp",
     featured:{
       restaurants:[
         {name:"",tag:"Featured",desc:"",rating:"",image:"",hours:"",walkMins:null,featured:true},

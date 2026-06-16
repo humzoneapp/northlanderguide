@@ -23,6 +23,7 @@
 const fs = require('fs');
 const path = require('path');
 const { geocodeNominatim, walkMinsBetween } = require('./walk');
+const { bufferToWebp } = require('./webp');
 
 (function loadEnv() {
   const envPath = path.join(__dirname, '.env');
@@ -54,19 +55,12 @@ const OUT_FILE = path.join(__dirname, '..', 'site', 'events-data.js');
    App (cross-origin) can resolve it. */
 const SITE_BASE_URL = 'https://northlanderguide.com';
 const EVENT_PLACEHOLDER_URL =
-  `${SITE_BASE_URL}/images/northlander-events-and-festivals.jpeg`;
+  `${SITE_BASE_URL}/images/northlander-events-and-festivals.webp`;
 
 /* Where Airtable attachment images get downloaded to. Same convention
    as backend/build-static.js for listing photos, just a separate folder
    so cleanup logic is scoped. */
 const EVENTS_IMG_DIR = path.join(__dirname, '..', 'site', 'images', 'events');
-const MIME_EXT = {
-  'image/jpeg': 'jpg',
-  'image/jpg':  'jpg',
-  'image/png':  'png',
-  'image/webp': 'webp',
-  'image/gif':  'gif'
-};
 
 if (!KEY || !BASE) {
   console.error('Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID');
@@ -146,23 +140,26 @@ async function fetchWithRetry(fn, retries = 3, delay = 1500) {
   }
 }
 
-/* Download an Airtable attachment to site/images/events/ and return
-   the permanent local URL + filename. Airtable signs attachment URLs
-   for ~2 hours, so embedding them directly in events-data.js means the
-   image goes dead before the next sync. Mirroring the listings-photo
-   pattern (backend/build-static.js) keeps card images stable forever
-   once committed. Returns null on any failure so the caller can fall
-   back to a cached file or the placeholder. */
+/* Download an Airtable attachment, transcode to WebP, and write it
+   into site/images/events/<recordId>.webp. Airtable signs attachment
+   URLs for ~2 hours, so embedding them directly in events-data.js
+   means the image goes dead before the next sync. Mirroring the
+   listings-photo pattern (backend/build-static.js) keeps card images
+   stable forever once committed. Output is always WebP at q80 so
+   one bandwidth profile applies across every published event image
+   regardless of what the user uploaded (jpg/png/heic/etc).
+   Returns null on any failure (download or transcode) so the caller
+   can fall back to a cached file or the placeholder. */
 async function downloadEventImage(att, eventId) {
   if (!att || !att.url) return null;
   try {
     const r = await fetch(att.url);
     if (!r.ok) return null;
-    const buf = Buffer.from(await r.arrayBuffer());
-    if (!buf.length) return null;
-    const ext = MIME_EXT[att.type] || 'jpg';
-    const file = `${eventId}.${ext}`;
-    fs.writeFileSync(path.join(EVENTS_IMG_DIR, file), buf);
+    const raw = Buffer.from(await r.arrayBuffer());
+    if (!raw.length) return null;
+    const webp = bufferToWebp(raw);
+    const file = `${eventId}.webp`;
+    fs.writeFileSync(path.join(EVENTS_IMG_DIR, file), webp);
     return { url: `${SITE_BASE_URL}/images/events/${file}`, file };
   } catch (e) {
     return null;

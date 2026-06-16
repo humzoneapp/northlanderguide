@@ -38,12 +38,12 @@ function tagFor(it){ return it.tag || TAG_BY_CAT[activeCat] || 'Place'; }
 /* Category header image shown above the listing cards. Keyed by the
    internal data key, not the display label. */
 const CAT_HEADER_IMG = {
-  restaurants:    'images/northlander-eat-and-drink.jpeg',
-  accommodations: 'images/northlander-places-to-stay.jpeg',
-  parks:          'images/northlander-nature-and-trails.jpeg',
-  attractions:    'images/northlander-see-and-do.jpeg',
-  shops:          'images/northlander-shop-local.jpeg',
-  transportation: 'images/northlander-transportation.jpeg'
+  restaurants:    'images/northlander-eat-and-drink.webp',
+  accommodations: 'images/northlander-places-to-stay.webp',
+  parks:          'images/northlander-nature-and-trails.webp',
+  attractions:    'images/northlander-see-and-do.webp',
+  shops:          'images/northlander-shop-local.webp',
+  transportation: 'images/northlander-transportation.webp'
 };
 function catLabel(key){ return (CATS.find(c=>c.key===key)||{}).label || key; }
 
@@ -160,7 +160,7 @@ function currentSeason(today){
   return 'winter';
 }
 function seasonalHeroImage(){
-  return 'images/northlander-' + currentSeason() + '.jpeg';
+  return 'images/northlander-' + currentSeason() + '.webp';
 }
 function setSeasonalHero(){
   const img = document.getElementById('heroImg');
@@ -1334,7 +1334,7 @@ function imageBlock(item, cat, seed, cls){
      Airtable's v5.airtableusercontent.com signed attachment URLs
      expire after a few hours, so a visitor returning to the site
      after expiry would see every card image fail to load. The local
-     images/listings/*.jpg paths are baked at sync time and never
+     images/listings/*.webp paths are baked at sync time and never
      expire. The Airtable URL is kept as a fallback for the rare case
      where a newly-added listing has not yet had its photos cached
      locally. */
@@ -1374,7 +1374,7 @@ function detailImageBlock(item, cat, seed){
   /* Prefer the local static images array over Airtable's signed photo
      URLs. Airtable's v5.airtableusercontent.com URLs expire after a
      few hours, which silently breaks every gallery image for
-     returning visitors. The local images/listings/*.jpg paths are
+     returning visitors. The local images/listings/*.webp paths are
      baked at sync time and stable. Airtable URLs remain as a
      fallback for listings that have not yet been image-cached. */
   const localImgs = (item && Array.isArray(item.images)) ? item.images.filter(Boolean) : [];
@@ -2053,7 +2053,7 @@ function eventCardHtml(ev){
      into every row, but if an older cached events-data.js ever ships
      without one, fall back to the same image client-side so a card
      never renders with an empty image slot. */
-  const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+  const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.webp';
   /* Map button: prefer the full address over the venue name (sharper
      Google search hit), falling back to venue when no address is set.
      Universal Maps URL deep-links to Apple Maps on iOS, Google Maps on

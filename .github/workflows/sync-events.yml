@@ -27,6 +27,11 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install cwebp
+        # Used by backend/webp.js to transcode Airtable attachments
+        # into the same WebP profile the rest of site/images uses.
+        run: sudo apt-get update && sudo apt-get install -y webp
+
       - name: Backup existing events-data.js
         run: |
           if [ -f site/events-data.js ]; then

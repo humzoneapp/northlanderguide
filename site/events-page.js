@@ -108,7 +108,7 @@
        into every row, but if a stale data file ever ships without one
        a generic events photo still renders so the card never feels
        broken. Same URL the sync uses. */
-    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.webp';
     /* Map query prefers address (the full street address Airtable
        captures) over venue, because Google search results are sharper
        on a real address. Falls back to venue when no address is set so

@@ -22,6 +22,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { bufferToWebp } = require('./webp');
 
 /* Load backend/.env without depending on the dotenv package, so the
    script runs even if node_modules has not been installed. Existing
@@ -222,8 +223,14 @@ async function downloadPhoto(ref, fileBase) {
     if (!r.ok) return null;
     const buf = Buffer.from(await r.arrayBuffer());
     if (!buf.length) return null;
-    const file = `${fileBase}.jpg`;
-    fs.writeFileSync(path.join(LISTINGS_DIR, file), buf);
+    /* Google Places returns JPG; we standardise on WebP at q80 so the
+       bandwidth profile matches what tools/convert-images-webp.mjs
+       laid down across the rest of site/images. cwebp is the only
+       backend.bin dependency this script needs - install with
+       `brew install webp` if you're running locally. */
+    const webp = bufferToWebp(buf);
+    const file = `${fileBase}.webp`;
+    fs.writeFileSync(path.join(LISTINGS_DIR, file), webp);
     return `images/listings/${file}`;
   } catch (e) {
     return null;
@@ -304,7 +311,7 @@ function loadExisting() {
 function deleteShopPhotos() {
   let n = 0;
   for (const f of fs.readdirSync(LISTINGS_DIR)) {
-    if (/-shops-\d+-\d+\.jpg$/.test(f)) { fs.unlinkSync(path.join(LISTINGS_DIR, f)); n++; }
+    if (/-shops-\d+-\d+\.(jpg|webp)$/.test(f)) { fs.unlinkSync(path.join(LISTINGS_DIR, f)); n++; }
   }
   console.log(`Removed ${n} old shop photos.`);
 }

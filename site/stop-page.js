@@ -382,7 +382,7 @@
        URL into every row, but if an older cached events-data.js ever
        ships without one, fall back to the same image client-side so
        a card never renders with an empty image slot. */
-    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.jpeg';
+    const imgSrc = ev.imageUrl || 'https://northlanderguide.com/images/northlander-events-and-festivals.webp';
     /* Map button: prefer the full address over the venue name (sharper
        Google search hit), falling back to venue when no address is set.
        Universal Maps URL works on iOS (Apple Maps deep-link), Android
