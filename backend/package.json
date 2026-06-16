@@ -1,18 +1,16 @@
 {
-  "name": "northlander-wayfinder",
+  "name": "northlander-wayfinder-backend",
   "version": "1.0.0",
-  "description": "Travel directory for the Northlander train route, Toronto to Timmins.",
-  "main": "server.js",
+  "description": "Sync + enrichment scripts for the Northlander Wayfinder. Each script is invoked by a GitHub Actions workflow under .github/workflows; there is no long-running server here anymore.",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "update": "node update.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "sync-events": "node sync-events.js",
+    "sync-listings": "node sync-from-airtable.js",
+    "sync-tips": "node sync-tips-only.js",
+    "backfill-listings": "node backfill-listings.js",
+    "build-static": "node build-static.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }
