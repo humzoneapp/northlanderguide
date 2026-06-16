@@ -6,7 +6,7 @@
    through every component.
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 
 /**
  * @typedef {Object} BudgetEntry

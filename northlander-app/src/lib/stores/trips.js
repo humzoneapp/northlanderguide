@@ -6,8 +6,9 @@
    are deferred to Phase 2.
    ================================================================== */
 
-import Dexie from 'dexie';
 import { writable } from 'svelte/store';
+import { db } from './db.js';
+export { db };
 
 /**
  * @typedef {{ stopId: string, date: string }} StopVisit
@@ -51,36 +52,10 @@ export const LEATHER_COLORS = [
   { id: 'burgundy',name: 'Burgundy',body: '#6b1d2e', strap: '#4a131e' }
 ];
 
-/* The database. Bumping the version triggers Dexie's upgrade path;
-   keep migrations small and well-commented as the schema grows. */
-/* v1 - original four trip-scoped tables.
-   v2 - adds bucketItems for the cross-trip wishlist.
-   v3 - adds budgetEntries for the per-trip budget tracker.
-   v4 - adds photos for the per-trip image album (full-res +
-        thumbnail Blobs live in the row). All additive; no data
-        migration on existing installs. */
-export const db = new Dexie('northlander');
-db.version(1).stores({
-  trips: '&id, name, updatedAt',
-  packingItems: '++id, tripId, name, packed',
-  bookings: '++id, tripId, kind, status, dueDate',
-  diaryEntries: '++id, tripId, stopId, createdAt'
-});
-db.version(2).stores({
-  bucketItems: '++id, kind, stopId, createdAt'
-});
-db.version(3).stores({
-  budgetEntries: '++id, tripId, category, createdAt'
-});
-db.version(4).stores({
-  photos: '++id, tripId, stopId, takenAt, createdAt'
-});
-/* v5 - userEvents table for events the user adds themselves
-   alongside the Guide's pull. Additive; no migration needed for
-   existing installs. */
-db.version(5).stores({
-  userEvents: '++id, tripId, stopId, startDate, createdAt'
-});
+/* The Dexie instance + its schema versions live in ./db.js so any
+   future non-trip table (subscriptions, advertisers, licenses) can
+   import without coming through this file. Re-exported above for
+   back-compat with code that imports `db` from $lib/stores/trips. */
 
 /* ---------- slugging ----------
    We use a stable slug from the trip name as the primary key so URLs

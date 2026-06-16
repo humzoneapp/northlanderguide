@@ -7,7 +7,7 @@
    a 200px tile.
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 
 /**
  * @typedef {Object} Photo

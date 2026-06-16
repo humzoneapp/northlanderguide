@@ -6,7 +6,7 @@
    happens through the existing /add hand-off route.
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 import { writable } from 'svelte/store';
 import { BOOKING_KINDS } from './bookings.js';
 

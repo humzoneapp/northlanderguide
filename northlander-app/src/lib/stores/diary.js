@@ -6,7 +6,7 @@
    trip via trips.js -> deleteTrip.
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 
 /**
  * @typedef {Object} DiaryEntry

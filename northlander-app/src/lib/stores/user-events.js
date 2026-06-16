@@ -23,7 +23,7 @@
    Cascade-deletes with the trip via `deleteTrip()` in trips.js.
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 
 /** Sorted by date + time so the strip reads chronologically. Rows
     without a startTime sort to the end of their day. */

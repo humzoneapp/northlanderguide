@@ -2003,6 +2003,39 @@ a{color:inherit}
 .event-form button[type="submit"][disabled]{opacity:.5;cursor:not-allowed}
 .ef-msg{font-size:.92rem;margin:.8rem 0 0;color:var(--poster-crimson);min-height:1.2em}
 .ef-msg.ok{color:var(--poster-gold)}
+
+/* ===== Shared form primitive (for newsletter, advertiser, future forms) =====
+   .form-field is the labelled-input building block any new Guide form
+   should reach for instead of bespoke .ef-* / .sp-tip-* classes. It
+   carries the rust focus ring, error state, hint and screen-reader
+   plumbing in one drop-in, so a newsletter input or a Stripe-email
+   field doesn't have to re-derive any of it. */
+.form-field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:1rem}
+.form-label{
+  font-family:'Spline Sans',sans-serif;font-weight:600;font-size:.85rem;
+  color:var(--ink);letter-spacing:.02em;
+}
+.form-required{color:var(--poster-crimson)}
+.form-input{
+  font-family:'Spline Sans',sans-serif;font-size:1rem;line-height:1.4;
+  padding:.6rem .8rem;background:var(--cream);color:var(--ink);
+  border:1px solid rgba(125,58,30,.25);border-radius:8px;
+  transition:border-color .15s,box-shadow .15s,background-color .15s;
+  width:100%;-webkit-appearance:none;appearance:none;
+}
+.form-input::placeholder{color:var(--poster-mute);opacity:.7}
+.form-input:focus{
+  outline:0;border-color:var(--poster-crimson);
+  box-shadow:0 0 0 3px rgba(125,58,30,.18);
+}
+.form-field.is-error .form-input{
+  border-color:#5e2a14;background:#fff6f0;
+}
+.form-hint{font-size:.78rem;color:var(--poster-mute);margin:0;line-height:1.4}
+.form-error{
+  font-size:.82rem;color:#5e2a14;font-weight:500;
+  margin:0;line-height:1.4;
+}
 .evlist{padding:0 1.1rem;display:grid;gap:.9rem}
 .evcard{
   display:flex;gap:1.1rem;background:var(--card);

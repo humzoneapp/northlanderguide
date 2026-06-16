@@ -4,7 +4,7 @@
    trip is removed (see trips.js -> deleteTrip).
    ================================================================== */
 
-import { db } from './trips.js';
+import { db } from './db.js';
 
 /**
  * @typedef {'train' | 'room' | 'meal' | 'activity' | 'other'} BookingKind
